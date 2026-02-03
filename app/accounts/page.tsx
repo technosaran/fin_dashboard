@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance, Account } from '../components/FinanceContext';
+import { Wallet, CreditCard, PiggyBank, TrendingUp, Coins, Building2, ArrowRightLeft, Plus, X, DollarSign } from 'lucide-react';
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = ['#818cf8', '#34d399', '#fbbf24', '#f472b6', '#60a5fa', '#a78bfa'];
 
 export default function Accounts() {
     const { accounts, addAccount, updateAccount, addFunds } = useFinance();
@@ -140,149 +141,312 @@ export default function Accounts() {
 
     const getCurrencySymbol = (curr: 'USD' | 'INR') => curr === 'USD' ? '$' : '₹';
 
+    const getAccountIcon = (type: string) => {
+        switch (type) {
+            case 'Checking': return <Wallet size={20} />;
+            case 'Savings': return <PiggyBank size={20} />;
+            case 'Credit Card': return <CreditCard size={20} />;
+            case 'Investment': return <TrendingUp size={20} />;
+            case 'Cash': return <Coins size={20} />;
+            default: return <Building2 size={20} />;
+        }
+    };
+
+    const totalBalance = accounts.reduce((sum, acc) => sum + acc.balance, 0);
+
     return (
-        <div className="main-content">
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                    <h1 className="greeting-text" style={{ marginBottom: 0 }}>Your Accounts</h1>
-                    <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="main-content" style={{ padding: '30px 50px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
+            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+                {/* Header Section */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
+                    <div>
+                        <h1 style={{ fontSize: '2rem', fontWeight: '800', margin: '0 0 8px 0', letterSpacing: '-0.02em' }}>Your Accounts</h1>
+                        <p style={{ color: '#64748b', fontSize: '0.95rem', margin: 0 }}>Manage your wallets and financial accounts</p>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
                         <button
                             onClick={() => setIsTransferModalOpen(true)}
                             style={{
                                 padding: '12px 24px',
-                                borderRadius: '8px',
-                                background: '#1e293b',
-                                color: '#3b82f6',
-                                border: '1px solid #3b82f6',
+                                borderRadius: '12px',
+                                background: '#0f172a',
+                                color: '#818cf8',
+                                border: '1px solid #1e293b',
                                 cursor: 'pointer',
-                                fontWeight: 'bold',
-                                fontSize: '1rem',
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s',
                             }}
+                            onMouseEnter={(e) => e.currentTarget.style.background = '#1e293b'}
+                            onMouseLeave={(e) => e.currentTarget.style.background = '#0f172a'}
                         >
-                            Transfer Funds
+                            <ArrowRightLeft size={18} /> Transfer
                         </button>
                         <button
                             onClick={openAddModal}
                             style={{
                                 padding: '12px 24px',
-                                borderRadius: '8px',
-                                background: '#3b82f6',
+                                borderRadius: '12px',
+                                background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
                                 color: 'white',
                                 border: 'none',
                                 cursor: 'pointer',
-                                fontWeight: 'bold',
-                                fontSize: '1rem',
-                                boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.5)'
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                boxShadow: '0 4px 12px rgba(129, 140, 248, 0.3)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s',
                             }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                         >
-                            + Add Account
+                            <Plus size={18} strokeWidth={3} /> Add Account
                         </button>
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
-                    {/* Left Column: List */}
+                {/* Total Balance Card */}
+                <div style={{
+                    background: 'linear-gradient(135deg, #6366f1 0%, #818cf8 50%, #34d399 100%)',
+                    padding: '32px',
+                    borderRadius: '24px',
+                    marginBottom: '32px',
+                    boxShadow: '0 8px 24px rgba(99, 102, 241, 0.2)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    <div style={{ position: 'relative', zIndex: 1 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
+                            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '8px', borderRadius: '10px' }}>
+                                <DollarSign size={20} color="white" />
+                            </div>
+                            <span style={{ fontSize: '0.85rem', fontWeight: '600', color: 'rgba(255,255,255,0.9)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Total Net Worth</span>
+                        </div>
+                        <div style={{ fontSize: '3rem', fontWeight: '900', color: 'white', letterSpacing: '-0.02em' }}>
+                            ${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        </div>
+                        <div style={{ fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)', marginTop: '8px' }}>
+                            Across {accounts.length} {accounts.length === 1 ? 'account' : 'accounts'}
+                        </div>
+                    </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
+                    {/* Left Column: Account Cards */}
                     <div>
-                        <h3 style={{ marginBottom: '15px', color: '#f8fafc' }}>My Wallets & Banks</h3>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>My Accounts</h3>
+                            <div style={{ height: '1px', flex: 1, background: '#1e293b', marginLeft: '20px' }} />
+                        </div>
                         {accounts.length > 0 ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {accounts.map(account => (
                                     <div key={account.id} style={{
-                                        backgroundColor: '#1e293b',
-                                        padding: '20px',
-                                        borderRadius: '12px',
-                                        border: '1px solid rgba(255,255,255,0.05)',
-                                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+                                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                                        padding: '24px',
+                                        borderRadius: '20px',
+                                        border: '1px solid #1e293b',
                                         cursor: 'pointer',
-                                        transition: 'transform 0.2s',
+                                        transition: 'all 0.3s',
+                                        position: 'relative',
+                                        overflow: 'hidden',
                                     }}
                                         onClick={() => handleEditClick(account)}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-4px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.3)';
+                                            e.currentTarget.style.borderColor = '#334155';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = 'none';
+                                            e.currentTarget.style.borderColor = '#1e293b';
+                                        }}
                                     >
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                                            <div>
-                                                <h3 style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '4px' }}>{account.name}</h3>
-                                                <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>{account.bankName}</p>
+                                        {/* Decorative gradient overlay */}
+                                        <div style={{
+                                            position: 'absolute',
+                                            top: 0,
+                                            right: 0,
+                                            width: '200px',
+                                            height: '200px',
+                                            background: 'radial-gradient(circle, rgba(129, 140, 248, 0.1) 0%, transparent 70%)',
+                                            pointerEvents: 'none'
+                                        }} />
+                                        
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', position: 'relative' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                <div style={{
+                                                    background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
+                                                    padding: '12px',
+                                                    borderRadius: '14px',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    color: 'white',
+                                                    boxShadow: '0 4px 12px rgba(129, 140, 248, 0.3)'
+                                                }}>
+                                                    {getAccountIcon(account.type)}
+                                                </div>
+                                                <div>
+                                                    <h3 style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '4px', margin: 0 }}>{account.name}</h3>
+                                                    <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>{account.bankName}</p>
+                                                </div>
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
-                                                <div style={{ fontSize: '1.2rem', fontWeight: 'bold', color: '#fff' }}>
+                                                <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff', marginBottom: '6px' }}>
                                                     {getCurrencySymbol(account.currency)}{account.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                 </div>
                                                 <span style={{
-                                                    fontSize: '0.8rem',
-                                                    background: 'rgba(59, 130, 246, 0.1)',
-                                                    color: '#60a5fa',
-                                                    padding: '4px 8px',
-                                                    borderRadius: '4px',
-                                                    display: 'inline-block',
-                                                    marginTop: '4px'
+                                                    fontSize: '0.75rem',
+                                                    background: 'rgba(129, 140, 248, 0.15)',
+                                                    color: '#818cf8',
+                                                    padding: '4px 10px',
+                                                    borderRadius: '8px',
+                                                    fontWeight: '600',
+                                                    border: '1px solid rgba(129, 140, 248, 0.2)'
                                                 }}>
                                                     {account.type}
                                                 </span>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '10px' }}>
-                                            <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                                                Click to Edit
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '16px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: '500' }}>
+                                                Click to edit details
                                             </div>
                                             <button
                                                 onClick={(e) => openAddFundsModal(e, account.id)}
                                                 style={{
-                                                    background: 'rgba(34, 197, 94, 0.1)',
-                                                    color: '#4ade80',
-                                                    border: '1px solid rgba(34, 197, 94, 0.2)',
-                                                    padding: '4px 12px',
-                                                    borderRadius: '6px',
-                                                    fontSize: '0.85rem',
-                                                    fontWeight: '600',
-                                                    cursor: 'pointer'
+                                                    background: 'rgba(52, 211, 153, 0.15)',
+                                                    color: '#34d399',
+                                                    border: '1px solid rgba(52, 211, 153, 0.3)',
+                                                    padding: '6px 14px',
+                                                    borderRadius: '10px',
+                                                    fontSize: '0.8rem',
+                                                    fontWeight: '700',
+                                                    cursor: 'pointer',
+                                                    transition: 'all 0.2s',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    gap: '6px'
+                                                }}
+                                                onMouseEnter={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(52, 211, 153, 0.25)';
+                                                }}
+                                                onMouseLeave={(e) => {
+                                                    e.currentTarget.style.background = 'rgba(52, 211, 153, 0.15)';
                                                 }}
                                             >
-                                                + Add Funds
+                                                <Plus size={14} strokeWidth={3} /> Add Funds
                                             </button>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8', border: '2px dashed #334155', borderRadius: '12px' }}>
-                                <p>No accounts added yet. Click the button above to get started.</p>
+                            <div style={{
+                                padding: '60px 40px',
+                                textAlign: 'center',
+                                color: '#64748b',
+                                border: '2px dashed #1e293b',
+                                borderRadius: '20px',
+                                background: '#0f172a'
+                            }}>
+                                <div style={{ fontSize: '3rem', marginBottom: '16px', opacity: 0.3 }}>💰</div>
+                                <p style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px' }}>No accounts yet</p>
+                                <p style={{ fontSize: '0.9rem', margin: 0 }}>Click &quot;Add Account&quot; to get started</p>
                             </div>
                         )}
                     </div>
 
-                    {/* Right Column: Allocation Chart */}
+                    {/* Right Column: Asset Allocation */}
                     <div>
-                        <h3 style={{ marginBottom: '15px', color: '#f8fafc' }}>Asset Allocation</h3>
-                        <div style={{ height: '400px', background: '#1e293b', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                            <h3 style={{ fontSize: '0.85rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', margin: 0 }}>Asset Distribution</h3>
+                        </div>
+                        <div style={{
+                            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                            borderRadius: '20px',
+                            padding: '32px 24px',
+                            border: '1px solid #1e293b',
+                            minHeight: '450px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}>
                             {accounts.length > 0 ? (
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie
-                                            data={accounts}
-                                            cx="50%"
-                                            cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={100}
-                                            fill="#8884d8"
-                                            paddingAngle={5}
-                                            dataKey="balance"
-                                        >
-                                            {accounts.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                            ))}
-                                        </Pie>
-                                        <Tooltip
-                                            formatter={(value: any, name: any, props: any) => {
-                                                const currency = props.payload.currency || 'USD';
-                                                return `${getCurrencySymbol(currency)}${Number(value).toLocaleString()}`;
-                                            }}
-                                            contentStyle={{ backgroundColor: '#334155', border: 'none', borderRadius: '8px', color: '#fff' }}
-                                        />
-                                        <Legend />
-                                    </PieChart>
-                                </ResponsiveContainer>
+                                <>
+                                    <ResponsiveContainer width="100%" height={280}>
+                                        <PieChart>
+                                            <Pie
+                                                data={accounts}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={70}
+                                                outerRadius={110}
+                                                fill="#8884d8"
+                                                paddingAngle={3}
+                                                dataKey="balance"
+                                            >
+                                                {accounts.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip
+                                                formatter={(value: number, _name: string, props: { payload: Account }) => {
+                                                    const currency = props.payload.currency || 'USD';
+                                                    return `${getCurrencySymbol(currency)}${Number(value).toLocaleString()}`;
+                                                }}
+                                                contentStyle={{
+                                                    backgroundColor: '#1e293b',
+                                                    border: '1px solid #334155',
+                                                    borderRadius: '12px',
+                                                    color: '#fff',
+                                                    padding: '12px',
+                                                    boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+                                                }}
+                                            />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                    <div style={{ width: '100%', marginTop: '24px' }}>
+                                        {accounts.map((account, index) => (
+                                            <div key={account.id} style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'space-between',
+                                                padding: '10px 12px',
+                                                marginBottom: '8px',
+                                                background: '#0f172a',
+                                                borderRadius: '10px',
+                                                border: '1px solid rgba(255,255,255,0.05)'
+                                            }}>
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                    <div style={{
+                                                        width: '12px',
+                                                        height: '12px',
+                                                        borderRadius: '3px',
+                                                        background: COLORS[index % COLORS.length]
+                                                    }} />
+                                                    <span style={{ fontSize: '0.85rem', fontWeight: '600' }}>{account.name}</span>
+                                                </div>
+                                                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>
+                                                    {((account.balance / totalBalance) * 100).toFixed(1)}%
+                                                </span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </>
                             ) : (
-                                <p style={{ color: '#64748b' }}>Add accounts to view allocation</p>
+                                <div style={{ textAlign: 'center' }}>
+                                    <div style={{ fontSize: '2.5rem', marginBottom: '16px', opacity: 0.2 }}>📊</div>
+                                    <p style={{ color: '#64748b', fontSize: '0.9rem' }}>Add accounts to view distribution</p>
+                                </div>
                             )}
                         </div>
                     </div>
@@ -297,66 +461,126 @@ export default function Accounts() {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     zIndex: 1000,
-                    backdropFilter: 'blur(5px)'
+                    backdropFilter: 'blur(8px)'
                 }}>
                     <div style={{
-                        backgroundColor: '#1e293b',
-                        padding: '30px',
-                        borderRadius: '16px',
+                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                        padding: '32px',
+                        borderRadius: '24px',
                         width: '100%',
-                        maxWidth: '500px',
-                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
-                        border: '1px solid rgba(255,255,255,0.1)'
+                        maxWidth: '520px',
+                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+                        border: '1px solid #334155'
                     }}>
-                        <h2 style={{ marginBottom: '20px', fontSize: '1.5rem', fontWeight: 'bold' }}>{editId ? 'Edit Account' : 'Add New Account'}</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+                            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', margin: 0 }}>{editId ? 'Edit Account' : 'Add New Account'}</h2>
+                            <button
+                                onClick={() => setIsModalOpen(false)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: 'none',
+                                    color: '#94a3b8',
+                                    cursor: 'pointer',
+                                    padding: '8px',
+                                    borderRadius: '10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
 
-                        <form onSubmit={handleAddAccount} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <form onSubmit={handleAddAccount} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Account Name</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Account Name</label>
                                 <input
                                     type="text"
                                     value={accountName}
                                     onChange={(e) => setAccountName(e.target.value)}
                                     placeholder="e.g. My Savings"
                                     autoFocus
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#818cf8'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Bank Name</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Bank Name</label>
                                 <input
                                     type="text"
                                     value={bankName}
                                     onChange={(e) => setBankName(e.target.value)}
                                     placeholder="e.g. Chase, Bank of America"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#818cf8'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '15px' }}>
-                                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Currency</label>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Currency</label>
                                     <select
                                         value={currency}
                                         onChange={(e) => setCurrency(e.target.value as 'USD' | 'INR')}
-                                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                        style={{
+                                            padding: '14px 12px',
+                                            borderRadius: '12px',
+                                            border: '1px solid #334155',
+                                            background: '#020617',
+                                            color: 'white',
+                                            outline: 'none',
+                                            fontSize: '0.95rem',
+                                            cursor: 'pointer'
+                                        }}
                                     >
                                         <option value="USD">USD ($)</option>
                                         <option value="INR">INR (₹)</option>
                                     </select>
                                 </div>
-                                <div style={{ flex: 2, display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Account Type</label>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Account Type</label>
                                     <select
                                         value={accountType}
                                         onChange={(e) => setAccountType(e.target.value)}
-                                        style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                        style={{
+                                            padding: '14px 12px',
+                                            borderRadius: '12px',
+                                            border: '1px solid #334155',
+                                            background: '#020617',
+                                            color: 'white',
+                                            outline: 'none',
+                                            fontSize: '0.95rem',
+                                            cursor: 'pointer'
+                                        }}
                                     >
                                         <option value="Checking">Checking</option>
                                         <option value="Savings">Savings</option>
@@ -368,27 +592,65 @@ export default function Accounts() {
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Balance</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Balance</label>
                                 <input
                                     type="number"
                                     value={balance}
                                     onChange={(e) => setBalance(e.target.value)}
                                     placeholder="0.00"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#818cf8'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                                 <button
                                     type="button"
                                     onClick={() => setIsModalOpen(false)}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', color: '#94a3b8', border: '1px solid #475569', cursor: 'pointer', fontWeight: '600' }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        background: 'transparent',
+                                        color: '#94a3b8',
+                                        border: '1px solid #334155',
+                                        cursor: 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.95rem',
+                                        boxShadow: '0 4px 12px rgba(129, 140, 248, 0.3)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                                 >
                                     {editId ? 'Update Account' : 'Add Account'}
                                 </button>
@@ -406,31 +668,60 @@ export default function Accounts() {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
                     display: 'flex',
                     justifyContent: 'center',
                     alignItems: 'center',
                     zIndex: 1000,
-                    backdropFilter: 'blur(5px)'
+                    backdropFilter: 'blur(8px)'
                 }}>
                     <div style={{
-                        backgroundColor: '#1e293b',
-                        padding: '30px',
-                        borderRadius: '16px',
+                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                        padding: '32px',
+                        borderRadius: '24px',
                         width: '100%',
-                        maxWidth: '500px',
-                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
-                        border: '1px solid rgba(255,255,255,0.1)'
+                        maxWidth: '520px',
+                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+                        border: '1px solid #334155'
                     }}>
-                        <h2 style={{ marginBottom: '20px', fontSize: '1.5rem', fontWeight: 'bold' }}>Transfer Funds</h2>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+                            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', margin: 0 }}>Transfer Funds</h2>
+                            <button
+                                onClick={() => setIsTransferModalOpen(false)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: 'none',
+                                    color: '#94a3b8',
+                                    cursor: 'pointer',
+                                    padding: '8px',
+                                    borderRadius: '10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
 
-                        <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>From Account</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>From Account</label>
                                 <select
                                     value={sourceAccountId}
                                     onChange={(e) => setSourceAccountId(Number(e.target.value))}
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 12px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        cursor: 'pointer'
+                                    }}
                                 >
                                     <option value="" disabled>Select Source Account</option>
                                     {accounts.map(acc => (
@@ -440,11 +731,20 @@ export default function Accounts() {
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>To Account</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>To Account</label>
                                 <select
                                     value={targetAccountId}
                                     onChange={(e) => setTargetAccountId(Number(e.target.value))}
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 12px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        cursor: 'pointer'
+                                    }}
                                 >
                                     <option value="" disabled>Select Target Account</option>
                                     {accounts
@@ -456,7 +756,7 @@ export default function Accounts() {
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Amount</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</label>
                                 <input
                                     type="number"
                                     value={transferAmount}
@@ -464,21 +764,59 @@ export default function Accounts() {
                                     placeholder="0.00"
                                     min="0.01"
                                     step="0.01"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#818cf8'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                                 <button
                                     type="button"
                                     onClick={() => setIsTransferModalOpen(false)}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', color: '#94a3b8', border: '1px solid #475569', cursor: 'pointer', fontWeight: '600' }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        background: 'transparent',
+                                        color: '#94a3b8',
+                                        border: '1px solid #334155',
+                                        cursor: 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.95rem',
+                                        boxShadow: '0 4px 12px rgba(129, 140, 248, 0.3)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                                 >
                                     Transfer
                                 </button>
@@ -491,61 +829,144 @@ export default function Accounts() {
             {isAddFundsModalOpen && (
                 <div style={{
                     position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    backgroundColor: 'rgba(0, 0, 0, 0.75)',
                     display: 'flex', justifyContent: 'center', alignItems: 'center',
-                    zIndex: 1010, backdropFilter: 'blur(5px)'
+                    zIndex: 1010, backdropFilter: 'blur(8px)'
                 }}>
                     <div style={{
-                        backgroundColor: '#1e293b', padding: '30px', borderRadius: '16px',
-                        width: '100%', maxWidth: '400px',
-                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
-                        border: '1px solid rgba(255,255,255,0.1)'
+                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                        padding: '32px',
+                        borderRadius: '24px',
+                        width: '100%',
+                        maxWidth: '440px',
+                        boxShadow: '0 20px 40px rgba(0, 0, 0, 0.6)',
+                        border: '1px solid #334155'
                     }}>
-                        <h2 style={{ marginBottom: '20px', fontSize: '1.5rem', fontWeight: 'bold' }}>Add Funds</h2>
-                        <form onSubmit={handleAddFundsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
+                            <h2 style={{ fontSize: '1.6rem', fontWeight: '800', margin: 0 }}>Add Funds</h2>
+                            <button
+                                onClick={() => setIsAddFundsModalOpen(false)}
+                                style={{
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: 'none',
+                                    color: '#94a3b8',
+                                    cursor: 'pointer',
+                                    padding: '8px',
+                                    borderRadius: '10px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
+                                onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <form onSubmit={handleAddFundsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Amount</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Amount</label>
                                 <input
                                     type="number"
                                     value={addFundsAmount}
                                     onChange={(e) => setAddFundsAmount(e.target.value)}
                                     placeholder="0.00"
                                     autoFocus
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#34d399'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Description</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Description</label>
                                 <input
                                     type="text"
                                     value={addFundsDescription}
                                     onChange={(e) => setAddFundsDescription(e.target.value)}
                                     placeholder="e.g. Dividend, Refund"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#34d399'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Category</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Category</label>
                                 <input
                                     type="text"
                                     value={addFundsCategory}
                                     onChange={(e) => setAddFundsCategory(e.target.value)}
                                     placeholder="e.g. Income, Gift"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
+                                    style={{
+                                        padding: '14px 16px',
+                                        borderRadius: '12px',
+                                        border: '1px solid #334155',
+                                        background: '#020617',
+                                        color: 'white',
+                                        outline: 'none',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onFocus={(e) => e.currentTarget.style.borderColor = '#34d399'}
+                                    onBlur={(e) => e.currentTarget.style.borderColor = '#334155'}
                                 />
                             </div>
 
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                            <div style={{ display: 'flex', gap: '12px', marginTop: '12px' }}>
                                 <button
                                     type="button"
                                     onClick={() => setIsAddFundsModalOpen(false)}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', color: '#94a3b8', border: '1px solid #475569', cursor: 'pointer', fontWeight: '600' }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        background: 'transparent',
+                                        color: '#94a3b8',
+                                        border: '1px solid #334155',
+                                        cursor: 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.95rem',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#22c55e', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '600' }}
+                                    style={{
+                                        flex: 1,
+                                        padding: '14px',
+                                        borderRadius: '12px',
+                                        background: 'linear-gradient(135deg, #34d399 0%, #10b981 100%)',
+                                        color: 'white',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.95rem',
+                                        boxShadow: '0 4px 12px rgba(52, 211, 153, 0.3)',
+                                        transition: 'all 0.2s'
+                                    }}
+                                    onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                                    onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                                 >
                                     Add Funds
                                 </button>
