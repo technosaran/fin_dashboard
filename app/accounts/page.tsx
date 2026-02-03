@@ -375,11 +375,11 @@ export default function AccountsPage() {
                                             boxShadow: `0 4px 12px ${COLORS[idx % COLORS.length]}40`
                                         }} 
                                         onMouseEnter={e => {
-                                            e.currentTarget.style.transform = 'scale(1.15) rotate(90deg)';
+                                            e.currentTarget.style.transform = 'scale(1.15)';
                                             e.currentTarget.style.boxShadow = `0 8px 20px ${COLORS[idx % COLORS.length]}60`;
                                         }} 
                                         onMouseLeave={e => {
-                                            e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+                                            e.currentTarget.style.transform = 'scale(1)';
                                             e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
                                         }}>
                                             <Plus size={20} strokeWidth={3} />
