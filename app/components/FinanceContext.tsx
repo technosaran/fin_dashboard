@@ -31,10 +31,21 @@ export interface Goal {
     description?: string;
 }
 
+export interface FamilyTransfer {
+    id: number;
+    date: string;
+    recipient: string;
+    relationship: string;
+    amount: number;
+    purpose: string;
+    notes?: string;
+}
+
 interface FinanceContextType {
     accounts: Account[];
     transactions: Transaction[];
     goals: Goal[];
+    familyTransfers: FamilyTransfer[];
     addAccount: (account: Omit<Account, 'id'>) => void;
     updateAccount: (account: Account) => void;
     addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
@@ -42,6 +53,9 @@ interface FinanceContextType {
     addGoal: (goal: Omit<Goal, 'id'>) => void;
     updateGoal: (goal: Goal) => void;
     deleteGoal: (id: number) => void;
+    addFamilyTransfer: (transfer: Omit<FamilyTransfer, 'id'>) => void;
+    updateFamilyTransfer: (transfer: FamilyTransfer) => void;
+    deleteFamilyTransfer: (id: number) => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -61,6 +75,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [goals, setGoals] = useState<Goal[]>([]);
+    const [familyTransfers, setFamilyTransfers] = useState<FamilyTransfer[]>([]);
 
     const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
         const newTx = { ...transaction, id: Date.now() };
@@ -130,18 +145,44 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setGoals(prev => prev.filter(g => g.id !== id));
     };
 
+    const addFamilyTransfer = (transferData: Omit<FamilyTransfer, 'id'>) => {
+        const newTransfer = { ...transferData, id: Date.now() };
+        setFamilyTransfers(prev => [newTransfer, ...prev]);
+        
+        // Also add to transactions for general tracking
+        addTransaction({
+            date: transferData.date,
+            description: `Family Transfer - ${transferData.recipient}`,
+            category: 'Family',
+            type: 'Expense',
+            amount: transferData.amount
+        });
+    };
+
+    const updateFamilyTransfer = (updatedTransfer: FamilyTransfer) => {
+        setFamilyTransfers(prev => prev.map(t => t.id === updatedTransfer.id ? updatedTransfer : t));
+    };
+
+    const deleteFamilyTransfer = (id: number) => {
+        setFamilyTransfers(prev => prev.filter(t => t.id !== id));
+    };
+
     return (
         <FinanceContext.Provider value={{
             accounts,
             transactions,
             goals,
+            familyTransfers,
             addAccount,
             updateAccount,
             addTransaction,
             addFunds,
             addGoal,
             updateGoal,
-            deleteGoal
+            deleteGoal,
+            addFamilyTransfer,
+            updateFamilyTransfer,
+            deleteFamilyTransfer
         }}>
             {children}
         </FinanceContext.Provider>
