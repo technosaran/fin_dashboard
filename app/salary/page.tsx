@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useFinance } from '../components/FinanceContext';
 import {
-    Banknote,
     TrendingUp,
     Plus,
     X,
@@ -11,8 +10,7 @@ import {
     Calendar,
     ArrowUpRight,
     CheckCircle2,
-    Clock,
-    Wallet
+    Clock
 } from 'lucide-react';
 
 export default function SalaryPage() {
@@ -67,7 +65,7 @@ export default function SalaryPage() {
                             {['Yearly', 'Lifetime'].map(tab => (
                                 <button
                                     key={tab}
-                                    onClick={() => setActiveTab(tab as any)}
+                                    onClick={() => setActiveTab(tab as 'Yearly' | 'Lifetime')}
                                     style={{
                                         padding: '6px 16px',
                                         borderRadius: '7px',
@@ -227,7 +225,7 @@ export default function SalaryPage() {
                                 </div>
                                 <div style={{ fontWeight: '700', fontSize: '0.95rem', marginBottom: '8px', position: 'relative' }}>{name}</div>
                                 <div style={{ color: '#34d399', fontSize: '1.2rem', fontWeight: '800', marginBottom: '4px', position: 'relative' }}>${stats.total.toLocaleString()}</div>
-                                <div style={{ fontSize: '0.7rem', color: '#475569', fontWeight: '600', position: 'relative' }}>{stats.count} {stats.count === 1 ? 'Log' : 'Logs'}</div>
+                                <div style={{ fontSize: '0.7rem', color: '#475569', fontWeight: '600', position: 'relative' }}>{stats.count} {stats.count === 1 ? 'log' : 'logs'}</div>
                             </div>
                         ))}
                     </div>

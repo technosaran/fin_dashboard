@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance, Account } from '../components/FinanceContext';
 import { Wallet, CreditCard, PiggyBank, TrendingUp, Coins, Building2, ArrowRightLeft, Plus, X, DollarSign } from 'lucide-react';
 
@@ -359,7 +359,7 @@ export default function Accounts() {
                             }}>
                                 <div style={{ fontSize: '3rem', marginBottom: '16px', opacity: 0.3 }}>💰</div>
                                 <p style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '8px' }}>No accounts yet</p>
-                                <p style={{ fontSize: '0.9rem', margin: 0 }}>Click "Add Account" to get started</p>
+                                <p style={{ fontSize: '0.9rem', margin: 0 }}>Click &quot;Add Account&quot; to get started</p>
                             </div>
                         )}
                     </div>
@@ -399,7 +399,7 @@ export default function Accounts() {
                                                 ))}
                                             </Pie>
                                             <Tooltip
-                                                formatter={(value: any, name: any, props: any) => {
+                                                formatter={(value: number, _name: string, props: { payload: Account }) => {
                                                     const currency = props.payload.currency || 'USD';
                                                     return `${getCurrencySymbol(currency)}${Number(value).toLocaleString()}`;
                                                 }}
