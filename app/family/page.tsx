@@ -33,7 +33,7 @@ export default function FamilyPage() {
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (!recipient || !amount) return;
+        if (!recipient || !amount || parseFloat(amount) <= 0) return;
 
         const transferData = {
             recipient,
@@ -181,7 +181,7 @@ export default function FamilyPage() {
                                         <div style={{ width: '2px', background: 'rgba(236, 72, 153, 0.1)', position: 'relative', display: 'flex', justifyContent: 'center' }}>
                                             <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: '#ec4899', position: 'absolute', top: '24px', zIndex: 1, border: '3px solid #0f172a' }} />
                                         </div>
-                                        <div style={{ flex: 1, paddingBottom: idx === familyTransfers.length - 1 ? '0' : '24px', paddingTop: '16px' }}>
+                                        <div style={{ flex: 1, paddingBottom: idx === Math.min(familyTransfers.slice(0, 10).length - 1, 9) ? '0' : '24px', paddingTop: '16px' }}>
                                             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: '16px' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
                                                     <div>
@@ -243,7 +243,7 @@ export default function FamilyPage() {
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Amount (₹)</label>
-                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
+                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" min="0.01" step="0.01" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Date</label>

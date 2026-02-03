@@ -148,15 +148,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const addFamilyTransfer = (transferData: Omit<FamilyTransfer, 'id'>) => {
         const newTransfer = { ...transferData, id: Date.now() };
         setFamilyTransfers(prev => [newTransfer, ...prev]);
-        
-        // Also add to transactions for general tracking
-        addTransaction({
-            date: transferData.date,
-            description: `Family Transfer - ${transferData.recipient}`,
-            category: 'Family',
-            type: 'Expense',
-            amount: transferData.amount
-        });
     };
 
     const updateFamilyTransfer = (updatedTransfer: FamilyTransfer) => {
