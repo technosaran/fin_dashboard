@@ -20,7 +20,8 @@ import {
     ArrowDownRight,
     Search,
     IndianRupee,
-    DollarSign
+    DollarSign,
+    PieChart as PieChartIcon
 } from 'lucide-react';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
@@ -163,10 +164,83 @@ export default function AccountsPage() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
 
                         {/* Summary Bar */}
-                        <div style={{ background: 'rgba(15, 23, 42, 0.5)', padding: '32px', borderRadius: '32px', border: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ 
+                            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
+                            padding: '32px', 
+                            borderRadius: '32px', 
+                            border: '1px solid #1e293b', 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            position: 'relative', 
+                            overflow: 'hidden',
+                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+                        }}>
+                            {/* Enhanced animated gradient background */}
+                            <div style={{ 
+                                position: 'absolute', 
+                                top: '-50%', 
+                                right: '-10%', 
+                                width: '400px', 
+                                height: '400px', 
+                                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+                                filter: 'blur(60px)',
+                                animation: 'float 6s ease-in-out infinite'
+                            }} />
+                            <div style={{ 
+                                position: 'absolute', 
+                                bottom: '-50%', 
+                                left: '-10%', 
+                                width: '350px', 
+                                height: '350px', 
+                                background: 'radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%)',
+                                filter: 'blur(60px)',
+                                animation: 'float 8s ease-in-out infinite reverse'
+                            }} />
+                            
                             <div style={{ position: 'relative', zIndex: 1 }}>
-                                <div style={{ color: '#475569', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '8px' }}>Total Vault Liquidity</div>
-                                <div style={{ fontSize: '2.5rem', fontWeight: '950', color: '#fff', letterSpacing: '-1.5px' }}>₹{totalBalanceINR.toLocaleString()}</div>
+                                <div style={{ 
+                                    color: '#64748b', 
+                                    fontSize: '0.75rem', 
+                                    fontWeight: '800', 
+                                    textTransform: 'uppercase', 
+                                    letterSpacing: '1.5px', 
+                                    marginBottom: '8px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}>
+                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 12px rgba(52, 211, 153, 0.6)' }} />
+                                    Total Vault Liquidity
+                                </div>
+                                <div style={{ 
+                                    fontSize: '2.8rem', 
+                                    fontWeight: '950', 
+                                    color: '#fff', 
+                                    letterSpacing: '-1.5px',
+                                    textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)'
+                                }}>₹{totalBalanceINR.toLocaleString()}</div>
+                                <div style={{ 
+                                    marginTop: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px',
+                                    fontSize: '0.9rem',
+                                    fontWeight: '700'
+                                }}>
+                                    <div style={{ 
+                                        background: 'rgba(52, 211, 153, 0.15)', 
+                                        color: '#34d399', 
+                                        padding: '4px 12px', 
+                                        borderRadius: '100px',
+                                        border: '1px solid rgba(52, 211, 153, 0.3)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '4px'
+                                    }}>
+                                        <TrendingUp size={14} /> +5.2% this month
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
@@ -190,42 +264,124 @@ export default function AccountsPage() {
                                     padding: '24px',
                                     position: 'relative',
                                     overflow: 'hidden',
-                                    transition: 'all 0.3s',
+                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                     cursor: 'pointer'
                                 }}
-                                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0,0,0,0.4)'; }}
-                                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#1e293b'; e.currentTarget.style.boxShadow = 'none'; }}
+                                    onMouseEnter={e => { 
+                                        e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)'; 
+                                        e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60'; 
+                                        e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS[idx % COLORS.length]}30, 0 0 0 1px ${COLORS[idx % COLORS.length]}20`; 
+                                    }}
+                                    onMouseLeave={e => { 
+                                        e.currentTarget.style.transform = 'translateY(0) scale(1)'; 
+                                        e.currentTarget.style.borderColor = '#1e293b'; 
+                                        e.currentTarget.style.boxShadow = 'none'; 
+                                    }}
                                     onClick={() => handleEditClick(account)}
                                 >
-                                    {/* High-end card decoration */}
-                                    <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '150px', background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}10 0%, transparent 70%)` }} />
+                                    {/* Enhanced card decoration with gradient overlay */}
+                                    <div style={{ 
+                                        position: 'absolute', 
+                                        top: 0, 
+                                        right: 0, 
+                                        width: '200px', 
+                                        height: '200px', 
+                                        background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}15 0%, transparent 70%)`,
+                                        filter: 'blur(40px)'
+                                    }} />
+                                    
+                                    {/* Accent line */}
+                                    <div style={{ 
+                                        position: 'absolute', 
+                                        top: 0, 
+                                        left: 0, 
+                                        right: 0, 
+                                        height: '3px', 
+                                        background: `linear-gradient(90deg, ${COLORS[idx % COLORS.length]} 0%, transparent 100%)`,
+                                        borderRadius: '28px 28px 0 0'
+                                    }} />
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px' }}>
-                                        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '12px', borderRadius: '16px', color: COLORS[idx % COLORS.length] }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+                                        <div style={{ 
+                                            background: `${COLORS[idx % COLORS.length]}15`, 
+                                            padding: '12px', 
+                                            borderRadius: '16px', 
+                                            color: COLORS[idx % COLORS.length],
+                                            border: `1px solid ${COLORS[idx % COLORS.length]}30`,
+                                            boxShadow: `0 4px 16px ${COLORS[idx % COLORS.length]}20`
+                                        }}>
                                             {getAccountIcon(account.type)}
                                         </div>
                                         <div style={{
-                                            padding: '6px 14px', borderRadius: '100px', background: 'rgba(255,255,255,0.03)', color: '#64748b', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', border: '1px solid rgba(255,255,255,0.05)'
+                                            padding: '6px 14px', 
+                                            borderRadius: '100px', 
+                                            background: 'rgba(255,255,255,0.05)', 
+                                            color: '#94a3b8', 
+                                            fontSize: '0.7rem', 
+                                            fontWeight: '800', 
+                                            textTransform: 'uppercase', 
+                                            letterSpacing: '1px', 
+                                            border: '1px solid rgba(255,255,255,0.1)',
+                                            backdropFilter: 'blur(8px)'
                                         }}>
                                             {account.type}
                                         </div>
                                     </div>
 
-                                    <div style={{ marginBottom: '24px' }}>
+                                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
                                         <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{account.name}</div>
-                                        <div style={{ fontSize: '0.85rem', color: '#475569', fontWeight: '600' }}>{account.bankName}</div>
+                                        <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{account.bankName}</div>
                                     </div>
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.03)' }}>
+                                    <div style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'flex-end', 
+                                        paddingTop: '24px', 
+                                        borderTop: '1px solid rgba(255,255,255,0.06)',
+                                        position: 'relative',
+                                        zIndex: 1
+                                    }}>
                                         <div>
-                                            <div style={{ color: '#475569', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Available Balance</div>
-                                            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>
+                                            <div style={{ 
+                                                color: '#64748b', 
+                                                fontSize: '0.7rem', 
+                                                fontWeight: '800', 
+                                                textTransform: 'uppercase', 
+                                                marginBottom: '6px',
+                                                letterSpacing: '1px'
+                                            }}>Available Balance</div>
+                                            <div style={{ 
+                                                fontSize: '1.9rem', 
+                                                fontWeight: '900', 
+                                                color: '#fff',
+                                                textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)'
+                                            }}>
                                                 {account.currency === 'INR' ? '₹' : '$'}{account.balance.toLocaleString()}
                                             </div>
                                         </div>
                                         <button onClick={(e) => { e.stopPropagation(); setSelectedAccountId(account.id); setIsAddFundsModalOpen(true); }} style={{
-                                            background: '#34d399', color: '#020617', border: 'none', width: '40px', height: '40px', borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: '0.2s'
-                                        }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                            background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`, 
+                                            color: '#fff', 
+                                            border: 'none', 
+                                            width: '44px', 
+                                            height: '44px', 
+                                            borderRadius: '14px', 
+                                            display: 'flex', 
+                                            alignItems: 'center', 
+                                            justifyContent: 'center', 
+                                            cursor: 'pointer', 
+                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                            boxShadow: `0 4px 12px ${COLORS[idx % COLORS.length]}40`
+                                        }} 
+                                        onMouseEnter={e => {
+                                            e.currentTarget.style.transform = 'scale(1.15)';
+                                            e.currentTarget.style.boxShadow = `0 8px 20px ${COLORS[idx % COLORS.length]}60`;
+                                        }} 
+                                        onMouseLeave={e => {
+                                            e.currentTarget.style.transform = 'scale(1)';
+                                            e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
+                                        }}>
                                             <Plus size={20} strokeWidth={3} />
                                         </button>
                                     </div>
@@ -236,18 +392,72 @@ export default function AccountsPage() {
 
                     {/* Right: Distribution & Insights */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                        <div style={{ background: '#0f172a', padding: '32px', borderRadius: '32px', border: '1px solid #1e293b' }}>
-                            <h3 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px', margin: 0 }}>Portfolio Shift</h3>
-                            <div style={{ height: '240px', marginBottom: '32px' }}>
+                        <div style={{ 
+                            background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', 
+                            padding: '32px', 
+                            borderRadius: '32px', 
+                            border: '1px solid #1e293b',
+                            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
+                        }}>
+                            <h3 style={{ 
+                                fontSize: '1.1rem', 
+                                fontWeight: '800', 
+                                marginBottom: '24px', 
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <PieChartIcon size={20} color="#6366f1" />
+                                Portfolio Shift
+                            </h3>
+                            <div style={{ height: '240px', marginBottom: '32px', position: 'relative' }}>
+                                {/* Add a subtle glow effect */}
+                                <div style={{ 
+                                    position: 'absolute', 
+                                    top: '50%', 
+                                    left: '50%', 
+                                    transform: 'translate(-50%, -50%)', 
+                                    width: '160px', 
+                                    height: '160px', 
+                                    background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+                                    filter: 'blur(30px)',
+                                    zIndex: 0
+                                }} />
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
-                                        <Pie data={accounts} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={5} dataKey="balance" animationBegin={0} animationDuration={1000}>
+                                        <Pie 
+                                            data={accounts} 
+                                            cx="50%" 
+                                            cy="50%" 
+                                            innerRadius={60} 
+                                            outerRadius={90} 
+                                            paddingAngle={5} 
+                                            dataKey="balance" 
+                                            animationBegin={0} 
+                                            animationDuration={1200}
+                                            animationEasing="ease-out"
+                                        >
                                             {accounts.map((_, index) => (
-                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} stroke="none" />
+                                                <Cell 
+                                                    key={`cell-${index}`} 
+                                                    fill={COLORS[index % COLORS.length]} 
+                                                    stroke="none"
+                                                    style={{ 
+                                                        filter: `drop-shadow(0 0 8px ${COLORS[index % COLORS.length]}40)`,
+                                                        transition: 'all 0.3s'
+                                                    }}
+                                                />
                                             ))}
                                         </Pie>
                                         <Tooltip
-                                            contentStyle={{ background: '#020617', border: '1px solid #1e293b', borderRadius: '12px', padding: '12px' }}
+                                            contentStyle={{ 
+                                                background: '#020617', 
+                                                border: '1px solid #334155', 
+                                                borderRadius: '12px', 
+                                                padding: '12px',
+                                                boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)'
+                                            }}
                                             formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Value']}
                                         />
                                     </PieChart>
@@ -255,12 +465,40 @@ export default function AccountsPage() {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {accounts.map((acc, idx) => (
-                                    <div key={acc.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                            <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }} />
-                                            <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8' }}>{acc.name}</span>
+                                    <div key={acc.id} style={{ 
+                                        display: 'flex', 
+                                        justifyContent: 'space-between', 
+                                        alignItems: 'center',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        background: 'rgba(255,255,255,0.02)',
+                                        border: '1px solid rgba(255,255,255,0.03)',
+                                        transition: 'all 0.3s',
+                                        cursor: 'pointer'
+                                    }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.background = `${COLORS[idx % COLORS.length]}10`;
+                                        e.currentTarget.style.borderColor = `${COLORS[idx % COLORS.length]}30`;
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.03)';
+                                    }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                            <div style={{ 
+                                                width: '12px', 
+                                                height: '12px', 
+                                                borderRadius: '50%', 
+                                                background: COLORS[idx % COLORS.length],
+                                                boxShadow: `0 0 12px ${COLORS[idx % COLORS.length]}60`
+                                            }} />
+                                            <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#cbd5e1' }}>{acc.name}</span>
                                         </div>
-                                        <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#fff' }}>{((acc.balance / totalBalanceINR) * 100).toFixed(1)}%</span>
+                                        <span style={{ 
+                                            fontSize: '0.9rem', 
+                                            fontWeight: '800', 
+                                            color: COLORS[idx % COLORS.length]
+                                        }}>{((acc.balance / totalBalanceINR) * 100).toFixed(1)}%</span>
                                     </div>
                                 ))}
                             </div>

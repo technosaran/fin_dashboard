@@ -70,3 +70,35 @@ body {
 .modal-content {
   animation: modalSlideUp 0.3s ease-out;
 }
+
+/* Floating animation for background elements */
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(20px, -20px);
+  }
+}
+
+/* Pulse animation for timeline dots */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+}
+
+/* Shimmer effect for cards */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
