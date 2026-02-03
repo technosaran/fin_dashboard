@@ -4,11 +4,27 @@ import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useFinance } from '../components/FinanceContext';
+import {
+    Book,
+    Plus,
+    X,
+    Search,
+    Filter,
+    Calendar as CalendarIcon,
+    ArrowUpRight,
+    ArrowDownRight,
+    MoreHorizontal,
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    History
+} from 'lucide-react';
 
-export default function Ledger() {
+export default function LedgerPage() {
     const { transactions, addTransaction } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+    const [searchQuery, setSearchQuery] = useState('');
 
     // Form State
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -29,7 +45,6 @@ export default function Ledger() {
             amount: parseFloat(amount),
         });
 
-        // Reset Form
         setDescription('');
         setCategory('');
         setAmount('');
@@ -38,224 +53,198 @@ export default function Ledger() {
         setIsModalOpen(false);
     };
 
-    // Filter transactions for the selected date
-    const filteredTransactions = transactions.filter(t => t.date === selectedDate.toISOString().split('T')[0]);
+    const filteredTransactions = transactions.filter(t => {
+        const matchesDate = t.date === selectedDate.toISOString().split('T')[0];
+        const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            t.category.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesDate && matchesSearch;
+    });
+
+    const dayTotalIncome = filteredTransactions.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0);
+    const dayTotalExpense = filteredTransactions.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0);
 
     return (
-        <div className="main-content">
+        <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                    <h1 className="greeting-text" style={{ marginBottom: 0 }}>Ledger</h1>
-                    <button
-                        onClick={() => setIsModalOpen(true)}
-                        style={{
-                            padding: '12px 24px',
-                            borderRadius: '8px',
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontWeight: 'bold',
-                            fontSize: '1rem',
-                            boxShadow: '0 4px 6px -1px rgba(59, 130, 246, 0.5)'
-                        }}
-                    >
-                        + Add Transaction
-                    </button>
-                </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr', gap: '30px' }}>
-                    {/* Calendar Sidebar */}
+                {/* Header Area */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
                     <div>
-                        <div style={{ background: '#1e293b', padding: '20px', borderRadius: '16px', boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)' }}>
-                            <div className="calendar-container">
-                                <Calendar
-                                    onChange={(value: any) => setSelectedDate(value)}
-                                    value={selectedDate}
-                                    className="custom-calendar"
-                                />
-                            </div>
-                        </div>
+                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Financial Ledger</h1>
+                        <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Iterative audit trail of all movements</p>
                     </div>
-
-                    {/* Ledger Table */}
-                    <div style={{
-                        backgroundColor: '#1e293b',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        overflow: 'hidden',
-                        boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                        alignSelf: 'start'
-                    }}>
-                        <div style={{ padding: '20px', borderBottom: '1px solid #334155', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <h3 style={{ margin: 0, color: '#f8fafc' }}>Transactions for {selectedDate.toDateString()}</h3>
-                            <span style={{ fontSize: '0.9rem', color: '#94a3b8' }}>{filteredTransactions.length} records</span>
-                        </div>
-
-                        {filteredTransactions.length > 0 ? (
-                            <table style={{ width: '100%', borderCollapse: 'collapse', color: '#e2e8f0' }}>
-                                <thead>
-                                    <tr style={{ borderBottom: '1px solid #334155', background: '#0f172a' }}>
-                                        {/* Removed Date column as it's redundant when filtering by single date */}
-                                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#94a3b8' }}>Description</th>
-                                        <th style={{ padding: '16px', textAlign: 'left', fontWeight: '600', color: '#94a3b8' }}>Category</th>
-                                        <th style={{ padding: '16px', textAlign: 'right', fontWeight: '600', color: '#94a3b8' }}>Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredTransactions.map((transaction) => (
-                                        <tr key={transaction.id} style={{ borderBottom: '1px solid #334155' }}>
-                                            <td style={{ padding: '16px' }}>{transaction.description}</td>
-                                            <td style={{ padding: '16px' }}>
-                                                <span style={{
-                                                    padding: '4px 10px',
-                                                    borderRadius: '20px',
-                                                    fontSize: '0.85rem',
-                                                    backgroundColor: '#334155',
-                                                    color: '#e2e8f0'
-                                                }}>
-                                                    {transaction.category}
-                                                </span>
-                                            </td>
-                                            <td style={{ padding: '16px', textAlign: 'right', fontWeight: 'bold', color: transaction.type === 'Income' ? '#4ade80' : '#f87171' }}>
-                                                {transaction.type === 'Income' ? '+' : '-'}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <div style={{ padding: '40px', textAlign: 'center', color: '#94a3b8' }}>
-                                <p>No transactions found for this date.</p>
-                            </div>
-                        )}
+                    <div style={{ display: 'flex', gap: '16px' }}>
+                        <button style={{
+                            padding: '12px 20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700'
+                        }}><Download size={18} /> Export CSV</button>
+                        <button onClick={() => setIsModalOpen(true)} style={{
+                            padding: '12px 24px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)'
+                        }}>
+                            <Plus size={18} strokeWidth={3} /> Add Record
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            {/* Add Transaction Modal */}
-            {isModalOpen && (
-                <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    zIndex: 1000,
-                    backdropFilter: 'blur(5px)'
-                }}>
-                    <div style={{
-                        backgroundColor: '#1e293b',
-                        padding: '30px',
-                        borderRadius: '16px',
-                        width: '100%',
-                        maxWidth: '500px',
-                        boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
-                        border: '1px solid rgba(255,255,255,0.1)'
-                    }}>
-                        <h2 style={{ marginBottom: '20px', fontSize: '1.5rem', fontWeight: 'bold' }}>Add Transaction</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '40px' }}>
 
-                        <form onSubmit={handleAddTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Date</label>
-                                <input
-                                    type="date"
-                                    value={date}
-                                    onChange={(e) => setDate(e.target.value)}
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
-                                />
+                    {/* Left Sidebar: Calendar & Summary */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '28px', border: '1px solid #1e293b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#818cf8' }}>
+                                <CalendarIcon size={18} strokeWidth={2.5} />
+                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Date Selector</span>
                             </div>
+                            <style>{`
+                                .custom-calendar {
+                                    width: 100% !important;
+                                    background: transparent !important;
+                                    border: none !important;
+                                    color: #cbd5e1 !important;
+                                    font-family: inherit !important;
+                                }
+                                .react-calendar__tile { color: #94a3b8 !important; padding: 12px 8px !important; border-radius: 8px !important; }
+                                .react-calendar__tile--now { background: rgba(99, 102, 241, 0.1) !important; color: #818cf8 !important; }
+                                .react-calendar__tile--active { background: #6366f1 !important; color: white !important; font-weight: 800 !important; }
+                                .react-calendar__navigation button { color: #f8fafc !important; font-weight: 800 !important; }
+                                .react-calendar__month-view__weekdays { font-size: 0.7rem !important; text-transform: uppercase !important; color: #475569 !important; }
+                            `}</style>
+                            <Calendar
+                                onChange={(value: any) => setSelectedDate(value)}
+                                value={selectedDate}
+                                className="custom-calendar"
+                            />
+                        </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Type</label>
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => setType('Expense')}
-                                        style={{
-                                            flex: 1,
-                                            padding: '10px',
-                                            borderRadius: '8px',
-                                            border: '1px solid',
-                                            borderColor: type === 'Expense' ? '#ef4444' : '#475569',
-                                            background: type === 'Expense' ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
-                                            color: type === 'Expense' ? '#f87171' : '#94a3b8',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        Expense
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setType('Income')}
-                                        style={{
-                                            flex: 1,
-                                            padding: '10px',
-                                            borderRadius: '8px',
-                                            border: '1px solid',
-                                            borderColor: type === 'Income' ? '#22c55e' : '#475569',
-                                            background: type === 'Income' ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
-                                            color: type === 'Income' ? '#4ade80' : '#94a3b8',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        Income
-                                    </button>
+                        {/* Daily Stats */}
+                        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '28px', border: '1px solid #1e293b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#94a3b8' }}>
+                                <History size={18} />
+                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Velocity</span>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div>
+                                    <div style={{ color: '#475569', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Inflow</div>
+                                    <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#34d399' }}>₹{dayTotalIncome.toLocaleString()}</div>
+                                </div>
+                                <div>
+                                    <div style={{ color: '#475569', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Outflow</div>
+                                    <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#f87171' }}>₹{dayTotalExpense.toLocaleString()}</div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Description</label>
-                                <input
-                                    type="text"
-                                    value={description}
-                                    onChange={(e) => setDescription(e.target.value)}
-                                    placeholder="e.g. Grocery Shopping"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
-                                />
+                    {/* Right: Timeline View */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+
+                        {/* Interactive Toolbar */}
+                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                            <div style={{ position: 'relative', flex: 1 }}>
+                                <Search size={18} color="#475569" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                                <input placeholder="Search records by description or category..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+                            </div>
+                        </div>
+
+                        {/* Timeline Wrapper */}
+                        <div style={{ background: 'rgba(15, 23, 42, 0.3)', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px', flex: 1 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>{selectedDate.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                                <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: '700' }}>{filteredTransactions.length} RECORD(S) FOUND</span>
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Category</label>
-                                <input
-                                    type="text"
-                                    value={category}
-                                    onChange={(e) => setCategory(e.target.value)}
-                                    placeholder="e.g. Food, Rent, Salary"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
-                                />
-                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                                {filteredTransactions.length > 0 ? filteredTransactions.map((tx, idx) => (
+                                    <div key={tx.id} style={{ display: 'flex', gap: '24px', position: 'relative' }}>
+                                        {/* Vertical Timeline Line */}
+                                        <div style={{ width: '2px', background: 'rgba(99, 102, 241, 0.1)', position: 'relative', display: 'flex', justifyContent: 'center' }}>
+                                            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: tx.type === 'Income' ? '#10b981' : '#f43f5e', position: 'absolute', top: '24px', border: '4px solid #020617', zIndex: 1 }} />
+                                            {idx === filteredTransactions.length - 1 && <div style={{ position: 'absolute', bottom: 0, top: '24px', width: '2px', background: '#020617' }} />}
+                                        </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.9rem', color: '#cbd5e1' }}>Amount</label>
-                                <input
-                                    type="number"
-                                    value={amount}
-                                    onChange={(e) => setAmount(e.target.value)}
-                                    placeholder="0.00"
-                                    style={{ padding: '12px', borderRadius: '8px', border: '1px solid #475569', background: '#0f172a', color: 'white', outline: 'none' }}
-                                />
+                                        {/* Content Card */}
+                                        <div style={{ flex: 1, paddingBottom: '32px', paddingTop: '8px' }}>
+                                            <div style={{
+                                                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                                                padding: '20px 24px',
+                                                borderRadius: '20px',
+                                                border: '1px solid #1e293b',
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center',
+                                                transition: 'all 0.2s',
+                                                cursor: 'pointer'
+                                            }}
+                                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.background = '#1e293b'; }}
+                                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; }}
+                                            >
+                                                <div>
+                                                    <div style={{ fontWeight: '800', fontSize: '1rem', color: '#fff', marginBottom: '4px' }}>{tx.description}</div>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                        <span style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: '#6366f1', background: 'rgba(99, 102, 241, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{tx.category}</span>
+                                                        <span style={{ fontSize: '0.75rem', color: '#475569', fontWeight: '600' }}>Logged at {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                                    </div>
+                                                </div>
+                                                <div style={{ textAlign: 'right' }}>
+                                                    <div style={{ fontSize: '1.25rem', fontWeight: '950', color: tx.type === 'Income' ? '#34d399' : '#f87171' }}>
+                                                        {tx.type === 'Income' ? '+' : '-'}₹{tx.amount.toLocaleString()}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )) : (
+                                    <div style={{ padding: '80px 40px', textAlign: 'center', color: '#475569' }}>
+                                        <div style={{ background: 'rgba(255,255,255,0.02)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
+                                            <Book size={32} opacity={0.2} />
+                                        </div>
+                                        <h4 style={{ color: '#f8fafc', margin: '0 0 8px 0' }}>No Audit Records</h4>
+                                        <p style={{ fontSize: '0.9rem', margin: 0 }}>This timeline is clean. Select another date or add a new record.</p>
+                                    </div>
+                                )}
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => setIsModalOpen(false)}
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: 'transparent', color: '#94a3b8', border: '1px solid #475569', cursor: 'pointer', fontWeight: '600' }}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    type="submit"
-                                    style={{ flex: 1, padding: '12px', borderRadius: '8px', background: '#3b82f6', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '600' }}
-                                >
-                                    Add Transaction
-                                </button>
+            </div>
+
+            {/* Modal - Unified Design */}
+            {isModalOpen && (
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0 }}>Manual Entry</h2>
+                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+                        </div>
+                        <form onSubmit={handleAddTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Entry Type</label>
+                                    <div style={{ display: 'flex', gap: '8px', background: '#020617', padding: '4px', borderRadius: '12px', border: '1px solid #1e293b' }}>
+                                        <button type="button" onClick={() => setType('Expense')} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Expense' ? '#f43f5e' : 'transparent', color: type === 'Expense' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>EXPENSE</button>
+                                        <button type="button" onClick={() => setType('Income')} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Income' ? '#10b981' : 'transparent', color: type === 'Income' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>INCOME</button>
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Date</label>
+                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} />
+                                </div>
                             </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Description</label>
+                                <input value={description} onChange={e => setDescription(e.target.value)} placeholder="What was this for?" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                            </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Category</label>
+                                    <input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Food" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Amount (₹)</label>
+                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                </div>
+                            </div>
+                            <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem' }}>Commit Transaction</button>
                         </form>
                     </div>
                 </div>

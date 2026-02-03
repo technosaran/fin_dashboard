@@ -2,45 +2,139 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Wallet, Book, Banknote, Settings, LogOut } from 'lucide-react';
+import {
+    LayoutDashboard,
+    Wallet,
+    Book,
+    Banknote,
+    Target,
+    Settings,
+    LogOut,
+    Command
+} from 'lucide-react';
 
 export default function Sidebar() {
     const pathname = usePathname();
 
+    const navItems = [
+        { label: 'Dashboard', href: '/', icon: <LayoutDashboard size={20} /> },
+        { label: 'Accounts', href: '/accounts', icon: <Wallet size={20} /> },
+        { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
+        { label: 'Salary Hub', href: '/salary', icon: <Banknote size={20} /> },
+        { label: 'Goals', href: '/goals', icon: <Target size={20} /> },
+    ];
+
     return (
-        <aside className="sidebar">
-            <div className="sidebar-title" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: '30px', height: '30px', background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold' }}>F</div>
-                FinDashboard
+        <aside style={{
+            width: '280px',
+            backgroundColor: '#020617',
+            borderRight: '1px solid #1e293b',
+            display: 'flex',
+            flexDirection: 'column',
+            position: 'relative',
+            height: '100vh',
+            zIndex: 100
+        }}>
+            {/* Logo / Brand */}
+            <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', gap: '16px', overflow: 'hidden' }}>
+                <div style={{
+                    minWidth: '40px', height: '40px',
+                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                    borderRadius: '12px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    color: 'white', fontWeight: '900', fontSize: '1.2rem',
+                    boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)'
+                }}>
+                    <Command size={22} />
+                </div>
+                <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff', letterSpacing: '-0.5px' }}>
+                    FIN<span style={{ color: '#6366f1' }}>CORE</span>
+                </span>
             </div>
-            <nav className="flex-1">
-                <Link href="/" className={`nav-link ${pathname === '/' ? 'active' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <LayoutDashboard size={20} />
-                    <span>Dashboard</span>
-                </Link>
-                <Link href="/accounts" className={`nav-link ${pathname === '/accounts' ? 'active' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Wallet size={20} />
-                    <span>Accounts</span>
-                </Link>
-                <Link href="/ledger" className={`nav-link ${pathname === '/ledger' ? 'active' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Book size={20} />
-                    <span>Ledger</span>
-                </Link>
-                <Link href="/salary" className={`nav-link ${pathname === '/salary' ? 'active' : ''}`} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Banknote size={20} />
-                    <span>Salary</span>
-                </Link>
+
+            {/* Navigation */}
+            <nav style={{ flex: 1, padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+                {navItems.map((item) => {
+                    const isActive = pathname === item.href;
+                    return (
+                        <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
+                            <div style={{
+                                padding: '12px 16px',
+                                borderRadius: '14px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '16px',
+                                background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
+                                color: isActive ? '#fff' : '#64748b',
+                                transition: 'all 0.2s',
+                                position: 'relative',
+                                cursor: 'pointer'
+                            }}
+                                onMouseEnter={e => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
+                                        e.currentTarget.style.color = '#cbd5e1';
+                                    }
+                                }}
+                                onMouseLeave={e => {
+                                    if (!isActive) {
+                                        e.currentTarget.style.background = 'transparent';
+                                        e.currentTarget.style.color = '#64748b';
+                                    }
+                                }}
+                            >
+                                <div style={{ color: isActive ? '#818cf8' : 'inherit', transition: 'color 0.2s' }}>
+                                    {item.icon}
+                                </div>
+                                <span style={{ fontWeight: isActive ? '700' : '600', fontSize: '0.95rem' }}>{item.label}</span>
+                                {isActive && (
+                                    <div style={{ position: 'absolute', right: '12px', width: '6px', height: '6px', borderRadius: '50%', background: '#818cf8', boxShadow: '0 0 10px #818cf8' }} />
+                                )}
+                            </div>
+                        </Link>
+                    );
+                })}
             </nav>
 
-            <div className="sidebar-bottom">
-                <Link href="/settings" className="nav-link" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <Settings size={20} />
-                    <span>Settings</span>
+            {/* Bottom Section */}
+            <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid #1e293b' }}>
+                <Link href="/settings" style={{ textDecoration: 'none' }}>
+                    <div style={{
+                        padding: '12px 16px',
+                        borderRadius: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '16px',
+                        color: '#64748b',
+                        transition: 'all 0.2s',
+                        cursor: 'pointer'
+                    }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#cbd5e1'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
+                    >
+                        <Settings size={20} />
+                        <span style={{ fontWeight: '600', fontSize: '0.95rem' }}>Preferences</span>
+                    </div>
                 </Link>
-                <button className="nav-link logout-btn" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+
+                <div style={{
+                    padding: '12px 16px',
+                    borderRadius: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '16px',
+                    color: '#f87171',
+                    transition: 'all 0.2s',
+                    cursor: 'pointer',
+                    marginTop: '8px'
+                }}
+                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248, 113, 113, 0.05)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
+                >
                     <LogOut size={20} />
-                    <span>Logout</span>
-                </button>
+                    <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Terminate Session</span>
+                </div>
             </div>
         </aside>
     );

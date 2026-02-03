@@ -21,13 +21,27 @@ export interface Transaction {
     amount: number;
 }
 
+export interface Goal {
+    id: number;
+    name: string;
+    targetAmount: number;
+    currentAmount: number;
+    deadline: string;
+    category: string;
+    description?: string;
+}
+
 interface FinanceContextType {
     accounts: Account[];
     transactions: Transaction[];
+    goals: Goal[];
     addAccount: (account: Omit<Account, 'id'>) => void;
     updateAccount: (account: Account) => void;
     addTransaction: (transaction: Omit<Transaction, 'id'>) => void;
     addFunds: (accountId: number, amount: number, description: string, category: string) => void;
+    addGoal: (goal: Omit<Goal, 'id'>) => void;
+    updateGoal: (goal: Goal) => void;
+    deleteGoal: (id: number) => void;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -41,13 +55,12 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             bankName: "Wallet",
             type: "Cash",
             balance: 0,
-            currency: 'USD'
+            currency: 'INR'
         }
     ]);
 
     const [transactions, setTransactions] = useState<Transaction[]>([]);
-
-    // Helper to calculate Net Worth (helper for internal logic if needed, but we expose raw data)
+    const [goals, setGoals] = useState<Goal[]>([]);
 
     const addTransaction = (transaction: Omit<Transaction, 'id'>) => {
         const newTx = { ...transaction, id: Date.now() };
@@ -58,7 +71,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         const newAccount = { ...accountData, id: Date.now() };
         setAccounts(prev => [...prev, newAccount]);
 
-        // Automatically log initial balance as Income
         if (newAccount.balance > 0) {
             addTransaction({
                 date: new Date().toISOString().split('T')[0],
@@ -73,7 +85,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const updateAccount = (updatedAccount: Account) => {
         setAccounts(prev => prev.map(acc => acc.id === updatedAccount.id ? updatedAccount : acc));
 
-        // Find the old account to compare balances
         const oldAccount = accounts.find(acc => acc.id === updatedAccount.id);
         if (oldAccount && oldAccount.balance !== updatedAccount.balance) {
             const diff = updatedAccount.balance - oldAccount.balance;
@@ -106,8 +117,32 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         });
     };
 
+    const addGoal = (goalData: Omit<Goal, 'id'>) => {
+        const newGoal = { ...goalData, id: Date.now() };
+        setGoals(prev => [...prev, newGoal]);
+    };
+
+    const updateGoal = (updatedGoal: Goal) => {
+        setGoals(prev => prev.map(g => g.id === updatedGoal.id ? updatedGoal : g));
+    };
+
+    const deleteGoal = (id: number) => {
+        setGoals(prev => prev.filter(g => g.id !== id));
+    };
+
     return (
-        <FinanceContext.Provider value={{ accounts, transactions, addAccount, updateAccount, addTransaction, addFunds }}>
+        <FinanceContext.Provider value={{
+            accounts,
+            transactions,
+            goals,
+            addAccount,
+            updateAccount,
+            addTransaction,
+            addFunds,
+            addGoal,
+            updateGoal,
+            deleteGoal
+        }}>
             {children}
         </FinanceContext.Provider>
     );
