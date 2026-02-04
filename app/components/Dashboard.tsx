@@ -120,82 +120,82 @@ export default function Dashboard() {
     return (
         <div className="page-container">
             {/* 1. Top Header Section */}
-            <div style={{ marginBottom: '32px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ marginBottom: '20px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div>
-                    <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', color: '#fff', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h1 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', color: '#fff', display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span className="animate-sparkle">✨</span>
                         <span>{greeting.text}, <span style={{ color: '#818cf8' }} className="text-glow">Saran <span className="animate-sparkle" style={{ marginLeft: '4px' }}>{greeting.emoji}</span></span></span>
                     </h1>
-                    <p style={{ color: '#64748b', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Your financial empire is expanding.</p>
+                    <p style={{ color: '#64748b', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', marginTop: '6px' }}>Your financial empire is expanding.</p>
                 </div>
             </div>
 
             {/* 2. Wealth Overview - Combined Card */}
-            <div style={{ marginBottom: '32px' }}>
+            <div style={{ marginBottom: '20px' }}>
                 <div style={{
                     background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                    padding: 'clamp(24px, 5vw, 40px)',
-                    borderRadius: '24px',
+                    padding: 'clamp(20px, 4vw, 28px)',
+                    borderRadius: '20px',
                     border: '1px solid #334155',
                     position: 'relative',
                     overflow: 'hidden',
-                    boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+                    boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
                 }}>
                     <div style={{ position: 'absolute', top: 0, right: 0, width: '400px', height: '100%', background: 'linear-gradient(to left, rgba(99, 102, 241, 0.05), transparent)' }} />
 
-                    <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', gap: '40px' }}>
+                    <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', gap: '24px' }}>
 
                         {/* Left Section: Net Worth Breakdown */}
                         <div style={{ flex: '2 1 400px', minWidth: 0 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                <div style={{ background: 'rgba(99, 102, 241, 0.15)', padding: '12px', borderRadius: '14px', color: '#818cf8' }}>
-                                    <Zap size={24} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                                <div style={{ background: 'rgba(99, 102, 241, 0.15)', padding: '10px', borderRadius: '12px', color: '#818cf8' }}>
+                                    <Zap size={20} />
                                 </div>
-                                <span style={{ color: '#94a3b8', fontSize: '1rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Total Net Worth</span>
+                                <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.2px' }}>Total Net Worth</span>
                             </div>
 
-                            <div style={{ marginBottom: '32px' }}>
-                                <div style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: '950', color: '#fff', letterSpacing: '-3px', lineHeight: 1 }}>
+                            <div style={{ marginBottom: '20px' }}>
+                                <div style={{ fontSize: 'clamp(2rem, 6vw, 3.5rem)', fontWeight: '950', color: '#fff', letterSpacing: '-2px', lineHeight: 1 }}>
                                     ₹{financialMetrics.totalNetWorth.toLocaleString()}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '32px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '16px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '20px' }}>
                                 <div>
-                                    <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Cash</div>
-                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{financialMetrics.liquidityINR.toLocaleString()}</div>
+                                    <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px' }}>Cash</div>
+                                    <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '800' }}>₹{financialMetrics.liquidityINR.toLocaleString()}</div>
                                 </div>
                                 <div>
-                                    <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Equity</div>
-                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{financialMetrics.stocksValue.toLocaleString()}</div>
+                                    <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px' }}>Equity</div>
+                                    <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '800' }}>₹{financialMetrics.stocksValue.toLocaleString()}</div>
                                 </div>
                                 <div>
-                                    <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Mutual Funds</div>
-                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{financialMetrics.mfValue.toLocaleString()}</div>
+                                    <div style={{ color: '#64748b', fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px' }}>Mutual Funds</div>
+                                    <div style={{ color: '#fff', fontSize: '1.1rem', fontWeight: '800' }}>₹{financialMetrics.mfValue.toLocaleString()}</div>
                                 </div>
-                                <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '24px' }}>
-                                    <div style={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Lifetime Metrics</div>
-                                    <div style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: '900' }}>{financialMetrics.globalLifetimeWealth >= 0 ? '+' : '-'}₹{Math.abs(financialMetrics.globalLifetimeWealth).toLocaleString()}</div>
+                                <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '16px' }}>
+                                    <div style={{ color: '#818cf8', fontSize: '0.7rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '6px' }}>Lifetime Metrics</div>
+                                    <div style={{ color: '#10b981', fontSize: '1.1rem', fontWeight: '900' }}>{financialMetrics.globalLifetimeWealth >= 0 ? '+' : '-'}₹{Math.abs(financialMetrics.globalLifetimeWealth).toLocaleString()}</div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Right Section: Allocation Chart */}
-                        <div style={{ flex: '1 1 280px', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', borderLeft: '1px solid rgba(255,255,255,0.05)', paddingLeft: 'clamp(0px, 2vw, 40px)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
-                                <PieIcon size={18} color="#818cf8" />
-                                <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase' }}>Asset Allocation</span>
+                        <div style={{ flex: '1 1 280px', minWidth: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', borderLeft: '1px solid rgba(255,255,255,0.05)', paddingLeft: 'clamp(0px, 2vw, 24px)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                                <PieIcon size={16} color="#818cf8" />
+                                <span style={{ color: '#94a3b8', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Asset Allocation</span>
                             </div>
-                            <div style={{ height: '280px', position: 'relative' }}>
+                            <div style={{ height: '220px', position: 'relative' }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
                                             data={allocationData}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={70}
-                                            outerRadius={95}
-                                            paddingAngle={8}
+                                            innerRadius={55}
+                                            outerRadius={75}
+                                            paddingAngle={6}
                                             dataKey="value"
                                             stroke="none"
                                             label={({
@@ -254,83 +254,83 @@ export default function Dashboard() {
             </div>
 
             {/* 3. Secondary Row: Activity & Targets */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '24px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
 
                 {/* Recent Transactions */}
-                <div style={{ background: '#0f172a', borderRadius: '24px', border: '1px solid #1e293b', padding: 'clamp(20px, 4vw, 32px)', gridColumn: 'span 1' }}>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', gap: '12px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                            <Activity size={20} color="#818cf8" />
-                            <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.1rem)', fontWeight: '800', margin: 0 }}>Global Activity</h3>
+                <div style={{ background: '#0f172a', borderRadius: '20px', border: '1px solid #1e293b', padding: 'clamp(16px, 3.5vw, 24px)', gridColumn: 'span 1' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Activity size={18} color="#818cf8" />
+                            <h3 style={{ fontSize: 'clamp(0.95rem, 2vw, 1.05rem)', fontWeight: '800', margin: 0 }}>Global Activity</h3>
                         </div>
-                        <Link href="/ledger" style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                            Full Ledger <ChevronRight size={14} />
+                        <Link href="/ledger" style={{ color: '#6366f1', fontSize: '0.75rem', fontWeight: '700', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            Full Ledger <ChevronRight size={13} />
                         </Link>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         {recentTx.length > 0 ? recentTx.map((tx, idx) => (
                             <div key={tx.id} style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                padding: 'clamp(12px, 3vw, 16px)',
+                                padding: 'clamp(10px, 2.5vw, 14px)',
                                 background: 'rgba(255,255,255,0.02)',
-                                borderRadius: '16px',
+                                borderRadius: '14px',
                                 border: '1px solid rgba(255,255,255,0.03)',
-                                gap: '12px'
+                                gap: '10px'
                             }}>
                                 <div style={{
                                     background: tx.type === 'Income' ? 'rgba(52, 211, 153, 0.1)' : 'rgba(248, 113, 113, 0.1)',
                                     color: tx.type === 'Income' ? '#34d399' : '#f87171',
-                                    padding: '10px',
-                                    borderRadius: '12px',
+                                    padding: '8px',
+                                    borderRadius: '10px',
                                     flexShrink: 0
                                 }}>
-                                    {tx.type === 'Income' ? <ArrowUpRight size={18} /> : <ArrowDownRight size={18} />}
+                                    {tx.type === 'Income' ? <ArrowUpRight size={16} /> : <ArrowDownRight size={16} />}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
-                                    <div style={{ fontWeight: '700', fontSize: 'clamp(0.85rem, 2vw, 0.9rem)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.description}</div>
-                                    <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600' }}>{tx.category} • {tx.date}</div>
+                                    <div style={{ fontWeight: '700', fontSize: 'clamp(0.8rem, 1.8vw, 0.85rem)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tx.description}</div>
+                                    <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '600' }}>{tx.category} • {tx.date}</div>
                                 </div>
-                                <div style={{ fontWeight: '900', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', color: tx.type === 'Income' ? '#34d399' : '#f87171', flexShrink: 0 }}>
+                                <div style={{ fontWeight: '900', fontSize: 'clamp(0.85rem, 1.8vw, 0.95rem)', color: tx.type === 'Income' ? '#34d399' : '#f87171', flexShrink: 0 }}>
                                     {tx.type === 'Income' ? '+' : '-'}₹{tx.amount.toLocaleString()}
                                 </div>
                             </div>
                         )) : (
-                            <div style={{ textAlign: 'center', color: '#64748b', padding: '20px' }}>No recent activity</div>
+                            <div style={{ textAlign: 'center', color: '#64748b', padding: '16px' }}>No recent activity</div>
                         )}
                     </div>
                 </div>
 
                 {/* Retirement / Goal Target */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', gridColumn: 'span 1' }}>
-                    <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '24px', border: '1px solid #1e293b', padding: 'clamp(20px, 4vw, 32px)', flex: 1 }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                <Target size={20} color="#818cf8" />
-                                <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.1rem)', fontWeight: '800', margin: 0 }}>Top Goal</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', gridColumn: 'span 1' }}>
+                    <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '20px', border: '1px solid #1e293b', padding: 'clamp(16px, 3.5vw, 24px)', flex: 1 }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <Target size={18} color="#818cf8" />
+                                <h3 style={{ fontSize: 'clamp(0.95rem, 2vw, 1.05rem)', fontWeight: '800', margin: 0 }}>Top Goal</h3>
                             </div>
                         </div>
                         {goals.length > 0 ? (
                             <div>
-                                <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.25rem)', fontWeight: '900', marginBottom: '8px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{goals[0].name}</div>
-                                <div style={{ fontSize: 'clamp(0.8rem, 2vw, 0.85rem)', color: '#64748b', marginBottom: '16px' }}>{((goals[0].currentAmount / goals[0].targetAmount) * 100).toFixed(1)}% of ₹{goals[0].targetAmount.toLocaleString()} reached</div>
-                                <div style={{ width: '100%', height: '12px', background: '#020617', borderRadius: '100px', overflow: 'hidden', marginBottom: '20px' }}>
+                                <div style={{ fontSize: 'clamp(0.95rem, 2.2vw, 1.1rem)', fontWeight: '900', marginBottom: '6px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{goals[0].name}</div>
+                                <div style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.8rem)', color: '#64748b', marginBottom: '12px' }}>{((goals[0].currentAmount / goals[0].targetAmount) * 100).toFixed(1)}% of ₹{goals[0].targetAmount.toLocaleString()} reached</div>
+                                <div style={{ width: '100%', height: '10px', background: '#020617', borderRadius: '100px', overflow: 'hidden', marginBottom: '14px' }}>
                                     <div style={{ width: `${Math.min((goals[0].currentAmount / goals[0].targetAmount) * 100, 100)}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1 0%, #34d399 100%)', borderRadius: '100px' }} />
                                 </div>
-                                <Link href="/goals" style={{ display: 'block', textAlign: 'center', padding: '12px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', fontWeight: '700', fontSize: '0.85rem', textDecoration: 'none' }}>Optimize Performance</Link>
+                                <Link href="/goals" style={{ display: 'block', textAlign: 'center', padding: '10px', borderRadius: '10px', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', fontWeight: '700', fontSize: '0.8rem', textDecoration: 'none' }}>Optimize Performance</Link>
                             </div>
                         ) : (
-                            <div style={{ textAlign: 'center', color: '#64748b', paddingTop: '20px' }}>Set a target to begin</div>
+                            <div style={{ textAlign: 'center', color: '#64748b', paddingTop: '16px' }}>Set a target to begin</div>
                         )}
                     </div>
 
-                    <div style={{ background: 'rgba(16, 185, 129, 0.05)', borderRadius: '24px', border: '1px dashed rgba(16, 185, 129, 0.2)', padding: 'clamp(16px, 3vw, 24px)', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '10px', borderRadius: '12px', flexShrink: 0 }}>
-                            <TrendingUp size={24} color="#10b981" />
+                    <div style={{ background: 'rgba(16, 185, 129, 0.05)', borderRadius: '20px', border: '1px dashed rgba(16, 185, 129, 0.2)', padding: 'clamp(14px, 2.5vw, 20px)', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '10px', flexShrink: 0 }}>
+                            <TrendingUp size={20} color="#10b981" />
                         </div>
                         <div style={{ minWidth: 0 }}>
-                            <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#059669', textTransform: 'uppercase' }}>Portfolio Health</div>
-                            <div style={{ fontSize: 'clamp(1rem, 2vw, 1.1rem)', fontWeight: '900', color: '#fff' }}>Excellent</div>
+                            <div style={{ fontSize: '0.65rem', fontWeight: '800', color: '#059669', textTransform: 'uppercase' }}>Portfolio Health</div>
+                            <div style={{ fontSize: 'clamp(0.95rem, 1.8vw, 1rem)', fontWeight: '900', color: '#fff' }}>Excellent</div>
                         </div>
                     </div>
                 </div>
