@@ -1,7 +1,19 @@
-import { createClient } from '@supabase/supabase-js'
-import { Database } from './database.types'
+import { createClient } from '@supabase/supabase-js';
+import { Database } from './database.types';
+import { env } from './config/env';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey)
+/**
+ * Supabase client instance with validated environment configuration
+ * Throws an error at startup if required environment variables are missing
+ */
+export const supabase = createClient<Database>(
+  env.supabase.url,
+  env.supabase.anonKey,
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      detectSessionInUrl: true,
+    },
+  }
+);
