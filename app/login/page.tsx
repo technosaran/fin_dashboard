@@ -10,7 +10,6 @@ import {
     Eye,
     EyeOff,
     ArrowRight,
-    ShieldCheck,
     Loader2
 } from 'lucide-react';
 import Link from 'next/link';
@@ -60,22 +59,22 @@ export default function LoginPage() {
             {/* Background Decorative Elements */}
             <div style={{
                 position: 'absolute',
-                top: '-10%',
-                left: '-10%',
-                width: '40%',
-                height: '40%',
-                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-                filter: 'blur(80px)',
+                top: '-20%',
+                left: '-20%',
+                width: '60%',
+                height: '60%',
+                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
+                filter: 'blur(120px)',
                 zIndex: 0
             }} />
             <div style={{
                 position: 'absolute',
-                bottom: '-10%',
-                right: '-10%',
-                width: '50%',
-                height: '50%',
-                background: 'radial-gradient(circle, rgba(168, 85, 247, 0.1) 0%, transparent 70%)',
-                filter: 'blur(100px)',
+                bottom: '-20%',
+                right: '-20%',
+                width: '70%',
+                height: '70%',
+                background: 'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
+                filter: 'blur(150px)',
                 zIndex: 0
             }} />
 
@@ -90,37 +89,39 @@ export default function LoginPage() {
                 {/* Brand Logo */}
                 <div style={{
                     display: 'flex',
+                    flexDirection: 'column',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '12px',
-                    marginBottom: '48px',
+                    gap: '20px',
+                    marginBottom: '56px',
                 }}>
                     <div style={{
-                        width: '48px',
-                        height: '48px',
+                        width: '64px',
+                        height: '64px',
                         background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                        borderRadius: '14px',
+                        borderRadius: '20px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         color: 'white',
-                        boxShadow: '0 10px 25px rgba(99, 102, 241, 0.4)'
+                        boxShadow: '0 15px 35px rgba(99, 102, 241, 0.5)',
+                        transform: 'rotate(-5deg)'
                     }}>
-                        <Command size={28} />
+                        <Command size={36} />
                     </div>
-                    <span style={{ fontSize: '2rem', fontWeight: '900', letterSpacing: '-1px' }}>
+                    <span style={{ fontSize: '2.5rem', fontWeight: '950', letterSpacing: '-2px', color: '#fff' }}>
                         FIN<span style={{ color: '#6366f1' }}>CORE</span>
                     </span>
                 </div>
 
                 {/* Login Card */}
                 <div style={{
-                    background: 'rgba(30, 41, 59, 0.4)',
-                    backdropFilter: 'blur(20px)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    borderRadius: '32px',
-                    padding: '40px',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    backdropFilter: 'blur(30px)',
+                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                    borderRadius: '40px',
+                    padding: '48px',
+                    boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.7)',
                 }}>
                     <div style={{ marginBottom: '32px' }}>
                         <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 8px 0' }}>Welcome back</h1>
@@ -251,18 +252,6 @@ export default function LoginPage() {
                     Don&apos;t have an account? <Link href="/signup" style={{ color: '#6366f1', fontWeight: '700', textDecoration: 'none' }}>Create an account</Link>
                 </p>
 
-                {/* Security Badge */}
-                <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px',
-                    marginTop: '48px',
-                    color: '#475569'
-                }}>
-                    <ShieldCheck size={16} />
-                    <span style={{ fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Protected by 256-bit AES encryption</span>
-                </div>
             </div>
 
             <style jsx global>{`

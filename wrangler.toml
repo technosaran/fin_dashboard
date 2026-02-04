@@ -1,0 +1,11 @@
+name = "findashboard"
+pages_build_output_dir = ".next"
+
+[vars]
+# Add your Supabase environment variables here in the Cloudflare Dashboard
+# NEXT_PUBLIC_SUPABASE_URL = "your-url"
+# NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-key"
+
+[build]
+command = "npm run build"
+watch_dir = "app"

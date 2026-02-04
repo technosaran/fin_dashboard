@@ -152,7 +152,10 @@ interface FinanceContextType {
     loading: boolean;
     addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
     updateAccount: (account: Account) => Promise<void>;
+    deleteAccount: (id: number) => Promise<void>;
     addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
+    updateTransaction: (transaction: Transaction) => Promise<void>;
+    deleteTransaction: (id: number) => Promise<void>;
     addFunds: (accountId: number, amount: number, description: string, category: string) => Promise<void>;
     addGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
     updateGoal: (goal: Goal, accountId?: number) => Promise<void>;
@@ -164,12 +167,14 @@ interface FinanceContextType {
     updateStock: (stock: Stock) => Promise<void>;
     deleteStock: (id: number) => Promise<void>;
     addStockTransaction: (transaction: Omit<StockTransaction, 'id'>) => Promise<void>;
+    deleteStockTransaction: (id: number) => Promise<void>;
     addToWatchlist: (item: Omit<WatchlistItem, 'id'>) => Promise<void>;
     removeFromWatchlist: (id: number) => Promise<void>;
     addMutualFund: (mf: Omit<MutualFund, 'id'>) => Promise<void>;
     updateMutualFund: (mf: MutualFund) => Promise<void>;
     deleteMutualFund: (id: number) => Promise<void>;
     addMutualFundTransaction: (transaction: Omit<MutualFundTransaction, 'id'>) => Promise<void>;
+    deleteMutualFundTransaction: (id: number) => Promise<void>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -540,6 +545,20 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const deleteAccount = async (id: number) => {
+        const { error } = await supabase
+            .from('accounts')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting account:', error);
+            return;
+        }
+
+        setAccounts(prev => prev.filter(acc => acc.id !== id));
+    };
+
     const addTransaction = async (transactionData: Omit<Transaction, 'id'>) => {
         // 1. If accountId is provided, update account balance first
         if (transactionData.accountId) {
@@ -573,6 +592,41 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         const newTransaction = dbTransactionToTransaction(data);
         setTransactions(prev => [newTransaction, ...prev]);
+    };
+
+    const updateTransaction = async (updatedTransaction: Transaction) => {
+        const { error } = await supabase
+            .from('transactions')
+            .update({
+                date: updatedTransaction.date,
+                description: updatedTransaction.description,
+                category: updatedTransaction.category,
+                type: updatedTransaction.type,
+                amount: updatedTransaction.amount,
+                account_id: updatedTransaction.accountId || null
+            })
+            .eq('id', updatedTransaction.id);
+
+        if (error) {
+            console.error('Error updating transaction:', error);
+            return;
+        }
+
+        setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
+    };
+
+    const deleteTransaction = async (id: number) => {
+        const { error } = await supabase
+            .from('transactions')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting transaction:', error);
+            return;
+        }
+
+        setTransactions(prev => prev.filter(t => t.id !== id));
     };
 
     const addFunds = async (accountId: number, amount: number, description: string, category: string) => {
@@ -1017,6 +1071,34 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setMutualFundTransactions(prev => [newTransaction, ...prev]);
     };
 
+    const deleteStockTransaction = async (id: number) => {
+        const { error } = await supabase
+            .from('stock_transactions')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting stock transaction:', error);
+            return;
+        }
+
+        setStockTransactions(prev => prev.filter(t => t.id !== id));
+    };
+
+    const deleteMutualFundTransaction = async (id: number) => {
+        const { error } = await supabase
+            .from('mutual_fund_transactions')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting mutual fund transaction:', error);
+            return;
+        }
+
+        setMutualFundTransactions(prev => prev.filter(t => t.id !== id));
+    };
+
     return (
         <FinanceContext.Provider value={{
             accounts,
@@ -1033,7 +1115,10 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             loading,
             addAccount,
             updateAccount,
+            deleteAccount,
             addTransaction,
+            updateTransaction,
+            deleteTransaction,
             addFunds,
             addGoal,
             updateGoal,
@@ -1045,12 +1130,14 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             updateStock,
             deleteStock,
             addStockTransaction,
+            deleteStockTransaction,
             addToWatchlist,
             removeFromWatchlist,
             addMutualFund,
             updateMutualFund,
             deleteMutualFund,
-            addMutualFundTransaction
+            addMutualFundTransaction,
+            deleteMutualFundTransaction
         }}>
             {children}
         </FinanceContext.Provider>

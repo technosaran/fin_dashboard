@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useNotifications } from '../components/NotificationContext';
 import { useFinance, AppSettings } from '../components/FinanceContext';
 import {
     Settings as SettingsIcon,
@@ -16,27 +17,42 @@ import {
 
 export default function SettingsPage() {
     const { settings, updateSettings, accounts, loading } = useFinance();
+    const { showNotification, confirm: customConfirm } = useNotifications();
     const [localSettings, setLocalSettings] = useState<AppSettings>(settings);
-    const [isSaved, setIsSaved] = useState(false);
 
     const handleSave = async () => {
-        await updateSettings(localSettings);
-        setIsSaved(true);
-        setTimeout(() => setIsSaved(false), 3000);
+        try {
+            await updateSettings(localSettings);
+            showNotification('success', 'Configuration updated successfully');
+        } catch (error) {
+            showNotification('error', 'Failed to save settings');
+        }
     };
 
-    const resetToDefaults = () => {
-        setLocalSettings({
-            brokerageType: 'percentage',
-            brokerageValue: 0,
-            sttRate: 0.1,
-            transactionChargeRate: 0.00345,
-            sebiChargeRate: 0.0001,
-            stampDutyRate: 0.015,
-            gstRate: 18,
-            dpCharges: 15.93,
-            autoCalculateCharges: true
+    const resetToDefaults = async () => {
+        const isConfirmed = await customConfirm({
+            title: 'Reset Configuration',
+            message: 'Are you sure you want to reset all math engine and workflow defaults to their original states? This action cannot be undone.',
+            type: 'warning',
+            confirmLabel: 'Reset'
         });
+
+        if (isConfirmed) {
+            const defaults: AppSettings = {
+                brokerageType: 'percentage',
+                brokerageValue: 0,
+                sttRate: 0.1,
+                transactionChargeRate: 0.00345,
+                sebiChargeRate: 0.0001,
+                stampDutyRate: 0.015,
+                gstRate: 18,
+                dpCharges: 15.93,
+                autoCalculateCharges: true
+            };
+            setLocalSettings(defaults);
+            await updateSettings(defaults);
+            showNotification('info', 'Settings reset to factory defaults');
+        }
     };
 
     if (loading) return null;
@@ -64,8 +80,8 @@ export default function SettingsPage() {
                             aria-label="Save settings"
                             style={{ padding: '12px 32px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', border: 'none', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)', whiteSpace: 'nowrap' }}
                         >
-                            {isSaved ? <CheckCircle2 size={18} /> : <Save size={18} />}
-                            {isSaved ? 'Config Saved' : 'Commit Changes'}
+                            <Save size={18} />
+                            Commit Changes
                         </button>
                     </div>
                 </div>

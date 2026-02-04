@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "FINCORE | Premium Personal Finance",
+  title: "FINCORE | Digital Wealth Hub",
   description: "Enterprise-grade financial tracking and goal management hub",
 };
 
