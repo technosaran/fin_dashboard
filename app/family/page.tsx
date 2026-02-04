@@ -228,21 +228,21 @@ export default function FamilyPage() {
 
             {/* Modal - Add/Edit Transfer */}
             {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(15px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '550px', boxShadow: '0 50px 100px rgba(0,0,0,0.7)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
-                            <h2 style={{ fontSize: '2rem', fontWeight: '900', margin: 0 }}>{editId ? 'Edit Transfer' : 'New Transfer'}</h2>
-                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '44px', height: '44px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={24} /></button>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(15px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
+                    <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '550px', boxShadow: '0 50px 100px rgba(0,0,0,0.7)', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', gap: '12px' }}>
+                            <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 2rem)', fontWeight: '900', margin: 0 }}>{editId ? 'Edit Transfer' : 'New Transfer'}</h2>
+                            <button onClick={() => setIsModalOpen(false)} aria-label="Close modal" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '44px', height: '44px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><X size={24} /></button>
                         </div>
-                        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: '24px' }}>
+                        <form onSubmit={handleSubmit} aria-label="Family transfer form" style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '24px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Recipient Name</label>
-                                    <input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="e.g. Mother" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} autoFocus />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Recipient Name</label>
+                                    <input value={recipient} onChange={e => setRecipient(e.target.value)} placeholder="e.g. Mother" required aria-label="Recipient name" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} autoFocus />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Relationship</label>
-                                    <select value={relationship} onChange={e => setRelationship(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Relationship</label>
+                                    <select value={relationship} onChange={e => setRelationship(e.target.value)} aria-label="Relationship type" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}>
                                         <option value="Parent">Parent</option>
                                         <option value="Father">Father</option>
                                         <option value="Mother">Mother</option>
@@ -254,34 +254,34 @@ export default function FamilyPage() {
                                     </select>
                                 </div>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '24px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '24px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Amount (₹)</label>
-                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" min="0.01" step="0.01" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Amount (₹)</label>
+                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" min="0.01" step="0.01" required aria-label="Transfer amount" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Date</label>
-                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Date</label>
+                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} aria-label="Transfer date" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
                                 </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Purpose</label>
-                                <input value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="e.g. Monthly support, Medical expenses" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Purpose</label>
+                                <input value={purpose} onChange={e => setPurpose(e.target.value)} placeholder="e.g. Monthly support, Medical expenses" aria-label="Transfer purpose" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none' }} />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Notes (Optional)</label>
-                                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional details..." style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1rem', outline: 'none', minHeight: '80px', resize: 'vertical', fontFamily: 'inherit' }} />
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Notes (Optional)</label>
+                                <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional details..." aria-label="Transfer notes" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1rem', outline: 'none', minHeight: '80px', resize: 'vertical', fontFamily: 'inherit' }} />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Operating Bank Account</label>
-                                <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '1px' }}>Operating Bank Account</label>
+                                <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} aria-label="Select bank account" style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}>
                                     <option value="">No Account (Ledger Only)</option>
                                     {accounts.map(acc => (
                                         <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
                                     ))}
                                 </select>
                             </div>
-                            <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 15px 30px rgba(236, 72, 153, 0.4)' }}>{editId ? 'Update Transfer' : 'Record Transfer'}</button>
+                            <button type="submit" aria-label={editId ? "Update transfer" : "Record transfer"} style={{ marginTop: '12px', background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 15px 30px rgba(236, 72, 153, 0.4)' }}>{editId ? 'Update Transfer' : 'Record Transfer'}</button>
                         </form>
                     </div>
                 </div>
