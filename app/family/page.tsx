@@ -19,9 +19,10 @@ import {
 } from 'lucide-react';
 
 export default function FamilyPage() {
-    const { familyTransfers, addFamilyTransfer, updateFamilyTransfer, deleteFamilyTransfer, loading } = useFinance();
+    const { accounts, familyTransfers, addFamilyTransfer, updateFamilyTransfer, deleteFamilyTransfer, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
+    const [selectedAccountId, setSelectedAccountId] = useState<number | ''>('');
 
     // Form State
     const [recipient, setRecipient] = useState('');
@@ -41,7 +42,8 @@ export default function FamilyPage() {
             amount: parseFloat(amount),
             date,
             purpose,
-            notes
+            notes,
+            accountId: selectedAccountId ? Number(selectedAccountId) : undefined
         };
 
         if (editId) {
@@ -62,6 +64,7 @@ export default function FamilyPage() {
         setDate(new Date().toISOString().split('T')[0]);
         setPurpose('');
         setNotes('');
+        setSelectedAccountId('');
     };
 
     const handleEdit = (transfer: FamilyTransfer) => {
@@ -72,6 +75,7 @@ export default function FamilyPage() {
         setDate(transfer.date);
         setPurpose(transfer.purpose);
         setNotes(transfer.notes || '');
+        setSelectedAccountId(transfer.accountId || '');
         setIsModalOpen(true);
     };
 
@@ -267,6 +271,15 @@ export default function FamilyPage() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Notes (Optional)</label>
                                 <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Additional details..." style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1rem', outline: 'none', minHeight: '80px', resize: 'vertical', fontFamily: 'inherit' }} />
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Operating Bank Account</label>
+                                <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}>
+                                    <option value="">No Account (Ledger Only)</option>
+                                    {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
+                                    ))}
+                                </select>
                             </div>
                             <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 15px 30px rgba(236, 72, 153, 0.4)' }}>{editId ? 'Update Transfer' : 'Record Transfer'}</button>
                         </form>

@@ -23,9 +23,10 @@ import {
 } from 'lucide-react';
 
 export default function GoalsPage() {
-    const { goals, addGoal, updateGoal, deleteGoal, loading } = useFinance();
+    const { accounts, goals, addGoal, updateGoal, deleteGoal, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
+    const [selectedAccountId, setSelectedAccountId] = useState<number | ''>('');
 
     // Form State
     const [name, setName] = useState('');
@@ -49,7 +50,7 @@ export default function GoalsPage() {
         };
 
         if (editId) {
-            await updateGoal({ ...goalData, id: editId });
+            await updateGoal({ ...goalData, id: editId }, selectedAccountId ? Number(selectedAccountId) : undefined);
         } else {
             await addGoal(goalData);
         }
@@ -66,6 +67,7 @@ export default function GoalsPage() {
         setDeadline('');
         setCategory('Savings');
         setDescription('');
+        setSelectedAccountId('');
     };
 
     const handleEdit = (goal: Goal) => {
@@ -297,6 +299,18 @@ export default function GoalsPage() {
                                     </select>
                                 </div>
                             </div>
+                            {editId && (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1px' }}>Funding Bank Account</label>
+                                    <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px', borderRadius: '18px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}>
+                                        <option value="">No Account (Ledger Only)</option>
+                                        {accounts.map(acc => (
+                                            <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
+                                        ))}
+                                    </select>
+                                    <p style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '6px' }}>If you increase current amount, money will be deducted from here.</p>
+                                </div>
+                            )}
                             <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 15px 30px rgba(99, 102, 241, 0.4)' }}>{editId ? 'Commit Changes' : 'Execute Directive'}</button>
                         </form>
                     </div>

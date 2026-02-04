@@ -12,7 +12,8 @@ import {
     LogOut,
     Command,
     Users,
-    TrendingUp
+    TrendingUp,
+    Activity
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -22,6 +23,7 @@ export default function Sidebar() {
         { label: 'Dashboard', href: '/', icon: <LayoutDashboard size={20} /> },
         { label: 'Accounts', href: '/accounts', icon: <Wallet size={20} /> },
         { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={20} /> },
+        { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Salary Hub', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },

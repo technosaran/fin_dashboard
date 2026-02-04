@@ -5,13 +5,15 @@ import { supabase } from '../../lib/supabase';
 import { Database } from '../../lib/database.types';
 
 // Types based on database schema
-type AccountRow = Database['public']['Tables']['accounts']['Row'];
-type TransactionRow = Database['public']['Tables']['transactions']['Row'];
-type GoalRow = Database['public']['Tables']['goals']['Row'];
-type FamilyTransferRow = Database['public']['Tables']['family_transfers']['Row'];
-type StockRow = Database['public']['Tables']['stocks']['Row'];
-type StockTransactionRow = Database['public']['Tables']['stock_transactions']['Row'];
-type WatchlistRow = Database['public']['Tables']['watchlist']['Row'];
+type AccountRow = any;
+type TransactionRow = any;
+type GoalRow = any;
+type FamilyTransferRow = any;
+type StockRow = any;
+type StockTransactionRow = any;
+type WatchlistRow = any;
+type MutualFundRow = any;
+type MutualFundTransactionRow = any;
 
 export interface Account {
     id: number;
@@ -50,6 +52,7 @@ export interface FamilyTransfer {
     amount: number;
     purpose: string;
     notes?: string;
+    accountId?: number;
 }
 
 export interface Stock {
@@ -78,6 +81,7 @@ export interface StockTransaction {
     taxes?: number;
     transactionDate: string;
     notes?: string;
+    accountId?: number;
 }
 
 export interface WatchlistItem {
@@ -89,6 +93,34 @@ export interface WatchlistItem {
     notes?: string;
 }
 
+export interface MutualFund {
+    id: number;
+    name: string;
+    isin?: string;
+    schemeCode?: string;
+    category?: string;
+    units: number;
+    avgNav: number;
+    currentNav: number;
+    investmentAmount: number;
+    currentValue: number;
+    pnl: number;
+    pnlPercentage: number;
+    folioNumber?: string;
+}
+
+export interface MutualFundTransaction {
+    id: number;
+    mutualFundId: number;
+    transactionType: 'BUY' | 'SELL' | 'SIP';
+    units: number;
+    nav: number;
+    totalAmount: number;
+    transactionDate: string;
+    notes?: string;
+    accountId?: number;
+}
+
 interface FinanceContextType {
     accounts: Account[];
     transactions: Transaction[];
@@ -97,13 +129,15 @@ interface FinanceContextType {
     stocks: Stock[];
     stockTransactions: StockTransaction[];
     watchlist: WatchlistItem[];
+    mutualFunds: MutualFund[];
+    mutualFundTransactions: MutualFundTransaction[];
     loading: boolean;
     addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
     updateAccount: (account: Account) => Promise<void>;
     addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
     addFunds: (accountId: number, amount: number, description: string, category: string) => Promise<void>;
     addGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
-    updateGoal: (goal: Goal) => Promise<void>;
+    updateGoal: (goal: Goal, accountId?: number) => Promise<void>;
     deleteGoal: (id: number) => Promise<void>;
     addFamilyTransfer: (transfer: Omit<FamilyTransfer, 'id'>) => Promise<void>;
     updateFamilyTransfer: (transfer: FamilyTransfer) => Promise<void>;
@@ -114,6 +148,10 @@ interface FinanceContextType {
     addStockTransaction: (transaction: Omit<StockTransaction, 'id'>) => Promise<void>;
     addToWatchlist: (item: Omit<WatchlistItem, 'id'>) => Promise<void>;
     removeFromWatchlist: (id: number) => Promise<void>;
+    addMutualFund: (mf: Omit<MutualFund, 'id'>) => Promise<void>;
+    updateMutualFund: (mf: MutualFund) => Promise<void>;
+    deleteMutualFund: (id: number) => Promise<void>;
+    addMutualFundTransaction: (transaction: Omit<MutualFundTransaction, 'id'>) => Promise<void>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -155,7 +193,8 @@ const dbFamilyTransferToFamilyTransfer = (dbTransfer: FamilyTransferRow): Family
     relationship: dbTransfer.relationship,
     amount: Number(dbTransfer.amount),
     purpose: dbTransfer.purpose,
-    notes: dbTransfer.notes || undefined
+    notes: dbTransfer.notes || undefined,
+    accountId: dbTransfer.account_id ? Number(dbTransfer.account_id) : undefined
 });
 
 const dbStockToStock = (dbStock: StockRow): Stock => ({
@@ -183,7 +222,8 @@ const dbStockTransactionToStockTransaction = (dbTransaction: StockTransactionRow
     brokerage: dbTransaction.brokerage ? Number(dbTransaction.brokerage) : undefined,
     taxes: dbTransaction.taxes ? Number(dbTransaction.taxes) : undefined,
     transactionDate: dbTransaction.transaction_date,
-    notes: dbTransaction.notes || undefined
+    notes: dbTransaction.notes || undefined,
+    accountId: dbTransaction.account_id ? Number(dbTransaction.account_id) : undefined
 });
 
 const dbWatchlistToWatchlistItem = (dbWatchlist: WatchlistRow): WatchlistItem => ({
@@ -195,6 +235,34 @@ const dbWatchlistToWatchlistItem = (dbWatchlist: WatchlistRow): WatchlistItem =>
     notes: dbWatchlist.notes || undefined
 });
 
+const dbMutualFundToMutualFund = (dbMF: MutualFundRow): MutualFund => ({
+    id: Number(dbMF.id),
+    name: dbMF.name,
+    isin: dbMF.isin || undefined,
+    schemeCode: dbMF.scheme_code || undefined,
+    category: dbMF.category || undefined,
+    units: Number(dbMF.units),
+    avgNav: Number(dbMF.avg_nav),
+    currentNav: Number(dbMF.current_nav),
+    investmentAmount: Number(dbMF.investment_amount),
+    currentValue: Number(dbMF.current_value),
+    pnl: Number(dbMF.pnl),
+    pnlPercentage: Number(dbMF.pnl_percentage),
+    folioNumber: dbMF.folio_number || undefined
+});
+
+const dbMutualFundTransactionToMutualFundTransaction = (dbTx: MutualFundTransactionRow): MutualFundTransaction => ({
+    id: Number(dbTx.id),
+    mutualFundId: Number(dbTx.mutual_fund_id),
+    transactionType: dbTx.transaction_type as 'BUY' | 'SELL' | 'SIP',
+    units: Number(dbTx.units),
+    nav: Number(dbTx.nav),
+    totalAmount: Number(dbTx.total_amount),
+    transactionDate: dbTx.transaction_date,
+    notes: dbTx.notes || undefined,
+    accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
+});
+
 export function SupabaseFinanceProvider({ children }: { children: React.ReactNode }) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -203,6 +271,8 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [stockTransactions, setStockTransactions] = useState<StockTransaction[]>([]);
     const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
+    const [mutualFunds, setMutualFunds] = useState<MutualFund[]>([]);
+    const [mutualFundTransactions, setMutualFundTransactions] = useState<MutualFundTransaction[]>([]);
     const [loading, setLoading] = useState(true);
 
     // Load initial data
@@ -220,7 +290,9 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
                 loadFamilyTransfers(),
                 loadStocks(),
                 loadStockTransactions(),
-                loadWatchlist()
+                loadWatchlist(),
+                loadMutualFunds(),
+                loadMutualFundTransactions()
             ]);
         } catch (error) {
             console.error('Error loading data:', error);
@@ -234,12 +306,12 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .from('accounts')
             .select('*')
             .order('created_at', { ascending: false });
-        
+
         if (error) {
             console.error('Error loading accounts:', error);
             return;
         }
-        
+
         setAccounts(data.map(dbAccountToAccount));
     };
 
@@ -249,12 +321,12 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .select('*')
             .order('date', { ascending: false })
             .limit(100);
-        
+
         if (error) {
             console.error('Error loading transactions:', error);
             return;
         }
-        
+
         setTransactions(data.map(dbTransactionToTransaction));
     };
 
@@ -263,12 +335,12 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .from('goals')
             .select('*')
             .order('deadline', { ascending: true });
-        
+
         if (error) {
             console.error('Error loading goals:', error);
             return;
         }
-        
+
         setGoals(data.map(dbGoalToGoal));
     };
 
@@ -277,12 +349,12 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .from('family_transfers')
             .select('*')
             .order('date', { ascending: false });
-        
+
         if (error) {
             console.error('Error loading family transfers:', error);
             return;
         }
-        
+
         setFamilyTransfers(data.map(dbFamilyTransferToFamilyTransfer));
     };
 
@@ -291,12 +363,12 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .from('stocks')
             .select('*')
             .order('symbol', { ascending: true });
-        
+
         if (error) {
             console.error('Error loading stocks:', error);
             return;
         }
-        
+
         setStocks(data.map(dbStockToStock));
     };
 
@@ -305,12 +377,12 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .from('stock_transactions')
             .select('*')
             .order('transaction_date', { ascending: false });
-        
+
         if (error) {
             console.error('Error loading stock transactions:', error);
             return;
         }
-        
+
         setStockTransactions(data.map(dbStockTransactionToStockTransaction));
     };
 
@@ -319,13 +391,41 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             .from('watchlist')
             .select('*')
             .order('symbol', { ascending: true });
-        
+
         if (error) {
             console.error('Error loading watchlist:', error);
             return;
         }
-        
+
         setWatchlist(data.map(dbWatchlistToWatchlistItem));
+    };
+
+    const loadMutualFunds = async () => {
+        const { data, error } = await supabase
+            .from('mutual_funds')
+            .select('*')
+            .order('name', { ascending: true });
+
+        if (error) {
+            console.error('Error loading mutual funds:', error);
+            return;
+        }
+
+        setMutualFunds(data.map(dbMutualFundToMutualFund));
+    };
+
+    const loadMutualFundTransactions = async () => {
+        const { data, error } = await supabase
+            .from('mutual_fund_transactions')
+            .select('*')
+            .order('transaction_date', { ascending: false });
+
+        if (error) {
+            console.error('Error loading mutual fund transactions:', error);
+            return;
+        }
+
+        setMutualFundTransactions(data.map(dbMutualFundTransactionToMutualFundTransaction));
     };
 
     const addAccount = async (accountData: Omit<Account, 'id'>) => {
@@ -457,14 +557,14 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
         setGoals(prev => [...prev, newGoal]);
     };
 
-    const updateGoal = async (updatedGoal: Goal) => {
+    const updateGoal = async (updatedGoal: Goal, accountId?: number) => {
         const { error } = await supabase
             .from('goals')
             .update({
                 name: updatedGoal.name,
                 target_amount: updatedGoal.targetAmount,
                 current_amount: updatedGoal.currentAmount,
-                deadline: updatedGoal.deadline,
+                deadline: updatedGoal.deadline || undefined,
                 category: updatedGoal.category,
                 description: updatedGoal.description || null
             })
@@ -476,6 +576,33 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
         }
 
         setGoals(prev => prev.map(g => g.id === updatedGoal.id ? updatedGoal : g));
+
+        // Registry for Goal Contribution
+        const oldGoal = goals.find(g => g.id === updatedGoal.id);
+        if (oldGoal && updatedGoal.currentAmount > oldGoal.currentAmount) {
+            const diff = updatedGoal.currentAmount - oldGoal.currentAmount;
+
+            // 1. Balance Update
+            if (accountId) {
+                const account = accounts.find(acc => acc.id === accountId);
+                if (account) {
+                    await updateAccount({
+                        ...account,
+                        balance: account.balance - diff
+                    });
+                }
+            }
+
+            // 2. Ledger Registry
+            await addTransaction({
+                date: new Date().toISOString().split('T')[0],
+                description: `Goal Contribution: ${updatedGoal.name}`,
+                category: 'Savings',
+                type: 'Expense',
+                amount: diff,
+                accountId: undefined // Use ledger only if no specific account provided for goals
+            });
+        }
     };
 
     const deleteGoal = async (id: number) => {
@@ -493,6 +620,27 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
     };
 
     const addFamilyTransfer = async (transferData: Omit<FamilyTransfer, 'id'>) => {
+        // 1. Balance Update
+        if (transferData.accountId) {
+            const account = accounts.find(acc => acc.id === transferData.accountId);
+            if (account) {
+                await updateAccount({
+                    ...account,
+                    balance: account.balance - transferData.amount
+                });
+            }
+        }
+
+        // 2. Ledger Registry
+        await addTransaction({
+            date: transferData.date,
+            description: `Family Transfer: ${transferData.recipient} (${transferData.purpose})`,
+            category: 'Family',
+            type: 'Expense',
+            amount: transferData.amount,
+            accountId: transferData.accountId
+        });
+
         const { data, error } = await supabase
             .from('family_transfers')
             .insert({
@@ -501,7 +649,8 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
                 relationship: transferData.relationship,
                 amount: transferData.amount,
                 purpose: transferData.purpose,
-                notes: transferData.notes || null
+                notes: transferData.notes || null,
+                account_id: transferData.accountId || null
             })
             .select()
             .single();
@@ -619,6 +768,38 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
     };
 
     const addStockTransaction = async (transactionData: Omit<StockTransaction, 'id'>) => {
+        // 1. If linked to an account, check balance and update
+        if (transactionData.accountId) {
+            const account = accounts.find(acc => acc.id === transactionData.accountId);
+            if (!account) {
+                console.error('Linked account not found');
+                return;
+            }
+
+            if (transactionData.transactionType === 'BUY' && account.balance < transactionData.totalAmount) {
+                alert(`Insufficient funds in ${account.name}!`);
+                return;
+            }
+
+            const balanceChange = transactionData.transactionType === 'BUY' ? -transactionData.totalAmount : transactionData.totalAmount;
+
+            await updateAccount({
+                ...account,
+                balance: account.balance + balanceChange
+            });
+
+            // Log to ledger
+            const stock = stocks.find(s => s.id === transactionData.stockId);
+            await addTransaction({
+                date: transactionData.transactionDate,
+                description: `${transactionData.transactionType === 'BUY' ? 'Stock Purchase' : 'Stock Sale'}: ${stock?.symbol || 'Unknown'}`,
+                category: 'Investments',
+                type: transactionData.transactionType === 'BUY' ? 'Expense' : 'Income',
+                amount: transactionData.totalAmount,
+                accountId: transactionData.accountId
+            });
+        }
+
         const { data, error } = await supabase
             .from('stock_transactions')
             .insert({
@@ -630,7 +811,8 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
                 brokerage: transactionData.brokerage || null,
                 taxes: transactionData.taxes || null,
                 transaction_date: transactionData.transactionDate,
-                notes: transactionData.notes || null
+                notes: transactionData.notes || null,
+                account_id: transactionData.accountId || null
             })
             .select()
             .single();
@@ -680,6 +862,135 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
         setWatchlist(prev => prev.filter(w => w.id !== id));
     };
 
+    const addMutualFund = async (mfData: Omit<MutualFund, 'id'>) => {
+        const { data, error } = await supabase
+            .from('mutual_funds')
+            .insert({
+                name: mfData.name,
+                isin: mfData.isin,
+                scheme_code: mfData.schemeCode,
+                category: mfData.category,
+                units: mfData.units,
+                avg_nav: mfData.avgNav,
+                current_nav: mfData.currentNav,
+                investment_amount: mfData.investmentAmount,
+                current_value: mfData.currentValue,
+                pnl: mfData.pnl,
+                pnl_percentage: mfData.pnlPercentage,
+                folio_number: mfData.folioNumber
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding mutual fund:', error);
+            return;
+        }
+
+        const newMF = dbMutualFundToMutualFund(data);
+        setMutualFunds(prev => [...prev, newMF]);
+    };
+
+    const updateMutualFund = async (updatedMF: MutualFund) => {
+        const { error } = await supabase
+            .from('mutual_funds')
+            .update({
+                name: updatedMF.name,
+                isin: updatedMF.isin,
+                scheme_code: updatedMF.schemeCode,
+                category: updatedMF.category,
+                units: updatedMF.units,
+                avg_nav: updatedMF.avgNav,
+                current_nav: updatedMF.currentNav,
+                investment_amount: updatedMF.investmentAmount,
+                current_value: updatedMF.currentValue,
+                pnl: updatedMF.pnl,
+                pnl_percentage: updatedMF.pnlPercentage,
+                folio_number: updatedMF.folioNumber
+            })
+            .eq('id', updatedMF.id);
+
+        if (error) {
+            console.error('Error updating mutual fund:', error);
+            return;
+        }
+
+        setMutualFunds(prev => prev.map(mf => mf.id === updatedMF.id ? updatedMF : mf));
+    };
+
+    const deleteMutualFund = async (id: number) => {
+        const { error } = await supabase
+            .from('mutual_funds')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting mutual fund:', error);
+            return;
+        }
+
+        setMutualFunds(prev => prev.filter(mf => mf.id !== id));
+    };
+
+    const addMutualFundTransaction = async (transactionData: Omit<MutualFundTransaction, 'id'>) => {
+        // 1. If linked to an account, check balance and update
+        if (transactionData.accountId) {
+            const account = accounts.find(acc => acc.id === transactionData.accountId);
+            if (!account) {
+                console.error('Linked account not found');
+                return;
+            }
+
+            const isOutflow = transactionData.transactionType === 'BUY' || transactionData.transactionType === 'SIP';
+
+            if (isOutflow && account.balance < transactionData.totalAmount) {
+                alert(`Insufficient funds in ${account.name} for this ${transactionData.transactionType}!`);
+                return;
+            }
+
+            const balanceChange = isOutflow ? -transactionData.totalAmount : transactionData.totalAmount;
+
+            await updateAccount({
+                ...account,
+                balance: account.balance + balanceChange
+            });
+
+            // Log to ledger
+            const mf = mutualFunds.find(m => m.id === transactionData.mutualFundId);
+            await addTransaction({
+                date: transactionData.transactionDate,
+                description: `${transactionData.transactionType} execution: ${mf?.name || 'Unknown'}`,
+                category: 'Investments',
+                type: isOutflow ? 'Expense' : 'Income',
+                amount: transactionData.totalAmount,
+                accountId: transactionData.accountId
+            });
+        }
+
+        const { data, error } = await supabase
+            .from('mutual_fund_transactions')
+            .insert({
+                mutual_fund_id: transactionData.mutualFundId,
+                transaction_type: transactionData.transactionType,
+                units: transactionData.units,
+                nav: transactionData.nav,
+                total_amount: transactionData.totalAmount,
+                transaction_date: transactionData.transactionDate,
+                notes: transactionData.notes,
+                account_id: transactionData.accountId || null
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding mutual fund transaction:', error);
+            return;
+        }
+
+        const newTransaction = dbMutualFundTransactionToMutualFundTransaction(data);
+        setMutualFundTransactions(prev => [newTransaction, ...prev]);
+    };
+
     return (
         <FinanceContext.Provider value={{
             accounts,
@@ -689,6 +1000,8 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             stocks,
             stockTransactions,
             watchlist,
+            mutualFunds,
+            mutualFundTransactions,
             loading,
             addAccount,
             updateAccount,
@@ -705,7 +1018,11 @@ export function SupabaseFinanceProvider({ children }: { children: React.ReactNod
             deleteStock,
             addStockTransaction,
             addToWatchlist,
-            removeFromWatchlist
+            removeFromWatchlist,
+            addMutualFund,
+            updateMutualFund,
+            deleteMutualFund,
+            addMutualFundTransaction
         }}>
             {children}
         </FinanceContext.Provider>
