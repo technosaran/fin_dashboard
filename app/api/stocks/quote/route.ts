@@ -1,38 +1,89 @@
 import { NextResponse } from 'next/server';
+import { validateStockQuery } from '@/lib/validators/input';
+import {
+  createErrorResponse,
+  createSuccessResponse,
+  fetchWithTimeout,
+  withErrorHandling,
+  applyRateLimit,
+} from '@/lib/services/api';
+import { logError } from '@/lib/utils/logger';
 
-export async function GET(request: Request) {
-    const { searchParams } = new URL(request.url);
-    const symbol = searchParams.get('symbol');
+/**
+ * Stock quote API endpoint with security enhancements
+ */
+async function handleStockQuote(request: Request): Promise<NextResponse> {
+  // Apply rate limiting
+  const rateLimitResponse = applyRateLimit(request);
+  if (rateLimitResponse) return rateLimitResponse;
 
-    if (!symbol) {
-        return NextResponse.json({ error: 'Symbol is required' }, { status: 400 });
+  const { searchParams } = new URL(request.url);
+  const symbol = searchParams.get('symbol');
+
+  if (!symbol) {
+    return createErrorResponse('Symbol parameter is required', 400);
+  }
+
+  // Validate symbol
+  const validation = validateStockQuery(symbol);
+  if (!validation.isValid) {
+    return createErrorResponse(validation.error || 'Invalid symbol', 400);
+  }
+
+  try {
+    const sanitizedSymbol = symbol.trim().toUpperCase();
+    
+    // Try NSE first
+    let response = await fetchWithTimeout(
+      `https://query1.finance.yahoo.com/v8/finance/chart/${sanitizedSymbol}.NS?interval=1d&range=1d`,
+      {
+        headers: {
+          'User-Agent': 'Mozilla/5.0',
+        },
+      },
+      5000
+    );
+    
+    let data = await response.json();
+
+    // If not found in NSE, try BSE
+    if (!data.chart?.result) {
+      response = await fetchWithTimeout(
+        `https://query1.finance.yahoo.com/v8/finance/chart/${sanitizedSymbol}.BO?interval=1d&range=1d`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0',
+          },
+        },
+        5000
+      );
+      data = await response.json();
     }
 
-    try {
-        // Try NSE first
-        let response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.NS?interval=1d&range=1d`);
-        let data = await response.json();
-
-        // If not found in NSE, try BSE
-        if (!data.chart.result) {
-            response = await fetch(`https://query1.finance.yahoo.com/v8/finance/chart/${symbol}.BO?interval=1d&range=1d`);
-            data = await response.json();
-        }
-
-        if (data.chart.result) {
-            const meta = data.chart.result[0].meta;
-            return NextResponse.json({
-                symbol: meta.symbol.split('.')[0],
-                currentPrice: meta.regularMarketPrice,
-                previousClose: meta.previousClose,
-                currency: meta.currency,
-                exchange: meta.exchangeName
-            });
-        }
-
-        return NextResponse.json({ error: 'Symbol not found' }, { status: 404 });
-    } catch (error) {
-        console.error('Error fetching stock quote:', error);
-        return NextResponse.json({ error: 'Failed to fetch stock quote' }, { status: 500 });
+    if (data.chart?.result) {
+      const meta = data.chart.result[0].meta;
+      return createSuccessResponse({
+        symbol: meta.symbol.split('.')[0],
+        currentPrice: meta.regularMarketPrice || 0,
+        previousClose: meta.previousClose || 0,
+        currency: meta.currency || 'INR',
+        exchange: meta.exchangeName || 'NSE',
+      });
     }
+
+    return createErrorResponse('Symbol not found', 404);
+  } catch (error) {
+    logError('Stock quote fetch failed', error, { symbol });
+    
+    if (error instanceof Error) {
+      if (error.message.includes('timeout')) {
+        return createErrorResponse('Request timeout. Please try again.', 504);
+      }
+      return createErrorResponse('Failed to fetch stock quote. Please try again later.', 500);
+    }
+    
+    return createErrorResponse('An unexpected error occurred', 500);
+  }
 }
+
+export const GET = withErrorHandling(handleStockQuote);
