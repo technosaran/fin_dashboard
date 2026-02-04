@@ -136,55 +136,59 @@ export default function AccountsPage() {
 
     if (loading) {
         return (
-            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your accounts...</div>
+                    <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', color: '#94a3b8' }}>Loading your accounts...</div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
+        <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Personal Vault</h1>
-                        <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Securely manage your assets and financial entities</p>
+                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Personal Vault</h1>
+                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Securely manage your assets and financial entities</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                         <button onClick={() => setIsTransferModalOpen(true)} style={{
-                            padding: '14px 28px', borderRadius: '16px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: '0.2s'
-                        }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'}>
-                            <ArrowRightLeft size={18} color="#818cf8" /> Internal Transfer
+                            padding: '14px 28px', borderRadius: '16px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: '0.2s'
+                        }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'} aria-label="Transfer funds between accounts">
+                            <ArrowRightLeft size={18} color="#818cf8" aria-hidden="true" /> Internal Transfer
                         </button>
                         <button onClick={() => { resetAccountForm(); setIsModalOpen(true); }} style={{
-                            padding: '14px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: 'white', border: 'none', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)', transition: '0.2s'
-                        }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                            <Plus size={18} strokeWidth={3} /> New Entity
+                            padding: '14px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: 'white', border: 'none', fontWeight: '700', fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)', transition: '0.2s'
+                        }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'} aria-label="Add new account">
+                            <Plus size={18} strokeWidth={3} aria-hidden="true" /> New Entity
                         </button>
                     </div>
                 </div>
 
                 {/* Tab Navigation */}
-                <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '16px', border: '1px solid #1e293b', marginBottom: '32px', width: 'fit-content' }}>
+                <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '16px', border: '1px solid #1e293b', marginBottom: '32px', width: 'fit-content', flexWrap: 'wrap' }} role="tablist" aria-label="Account view tabs">
                     {[
-                        { id: 'accounts', label: 'Accounts', icon: <Wallet size={18} /> },
-                        { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} /> }
+                        { id: 'accounts', label: 'Accounts', icon: <Wallet size={18} aria-hidden="true" /> },
+                        { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} aria-hidden="true" /> }
                     ].map(tab => (
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id as 'accounts' | 'allocation')}
+                            role="tab"
+                            aria-selected={activeTab === tab.id}
+                            aria-controls={`${tab.id}-panel`}
+                            aria-label={`View ${tab.label}`}
                             style={{
                                 padding: '12px 24px',
                                 borderRadius: '12px',
                                 border: 'none',
                                 background: activeTab === tab.id ? '#6366f1' : 'transparent',
-                                color: activeTab === tab.id ? '#fff' : '#64748b',
+                                color: activeTab === tab.id ? '#fff' : '#94a3b8',
                                 fontWeight: '700',
-                                fontSize: '0.9rem',
+                                fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
                                 cursor: 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -200,7 +204,7 @@ export default function AccountsPage() {
                             onMouseLeave={e => {
                                 if (activeTab !== tab.id) {
                                     e.currentTarget.style.background = 'transparent';
-                                    e.currentTarget.style.color = '#64748b';
+                                    e.currentTarget.style.color = '#94a3b8';
                                 }
                             }}
                         >
@@ -253,8 +257,8 @@ export default function AccountsPage() {
 
                                 <div style={{ position: 'relative', zIndex: 1 }}>
                                     <div style={{
-                                        color: '#64748b',
-                                        fontSize: '0.75rem',
+                                        color: '#94a3b8',
+                                        fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
                                         fontWeight: '800',
                                         textTransform: 'uppercase',
                                         letterSpacing: '1.5px',
@@ -263,11 +267,11 @@ export default function AccountsPage() {
                                         alignItems: 'center',
                                         gap: '8px'
                                     }}>
-                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 12px rgba(52, 211, 153, 0.6)' }} />
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 12px rgba(52, 211, 153, 0.6)' }} aria-hidden="true" />
                                         Total Vault Liquidity
                                     </div>
                                     <div style={{
-                                        fontSize: '2.8rem',
+                                        fontSize: 'clamp(2rem, 5vw, 2.8rem)',
                                         fontWeight: '950',
                                         color: '#fff',
                                         letterSpacing: '-1.5px',
@@ -278,7 +282,7 @@ export default function AccountsPage() {
                                         display: 'flex',
                                         alignItems: 'center',
                                         gap: '8px',
-                                        fontSize: '0.9rem',
+                                        fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
                                         fontWeight: '700'
                                     }}>
                                         <div style={{
@@ -291,7 +295,7 @@ export default function AccountsPage() {
                                             alignItems: 'center',
                                             gap: '4px'
                                         }}>
-                                            <TrendingUp size={14} /> +5.2% this month
+                                            <TrendingUp size={14} aria-hidden="true" /> +5.2% this month
                                         </div>
                                     </div>
                                 </div>
@@ -299,16 +303,16 @@ export default function AccountsPage() {
                             </div>
 
                             {/* Search & Filter Bar */}
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-                                    <Search size={18} color="#475569" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                                    <input placeholder="Search entities..." style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+                                <div style={{ position: 'relative', flex: 1, maxWidth: '400px', minWidth: '200px' }}>
+                                    <Search size={18} color="#64748b" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} aria-hidden="true" />
+                                    <input placeholder="Search entities..." style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)' }} aria-label="Search accounts" />
                                 </div>
-                                <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: '600' }}>{accounts.length} Active Entities</div>
+                                <div style={{ color: '#94a3b8', fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', fontWeight: '600' }}>{accounts.length} Active Entities</div>
                             </div>
 
                             {/* Accounts Grid */}
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '24px' }}>
                                 {accounts.map((account, idx) => (
                                     <div key={account.id} style={{
                                         background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
@@ -382,8 +386,8 @@ export default function AccountsPage() {
                                         </div>
 
                                         <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
-                                            <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{account.name}</div>
-                                            <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{account.bankName}</div>
+                                            <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', fontWeight: '800', color: '#fff', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.name}</div>
+                                            <div style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.85rem)', color: '#94a3b8', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.bankName}</div>
                                         </div>
 
                                         <div style={{
@@ -397,18 +401,21 @@ export default function AccountsPage() {
                                         }}>
                                             <div>
                                                 <div style={{
-                                                    color: '#64748b',
-                                                    fontSize: '0.7rem',
+                                                    color: '#94a3b8',
+                                                    fontSize: 'clamp(0.65rem, 1.5vw, 0.7rem)',
                                                     fontWeight: '800',
                                                     textTransform: 'uppercase',
                                                     marginBottom: '6px',
                                                     letterSpacing: '1px'
                                                 }}>Available Balance</div>
                                                 <div style={{
-                                                    fontSize: '1.9rem',
+                                                    fontSize: 'clamp(1.5rem, 3.5vw, 1.9rem)',
                                                     fontWeight: '900',
                                                     color: '#fff',
-                                                    textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)'
+                                                    textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)',
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
                                                 }}>
                                                     {account.currency === 'INR' ? '₹' : '$'}{account.balance.toLocaleString()}
                                                 </div>
@@ -434,8 +441,9 @@ export default function AccountsPage() {
                                                 onMouseLeave={e => {
                                                     e.currentTarget.style.transform = 'scale(1)';
                                                     e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
-                                                }}>
-                                                <Plus size={20} strokeWidth={3} />
+                                                }}
+                                                aria-label={`Add funds to ${account.name}`}>
+                                                <Plus size={20} strokeWidth={3} aria-hidden="true" />
                                             </button>
                                         </div>
                                     </div>
@@ -446,7 +454,7 @@ export default function AccountsPage() {
                 )}
 
                 {activeTab === 'allocation' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '32px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))', gap: '32px' }}>
 
                         {/* Portfolio Distribution Chart */}
                         <div style={{
@@ -457,7 +465,7 @@ export default function AccountsPage() {
                             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                         }}>
                             <h3 style={{
-                                fontSize: '1.2rem',
+                                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
                                 fontWeight: '800',
                                 marginBottom: '24px',
                                 margin: 0,
@@ -465,7 +473,7 @@ export default function AccountsPage() {
                                 alignItems: 'center',
                                 gap: '10px'
                             }}>
-                                <PieChartIcon size={22} color="#6366f1" />
+                                <PieChartIcon size={22} color="#6366f1" aria-hidden="true" />
                                 Portfolio Distribution
                             </h3>
                             <div style={{ height: '300px', position: 'relative' }}>
@@ -528,7 +536,7 @@ export default function AccountsPage() {
                             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                         }}>
                             <h3 style={{
-                                fontSize: '1.2rem',
+                                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
                                 fontWeight: '800',
                                 marginBottom: '24px',
                                 margin: 0,
@@ -536,7 +544,7 @@ export default function AccountsPage() {
                                 alignItems: 'center',
                                 gap: '10px'
                             }}>
-                                <TrendingUp size={22} color="#34d399" />
+                                <TrendingUp size={22} color="#34d399" aria-hidden="true" />
                                 Balance Distribution
                             </h3>
                             <div style={{ height: '300px' }}>
@@ -545,14 +553,14 @@ export default function AccountsPage() {
                                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
                                         <XAxis
                                             dataKey="name"
-                                            stroke="#64748b"
+                                            stroke="#94a3b8"
                                             fontSize={12}
                                             angle={-45}
                                             textAnchor="end"
                                             height={80}
                                         />
                                         <YAxis
-                                            stroke="#64748b"
+                                            stroke="#94a3b8"
                                             fontSize={12}
                                             tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
                                         />
@@ -584,7 +592,7 @@ export default function AccountsPage() {
                             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                         }}>
                             <h3 style={{
-                                fontSize: '1.2rem',
+                                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
                                 fontWeight: '800',
                                 marginBottom: '24px',
                                 margin: 0,
@@ -592,7 +600,7 @@ export default function AccountsPage() {
                                 alignItems: 'center',
                                 gap: '10px'
                             }}>
-                                <Building2 size={22} color="#f59e0b" />
+                                <Building2 size={22} color="#f59e0b" aria-hidden="true" />
                                 Account Types
                             </h3>
                             <div style={{ height: '300px' }}>
@@ -650,7 +658,7 @@ export default function AccountsPage() {
                             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                         }}>
                             <h3 style={{
-                                fontSize: '1.2rem',
+                                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
                                 fontWeight: '800',
                                 marginBottom: '24px',
                                 margin: 0,
@@ -658,7 +666,7 @@ export default function AccountsPage() {
                                 alignItems: 'center',
                                 gap: '10px'
                             }}>
-                                <DollarSign size={22} color="#10b981" />
+                                <DollarSign size={22} color="#10b981" aria-hidden="true" />
                                 Currency Allocation
                             </h3>
                             <div style={{ height: '300px' }}>
@@ -678,9 +686,9 @@ export default function AccountsPage() {
                                         ]}
                                     >
                                         <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                                        <XAxis dataKey="currency" stroke="#64748b" />
+                                        <XAxis dataKey="currency" stroke="#94a3b8" />
                                         <YAxis
-                                            stroke="#64748b"
+                                            stroke="#94a3b8"
                                             tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
                                         />
                                         <Tooltip
@@ -715,32 +723,32 @@ export default function AccountsPage() {
 
             {/* Modals - Standard Premium Design */}
             {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0 }}>{editId ? 'Modify Entity' : 'New Entity'}</h2>
-                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }} role="dialog" aria-modal="true" aria-labelledby="modal-title">
+                    <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 60px rgba(0,0,0,0.6)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', gap: '16px' }}>
+                            <h2 id="modal-title" style={{ fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)', fontWeight: '900', margin: 0 }}>{editId ? 'Modify Entity' : 'New Entity'}</h2>
+                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} aria-label="Close modal"><X size={20} aria-hidden="true" /></button>
                         </div>
-                        <form onSubmit={handleAddAccount} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <form onSubmit={handleAddAccount} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label={editId ? 'Edit account form' : 'Add account form'}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Entity Name</label>
-                                <input value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="e.g. Primary Savings" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} autoFocus />
+                                <label htmlFor="entity-name" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Entity Name</label>
+                                <input id="entity-name" value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="e.g. Primary Savings" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus required aria-required="true" />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Financial Institution</label>
-                                <input value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                <label htmlFor="bank-name" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Financial Institution</label>
+                                <input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '20px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Currency</label>
-                                    <select value={currency} onChange={e => setCurrency(e.target.value as 'INR' | 'USD')} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', cursor: 'pointer' }}>
+                                    <label htmlFor="currency-select" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Currency</label>
+                                    <select id="currency-select" value={currency} onChange={e => setCurrency(e.target.value as 'INR' | 'USD')} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} aria-label="Select currency">
                                         <option value="INR">INR (₹)</option>
                                         <option value="USD">USD ($)</option>
                                     </select>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Type</label>
-                                    <select value={accountType} onChange={e => setAccountType(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', cursor: 'pointer' }}>
+                                    <label htmlFor="type-select" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Type</label>
+                                    <select id="type-select" value={accountType} onChange={e => setAccountType(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} aria-label="Select account type">
                                         <option value="Checking">Checking</option>
                                         <option value="Savings">Savings</option>
                                         <option value="Credit Card">Credit Card</option>
@@ -750,10 +758,10 @@ export default function AccountsPage() {
                                 </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Initial Liquidity</label>
-                                <input value={balance} onChange={e => setBalance(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                <label htmlFor="balance-input" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Initial Liquidity</label>
+                                <input id="balance-input" type="number" value={balance} onChange={e => setBalance(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
-                            <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)' }}>{editId ? 'Update Entity' : 'Establish Entity'}</button>
+                            <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: 'clamp(0.9rem, 2vw, 1rem)', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)' }} aria-label={editId ? 'Update account' : 'Create account'}>{editId ? 'Update Entity' : 'Establish Entity'}</button>
                         </form>
                     </div>
                 </div>
@@ -761,32 +769,32 @@ export default function AccountsPage() {
 
             {/* Transfer Modal */}
             {isTransferModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0 }}>Transfer Liquidity</h2>
-                            <button onClick={() => setIsTransferModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }} role="dialog" aria-modal="true" aria-labelledby="transfer-modal-title">
+                    <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', gap: '16px' }}>
+                            <h2 id="transfer-modal-title" style={{ fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)', fontWeight: '900', margin: 0 }}>Transfer Liquidity</h2>
+                            <button onClick={() => setIsTransferModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} aria-label="Close modal"><X size={20} aria-hidden="true" /></button>
                         </div>
-                        <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label="Transfer funds form">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Source Account</label>
-                                <select value={sourceAccountId} onChange={e => setSourceAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', cursor: 'pointer' }}>
+                                <label htmlFor="source-account" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Source Account</label>
+                                <select id="source-account" value={sourceAccountId} onChange={e => setSourceAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} required aria-required="true">
                                     <option value="" disabled>Select Source</option>
                                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
                                 </select>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Destination</label>
-                                <select value={targetAccountId} onChange={e => setTargetAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', cursor: 'pointer' }}>
+                                <label htmlFor="target-account" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Destination</label>
+                                <select id="target-account" value={targetAccountId} onChange={e => setTargetAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} required aria-required="true">
                                     <option value="" disabled>Select Destination</option>
                                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
                                 </select>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Transfer Amount</label>
-                                <input value={transferAmount} onChange={e => setTransferAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                <label htmlFor="transfer-amount" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Transfer Amount</label>
+                                <input id="transfer-amount" type="number" value={transferAmount} onChange={e => setTransferAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
-                            <button type="submit" style={{ marginTop: '12px', background: '#fff', color: '#020617', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem' }}>Execute Transfer</button>
+                            <button type="submit" style={{ marginTop: '12px', background: '#fff', color: '#020617', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: 'clamp(0.9rem, 2vw, 1rem)' }} aria-label="Execute transfer">Execute Transfer</button>
                         </form>
                     </div>
                 </div>
@@ -794,24 +802,24 @@ export default function AccountsPage() {
 
             {/* Add Funds Modal */}
             {isAddFundsModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0 }}>Add Liquidity</h2>
-                            <button onClick={() => setIsAddFundsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }} role="dialog" aria-modal="true" aria-labelledby="add-funds-modal-title">
+                    <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', gap: '16px' }}>
+                            <h2 id="add-funds-modal-title" style={{ fontSize: 'clamp(1.4rem, 3.5vw, 1.8rem)', fontWeight: '900', margin: 0 }}>Add Liquidity</h2>
+                            <button onClick={() => setIsAddFundsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }} aria-label="Close modal"><X size={20} aria-hidden="true" /></button>
                         </div>
-                        <form onSubmit={handleAddFundsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <form onSubmit={handleAddFundsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label="Add funds form">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Amount</label>
-                                <input value={addFundsAmount} onChange={e => setAddFundsAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} autoFocus />
+                                <label htmlFor="add-funds-amount" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Amount</label>
+                                <input id="add-funds-amount" type="number" value={addFundsAmount} onChange={e => setAddFundsAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus required aria-required="true" />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Description</label>
-                                <input value={addFundsDescription} onChange={e => setAddFundsDescription(e.target.value)} placeholder="e.g. Dividend Payment" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                <label htmlFor="add-funds-description" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Description</label>
+                                <input id="add-funds-description" value={addFundsDescription} onChange={e => setAddFundsDescription(e.target.value)} placeholder="e.g. Dividend Payment" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Category</label>
-                                <select value={addFundsCategory} onChange={e => setAddFundsCategory(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', cursor: 'pointer' }}>
+                                <label htmlFor="add-funds-category" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Category</label>
+                                <select id="add-funds-category" value={addFundsCategory} onChange={e => setAddFundsCategory(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} aria-label="Select category">
                                     <option value="Income">Income</option>
                                     <option value="Salary">Salary</option>
                                     <option value="Dividend">Dividend</option>
@@ -819,7 +827,7 @@ export default function AccountsPage() {
                                     <option value="Other">Other</option>
                                 </select>
                             </div>
-                            <button type="submit" style={{ marginTop: '12px', background: '#34d399', color: '#020617', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem' }}>Confirm Liquidity</button>
+                            <button type="submit" style={{ marginTop: '12px', background: '#34d399', color: '#020617', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: 'clamp(0.9rem, 2vw, 1rem)' }} aria-label="Confirm add funds">Confirm Liquidity</button>
                         </form>
                     </div>
                 </div>

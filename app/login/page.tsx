@@ -145,15 +145,16 @@ export default function LoginPage() {
                     <form onSubmit={handleEmailLogin} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         {/* Email Field */}
                         <div>
-                            <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Email Address</label>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Email Address</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
+                                <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                                 <input
                                     type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder="name@company.com"
                                     required
+                                    aria-label="Email Address"
                                     style={{
                                         width: '100%',
                                         background: 'rgba(15, 23, 42, 0.6)',
@@ -172,17 +173,18 @@ export default function LoginPage() {
                         {/* Password Field */}
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
                                 <a href="#" style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</a>
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
+                                <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
                                     placeholder="••••••••"
                                     required
+                                    aria-label="Password"
                                     style={{
                                         width: '100%',
                                         background: 'rgba(15, 23, 42, 0.6)',
@@ -198,7 +200,8 @@ export default function LoginPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#475569', cursor: 'pointer' }}
+                                    aria-label={showPassword ? "Hide password" : "Show password"}
+                                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '8px' }}
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
@@ -209,16 +212,17 @@ export default function LoginPage() {
                         <button
                             type="submit"
                             disabled={isLoading}
+                            aria-label="Sign in to your account"
                             style={{
                                 marginTop: '12px',
-                                background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+                                background: isLoading ? 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)' : 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
                                 color: '#fff',
                                 padding: '16px',
                                 borderRadius: '16px',
                                 border: 'none',
                                 fontWeight: '800',
                                 fontSize: '1rem',
-                                cursor: 'pointer',
+                                cursor: isLoading ? 'not-allowed' : 'pointer',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',

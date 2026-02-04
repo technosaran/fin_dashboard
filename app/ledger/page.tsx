@@ -65,32 +65,32 @@ export default function LedgerPage() {
 
     if (loading) {
         return (
-            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your transactions...</div>
+                    <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#94a3b8' }}>Loading your transactions...</div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
+        <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* Header Area */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Financial Ledger</h1>
-                        <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Iterative audit trail of all movements</p>
+                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Financial Ledger</h1>
+                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Iterative audit trail of all movements</p>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px' }}>
-                        <button style={{
+                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                        <button aria-label="Export transactions to CSV" style={{
                             padding: '12px 20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700'
-                        }}><Download size={18} /> Export CSV</button>
-                        <button onClick={() => setIsModalOpen(true)} style={{
+                        }}><Download size={18} /> <span style={{ whiteSpace: 'nowrap' }}>Export CSV</span></button>
+                        <button onClick={() => setIsModalOpen(true)} aria-label="Add new transaction record" style={{
                             padding: '12px 24px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)'
                         }}>
-                            <Plus size={18} strokeWidth={3} /> Add Record
+                            <Plus size={18} strokeWidth={3} /> <span style={{ whiteSpace: 'nowrap' }}>Add Record</span>
                         </button>
                     </div>
                 </div>
@@ -98,7 +98,7 @@ export default function LedgerPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                     {/* Top Section: Calendar and Summary Stats */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr 1fr', gap: '24px', marginBottom: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '24px', marginBottom: '16px' }}>
                         {/* Small Square Calendar */}
                         <div style={{ background: '#0f172a', padding: '20px', borderRadius: '20px', border: '1px solid #1e293b' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#818cf8' }}>
@@ -153,17 +153,17 @@ export default function LedgerPage() {
                         {/* Summary Stats */}
                         <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#34d399' }}>
-                                <ArrowUpRight size={18} />
+                                <ArrowUpRight size={18} aria-hidden="true" />
                                 <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Inflow</span>
                             </div>
-                            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#34d399' }}>₹{dayTotalIncome.toLocaleString()}</div>
+                            <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#34d399' }}>₹{dayTotalIncome.toLocaleString()}</div>
                         </div>
                         <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#f87171' }}>
-                                <ArrowDownRight size={18} />
+                                <ArrowDownRight size={18} aria-hidden="true" />
                                 <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Outflow</span>
                             </div>
-                            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#f87171' }}>₹{dayTotalExpense.toLocaleString()}</div>
+                            <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#f87171' }}>₹{dayTotalExpense.toLocaleString()}</div>
                         </div>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -171,16 +171,22 @@ export default function LedgerPage() {
                         {/* Interactive Toolbar */}
                         <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                             <div style={{ position: 'relative', flex: 1 }}>
-                                <Search size={18} color="#475569" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                                <input placeholder="Search records by description or category..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+                                <Search size={18} color="#64748b" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} aria-hidden="true" />
+                                <input 
+                                    placeholder="Search records by description or category..." 
+                                    value={searchQuery} 
+                                    onChange={e => setSearchQuery(e.target.value)} 
+                                    aria-label="Search transactions"
+                                    style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }} 
+                                />
                             </div>
                         </div>
 
                         {/* Timeline Wrapper */}
                         <div style={{ background: 'rgba(15, 23, 42, 0.3)', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px', flex: 1 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                                <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: 0 }}>{selectedDate.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</h3>
-                                <span style={{ fontSize: '0.85rem', color: '#475569', fontWeight: '700' }}>{filteredTransactions.length} RECORD(S) FOUND</span>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
+                                <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.1rem)', fontWeight: '800', margin: 0 }}>{selectedDate.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</h3>
+                                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '700' }}>{filteredTransactions.length} RECORD(S) FOUND</span>
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
@@ -241,41 +247,41 @@ export default function LedgerPage() {
 
             {/* Modal - Unified Design */}
             {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
+                    <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: '1.8rem', fontWeight: '900', margin: 0 }}>Manual Entry</h2>
-                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+                            <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', margin: 0 }}>Manual Entry</h2>
+                            <button onClick={() => setIsModalOpen(false)} aria-label="Close modal" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
                         </div>
-                        <form onSubmit={handleAddTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <form onSubmit={handleAddTransaction} aria-label="Add transaction form" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '16px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Entry Type</label>
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Entry Type</label>
                                     <div style={{ display: 'flex', gap: '8px', background: '#020617', padding: '4px', borderRadius: '12px', border: '1px solid #1e293b' }}>
-                                        <button type="button" onClick={() => setType('Expense')} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Expense' ? '#f43f5e' : 'transparent', color: type === 'Expense' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>EXPENSE</button>
-                                        <button type="button" onClick={() => setType('Income')} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Income' ? '#10b981' : 'transparent', color: type === 'Income' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>INCOME</button>
+                                        <button type="button" onClick={() => setType('Expense')} aria-pressed={type === 'Expense'} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Expense' ? '#f43f5e' : 'transparent', color: type === 'Expense' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>EXPENSE</button>
+                                        <button type="button" onClick={() => setType('Income')} aria-pressed={type === 'Income'} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Income' ? '#10b981' : 'transparent', color: type === 'Income' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>INCOME</button>
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Date</label>
-                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Date</label>
+                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} aria-label="Transaction date" style={{ background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} />
                                 </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Description</label>
-                                <input value={description} onChange={e => setDescription(e.target.value)} placeholder="What was this for?" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Description</label>
+                                <input value={description} onChange={e => setDescription(e.target.value)} placeholder="What was this for?" aria-label="Transaction description" required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '16px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Category</label>
-                                    <input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Food" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Category</label>
+                                    <input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Food" aria-label="Transaction category" required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Amount (₹)</label>
-                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Amount (₹)</label>
+                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" aria-label="Transaction amount" required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
                             </div>
-                            <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem' }}>Commit Transaction</button>
+                            <button type="submit" aria-label="Submit transaction" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem' }}>Commit Transaction</button>
                         </form>
                     </div>
                 </div>
