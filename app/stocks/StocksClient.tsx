@@ -27,7 +27,8 @@ import {
     Calendar,
     Wallet,
     Edit3,
-    Trash2
+    Trash2,
+    PieChart as PieChartIcon
 } from 'lucide-react';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4'];
@@ -38,7 +39,7 @@ export default function StocksClient() {
         addStockTransaction, deleteStockTransaction, settings, loading
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
-    const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime'>('portfolio');
+    const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime' | 'allocation'>('portfolio');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<'stock' | 'transaction'>('stock');
     const [editId, setEditId] = useState<number | null>(null);
@@ -341,6 +342,7 @@ export default function StocksClient() {
             <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '16px', border: '1px solid #1e293b', marginBottom: '32px', width: 'fit-content' }}>
                 {[
                     { id: 'portfolio', label: 'Holdings', icon: <BarChart3 size={18} /> },
+                    { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} /> },
                     { id: 'history', label: 'History', icon: <History size={18} /> },
                     { id: 'lifetime', label: 'Lifetime', icon: <Star size={18} /> }
                 ].map(tab => (
@@ -370,132 +372,188 @@ export default function StocksClient() {
 
             {/* Tab Content */}
             {activeTab === 'portfolio' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px' }}>
-                    {/* Holdings List */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    {/* Holdings List - Full Width */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0, marginBottom: '16px' }}>Your Holdings</h3>
-                        {stocks.length > 0 ? stocks.map((stock, idx) => (
-                            <div key={stock.id} style={{
-                                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                                padding: '24px',
-                                borderRadius: '20px',
-                                border: '1px solid #1e293b',
-                                transition: 'all 0.3s',
-                                cursor: 'pointer'
-                            }}
-                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(0,0,0,0.3)'; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
-                                        <div>
-                                            <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{stock.symbol}</div>
-                                            <div style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '8px' }}>{stock.companyName}</div>
-                                            <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: '#475569' }}>
-                                                <span>Qty: {stock.quantity}</span>
-                                                <span>Avg: ₹{stock.avgPrice.toFixed(2)}</span>
-                                                <span>LTP: ₹{stock.currentPrice.toFixed(2)}</span>
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); handleEditStock(stock); }}
-                                                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                aria-label="Edit stock"
-                                            >
-                                                <Edit3 size={14} />
-                                            </button>
-                                            <button
-                                                onClick={async (e) => {
-                                                    e.stopPropagation();
-                                                    const isConfirmed = await customConfirm({
-                                                        title: 'Delete Stock',
-                                                        message: `Are you sure you want to delete ${stock.symbol} from your portfolio? This will not delete its history.`,
-                                                        type: 'error',
-                                                        confirmLabel: 'Delete'
-                                                    });
-                                                    if (isConfirmed) {
-                                                        await deleteStock(stock.id);
-                                                        showNotification('success', `${stock.symbol} removed`);
-                                                    }
-                                                }}
-                                                style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                aria-label="Delete stock"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>₹{stock.currentValue.toLocaleString()}</div>
-                                        <div style={{
-                                            fontSize: '0.9rem',
-                                            fontWeight: '700',
-                                            color: stock.pnl >= 0 ? '#34d399' : '#f87171',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            justifyContent: 'flex-end'
-                                        }}>
-                                            {stock.pnl >= 0 ? <ArrowUpRight size={14} /> : <ArrowDownRight size={14} />}
-                                            {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toFixed(2)} ({stock.pnlPercentage.toFixed(2)}%)
-                                        </div>
-                                    </div>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0 }}>Active Portfolio</h3>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 16px', borderRadius: '12px', border: '1px solid #1e293b', fontSize: '0.8rem', fontWeight: '700', color: '#64748b' }}>
+                                    {stocks.length} SECURITIES
                                 </div>
-                                <div style={{
-                                    width: '100%',
-                                    height: '4px',
-                                    background: '#1e293b',
-                                    borderRadius: '2px',
-                                    overflow: 'hidden'
-                                }}>
-                                    <div style={{
-                                        width: `${Math.min(100, Math.max(0, stock.pnlPercentage + 50))}%`,
-                                        height: '100%',
-                                        background: stock.pnl >= 0 ? '#34d399' : '#f87171',
-                                        borderRadius: '2px'
-                                    }} />
-                                </div>
-                            </div>
-                        )) : (
-                            <div style={{ padding: '60px', textAlign: 'center', color: '#475569', border: '2px dashed #1e293b', borderRadius: '20px' }}>
-                                <TrendingUp size={48} style={{ marginBottom: '16px', opacity: 0.5 }} />
-                                <div style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '8px' }}>No stocks in portfolio</div>
-                                <div style={{ fontSize: '0.9rem' }}>Add your first stock to start tracking your investments</div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Charts Section */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                        <div style={{ background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
-                            <h4 style={{ fontSize: '1rem', fontWeight: '800', margin: 0, marginBottom: '16px' }}>Sector Distribution</h4>
-                            <div style={{ height: '200px' }}>
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <PieChart>
-                                        <Pie data={sectorData} cx="50%" cy="50%" innerRadius={40} outerRadius={80} paddingAngle={2} dataKey="value" nameKey="sector">
-                                            {sectorData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
-                                        </Pie>
-                                        <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '8px' }} />
-                                    </PieChart>
-                                </ResponsiveContainer>
                             </div>
                         </div>
-
-                        <div style={{ background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
-                            <h4 style={{ fontSize: '1rem', fontWeight: '800', margin: 0, marginBottom: '16px' }}>Top Performers</h4>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {stocks.sort((a, b) => b.pnlPercentage - a.pnlPercentage).slice(0, 3).map((stock) => (
-                                    <div key={stock.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '8px' }}>
-                                        <div>
-                                            <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>{stock.symbol}</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{stock.sector}</div>
+                        {stocks.length > 0 ? (
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '20px' }}>
+                                {stocks.map((stock) => (
+                                    <div key={stock.id} style={{
+                                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                                        padding: '24px',
+                                        borderRadius: '24px',
+                                        border: '1px solid #1e293b',
+                                        transition: 'all 0.3s',
+                                        cursor: 'pointer',
+                                        position: 'relative',
+                                        overflow: 'hidden'
+                                    }}
+                                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = '#334155'; }}
+                                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#1e293b'; }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+                                            <div style={{ display: 'flex', gap: '14px' }}>
+                                                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#6366f1', fontSize: '1.1rem' }}>
+                                                    {stock.symbol[0]}
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#fff', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                        {stock.symbol}
+                                                        <span style={{ fontSize: '0.65rem', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>{stock.sector || 'Equities'}</span>
+                                                    </div>
+                                                    <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{stock.companyName}</div>
+                                                </div>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '6px' }}>
+                                                <button onClick={(e) => { e.stopPropagation(); handleEditStock(stock); }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#94a3b8', cursor: 'pointer', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center' }}><Edit3 size={14} /></button>
+                                                <button onClick={async (e) => {
+                                                    e.stopPropagation();
+                                                    const isConfirmed = await customConfirm({ title: 'Delete Stock', message: `Are you sure you want to remove ${stock.symbol}? History remains intact.`, type: 'error', confirmLabel: 'Delete' });
+                                                    if (isConfirmed) { await deleteStock(stock.id); showNotification('success', `${stock.symbol} removed`); }
+                                                }} style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.1)', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center' }}><Trash2 size={14} /></button>
+                                            </div>
                                         </div>
-                                        <div style={{ fontSize: '0.8rem', fontWeight: '700', color: stock.pnl >= 0 ? '#34d399' : '#f87171' }}>
-                                            {stock.pnl >= 0 ? '+' : ''}{stock.pnlPercentage.toFixed(2)}%
+
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
+                                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '4px' }}>Market Value</div>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: '900' }}>₹{stock.currentValue.toLocaleString()}</div>
+                                            </div>
+                                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '4px' }}>Unrealized P&L</div>
+                                                <div style={{ fontSize: '1.1rem', fontWeight: '900', color: stock.pnl >= 0 ? '#10b981' : '#f43f5e' }}>
+                                                    {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toLocaleString()}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
+                                            <div style={{ display: 'flex', gap: '12px', color: '#64748b', fontWeight: '700' }}>
+                                                <span>{stock.quantity} QTY</span>
+                                                <span style={{ opacity: 0.3 }}>|</span>
+                                                <span>AVG: ₹{stock.avgPrice.toFixed(2)}</span>
+                                            </div>
+                                            <div style={{ color: stock.pnl >= 0 ? '#10b981' : '#f43f5e', fontWeight: '900', background: stock.pnl >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', padding: '4px 10px', borderRadius: '8px' }}>
+                                                {stock.pnl >= 0 ? <ArrowUpRight size={12} style={{ marginRight: '4px' }} /> : <ArrowDownRight size={12} style={{ marginRight: '4px' }} />}
+                                                {stock.pnlPercentage.toFixed(2)}%
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
+                        ) : (
+                            <div style={{ padding: '80px', textAlign: 'center', color: '#475569', border: '2px dashed #1e293b', borderRadius: '32px', background: 'rgba(15, 23, 42, 0.2)' }}>
+                                <TrendingUp size={48} style={{ marginBottom: '20px', opacity: 0.3 }} />
+                                <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#94a3b8', marginBottom: '8px' }}>Empty High-Growth Portfolio</div>
+                                <div style={{ fontSize: '0.95rem' }}>Start building your wealth by adding your first equity holding.</div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {activeTab === 'allocation' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                    <div style={{ background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', padding: '40px', borderRadius: '32px', border: '1px solid #1e293b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                            <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
+                                <PieChartIcon size={20} />
+                            </div>
+                            <h4 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>Sector Diversification</h4>
+                        </div>
+                        <div style={{ height: '400px', width: '100%' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <PieChart>
+                                    <Pie
+                                        data={sectorData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={80}
+                                        outerRadius={120}
+                                        paddingAngle={5}
+                                        dataKey="value"
+                                        nameKey="sector"
+                                        stroke="none"
+                                        label={({
+                                            cx = 0,
+                                            cy = 0,
+                                            midAngle = 0,
+                                            innerRadius = 0,
+                                            outerRadius = 0,
+                                            value = 0,
+                                            index = 0
+                                        }) => {
+                                            const RADIAN = Math.PI / 180;
+                                            const radius = outerRadius + 30;
+                                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                            const percent = (value / totalCurrentValue) * 100;
+
+                                            // Only show if > 2% to avoid overlap
+                                            if (percent < 2) return null;
+
+                                            return (
+                                                <text
+                                                    x={x}
+                                                    y={y}
+                                                    fill="#94a3b8"
+                                                    textAnchor={x > cx ? 'start' : 'end'}
+                                                    dominantBaseline="central"
+                                                    style={{ fontSize: '0.75rem', fontWeight: '800', fontFamily: 'Inter' }}
+                                                >
+                                                    {sectorData[index].sector}: {percent.toFixed(0)}%
+                                                </text>
+                                            );
+                                        }}
+                                    >
+                                        {sectorData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                                    </Pie>
+                                    <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', padding: '12px' }} />
+                                </PieChart>
+                            </ResponsiveContainer>
+                        </div>
+                        <div style={{ marginTop: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                            {sectorData.map((sec, idx) => (
+                                <div key={idx} style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }} />
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#fff' }}>{sec.sector}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>₹{sec.value.toLocaleString()} ({((sec.value / totalCurrentValue) * 100).toFixed(1)}%)</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                        <div style={{ background: '#0f172a', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
+                            <h4 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Equity Weights</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                                {stocks.sort((a, b) => b.currentValue - a.currentValue).slice(0, 6).map(stock => (
+                                    <div key={stock.id}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px', fontSize: '0.9rem' }}>
+                                            <span style={{ fontWeight: '800', color: '#fff' }}>{stock.symbol}</span>
+                                            <span style={{ color: '#94a3b8', fontWeight: '600' }}>{((stock.currentValue / totalCurrentValue) * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div style={{ width: '100%', height: '8px', background: '#020617', borderRadius: '100px', overflow: 'hidden' }}>
+                                            <div style={{ width: `${(stock.currentValue / totalCurrentValue) * 100}%`, height: '100%', background: 'linear-gradient(to right, #6366f1, #818cf8)', borderRadius: '100px' }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', padding: '32px', borderRadius: '32px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
+                            <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Portfolio Strategy</div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#fff', marginBottom: '12px' }}>Concentrated Growth</div>
+                            <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>Your key holdings account for {((stocks.slice(0, 3).reduce((s, tx) => s + tx.currentValue, 0) / totalCurrentValue) * 100).toFixed(0)}% of your total equity exposure.</p>
                         </div>
                     </div>
                 </div>
@@ -622,26 +680,6 @@ export default function StocksClient() {
                         </div>
                     </div>
 
-                    <div style={{ background: '#0f172a', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px' }}>
-                        <h4 style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '24px' }}>Asset Breakdown</h4>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            {stocks.slice(0, 5).map(stock => (
-                                <div key={stock.id}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', fontSize: '0.9rem' }}>
-                                        <span style={{ fontWeight: '700' }}>{stock.symbol}</span>
-                                        <span style={{ color: '#94a3b8' }}>₹{stock.currentValue.toLocaleString()}</span>
-                                    </div>
-                                    <div style={{ width: '100%', height: '6px', background: '#020617', borderRadius: '100px', overflow: 'hidden' }}>
-                                        <div style={{ width: `${(stock.currentValue / totalCurrentValue) * 100}%`, height: '100%', background: '#6366f1', borderRadius: '100px' }} />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                        <div style={{ marginTop: '32px', padding: '20px', background: 'rgba(99, 102, 241, 0.05)', borderRadius: '20px', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
-                            <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#818cf8', marginBottom: '4px' }}>Portfolio Diversity</div>
-                            <div style={{ fontSize: '1.25rem', fontWeight: '900' }}>High Performance</div>
-                        </div>
-                    </div>
                 </div>
             )}
 

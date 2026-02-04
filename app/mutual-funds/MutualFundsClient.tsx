@@ -21,7 +21,8 @@ import {
     Zap,
     Briefcase,
     Edit3,
-    Trash2
+    Trash2,
+    PieChart as PieChartIcon
 } from 'lucide-react';
 import { useFinance, MutualFund, MutualFundTransaction } from '../components/FinanceContext';
 
@@ -42,7 +43,7 @@ export default function MutualFundsClient() {
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
-    const [activeTab, setActiveTab] = useState<'holdings' | 'history' | 'lifetime'>('holdings');
+    const [activeTab, setActiveTab] = useState<'holdings' | 'history' | 'lifetime' | 'allocation'>('holdings');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<'fund' | 'transaction'>('fund');
     const [editId, setEditId] = useState<number | null>(null);
@@ -290,6 +291,7 @@ export default function MutualFundsClient() {
             <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '18px', border: '1px solid #1e293b', marginBottom: '32px', width: 'fit-content' }}>
                 {[
                     { id: 'holdings', label: 'Holdings', icon: <Briefcase size={18} /> },
+                    { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} /> },
                     { id: 'history', label: 'History', icon: <History size={18} /> },
                     { id: 'lifetime', label: 'Lifetime', icon: <Star size={18} /> }
                 ].map(tab => (
@@ -319,82 +321,168 @@ export default function MutualFundsClient() {
 
             {/* Content */}
             {activeTab === 'holdings' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1.8fr 1.2fr', gap: '32px' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '20px' }}>
                         {mutualFunds.map(mf => (
-                            <div key={mf.id} style={{ background: '#0f172a', padding: '28px', borderRadius: '28px', border: '1px solid #1e293b', position: 'relative' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px' }}>
-                                    <div style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                            <div key={mf.id} style={{
+                                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                                padding: '32px',
+                                borderRadius: '32px',
+                                border: '1px solid #1e293b',
+                                position: 'relative',
+                                transition: 'all 0.3s'
+                            }}
+                                onMouseEnter={e => e.currentTarget.style.borderColor = '#334155'}
+                                onMouseLeave={e => e.currentTarget.style.borderColor = '#1e293b'}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
+                                    <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+                                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1', fontSize: '1.25rem', fontWeight: '900', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
+                                            {mf.name[0]}
+                                        </div>
                                         <div>
-                                            <div style={{ fontSize: '1.1rem', fontWeight: '800', marginBottom: '4px' }}>{mf.name}</div>
-                                            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '0.75rem', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', padding: '4px 8px', borderRadius: '6px', fontWeight: '700' }}>{mf.category}</span>
-                                                <span style={{ fontSize: '0.8rem', color: '#64748b' }}>{mf.units.toFixed(3)} units @ ₹{mf.avgNav.toFixed(2)}</span>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '900', marginBottom: '6px', color: '#fff' }}>{mf.name}</div>
+                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                                <span style={{ fontSize: '0.7rem', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', padding: '4px 10px', borderRadius: '8px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{mf.category}</span>
+                                                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{mf.units.toFixed(3)} units</span>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                onClick={(e) => { e.stopPropagation(); handleEditFund(mf); }}
-                                                style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                aria-label="Edit fund"
-                                            >
-                                                <Edit3 size={14} />
-                                            </button>
-                                            <button
-                                                onClick={async (e) => {
-                                                    e.stopPropagation();
-                                                    const isConfirmed = await customConfirm({
-                                                        title: 'Delete Fund',
-                                                        message: `Are you sure you want to remove ${mf.name} from your portfolio? Global history remains intact.`,
-                                                        type: 'error',
-                                                        confirmLabel: 'Remove'
-                                                    });
-                                                    if (isConfirmed) {
-                                                        await deleteMutualFund(mf.id);
-                                                        showNotification('success', 'Fund removed');
-                                                    }
-                                                }}
-                                                style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                aria-label="Delete fund"
-                                            >
-                                                <Trash2 size={14} />
-                                            </button>
-                                        </div>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <div style={{ fontSize: '1.25rem', fontWeight: '900' }}>₹{mf.currentValue.toLocaleString()}</div>
-                                        <div style={{ fontSize: '0.9rem', color: mf.pnl >= 0 ? '#34d399' : '#f87171', fontWeight: '800' }}>
-                                            {mf.pnl >= 0 ? '+' : ''}₹{mf.pnl.toLocaleString()} ({mf.pnlPercentage.toFixed(2)}%)
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button onClick={(e) => { e.stopPropagation(); handleEditFund(mf); }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Edit3 size={16} /></button>
+                                        <button onClick={async (e) => {
+                                            e.stopPropagation();
+                                            const isConfirmed = await customConfirm({ title: 'Delete Fund', message: `Are you sure you want to remove ${mf.name}?`, type: 'error', confirmLabel: 'Remove' });
+                                            if (isConfirmed) { await deleteMutualFund(mf.id); showNotification('success', 'Fund removed'); }
+                                        }} style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.1)', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Trash2 size={16} /></button>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
+                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>Current Valuation</div>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: '950' }}>₹{mf.currentValue.toLocaleString()}</div>
+                                    </div>
+                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>Returns</div>
+                                        <div style={{ fontSize: '1.5rem', fontWeight: '950', color: mf.pnl >= 0 ? '#10b981' : '#f87171' }}>
+                                            {mf.pnl >= 0 ? '+' : ''}₹{mf.pnl.toLocaleString()}
                                         </div>
                                     </div>
                                 </div>
-                                <div style={{ fontSize: '0.75rem', color: '#475569', display: 'flex', justifyContent: 'space-between' }}>
-                                    <span>Current NAV: ₹{mf.currentNav.toFixed(4)}</span>
-                                    <span>Folio: {mf.folioNumber || '••••'}</span>
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
+                                    <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: '#64748b', fontWeight: '700' }}>
+                                        <span>NAV: ₹{mf.currentNav.toFixed(4)}</span>
+                                        <span style={{ opacity: 0.3 }}>|</span>
+                                        <span>AVG: ₹{mf.avgNav.toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ padding: '6px 14px', borderRadius: '12px', background: mf.pnl >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', color: mf.pnl >= 0 ? '#10b981' : '#f87171', fontWeight: '900', fontSize: '0.85rem' }}>
+                                        {mf.pnlPercentage.toFixed(2)}%
+                                    </div>
                                 </div>
                             </div>
                         ))}
                     </div>
+                </div>
+            )}
 
-                    <div style={{ background: '#0f172a', padding: '32px', borderRadius: '32px', border: '1px solid #1e293b', height: 'fit-content' }}>
-                        <h3 style={{ fontSize: '1.1rem', fontWeight: '900', marginBottom: '24px' }}>Portfolio Distribution</h3>
-                        <div style={{ height: '240px' }}>
+            {activeTab === 'allocation' && (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                    <div style={{ background: '#0f172a', padding: '48px', borderRadius: '40px', border: '1px solid #1e293b' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '40px' }}>
+                            <div style={{ width: '48px', height: '48px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
+                                <PieChartIcon size={24} />
+                            </div>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>Category Allocation</h3>
+                        </div>
+                        <div style={{ height: '400px', width: '100%' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <PieChart>
-                                    <Pie data={categoryData} cx="50%" cy="50%" innerRadius={60} outerRadius={100} paddingAngle={5} dataKey="value">
+                                    <Pie
+                                        data={categoryData}
+                                        cx="50%"
+                                        cy="50%"
+                                        innerRadius={100}
+                                        outerRadius={140}
+                                        paddingAngle={8}
+                                        dataKey="value"
+                                        stroke="none"
+                                        label={({
+                                            cx = 0,
+                                            cy = 0,
+                                            midAngle = 0,
+                                            innerRadius = 0,
+                                            outerRadius = 0,
+                                            value = 0,
+                                            index = 0
+                                        }) => {
+                                            const RADIAN = Math.PI / 180;
+                                            const radius = outerRadius + 30;
+                                            const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                            const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                            const percent = (value / totalCurrentValue) * 100;
+
+                                            // Only show if > 2% to avoid overlap
+                                            if (percent < 2) return null;
+
+                                            return (
+                                                <text
+                                                    x={x}
+                                                    y={y}
+                                                    fill="#94a3b8"
+                                                    textAnchor={x > cx ? 'start' : 'end'}
+                                                    dominantBaseline="central"
+                                                    style={{ fontSize: '0.75rem', fontWeight: '800', fontFamily: 'Inter' }}
+                                                >
+                                                    {categoryData[index].name}: {percent.toFixed(0)}%
+                                                </text>
+                                            );
+                                        }}
+                                    >
                                         {categoryData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                     </Pie>
-                                    <RechartsTooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '12px' }} />
+                                    <RechartsTooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '20px', boxShadow: '0 30px 60px rgba(0,0,0,0.5)', padding: '16px' }} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
-                        <div style={{ marginTop: '24px', display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                        <div style={{ marginTop: '40px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                             {categoryData.map((cat, idx) => (
-                                <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }} />
-                                    <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>{cat.name}</span>
+                                <div key={idx} style={{ padding: '16px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }} />
+                                    <div>
+                                        <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#fff' }}>{cat.name}</div>
+                                        <div style={{ fontSize: '0.8rem', color: '#64748b' }}>₹{cat.value.toLocaleString()} ({((cat.value / totalCurrentValue) * 100).toFixed(1)}%)</div>
+                                    </div>
                                 </div>
                             ))}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                        <div style={{ background: '#0f172a', padding: '40px', borderRadius: '40px', border: '1px solid #1e293b' }}>
+                            <h4 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Scheme Weightage</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
+                                {mutualFunds.sort((a, b) => b.currentValue - a.currentValue).slice(0, 5).map(mf => (
+                                    <div key={mf.id}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                                            <span style={{ fontWeight: '800', fontSize: '0.95rem' }}>{mf.name}</span>
+                                            <span style={{ fontSize: '0.95rem', fontWeight: '900', color: '#818cf8' }}>{((mf.currentValue / totalCurrentValue) * 100).toFixed(1)}%</span>
+                                        </div>
+                                        <div style={{ width: '100%', height: '10px', background: '#020617', borderRadius: '100px', overflow: 'hidden', border: '1px solid #1e293b' }}>
+                                            <div style={{ width: `${(mf.currentValue / totalCurrentValue) * 100}%`, height: '100%', background: 'linear-gradient(to right, #6366f1, #a855f7)', borderRadius: '100px' }} />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%)', padding: '32px', borderRadius: '40px', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '16px' }}>
+                                <TrendingUp size={20} color="#10b981" />
+                                <span style={{ fontSize: '0.8rem', fontWeight: '900', color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px' }}>Portfolio Health</span>
+                            </div>
+                            <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#fff', marginBottom: '8px' }}>Optimized Allocation</div>
+                            <p style={{ fontSize: '0.95rem', color: '#94a3b8', lineHeight: 1.6, margin: 0 }}>Your top three funds command {((mutualFunds.sort((a, b) => b.currentValue - a.currentValue).slice(0, 3).reduce((s, tx) => s + tx.currentValue, 0) / totalCurrentValue) * 100).toFixed(0)}% of your capital, maintaining strong structural balance.</p>
                         </div>
                     </div>
                 </div>

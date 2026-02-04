@@ -162,25 +162,55 @@ export default function Dashboard() {
                                 <PieIcon size={18} color="#818cf8" />
                                 <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '800', textTransform: 'uppercase' }}>Asset Allocation</span>
                             </div>
-                            <div style={{ height: '220px', position: 'relative' }}>
+                            <div style={{ height: '280px', position: 'relative' }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
                                             data={allocationData}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={60}
-                                            outerRadius={85}
+                                            innerRadius={70}
+                                            outerRadius={95}
                                             paddingAngle={8}
                                             dataKey="value"
                                             stroke="none"
+                                            label={({
+                                                cx = 0,
+                                                cy = 0,
+                                                midAngle = 0,
+                                                innerRadius = 0,
+                                                outerRadius = 0,
+                                                value = 0,
+                                                index = 0
+                                            }) => {
+                                                const RADIAN = Math.PI / 180;
+                                                const radius = outerRadius + 25;
+                                                const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                                const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                                const percent = (value / totalNetWorth) * 100;
+
+                                                if (percent < 5) return null;
+
+                                                return (
+                                                    <text
+                                                        x={x}
+                                                        y={y}
+                                                        fill="#94a3b8"
+                                                        textAnchor={x > cx ? 'start' : 'end'}
+                                                        dominantBaseline="central"
+                                                        style={{ fontSize: '0.7rem', fontWeight: '900', fontFamily: 'Inter' }}
+                                                    >
+                                                        {allocationData[index].name}: {percent.toFixed(0)}%
+                                                    </text>
+                                                );
+                                            }}
                                         >
                                             {allocationData.map((entry, index) => (
                                                 <Cell key={`cell-${index}`} fill={entry.color} />
                                             ))}
                                         </Pie>
                                         <Tooltip
-                                            contentStyle={{ background: '#020617', border: '1px solid #1e293b', borderRadius: '12px' }}
+                                            contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
                                             formatter={(val: any) => [`₹${(val || 0).toLocaleString()}`, 'Value']}
                                         />
                                     </PieChart>

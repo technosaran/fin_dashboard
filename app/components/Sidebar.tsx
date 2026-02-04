@@ -5,15 +5,29 @@ import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     Wallet,
+    TrendingUp,
+    Activity,
     Book,
     Banknote,
+    Users,
     Target,
+    Zap,
+    ArrowDownRight,
     Settings,
     LogOut,
     Command,
-    Users,
-    TrendingUp,
-    Activity
+    Plus,
+    X,
+    Search,
+    Filter,
+    MoreHorizontal,
+    ChevronLeft,
+    ChevronRight,
+    Download,
+    History,
+    Edit3,
+    Trash2,
+    ArrowUpRight
 } from 'lucide-react';
 
 import { useAuth } from './AuthContext';
@@ -34,6 +48,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         { label: 'Accounts', href: '/accounts', icon: <Wallet size={20} /> },
         { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={20} /> },
         { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={20} /> },
+        { label: 'FnO', href: '/fno', icon: <Zap size={20} /> },
+        { label: 'Expenses', href: '/expenses', icon: <ArrowDownRight size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Income', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
@@ -160,16 +176,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
                 {/* Bottom Section */}
                 <div style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid #1e293b' }}>
-                    <div style={{ padding: '12px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '12px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <div style={{ width: '36px', height: '36px', borderRadius: '12px', background: 'linear-gradient(135deg, #818cf8 0%, #6366f1 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#fff', fontSize: '0.9rem', boxShadow: '0 4px 10px rgba(99, 102, 241, 0.2)' }}>
-                            S
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#fff', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                Saran <span className="animate-sparkle" style={{ fontSize: '0.9rem' }}>✨</span>
-                            </div>
-                        </div>
-                    </div>
 
                     <Link href="/settings" style={{ textDecoration: 'none' }} onClick={onClose}>
                         <div style={{

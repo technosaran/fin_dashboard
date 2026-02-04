@@ -15,6 +15,7 @@ type StockTransactionRow = any;
 type WatchlistRow = any;
 type MutualFundRow = any;
 type MutualFundTransactionRow = any;
+type FnoTradeRow = any;
 
 export interface AppSettings {
     brokerageType: 'flat' | 'percentage';
@@ -137,6 +138,22 @@ export interface MutualFundTransaction {
     accountId?: number;
 }
 
+export interface FnoTrade {
+    id: number;
+    instrument: string;
+    tradeType: 'BUY' | 'SELL';
+    product: 'NRML' | 'MIS';
+    quantity: number;
+    avgPrice: number;
+    exitPrice?: number;
+    entryDate: string;
+    exitDate?: string;
+    status: 'OPEN' | 'CLOSED';
+    pnl: number;
+    notes?: string;
+    accountId?: number;
+}
+
 interface FinanceContextType {
     accounts: Account[];
     transactions: Transaction[];
@@ -147,6 +164,7 @@ interface FinanceContextType {
     watchlist: WatchlistItem[];
     mutualFunds: MutualFund[];
     mutualFundTransactions: MutualFundTransaction[];
+    fnoTrades: FnoTrade[];
     settings: AppSettings;
     updateSettings: (newSettings: AppSettings) => Promise<void>;
     loading: boolean;
@@ -175,6 +193,9 @@ interface FinanceContextType {
     deleteMutualFund: (id: number) => Promise<void>;
     addMutualFundTransaction: (transaction: Omit<MutualFundTransaction, 'id'>) => Promise<void>;
     deleteMutualFundTransaction: (id: number) => Promise<void>;
+    addFnoTrade: (trade: Omit<FnoTrade, 'id'>) => Promise<void>;
+    updateFnoTrade: (trade: FnoTrade) => Promise<void>;
+    deleteFnoTrade: (id: number) => Promise<void>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -342,6 +363,22 @@ const dbMutualFundTransactionToMutualFundTransaction = (dbTx: MutualFundTransact
     accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
 });
 
+const dbFnoTradeToFnoTrade = (dbTx: FnoTradeRow): FnoTrade => ({
+    id: Number(dbTx.id),
+    instrument: dbTx.instrument,
+    tradeType: dbTx.trade_type as 'BUY' | 'SELL',
+    product: dbTx.product as 'NRML' | 'MIS',
+    quantity: Number(dbTx.quantity),
+    avgPrice: Number(dbTx.avg_price),
+    exitPrice: dbTx.exit_price ? Number(dbTx.exit_price) : undefined,
+    entryDate: dbTx.entry_date,
+    exitDate: dbTx.exit_date || undefined,
+    status: dbTx.status as 'OPEN' | 'CLOSED',
+    pnl: Number(dbTx.pnl),
+    notes: dbTx.notes || undefined,
+    accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
+});
+
 export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -352,6 +389,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const [watchlist, setWatchlist] = useState<WatchlistItem[]>([]);
     const [mutualFunds, setMutualFunds] = useState<MutualFund[]>([]);
     const [mutualFundTransactions, setMutualFundTransactions] = useState<MutualFundTransaction[]>([]);
+    const [fnoTrades, setFnoTrades] = useState<FnoTrade[]>([]);
     const [settings, setSettings] = useState<AppSettings>({
         brokerageType: 'percentage',
         brokerageValue: 0,
@@ -391,6 +429,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     { data: watchlistData, error: watchlistError },
                     { data: mutualFundsData, error: mutualFundsError },
                     { data: mutualFundTransactionsData, error: mutualFundTransactionsError },
+                    { data: fnoTradesData, error: fnoTradesError },
                     { data: settingsData, error: settingsError }
                 ] = await Promise.all([
                     supabase.from('accounts').select('*').order('created_at', { ascending: false }),
@@ -402,6 +441,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     supabase.from('watchlist').select('*').order('symbol', { ascending: true }),
                     supabase.from('mutual_funds').select('*').order('name', { ascending: true }),
                     supabase.from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as any).from('fno_trades').select('*').order('entry_date', { ascending: false }),
                     (supabase as any).from('app_settings').select('*').eq('id', 1).single()
                 ]);
 
@@ -431,6 +471,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
                 if (mutualFundTransactionsError) console.error('Error loading mutual fund transactions:', mutualFundTransactionsError);
                 else setMutualFundTransactions(mutualFundTransactionsData.map(dbMutualFundTransactionToMutualFundTransaction));
+
+                if (fnoTradesError) console.error('Error loading FnO trades:', fnoTradesError);
+                else setFnoTrades(fnoTradesData.map(dbFnoTradeToFnoTrade));
 
                 if (!settingsError && settingsData) {
                     setSettings(dbSettingsToSettings(settingsData));
@@ -1099,6 +1142,75 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setMutualFundTransactions(prev => prev.filter(t => t.id !== id));
     };
 
+    const addFnoTrade = async (tradeData: Omit<FnoTrade, 'id'>) => {
+        const { data, error } = await (supabase as any)
+            .from('fno_trades')
+            .insert({
+                instrument: tradeData.instrument,
+                trade_type: tradeData.tradeType,
+                product: tradeData.product,
+                quantity: tradeData.quantity,
+                avg_price: tradeData.avgPrice,
+                exit_price: tradeData.exitPrice || null,
+                entry_date: tradeData.entryDate,
+                exit_date: tradeData.exitDate || null,
+                status: tradeData.status,
+                pnl: tradeData.pnl,
+                notes: tradeData.notes || null,
+                account_id: tradeData.accountId || null
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding FnO trade:', error);
+            return;
+        }
+
+        const newTrade = dbFnoTradeToFnoTrade(data);
+        setFnoTrades(prev => [newTrade, ...prev]);
+    };
+
+    const updateFnoTrade = async (updatedTrade: FnoTrade) => {
+        const { error } = await (supabase as any)
+            .from('fno_trades')
+            .update({
+                instrument: updatedTrade.instrument,
+                trade_type: updatedTrade.tradeType,
+                product: updatedTrade.product,
+                quantity: updatedTrade.quantity,
+                avg_price: updatedTrade.avgPrice,
+                exit_price: updatedTrade.exitPrice || null,
+                entry_date: updatedTrade.entryDate,
+                exit_date: updatedTrade.exitDate || null,
+                status: updatedTrade.status,
+                pnl: updatedTrade.pnl,
+                notes: updatedTrade.notes || null
+            })
+            .eq('id', updatedTrade.id);
+
+        if (error) {
+            console.error('Error updating FnO trade:', error);
+            return;
+        }
+
+        setFnoTrades(prev => prev.map(t => t.id === updatedTrade.id ? updatedTrade : t));
+    };
+
+    const deleteFnoTrade = async (id: number) => {
+        const { error } = await (supabase as any)
+            .from('fno_trades')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting FnO trade:', error);
+            return;
+        }
+
+        setFnoTrades(prev => prev.filter(t => t.id !== id));
+    };
+
     return (
         <FinanceContext.Provider value={{
             accounts,
@@ -1110,6 +1222,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             watchlist,
             mutualFunds,
             mutualFundTransactions,
+            fnoTrades,
             settings,
             updateSettings,
             loading,
@@ -1137,7 +1250,10 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             updateMutualFund,
             deleteMutualFund,
             addMutualFundTransaction,
-            deleteMutualFundTransaction
+            deleteMutualFundTransaction,
+            addFnoTrade,
+            updateFnoTrade,
+            deleteFnoTrade
         }}>
             {children}
         </FinanceContext.Provider>
