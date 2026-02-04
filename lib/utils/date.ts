@@ -8,13 +8,13 @@
 export function formatDate(date: string | Date, format: 'short' | 'long' | 'medium' = 'medium'): string {
   const d = typeof date === 'string' ? new Date(date) : date;
   
-  const options: Intl.DateTimeFormatOptions = {
+  const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
     short: { year: 'numeric', month: 'short', day: 'numeric' },
     medium: { year: 'numeric', month: 'short', day: 'numeric' },
     long: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
-  }[format];
+  };
   
-  return d.toLocaleDateString('en-IN', options);
+  return d.toLocaleDateString('en-IN', formatOptions[format]);
 }
 
 /**

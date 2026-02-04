@@ -1,14 +1,12 @@
 "use client";
 
-import { useEffect, useState } from 'react';
+import { useMemo } from 'react';
 import {
-    Wallet,
     TrendingUp,
     ArrowUpRight,
     ArrowDownRight,
     Target,
     PieChart as PieIcon,
-    Briefcase,
     Activity,
     ChevronRight,
     Zap
@@ -16,8 +14,23 @@ import {
 import { useFinance } from './FinanceContext';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { MutualFundTransaction } from '@/lib/types';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899'];
+/**
+ * Get time-based greeting
+ */
+function getGreeting(): { text: string; emoji: string } {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) {
+        return { text: 'Good Morning', emoji: '☀️' };
+    } else if (hour >= 12 && hour < 17) {
+        return { text: 'Good Afternoon', emoji: '☕' };
+    } else if (hour >= 17 && hour < 21) {
+        return { text: 'Good Evening', emoji: '🌇' };
+    } else {
+        return { text: 'Good Night', emoji: '🌙' };
+    }
+}
 
 export default function Dashboard() {
     const {
@@ -31,55 +44,66 @@ export default function Dashboard() {
         loading
     } = useFinance();
 
-    const [greeting, setGreeting] = useState('');
-    const [greetingEmoji, setGreetingEmoji] = useState('');
+    const greeting = useMemo(() => getGreeting(), []);
 
-    useEffect(() => {
-        const hour = new Date().getHours();
-        if (hour >= 5 && hour < 12) {
-            setGreeting('Good Morning');
-            setGreetingEmoji('☀️');
-        } else if (hour >= 12 && hour < 17) {
-            setGreeting('Good Afternoon');
-            setGreetingEmoji('☕');
-        } else if (hour >= 17 && hour < 21) {
-            setGreeting('Good Evening');
-            setGreetingEmoji('🌇');
-        } else {
-            setGreeting('Good Night');
-            setGreetingEmoji('🌙');
-        }
-    }, []);
+    // Memoize financial calculations to prevent unnecessary recalculations
+    const financialMetrics = useMemo(() => {
+        const liquidityINR = accounts
+            .filter(a => a.currency === 'INR')
+            .reduce((sum, acc) => sum + acc.balance, 0);
+        
+        const stocksValue = stocks.reduce((sum, s) => sum + s.currentValue, 0);
+        const mfValue = mutualFunds.reduce((sum, m) => sum + m.currentValue, 0);
+        const totalNetWorth = liquidityINR + stocksValue + mfValue;
 
-    // Financial calculations
-    const liquidityINR = accounts.filter(a => a.currency === 'INR').reduce((sum, acc) => sum + acc.balance, 0);
-    const stocksValue = stocks.reduce((sum, s) => sum + s.currentValue, 0);
-    const mfValue = mutualFunds.reduce((sum, m) => sum + m.currentValue, 0);
+        // Stock lifetime metrics
+        const stockBuys = stockTransactions
+            .filter(t => t.transactionType === 'BUY')
+            .reduce((sum, t) => sum + t.totalAmount, 0);
+        
+        const stockSells = stockTransactions
+            .filter(t => t.transactionType === 'SELL')
+            .reduce((sum, t) => sum + t.totalAmount, 0);
+        
+        const stockCharges = stockTransactions
+            .reduce((sum, t) => sum + (t.brokerage || 0) + (t.taxes || 0), 0);
+        
+        const stockLifetime = (stockSells + stocksValue) - (stockBuys + stockCharges);
 
-    const totalNetWorth = liquidityINR + stocksValue + mfValue;
+        // MF lifetime metrics
+        const mfBuys = mutualFundTransactions
+            .filter((t: MutualFundTransaction) => 
+                t.transactionType === 'BUY' || t.transactionType === 'SIP'
+            )
+            .reduce((sum: number, t: MutualFundTransaction) => sum + t.totalAmount, 0);
+        
+        const mfSells = mutualFundTransactions
+            .filter((t: MutualFundTransaction) => t.transactionType === 'SELL')
+            .reduce((sum: number, t: MutualFundTransaction) => sum + t.totalAmount, 0);
+        
+        const mfLifetime = (mfSells + mfValue) - mfBuys;
+        const globalLifetimeWealth = stockLifetime + mfLifetime;
 
-    // Lifetime Metrics Calculation (Stocks)
-    const stockBuys = stockTransactions.filter(t => t.transactionType === 'BUY').reduce((sum, t) => sum + t.totalAmount, 0);
-    const stockSells = stockTransactions.filter(t => t.transactionType === 'SELL').reduce((sum, t) => sum + t.totalAmount, 0);
-    const stockCharges = stockTransactions.reduce((sum, t) => sum + (t.brokerage || 0) + (t.taxes || 0), 0);
-    const stockLifetime = (stockSells + stocksValue) - (stockBuys + stockCharges);
+        return {
+            liquidityINR,
+            stocksValue,
+            mfValue,
+            totalNetWorth,
+            globalLifetimeWealth,
+        };
+    }, [accounts, stocks, mutualFunds, stockTransactions, mutualFundTransactions]);
 
-    // Lifetime Metrics Calculation (MF)
-    const mfBuys = mutualFundTransactions.filter((t: any) => t.transactionType === 'BUY' || t.transactionType === 'SIP').reduce((sum: number, t: any) => sum + t.totalAmount, 0);
-    const mfSells = mutualFundTransactions.filter((t: any) => t.transactionType === 'SELL').reduce((sum: number, t: any) => sum + t.totalAmount, 0);
-    const mfLifetime = (mfSells + mfValue) - mfBuys;
+    // Memoize allocation data
+    const allocationData = useMemo(() => {
+        return [
+            { name: 'Cash', value: financialMetrics.liquidityINR, color: '#6366f1' },
+            { name: 'Stocks', value: financialMetrics.stocksValue, color: '#10b981' },
+            { name: 'Mutual Funds', value: financialMetrics.mfValue, color: '#f59e0b' }
+        ].filter(a => a.value > 0);
+    }, [financialMetrics]);
 
-    const globalLifetimeWealth = stockLifetime + mfLifetime;
-
-    // Asset Allocation Data
-    const allocationData = [
-        { name: 'Cash', value: liquidityINR, color: '#6366f1' },
-        { name: 'Stocks', value: stocksValue, color: '#10b981' },
-        { name: 'Mutual Funds', value: mfValue, color: '#f59e0b' }
-    ].filter(a => a.value > 0);
-
-    // Recent Transactions (Unified)
-    const recentTx = transactions.slice(0, 5);
+    // Memoize recent transactions
+    const recentTx = useMemo(() => transactions.slice(0, 5), [transactions]);
 
     // Show loading state
     if (loading) {
@@ -100,7 +124,7 @@ export default function Dashboard() {
                 <div>
                     <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', color: '#fff', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span className="animate-sparkle">✨</span>
-                        <span>{greeting}, <span style={{ color: '#818cf8' }} className="text-glow">Saran <span className="animate-sparkle" style={{ marginLeft: '4px' }}>{greetingEmoji}</span></span></span>
+                        <span>{greeting.text}, <span style={{ color: '#818cf8' }} className="text-glow">Saran <span className="animate-sparkle" style={{ marginLeft: '4px' }}>{greeting.emoji}</span></span></span>
                     </h1>
                     <p style={{ color: '#64748b', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Your financial empire is expanding.</p>
                 </div>
@@ -132,26 +156,26 @@ export default function Dashboard() {
 
                             <div style={{ marginBottom: '32px' }}>
                                 <div style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', fontWeight: '950', color: '#fff', letterSpacing: '-3px', lineHeight: 1 }}>
-                                    ₹{totalNetWorth.toLocaleString()}
+                                    ₹{financialMetrics.totalNetWorth.toLocaleString()}
                                 </div>
                             </div>
 
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '32px' }}>
                                 <div>
                                     <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Cash</div>
-                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{liquidityINR.toLocaleString()}</div>
+                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{financialMetrics.liquidityINR.toLocaleString()}</div>
                                 </div>
                                 <div>
                                     <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Equity</div>
-                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{stocksValue.toLocaleString()}</div>
+                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{financialMetrics.stocksValue.toLocaleString()}</div>
                                 </div>
                                 <div>
                                     <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Mutual Funds</div>
-                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{mfValue.toLocaleString()}</div>
+                                    <div style={{ color: '#fff', fontSize: '1.25rem', fontWeight: '800' }}>₹{financialMetrics.mfValue.toLocaleString()}</div>
                                 </div>
                                 <div style={{ borderLeft: '1px solid rgba(255,255,255,0.1)', paddingLeft: '24px' }}>
                                     <div style={{ color: '#818cf8', fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', marginBottom: '8px' }}>Lifetime Metrics</div>
-                                    <div style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: '900' }}>{globalLifetimeWealth >= 0 ? '+' : '-'}₹{Math.abs(globalLifetimeWealth).toLocaleString()}</div>
+                                    <div style={{ color: '#10b981', fontSize: '1.25rem', fontWeight: '900' }}>{financialMetrics.globalLifetimeWealth >= 0 ? '+' : '-'}₹{Math.abs(financialMetrics.globalLifetimeWealth).toLocaleString()}</div>
                                 </div>
                             </div>
                         </div>
@@ -187,7 +211,7 @@ export default function Dashboard() {
                                                 const radius = outerRadius + 25;
                                                 const x = cx + radius * Math.cos(-midAngle * RADIAN);
                                                 const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                                                const percent = (value / totalNetWorth) * 100;
+                                                const percent = (value / financialMetrics.totalNetWorth) * 100;
 
                                                 if (percent < 5) return null;
 
