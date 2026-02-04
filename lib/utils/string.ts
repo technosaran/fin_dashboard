@@ -4,15 +4,14 @@
 
 /**
  * Sanitize user input to prevent XSS attacks
+ * Uses comprehensive HTML entity encoding only (no regex-based tag removal)
  */
 export function sanitizeString(input: string): string {
   if (!input) return '';
   
-  // Remove HTML tags
-  const withoutTags = input.replace(/<[^>]*>/g, '');
-  
-  // Escape special characters
-  const escaped = withoutTags
+  // Escape all special HTML characters
+  // This prevents any HTML from being interpreted
+  const sanitized = input
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
@@ -20,7 +19,7 @@ export function sanitizeString(input: string): string {
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;');
   
-  return escaped.trim();
+  return sanitized.trim();
 }
 
 /**

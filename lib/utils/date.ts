@@ -86,7 +86,7 @@ export function getDaysUntil(date: string | Date): number {
 export function getCurrentFY(): string {
   const now = new Date();
   const year = now.getFullYear();
-  const month = now.getMonth() + 1; // 0-indexed
+  const month = now.getMonth() + 1; // getMonth() returns 0-11, convert to 1-12
   
   if (month >= 4) {
     return `FY ${year}-${year + 1}`;
