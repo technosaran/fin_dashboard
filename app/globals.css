@@ -33,19 +33,31 @@ body {
   font-family: inherit;
   margin: 0;
   padding: 0;
-  height: 100vh;
+  min-height: 100vh;
   display: flex;
   overflow: hidden;
-  user-select: none;
   /* Premium apps often feel more secure with no text selection on UI elements */
 }
 
 /* Ensure main content is readable */
 .main-content {
   flex: 1;
-  padding: 40px;
+  padding: 24px;
   overflow-y: auto;
   scroll-behavior: smooth;
+}
+
+/* Responsive padding for larger screens */
+@media (min-width: 768px) {
+  .main-content {
+    padding: 40px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .main-content {
+    padding: 40px 60px;
+  }
 }
 
 * {
@@ -101,4 +113,26 @@ body {
   100% {
     background-position: 1000px 0;
   }
+}
+
+/* Input focus states */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: 2px;
+  border-color: #6366f1 !important;
+}
+
+/* Button focus states */
+button:focus-visible {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: 2px;
+}
+
+/* Link focus states */
+a:focus-visible {
+  outline: 2px solid #6366f1 !important;
+  outline-offset: 2px;
+  border-radius: 4px;
 }
