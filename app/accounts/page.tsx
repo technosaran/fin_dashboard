@@ -732,11 +732,11 @@ export default function AccountsPage() {
                         <form onSubmit={handleAddAccount} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label={editId ? 'Edit account form' : 'Add account form'}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="entity-name" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Entity Name</label>
-                                <input id="entity-name" value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="e.g. Primary Savings" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus aria-required="true" />
+                                <input id="entity-name" value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="e.g. Primary Savings" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus required aria-required="true" />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="bank-name" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Financial Institution</label>
-                                <input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} aria-required="true" />
+                                <input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '20px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -759,7 +759,7 @@ export default function AccountsPage() {
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="balance-input" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Initial Liquidity</label>
-                                <input id="balance-input" type="number" value={balance} onChange={e => setBalance(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} aria-required="true" />
+                                <input id="balance-input" type="number" value={balance} onChange={e => setBalance(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
                             <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: 'clamp(0.9rem, 2vw, 1rem)', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)' }} aria-label={editId ? 'Update account' : 'Create account'}>{editId ? 'Update Entity' : 'Establish Entity'}</button>
                         </form>
@@ -778,21 +778,21 @@ export default function AccountsPage() {
                         <form onSubmit={handleTransfer} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label="Transfer funds form">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="source-account" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Source Account</label>
-                                <select id="source-account" value={sourceAccountId} onChange={e => setSourceAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} aria-required="true">
+                                <select id="source-account" value={sourceAccountId} onChange={e => setSourceAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} required aria-required="true">
                                     <option value="" disabled>Select Source</option>
                                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
                                 </select>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="target-account" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Destination</label>
-                                <select id="target-account" value={targetAccountId} onChange={e => setTargetAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} aria-required="true">
+                                <select id="target-account" value={targetAccountId} onChange={e => setTargetAccountId(Number(e.target.value))} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} required aria-required="true">
                                     <option value="" disabled>Select Destination</option>
                                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
                                 </select>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="transfer-amount" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Transfer Amount</label>
-                                <input id="transfer-amount" type="number" value={transferAmount} onChange={e => setTransferAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} aria-required="true" />
+                                <input id="transfer-amount" type="number" value={transferAmount} onChange={e => setTransferAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
                             <button type="submit" style={{ marginTop: '12px', background: '#fff', color: '#020617', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: 'clamp(0.9rem, 2vw, 1rem)' }} aria-label="Execute transfer">Execute Transfer</button>
                         </form>
@@ -811,7 +811,7 @@ export default function AccountsPage() {
                         <form onSubmit={handleAddFundsSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label="Add funds form">
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="add-funds-amount" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Amount</label>
-                                <input id="add-funds-amount" type="number" value={addFundsAmount} onChange={e => setAddFundsAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus aria-required="true" />
+                                <input id="add-funds-amount" type="number" value={addFundsAmount} onChange={e => setAddFundsAmount(e.target.value)} placeholder="0.00" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus required aria-required="true" />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="add-funds-description" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Description</label>
