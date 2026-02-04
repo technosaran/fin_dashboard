@@ -91,37 +91,37 @@ export default function FamilyPage() {
 
     if (loading) {
         return (
-            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading family transfers...</div>
+                    <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#94a3b8' }}>Loading family transfers...</div>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
+        <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f472b6', marginBottom: '12px' }}>
-                            <div style={{ width: '12px', height: '12px', background: '#f472b6', borderRadius: '50%', boxShadow: '0 0 10px rgba(244, 114, 182, 0.4)' }} />
+                            <div style={{ width: '12px', height: '12px', background: '#f472b6', borderRadius: '50%', boxShadow: '0 0 10px rgba(244, 114, 182, 0.4)' }} aria-hidden="true" />
                             <span style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Care Network Active</span>
                         </div>
-                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Family Support Hub</h1>
-                        <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Track financial support to parents and loved ones</p>
+                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Family Support Hub</h1>
+                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Track financial support to parents and loved ones</p>
                     </div>
-                    <button onClick={() => { resetForm(); setIsModalOpen(true); }} style={{
-                        padding: '12px 24px', borderRadius: '16px', background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)', color: 'white', border: 'none', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(236, 72, 153, 0.2)'
+                    <button onClick={() => { resetForm(); setIsModalOpen(true); }} aria-label="Log family transfer" style={{
+                        padding: '12px 24px', borderRadius: '16px', background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)', color: 'white', border: 'none', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(236, 72, 153, 0.2)', whiteSpace: 'nowrap'
                     }}>
                         <Heart size={18} fill="currentColor" /> Log Transfer
                     </button>
                 </div>
 
                 {/* Performance Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px', marginBottom: '48px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '32px', marginBottom: '48px' }}>
                     {[
                         { label: 'Total Support', value: `₹${totalSent.toLocaleString()}`, icon: <TrendingDown size={22} />, color: '#ec4899', sub: 'Lifetime contributions' },
                         { label: 'Family Members', value: recipients.length, icon: <Users size={22} />, color: '#8b5cf6', sub: 'Recipients supported' },
@@ -130,63 +130,63 @@ export default function FamilyPage() {
                         <div key={i} style={{
                             background: '#0f172a', padding: '32px', borderRadius: '28px', border: '1px solid #1e293b', position: 'relative', overflow: 'hidden'
                         }}>
-                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: `${stat.color}08`, borderRadius: '50%', filter: 'blur(30px)' }} />
+                            <div style={{ position: 'absolute', top: '-20px', right: '-20px', width: '100px', height: '100px', background: `${stat.color}08`, borderRadius: '50%', filter: 'blur(30px)' }} aria-hidden="true" />
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px', color: stat.color }}>
-                                {stat.icon}
-                                <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: '#475569' }}>{stat.label}</span>
+                                <span aria-hidden="true">{stat.icon}</span>
+                                <span style={{ fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px', color: '#94a3b8' }}>{stat.label}</span>
                             </div>
-                            <div style={{ fontSize: '2.2rem', fontWeight: '950', color: '#fff', marginBottom: '8px', letterSpacing: '-1px' }}>{stat.value}</div>
+                            <div style={{ fontSize: 'clamp(1.6rem, 3vw, 2.2rem)', fontWeight: '950', color: '#fff', marginBottom: '8px', letterSpacing: '-1px', overflow: 'hidden', textOverflow: 'ellipsis' }}>{stat.value}</div>
                             <div style={{ fontSize: '0.8rem', color: stat.color, fontWeight: '700' }}>{stat.sub}</div>
                         </div>
                     ))}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '40px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '40px' }}>
 
                     {/* Recipients Section */}
                     <div>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Home size={20} color="#ec4899" /> Family Members
+                        <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Home size={20} color="#ec4899" aria-hidden="true" /> Family Members
                         </h3>
                         {recipients.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                                 {recipients.map(([name, stats]) => (
                                     <div key={name} style={{
-                                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'all 0.3s'
+                                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', display: 'flex', alignItems: 'center', justifyContent: 'space-between', transition: 'all 0.3s', gap: '20px', flexWrap: 'wrap'
                                     }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(10px)'; e.currentTarget.style.borderColor = '#334155'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#1e293b'; }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                                            <div style={{ width: '56px', height: '56px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ec4899', border: '1px solid rgba(236, 72, 153, 0.2)' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px', flex: 1, minWidth: 0 }}>
+                                            <div style={{ width: '56px', height: '56px', background: 'rgba(236, 72, 153, 0.1)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ec4899', border: '1px solid rgba(236, 72, 153, 0.2)', flexShrink: 0 }} aria-hidden="true">
                                                 <User size={24} />
                                             </div>
-                                            <div>
-                                                <div style={{ color: '#fff', fontWeight: '800', fontSize: '1.1rem' }}>{name}</div>
-                                                <div style={{ color: '#475569', fontSize: '0.8rem', fontWeight: '700' }}>{stats.relationship} • {stats.count} Transfers</div>
+                                            <div style={{ minWidth: 0 }}>
+                                                <div style={{ color: '#fff', fontWeight: '800', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
+                                                <div style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '700' }}>{stats.relationship} • {stats.count} Transfers</div>
                                             </div>
                                         </div>
                                         <div style={{ textAlign: 'right' }}>
-                                            <div style={{ color: '#f472b6', fontSize: '1.3rem', fontWeight: '900' }}>₹{stats.total.toLocaleString()}</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#475569', fontWeight: '800', textTransform: 'uppercase' }}>Total Support</div>
+                                            <div style={{ color: '#f472b6', fontSize: 'clamp(1.1rem, 2vw, 1.3rem)', fontWeight: '900', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{stats.total.toLocaleString()}</div>
+                                            <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>Total Support</div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div style={{ padding: '60px', textAlign: 'center', background: 'rgba(15, 23, 42, 0.2)', borderRadius: '32px', border: '2px dashed #1e293b', color: '#475569' }}>
+                            <div style={{ padding: '60px 20px', textAlign: 'center', background: 'rgba(15, 23, 42, 0.2)', borderRadius: '32px', border: '2px dashed #1e293b', color: '#64748b' }}>
                                 <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
                                     <div style={{ background: 'rgba(236, 72, 153, 0.05)', padding: '30px', borderRadius: '50%' }}>
-                                        <Users size={60} strokeWidth={1} style={{ opacity: 0.2, color: '#ec4899' }} />
+                                        <Users size={60} strokeWidth={1} style={{ opacity: 0.2, color: '#ec4899' }} aria-hidden="true" />
                                     </div>
                                 </div>
-                                <h3 style={{ color: '#f8fafc', fontSize: '1.2rem', fontWeight: '800', marginBottom: '8px' }}>No Family Transfers Yet</h3>
-                                <p style={{ margin: 0, fontSize: '0.9rem', color: '#64748b' }}>Start tracking support to your loved ones.</p>
+                                <h3 style={{ color: '#f8fafc', fontSize: 'clamp(1rem, 2vw, 1.2rem)', fontWeight: '800', marginBottom: '8px' }}>No Family Transfers Yet</h3>
+                                <p style={{ margin: 0, fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', color: '#94a3b8' }}>Start tracking support to your loved ones.</p>
                             </div>
                         )}
                     </div>
 
                     {/* Transfer History */}
                     <div style={{ background: '#0f172a', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px' }}>
-                        <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Clock size={20} color="#8b5cf6" /> Recent Transfers
+                        <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <Clock size={20} color="#8b5cf6" aria-hidden="true" /> Recent Transfers
                         </h3>
                         {familyTransfers.length > 0 ? (
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
@@ -197,28 +197,28 @@ export default function FamilyPage() {
                                         </div>
                                         <div style={{ flex: 1, paddingBottom: idx === Math.min(familyTransfers.slice(0, 10).length - 1, 9) ? '0' : '24px', paddingTop: '16px' }}>
                                             <div style={{ background: 'rgba(255,255,255,0.02)', padding: '16px 20px', borderRadius: '16px' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                                                    <div>
-                                                        <div style={{ fontWeight: '800', fontSize: '0.95rem', color: '#cbd5e1' }}>{transfer.recipient}</div>
-                                                        <div style={{ fontSize: '0.7rem', color: '#475569', fontWeight: '600', marginTop: '4px' }}>{transfer.relationship} • {transfer.date}</div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', gap: '12px', flexWrap: 'wrap' }}>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        <div style={{ fontWeight: '800', fontSize: '0.95rem', color: '#cbd5e1', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{transfer.recipient}</div>
+                                                        <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '600', marginTop: '4px' }}>{transfer.relationship} • {transfer.date}</div>
                                                         {transfer.purpose && (
-                                                            <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '6px', fontStyle: 'italic' }}>{transfer.purpose}</div>
+                                                            <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginTop: '6px', fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis' }}>{transfer.purpose}</div>
                                                         )}
                                                     </div>
-                                                    <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
-                                                        <button onClick={() => handleEdit(transfer)} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit3 size={14} /></button>
-                                                        <button onClick={async () => await deleteFamilyTransfer(transfer.id)} style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14} /></button>
+                                                    <div style={{ display: 'flex', gap: '8px', marginLeft: '12px', flexShrink: 0 }}>
+                                                        <button onClick={() => handleEdit(transfer)} aria-label={`Edit transfer to ${transfer.recipient}`} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit3 size={14} /></button>
+                                                        <button onClick={async () => await deleteFamilyTransfer(transfer.id)} aria-label={`Delete transfer to ${transfer.recipient}`} style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14} /></button>
                                                     </div>
                                                 </div>
-                                                <div style={{ color: '#f472b6', fontWeight: '950', fontSize: '1.1rem', marginTop: '8px' }}>₹{transfer.amount.toLocaleString()}</div>
+                                                <div style={{ color: '#f472b6', fontWeight: '950', fontSize: 'clamp(1rem, 2vw, 1.1rem)', marginTop: '8px', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{transfer.amount.toLocaleString()}</div>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         ) : (
-                            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#475569' }}>
-                                <Sparkles size={40} strokeWidth={1} style={{ opacity: 0.2, margin: '0 auto 16px' }} />
+                            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b' }}>
+                                <Sparkles size={40} strokeWidth={1} style={{ opacity: 0.2, margin: '0 auto 16px' }} aria-hidden="true" />
                                 <p style={{ margin: 0, fontSize: '0.85rem' }}>No transfers recorded yet</p>
                             </div>
                         )}
