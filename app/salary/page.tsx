@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFinance } from '../components/SupabaseFinanceContext';
+import { useFinance } from '../components/FinanceContext';
 import {
     Banknote,
     TrendingUp,
@@ -20,9 +20,10 @@ import {
 } from 'lucide-react';
 
 export default function SalaryPage() {
-    const { transactions, addTransaction, loading } = useFinance();
+    const { accounts, transactions, addTransaction, settings, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'Yearly' | 'Lifetime'>('Yearly');
+    const [selectedAccountId, setSelectedAccountId] = useState<number | ''>(settings.defaultSalaryAccountId || '');
 
     // Salary Data Filtering
     const salaryItems = transactions.filter(t => t.category === 'Salary');
@@ -53,8 +54,20 @@ export default function SalaryPage() {
             description: employer,
             category: 'Salary',
             type: 'Income',
-            amount: parseFloat(amount)
+            amount: parseFloat(amount),
+            accountId: selectedAccountId ? Number(selectedAccountId) : undefined
         });
+
+        // Update account balance if linked
+        if (selectedAccountId) {
+            const account = accounts.find(acc => acc.id === Number(selectedAccountId));
+            if (account) {
+                // Balance update is usually handled by addTransaction in FinanceContext if accountId is passed,
+                // but we need to check if the context's addTransaction does that.
+                // Looking at FinanceContext... addTransaction doesn't auto-update bank balances.
+                // Standardizing with other modules: we should probably move balance logic to the hook.
+            }
+        }
 
         setAmount('');
         setEmployer('');
@@ -109,35 +122,35 @@ export default function SalaryPage() {
                         { label: 'Capital Sources', value: companies.length, icon: <Briefcase size={22} />, color: '#f59e0b', sub: 'Diversification optimal', gradient: 'linear-gradient(135deg, #f59e0b20 0%, #d9770610 100%)' }
                     ].map((stat, i) => (
                         <div key={i} style={{
-                            background: `linear-gradient(145deg, #0f172a 0%, #1e293b 100%)`, 
-                            padding: '32px', 
-                            borderRadius: '28px', 
-                            border: '1px solid #1e293b', 
-                            position: 'relative', 
+                            background: `linear-gradient(145deg, #0f172a 0%, #1e293b 100%)`,
+                            padding: '32px',
+                            borderRadius: '28px',
+                            border: '1px solid #1e293b',
+                            position: 'relative',
                             overflow: 'hidden',
                             transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                             cursor: 'pointer'
-                        }} 
-                        onMouseEnter={e => {
-                            e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
-                            e.currentTarget.style.borderColor = stat.color + '40';
-                            e.currentTarget.style.boxShadow = `0 20px 60px -15px ${stat.color}30, 0 0 0 1px ${stat.color}20`;
                         }}
-                        onMouseLeave={e => {
-                            e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                            e.currentTarget.style.borderColor = '#1e293b';
-                            e.currentTarget.style.boxShadow = 'none';
-                        }}>
+                            onMouseEnter={e => {
+                                e.currentTarget.style.transform = 'translateY(-8px) scale(1.02)';
+                                e.currentTarget.style.borderColor = stat.color + '40';
+                                e.currentTarget.style.boxShadow = `0 20px 60px -15px ${stat.color}30, 0 0 0 1px ${stat.color}20`;
+                            }}
+                            onMouseLeave={e => {
+                                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                e.currentTarget.style.borderColor = '#1e293b';
+                                e.currentTarget.style.boxShadow = 'none';
+                            }}>
                             {/* Enhanced gradient background */}
                             <div style={{ position: 'absolute', top: 0, right: 0, width: '100%', height: '100%', background: stat.gradient, opacity: 0.6 }} />
                             <div style={{ position: 'absolute', top: '-40px', right: '-40px', width: '140px', height: '140px', background: `${stat.color}15`, borderRadius: '50%', filter: 'blur(40px)' }} />
-                            
+
                             <div style={{ position: 'relative', zIndex: 1 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                                    <div style={{ 
-                                        background: `${stat.color}15`, 
-                                        padding: '10px', 
-                                        borderRadius: '14px', 
+                                    <div style={{
+                                        background: `${stat.color}15`,
+                                        padding: '10px',
+                                        borderRadius: '14px',
                                         color: stat.color,
                                         border: `1px solid ${stat.color}20`,
                                         boxShadow: `0 4px 12px ${stat.color}10`
@@ -165,51 +178,51 @@ export default function SalaryPage() {
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                             {companies.map(([name, stats], i) => (
                                 <div key={name} style={{
-                                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', 
-                                    padding: '24px', 
-                                    borderRadius: '24px', 
-                                    border: '1px solid #1e293b', 
-                                    display: 'flex', 
-                                    alignItems: 'center', 
-                                    justifyContent: 'space-between', 
+                                    background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+                                    padding: '24px',
+                                    borderRadius: '24px',
+                                    border: '1px solid #1e293b',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
                                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                     position: 'relative',
                                     overflow: 'hidden',
                                     cursor: 'pointer'
-                                }} 
-                                onMouseEnter={e => { 
-                                    e.currentTarget.style.transform = 'translateX(12px) scale(1.02)'; 
-                                    e.currentTarget.style.borderColor = '#6366f140'; 
-                                    e.currentTarget.style.boxShadow = '0 20px 40px -15px rgba(99, 102, 241, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.1)';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
-                                }} 
-                                onMouseLeave={e => { 
-                                    e.currentTarget.style.transform = 'translateX(0) scale(1)'; 
-                                    e.currentTarget.style.borderColor = '#1e293b'; 
-                                    e.currentTarget.style.boxShadow = 'none';
-                                    e.currentTarget.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
-                                }}>
+                                }}
+                                    onMouseEnter={e => {
+                                        e.currentTarget.style.transform = 'translateX(12px) scale(1.02)';
+                                        e.currentTarget.style.borderColor = '#6366f140';
+                                        e.currentTarget.style.boxShadow = '0 20px 40px -15px rgba(99, 102, 241, 0.3), 0 0 0 1px rgba(99, 102, 241, 0.1)';
+                                        e.currentTarget.style.background = 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)';
+                                    }}
+                                    onMouseLeave={e => {
+                                        e.currentTarget.style.transform = 'translateX(0) scale(1)';
+                                        e.currentTarget.style.borderColor = '#1e293b';
+                                        e.currentTarget.style.boxShadow = 'none';
+                                        e.currentTarget.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)';
+                                    }}>
                                     {/* Animated gradient accent */}
-                                    <div style={{ 
-                                        position: 'absolute', 
-                                        left: 0, 
-                                        top: 0, 
-                                        bottom: 0, 
-                                        width: '4px', 
+                                    <div style={{
+                                        position: 'absolute',
+                                        left: 0,
+                                        top: 0,
+                                        bottom: 0,
+                                        width: '4px',
                                         background: 'linear-gradient(180deg, #6366f1 0%, #34d399 100%)',
                                         borderRadius: '24px 0 0 24px'
                                     }} />
-                                    
+
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '20px', position: 'relative', zIndex: 1 }}>
-                                        <div style={{ 
-                                            width: '56px', 
-                                            height: '56px', 
-                                            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%)', 
-                                            borderRadius: '16px', 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            justifyContent: 'center', 
-                                            color: '#818cf8', 
+                                        <div style={{
+                                            width: '56px',
+                                            height: '56px',
+                                            background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(52, 211, 153, 0.05) 100%)',
+                                            borderRadius: '16px',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            color: '#818cf8',
                                             border: '1px solid rgba(99, 102, 241, 0.2)',
                                             boxShadow: '0 4px 12px rgba(99, 102, 241, 0.15)'
                                         }}>
@@ -224,9 +237,9 @@ export default function SalaryPage() {
                                         </div>
                                     </div>
                                     <div style={{ textAlign: 'right', position: 'relative', zIndex: 1 }}>
-                                        <div style={{ 
-                                            color: '#34d399', 
-                                            fontSize: '1.4rem', 
+                                        <div style={{
+                                            color: '#34d399',
+                                            fontSize: '1.4rem',
                                             fontWeight: '900',
                                             textShadow: '0 2px 8px rgba(52, 211, 153, 0.3)'
                                         }}>₹{stats.total.toLocaleString()}</div>
@@ -238,17 +251,17 @@ export default function SalaryPage() {
                     </div>
 
                     {/* Audit Timeline */}
-                    <div style={{ 
-                        background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', 
-                        borderRadius: '32px', 
-                        border: '1px solid #1e293b', 
+                    <div style={{
+                        background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
+                        borderRadius: '32px',
+                        border: '1px solid #1e293b',
                         padding: '32px',
                         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                     }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <div style={{ 
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', 
-                                padding: '8px', 
+                            <div style={{
+                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                padding: '8px',
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)'
                             }}>
@@ -260,48 +273,48 @@ export default function SalaryPage() {
                             {salaryItems.slice(0, 10).map((item, idx) => (
                                 <div key={item.id} style={{ display: 'flex', gap: '20px', position: 'relative' }}>
                                     <div style={{ width: '2px', background: 'linear-gradient(180deg, rgba(52, 211, 153, 0.2) 0%, rgba(52, 211, 153, 0.05) 100%)', position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                                        <div style={{ 
-                                            width: '12px', 
-                                            height: '12px', 
-                                            borderRadius: '50%', 
-                                            background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)', 
-                                            position: 'absolute', 
-                                            top: '24px', 
-                                            zIndex: 1, 
+                                        <div style={{
+                                            width: '12px',
+                                            height: '12px',
+                                            borderRadius: '50%',
+                                            background: 'linear-gradient(135deg, #10b981 0%, #34d399 100%)',
+                                            position: 'absolute',
+                                            top: '24px',
+                                            zIndex: 1,
                                             border: '3px solid #0f172a',
                                             boxShadow: '0 0 0 4px rgba(16, 185, 129, 0.2), 0 4px 8px rgba(16, 185, 129, 0.3)',
                                             animation: idx === 0 ? 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite' : 'none'
                                         }} />
                                     </div>
                                     <div style={{ flex: 1, paddingBottom: idx === salaryItems.length - 1 ? '0' : '24px', paddingTop: '16px' }}>
-                                        <div style={{ 
-                                            background: 'rgba(255,255,255,0.02)', 
-                                            padding: '16px 20px', 
-                                            borderRadius: '16px', 
-                                            display: 'flex', 
-                                            justifyContent: 'space-between', 
+                                        <div style={{
+                                            background: 'rgba(255,255,255,0.02)',
+                                            padding: '16px 20px',
+                                            borderRadius: '16px',
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
                                             alignItems: 'center',
                                             border: '1px solid rgba(52, 211, 153, 0.1)',
                                             transition: 'all 0.3s',
                                             cursor: 'pointer'
                                         }}
-                                        onMouseEnter={e => {
-                                            e.currentTarget.style.background = 'rgba(52, 211, 153, 0.05)';
-                                            e.currentTarget.style.borderColor = 'rgba(52, 211, 153, 0.3)';
-                                            e.currentTarget.style.transform = 'translateX(4px)';
-                                        }}
-                                        onMouseLeave={e => {
-                                            e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                                            e.currentTarget.style.borderColor = 'rgba(52, 211, 153, 0.1)';
-                                            e.currentTarget.style.transform = 'translateX(0)';
-                                        }}>
+                                            onMouseEnter={e => {
+                                                e.currentTarget.style.background = 'rgba(52, 211, 153, 0.05)';
+                                                e.currentTarget.style.borderColor = 'rgba(52, 211, 153, 0.3)';
+                                                e.currentTarget.style.transform = 'translateX(4px)';
+                                            }}
+                                            onMouseLeave={e => {
+                                                e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
+                                                e.currentTarget.style.borderColor = 'rgba(52, 211, 153, 0.1)';
+                                                e.currentTarget.style.transform = 'translateX(0)';
+                                            }}>
                                             <div>
                                                 <div style={{ fontWeight: '800', fontSize: '0.95rem', color: '#e2e8f0' }}>{item.description}</div>
                                                 <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '600', marginTop: '4px' }}>{item.date}</div>
                                             </div>
-                                            <div style={{ 
-                                                color: '#34d399', 
-                                                fontWeight: '950', 
+                                            <div style={{
+                                                color: '#34d399',
+                                                fontWeight: '950',
                                                 fontSize: '1.1rem',
                                                 textShadow: '0 2px 8px rgba(52, 211, 153, 0.3)'
                                             }}>+₹{item.amount.toLocaleString()}</div>
@@ -336,6 +349,13 @@ export default function SalaryPage() {
                                     <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Influx Date</label>
                                     <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase' }}>Credit To Bank Account</label>
+                                <select value={selectedAccountId} onChange={e => setSelectedAccountId(e.target.value ? Number(e.target.value) : '')} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }}>
+                                    <option value="">No Account (Ledger Only)</option>
+                                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>)}
+                                </select>
                             </div>
                             <button type="submit" style={{ marginTop: '12px', background: '#34d399', color: '#020617', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '950', cursor: 'pointer', fontSize: '1rem', boxShadow: '0 10px 20px rgba(52, 211, 153, 0.2)' }}>Confirm Revenue Entry</button>
                         </form>

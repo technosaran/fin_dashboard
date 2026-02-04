@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFinance, FamilyTransfer } from '../components/SupabaseFinanceContext';
+import { useFinance, FamilyTransfer } from '../components/FinanceContext';
 import {
     Users,
     Plus,

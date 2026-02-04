@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFinance, Goal } from '../components/SupabaseFinanceContext';
+import { useFinance, Goal } from '../components/FinanceContext';
 import {
     Target,
     Plus,

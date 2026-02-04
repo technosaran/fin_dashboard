@@ -20,7 +20,7 @@ import {
     Zap,
     Briefcase
 } from 'lucide-react';
-import { useFinance, MutualFund, MutualFundTransaction } from '../components/SupabaseFinanceContext';
+import { useFinance, MutualFund, MutualFundTransaction } from '../components/FinanceContext';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
@@ -32,6 +32,7 @@ export default function MutualFundsPage() {
         addMutualFund,
         updateMutualFund,
         addMutualFundTransaction,
+        settings,
         loading
     } = useFinance();
 
@@ -192,7 +193,7 @@ export default function MutualFundsPage() {
         setTxUnits('');
         setTxNav('');
         setTxDate(new Date().toISOString().split('T')[0]);
-        setSelectedAccountId('');
+        setSelectedAccountId(settings.defaultMfAccountId || '');
     };
 
     const resetFundForm = () => {
@@ -239,7 +240,7 @@ export default function MutualFundsPage() {
                 </div>
 
                 {/* Performance Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activeTab === 'lifetime' ? 4 : 3}, 1fr)`, gap: '24px', marginBottom: '32px' }}>
                     <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b' }}>
                         <div style={{ color: '#64748b', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '12px' }}>Total Invested</div>
                         <div style={{ fontSize: '1.8rem', fontWeight: '900' }}>₹{totalInvestment.toLocaleString()}</div>
@@ -254,10 +255,12 @@ export default function MutualFundsPage() {
                             {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
                         </div>
                     </div>
-                    <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', padding: '24px', borderRadius: '24px', boxShadow: '0 15px 30px rgba(99, 102, 241, 0.2)' }}>
-                        <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '12px' }}>Lifetime Earned</div>
-                        <div style={{ fontSize: '1.8rem', fontWeight: '900' }}>₹{lifetimeEarned.toLocaleString()}</div>
-                    </div>
+                    {activeTab === 'lifetime' && (
+                        <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', padding: '24px', borderRadius: '24px', boxShadow: '0 15px 30px rgba(99, 102, 241, 0.2)' }}>
+                            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '12px' }}>Lifetime Earned</div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: '900' }}>₹{lifetimeEarned.toLocaleString()}</div>
+                        </div>
+                    )}
                 </div>
 
                 {/* Tabs */}

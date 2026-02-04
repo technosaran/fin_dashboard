@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { useFinance } from '../components/SupabaseFinanceContext';
+import { useFinance } from '../components/FinanceContext';
 import {
     Book,
     Plus,
@@ -149,7 +149,7 @@ export default function LedgerPage() {
                                 className="compact-calendar"
                             />
                         </div>
-                        
+
                         {/* Summary Stats */}
                         <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#34d399' }}>

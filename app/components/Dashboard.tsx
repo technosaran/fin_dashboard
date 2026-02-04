@@ -13,7 +13,7 @@ import {
     ChevronRight,
     Zap
 } from 'lucide-react';
-import { useFinance } from './SupabaseFinanceContext';
+import { useFinance } from './FinanceContext';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 

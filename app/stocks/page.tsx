@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Area, AreaChart } from 'recharts';
-import { useFinance, Stock, StockTransaction } from '../components/SupabaseFinanceContext';
+import { useFinance, Stock, calculateStockCharges } from '../components/FinanceContext';
 import {
     TrendingUp,
     TrendingDown,
@@ -30,7 +30,10 @@ import {
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6', '#ef4444', '#06b6d4'];
 
 export default function StocksPage() {
-    const { accounts, stocks, stockTransactions, addStock, updateStock, deleteStock, addStockTransaction, loading } = useFinance();
+    const {
+        accounts, stocks, stockTransactions, addStock, updateStock, deleteStock,
+        addStockTransaction, settings, loading
+    } = useFinance();
     const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime'>('portfolio');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<'stock' | 'transaction'>('stock');
@@ -155,14 +158,23 @@ export default function StocksPage() {
         const price = parseFloat(transactionPrice);
         const totalAmount = qty * price;
 
+        let finalBrokerage = brokerage ? parseFloat(brokerage) : undefined;
+        let finalTaxes = taxes ? parseFloat(taxes) : undefined;
+
+        if (settings.autoCalculateCharges && qty && price) {
+            const calculatedCharges = calculateStockCharges(transactionType, qty, price, settings);
+            finalBrokerage = calculatedCharges.brokerage;
+            finalTaxes = calculatedCharges.taxes;
+        }
+
         await addStockTransaction({
             stockId: Number(selectedStockId),
             transactionType,
             quantity: qty,
             price,
             totalAmount,
-            brokerage: brokerage ? parseFloat(brokerage) : undefined,
-            taxes: taxes ? parseFloat(taxes) : undefined,
+            brokerage: finalBrokerage,
+            taxes: finalTaxes,
             transactionDate,
             notes: notes || undefined,
             accountId: selectedAccountId ? Number(selectedAccountId) : undefined
@@ -192,8 +204,8 @@ export default function StocksPage() {
         setBrokerage('');
         setTaxes('');
         setTransactionDate(new Date().toISOString().split('T')[0]);
+        setSelectedAccountId(settings.defaultStockAccountId || '');
         setNotes('');
-        setSelectedAccountId('');
     };
 
     const openModal = (type: 'stock' | 'transaction') => {
@@ -269,7 +281,7 @@ export default function StocksPage() {
                 </div>
 
                 {/* Portfolio Summary Cards */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activeTab === 'lifetime' ? 4 : 3}, 1fr)`, gap: '24px', marginBottom: '32px' }}>
                     <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#6366f1' }}>
                             <DollarSign size={18} />
@@ -293,15 +305,17 @@ export default function StocksPage() {
                             {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
                         </div>
                     </div>
-                    <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', padding: '24px', borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.2)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: 'rgba(255,255,255,0.8)' }}>
-                            <Zap size={18} />
-                            <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Lifetime Wealth Created</span>
+                    {activeTab === 'lifetime' && (
+                        <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', padding: '24px', borderRadius: '20px', border: 'none', boxShadow: '0 10px 30px rgba(99, 102, 241, 0.2)' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: 'rgba(255,255,255,0.8)' }}>
+                                <Zap size={18} />
+                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Lifetime Wealth Created</span>
+                            </div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>
+                                ₹{lifetimeEarned.toLocaleString()}
+                            </div>
                         </div>
-                        <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>
-                            ₹{lifetimeEarned.toLocaleString()}
-                        </div>
-                    </div>
+                    )}
                 </div>
 
                 {/* Tab Navigation */}
@@ -667,6 +681,30 @@ export default function StocksPage() {
                                         <input type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
                                     </div>
                                 </div>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Brokerage (₹)</label>
+                                        <input type="number" step="0.01" value={brokerage} onChange={e => setBrokerage(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                    </div>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Taxes & Charges (₹)</label>
+                                        <input type="number" step="0.01" value={taxes} onChange={e => setTaxes(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                    </div>
+                                </div>
+
+                                {settings.autoCalculateCharges && transactionQuantity && transactionPrice && (
+                                    <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '16px', borderRadius: '12px', border: '1px dashed rgba(99, 102, 241, 0.2)' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Preview Brokerage:</span>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fff' }}>₹{calculateStockCharges(transactionType, Number(transactionQuantity), Number(transactionPrice), settings).brokerage.toFixed(2)}</span>
+                                        </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Preview Gov. Charges:</span>
+                                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fff' }}>₹{calculateStockCharges(transactionType, Number(transactionQuantity), Number(transactionPrice), settings).taxes.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                )}
+
                                 <div>
                                     <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Operating Bank Account</label>
                                     <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
