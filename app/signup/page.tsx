@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '../../lib/supabase';
 import {
     Command,
     Mail,
@@ -8,36 +10,106 @@ import {
     Eye,
     EyeOff,
     ArrowRight,
-    Github,
-    Chrome,
     ShieldCheck,
-    Zap,
-    ChevronRight
+    Loader2,
+    User
 } from 'lucide-react';
+import Link from 'next/link';
 
-/**
- * Premium Nebula Login Page Mockup
- * 
- * DESIGN FEATURES:
- * 1. Glassmorphic Login Card
- * 2. Animated Mesh Gradients
- * 3. Interactive Input Fields
- * 4. Dual-tone Typography
- * 5. Multi-auth Support (Email, Github, Google)
- */
-
-export default function LoginPage() {
+export default function SignupPage() {
+    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState(false);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSignup = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        // Mock loading state
-        setTimeout(() => setIsLoading(false), 2000);
+        setError(null);
+
+        if (password !== confirmPassword) {
+            setError("Passwords do not match");
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            const { error: authError } = await supabase.auth.signUp({
+                email,
+                password,
+                options: {
+                    emailRedirectTo: `${window.location.origin}/auth/callback`,
+                }
+            });
+
+            if (authError) throw authError;
+
+            setSuccess(true);
+        } catch (err: any) {
+            setError(err.message || 'Signup failed');
+            setIsLoading(false);
+        }
     };
+
+    if (success) {
+        return (
+            <div style={{
+                minHeight: '100vh',
+                width: '100%',
+                backgroundColor: '#020617',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#f8fafc',
+                fontFamily: "'Inter', sans-serif"
+            }}>
+                <div style={{
+                    width: '100%',
+                    maxWidth: '480px',
+                    padding: '40px',
+                    textAlign: 'center',
+                    background: 'rgba(30, 41, 59, 0.4)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '32px',
+                }}>
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: 'rgba(16, 185, 129, 0.1)',
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#10b981',
+                        margin: '0 auto 24px'
+                    }}>
+                        <Mail size={32} />
+                    </div>
+                    <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '16px' }}>Check your email</h1>
+                    <p style={{ color: '#94a3b8', lineHeight: '1.6', marginBottom: '32px' }}>
+                        We've sent a confirmation link to <strong>{email}</strong>. Please check your inbox to activate your account.
+                    </p>
+                    <Link href="/login" style={{
+                        display: 'inline-block',
+                        background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
+                        color: '#fff',
+                        padding: '14px 28px',
+                        borderRadius: '16px',
+                        fontWeight: '700',
+                        textDecoration: 'none',
+                        transition: '0.3s'
+                    }}>
+                        Back to Login
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div style={{
@@ -88,8 +160,7 @@ export default function LoginPage() {
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '12px',
-                    marginBottom: '48px',
-                    animation: 'fadeInDown 0.8s ease-out'
+                    marginBottom: '40px',
                 }}>
                     <div style={{
                         width: '48px',
@@ -109,7 +180,7 @@ export default function LoginPage() {
                     </span>
                 </div>
 
-                {/* Login Card */}
+                {/* Signup Card */}
                 <div style={{
                     background: 'rgba(30, 41, 59, 0.4)',
                     backdropFilter: 'blur(20px)',
@@ -117,14 +188,28 @@ export default function LoginPage() {
                     borderRadius: '32px',
                     padding: '40px',
                     boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                    animation: 'scaleUp 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
                 }}>
                     <div style={{ marginBottom: '32px' }}>
-                        <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 8px 0' }}>Welcome back</h1>
-                        <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0 }}>Enter your credentials to access your dashboard</p>
+                        <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 8px 0' }}>Join FINCORE</h1>
+                        <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0 }}>Start your path to financial freedom today</p>
                     </div>
 
-                    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                    {error && (
+                        <div style={{
+                            background: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            padding: '12px 16px',
+                            borderRadius: '12px',
+                            color: '#f87171',
+                            fontSize: '0.85rem',
+                            marginBottom: '24px',
+                            fontWeight: '600'
+                        }}>
+                            {error}
+                        </div>
+                    )}
+
+                    <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                         {/* Email Field */}
                         <div>
                             <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Email Address</label>
@@ -147,26 +232,22 @@ export default function LoginPage() {
                                         outline: 'none',
                                         transition: '0.2s'
                                     }}
-                                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-                                    onBlur={(e) => e.target.style.borderColor = 'rgba(51, 65, 85, 0.5)'}
                                 />
                             </div>
                         </div>
 
                         {/* Password Field */}
                         <div>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
-                                <a href="#" style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</a>
-                            </div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Password</label>
                             <div style={{ position: 'relative' }}>
                                 <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
+                                    placeholder="Min. 8 characters"
                                     required
+                                    minLength={8}
                                     style={{
                                         width: '100%',
                                         background: 'rgba(15, 23, 42, 0.6)',
@@ -178,8 +259,6 @@ export default function LoginPage() {
                                         outline: 'none',
                                         transition: '0.2s'
                                     }}
-                                    onFocus={(e) => e.target.style.borderColor = '#6366f1'}
-                                    onBlur={(e) => e.target.style.borderColor = 'rgba(51, 65, 85, 0.5)'}
                                 />
                                 <button
                                     type="button"
@@ -191,7 +270,33 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* Login Button */}
+                        {/* Confirm Password Field */}
+                        <div>
+                            <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Confirm Password</label>
+                            <div style={{ position: 'relative' }}>
+                                <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
+                                <input
+                                    type={showPassword ? "text" : "password"}
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Repeat your password"
+                                    required
+                                    style={{
+                                        width: '100%',
+                                        background: 'rgba(15, 23, 42, 0.6)',
+                                        border: '1px solid rgba(51, 65, 85, 0.5)',
+                                        borderRadius: '16px',
+                                        padding: '14px 14px 14px 48px',
+                                        color: '#fff',
+                                        fontSize: '0.95rem',
+                                        outline: 'none',
+                                        transition: '0.2s'
+                                    }}
+                                />
+                            </div>
+                        </div>
+
+                        {/* Signup Button */}
                         <button
                             type="submit"
                             disabled={isLoading}
@@ -213,63 +318,24 @@ export default function LoginPage() {
                                 transition: '0.3s',
                                 opacity: isLoading ? 0.7 : 1
                             }}
-                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                         >
-                            {isLoading ? 'Authenticating...' : 'Sign In'}
-                            {!isLoading && <ArrowRight size={20} />}
+                            {isLoading ? (
+                                <>
+                                    <Loader2 size={20} className="animate-spin" />
+                                    Creating Account...
+                                </>
+                            ) : (
+                                <>
+                                    Join Now <ArrowRight size={20} />
+                                </>
+                            )}
                         </button>
                     </form>
-
-                    {/* Divider */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', margin: '32px 0' }}>
-                        <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.08)' }} />
-                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#475569', textTransform: 'uppercase' }}>Or continue with</span>
-                        <div style={{ flex: 1, height: '1px', background: 'rgba(255, 255, 255, 0.08)' }} />
-                    </div>
-
-                    {/* Social Auth */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                        <button style={{
-                            background: 'rgba(15, 23, 42, 0.4)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            borderRadius: '16px',
-                            padding: '12px',
-                            color: '#e2e8f0',
-                            fontWeight: '600',
-                            fontSize: '0.9rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '10px',
-                            cursor: 'pointer',
-                            transition: '0.2s'
-                        }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(15, 23, 42, 0.4)'}>
-                            <Github size={20} /> Github
-                        </button>
-                        <button style={{
-                            background: 'rgba(15, 23, 42, 0.4)',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            borderRadius: '16px',
-                            padding: '12px',
-                            color: '#e2e8f0',
-                            fontWeight: '600',
-                            fontSize: '0.9rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '10px',
-                            cursor: 'pointer',
-                            transition: '0.2s'
-                        }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(15, 23, 42, 0.4)'}>
-                            <Chrome size={20} /> Google
-                        </button>
-                    </div>
                 </div>
 
                 {/* Footer Link */}
                 <p style={{ textAlign: 'center', marginTop: '32px', color: '#94a3b8', fontSize: '0.9rem' }}>
-                    Don&apos;t have an account? <a href="#" style={{ color: '#6366f1', fontWeight: '700', textDecoration: 'none' }}>Create an account</a>
+                    Already have an account? <Link href="/login" style={{ color: '#6366f1', fontWeight: '700', textDecoration: 'none' }}>Sign In</Link>
                 </p>
 
                 {/* Security Badge */}
@@ -286,15 +352,13 @@ export default function LoginPage() {
                 </div>
             </div>
 
-            {/* Animations */}
             <style jsx global>{`
-                @keyframes scaleUp {
-                    from { opacity: 0; transform: scale(0.95); }
-                    to { opacity: 1; transform: scale(1); }
+                .animate-spin {
+                    animation: spin 1s linear infinite;
                 }
-                @keyframes fadeInDown {
-                    from { opacity: 0; transform: translateY(-20px); }
-                    to { opacity: 1; transform: translateY(0); }
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
                 }
             `}</style>
         </div>

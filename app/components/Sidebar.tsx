@@ -16,8 +16,11 @@ import {
     Activity
 } from 'lucide-react';
 
+import { useAuth } from './AuthContext';
+
 export default function Sidebar() {
     const pathname = usePathname();
+    const { signOut } = useAuth();
 
     const navItems = [
         { label: 'Dashboard', href: '/', icon: <LayoutDashboard size={20} /> },
@@ -25,7 +28,7 @@ export default function Sidebar() {
         { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={20} /> },
         { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
-        { label: 'Salary Hub', href: '/salary', icon: <Banknote size={20} /> },
+        { label: 'My Paydays', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
         { label: 'Goals', href: '/goals', icon: <Target size={20} /> },
     ];
@@ -124,17 +127,19 @@ export default function Sidebar() {
                     </div>
                 </Link>
 
-                <div style={{
-                    padding: '10px 12px',
-                    borderRadius: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '12px',
-                    color: '#f87171',
-                    transition: 'all 0.2s',
-                    cursor: 'pointer',
-                    marginTop: '8px'
-                }}
+                <div
+                    onClick={signOut}
+                    style={{
+                        padding: '10px 12px',
+                        borderRadius: '14px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        color: '#f87171',
+                        transition: 'all 0.2s',
+                        cursor: 'pointer',
+                        marginTop: '8px'
+                    }}
                     onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248, 113, 113, 0.05)'; }}
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                 >

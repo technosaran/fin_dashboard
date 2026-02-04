@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../lib/database.types';
+import { useAuth } from './AuthContext';
 
 // Types based on database schema
 type AccountRow = any;
@@ -357,10 +358,16 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         dpCharges: 15.93, // 13.5 + 18% GST
         autoCalculateCharges: true
     });
+    const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
         const loadData = async () => {
+            if (!user) {
+                if (!authLoading) setLoading(false);
+                return;
+            }
+
             setLoading(true);
             try {
                 // Load Settings from LocalStorage for now (will migrate to DB if needed)
@@ -432,7 +439,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             }
         };
         loadData();
-    }, []);
+    }, [user, authLoading]);
 
     const updateSettings = async (newSettings: AppSettings) => {
         setSettings(newSettings);
