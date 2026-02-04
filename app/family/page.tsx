@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFinance, FamilyTransfer } from '../components/FinanceContext';
+import { useFinance, FamilyTransfer } from '../components/SupabaseFinanceContext';
 import {
     Users,
     Plus,
@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function FamilyPage() {
-    const { familyTransfers, addFamilyTransfer, updateFamilyTransfer, deleteFamilyTransfer } = useFinance();
+    const { familyTransfers, addFamilyTransfer, updateFamilyTransfer, deleteFamilyTransfer, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
 
@@ -31,7 +31,7 @@ export default function FamilyPage() {
     const [purpose, setPurpose] = useState('');
     const [notes, setNotes] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!recipient || !amount || parseFloat(amount) <= 0) return;
 
@@ -45,9 +45,9 @@ export default function FamilyPage() {
         };
 
         if (editId) {
-            updateFamilyTransfer({ ...transferData, id: editId });
+            await updateFamilyTransfer({ ...transferData, id: editId });
         } else {
-            addFamilyTransfer(transferData);
+            await addFamilyTransfer(transferData);
         }
 
         resetForm();
@@ -84,6 +84,16 @@ export default function FamilyPage() {
         return acc;
     }, {} as Record<string, { total: number; count: number; relationship: string }>);
     const recipients = Object.entries(recipientsMap).sort((a, b) => b[1].total - a[1].total);
+
+    if (loading) {
+        return (
+            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading family transfers...</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
@@ -193,7 +203,7 @@ export default function FamilyPage() {
                                                     </div>
                                                     <div style={{ display: 'flex', gap: '8px', marginLeft: '12px' }}>
                                                         <button onClick={() => handleEdit(transfer)} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Edit3 size={14} /></button>
-                                                        <button onClick={() => deleteFamilyTransfer(transfer.id)} style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14} /></button>
+                                                        <button onClick={async () => await deleteFamilyTransfer(transfer.id)} style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trash2 size={14} /></button>
                                                     </div>
                                                 </div>
                                                 <div style={{ color: '#f472b6', fontWeight: '950', fontSize: '1.1rem', marginTop: '8px' }}>₹{transfer.amount.toLocaleString()}</div>

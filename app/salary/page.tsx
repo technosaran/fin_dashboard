@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFinance } from '../components/FinanceContext';
+import { useFinance } from '../components/SupabaseFinanceContext';
 import {
     Banknote,
     TrendingUp,
@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function SalaryPage() {
-    const { transactions, addTransaction } = useFinance();
+    const { transactions, addTransaction, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [activeTab, setActiveTab] = useState<'Yearly' | 'Lifetime'>('Yearly');
 
@@ -44,11 +44,11 @@ export default function SalaryPage() {
     const [employer, setEmployer] = useState('');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-    const handleLogIncome = (e: React.FormEvent) => {
+    const handleLogIncome = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!amount || !employer) return;
 
-        addTransaction({
+        await addTransaction({
             date,
             description: employer,
             category: 'Salary',
@@ -60,6 +60,16 @@ export default function SalaryPage() {
         setEmployer('');
         setIsModalOpen(false);
     };
+
+    if (loading) {
+        return (
+            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your salary data...</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>

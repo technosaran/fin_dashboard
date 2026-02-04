@@ -6,34 +6,21 @@ import {
     TrendingUp,
     ArrowUpRight,
     ArrowDownRight,
-    Target,
-    PieChart as PieChartIcon,
-    Clock,
-    Zap,
-    ChevronRight,
-    PlusCircle,
-    ArrowRightLeft
+    Target
 } from 'lucide-react';
-import { useFinance } from './FinanceContext';
+import { useFinance } from './SupabaseFinanceContext';
 import Link from 'next/link';
 
 export default function Dashboard() {
-    const { accounts, transactions, goals } = useFinance();
+    const { accounts, transactions, goals, loading } = useFinance();
     const [greeting, setGreeting] = useState('');
-    const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
 
     useEffect(() => {
-        const timer = setInterval(() => {
-            setTime(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
-        }, 30000);
-
         const hour = new Date().getHours();
         if (hour >= 5 && hour < 12) setGreeting('Good Morning');
         else if (hour >= 12 && hour < 17) setGreeting('Good Afternoon');
         else if (hour >= 17 && hour < 21) setGreeting('Good Evening');
         else setGreeting('Good Night');
-
-        return () => clearInterval(timer);
     }, []);
 
     // Financial calculations
@@ -46,27 +33,31 @@ export default function Dashboard() {
     // Goals progress
     const activeGoals = goals.slice(0, 2);
 
+    // Show loading state
+    if (loading) {
+        return (
+            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your financial data...</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* 1. Top Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px' }}>
-                    <div>
-
-                        <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', color: '#fff' }}>
-                            {greeting}, <span style={{ color: '#818cf8' }}>Saran</span>
-                        </h1>
-                        <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Here&apos;s a look at your financial empire today.</p>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff' }}>{time}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#475569', fontWeight: '600' }}>{new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}</div>
-                    </div>
+                <div style={{ marginBottom: '48px' }}>
+                    <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', color: '#fff' }}>
+                        {greeting}, <span style={{ color: '#818cf8' }}>Saran</span>
+                    </h1>
+                    <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Here&apos;s a look at your financial empire today.</p>
                 </div>
 
                 {/* 2. Main Stats Hub */}
-                <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '32px', marginBottom: '40px' }}>
+                <div style={{ marginBottom: '40px' }}>
 
                     {/* Primary Net Worth Card */}
                     <div style={{
@@ -124,56 +115,6 @@ export default function Dashboard() {
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    {/* Quick Actions Column */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                        <h4 style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', letterSpacing: '1.5px', margin: '0 0 4px 0' }}>Quick Hubs</h4>
-
-                        <Link href="/accounts" style={{ textDecoration: 'none' }}>
-                            <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', display: 'flex', alignItems: 'center', gap: '16px', transition: 'all 0.3s', cursor: 'pointer' }}
-                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.borderColor = '#334155'; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#1e293b'; }}>
-                                <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '12px', borderRadius: '16px', color: '#38bdf8' }}>
-                                    <PlusCircle size={24} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ color: '#fff', fontWeight: '700', fontSize: '1rem' }}>Manage Assets</div>
-                                    <div style={{ color: '#475569', fontSize: '0.8rem' }}>View accounts & wallets</div>
-                                </div>
-                                <ChevronRight size={20} color="#334155" />
-                            </div>
-                        </Link>
-
-                        <Link href="/salary" style={{ textDecoration: 'none' }}>
-                            <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', display: 'flex', alignItems: 'center', gap: '16px', transition: 'all 0.3s', cursor: 'pointer' }}
-                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.borderColor = '#334155'; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#1e293b'; }}>
-                                <div style={{ background: 'rgba(168, 85, 247, 0.1)', padding: '12px', borderRadius: '16px', color: '#a855f7' }}>
-                                    <Zap size={24} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ color: '#fff', fontWeight: '700', fontSize: '1rem' }}>Salary Engine</div>
-                                    <div style={{ color: '#475569', fontSize: '0.8rem' }}>Log income & bonuses</div>
-                                </div>
-                                <ChevronRight size={20} color="#334155" />
-                            </div>
-                        </Link>
-
-                        <Link href="/ledger" style={{ textDecoration: 'none' }}>
-                            <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', display: 'flex', alignItems: 'center', gap: '16px', transition: 'all 0.3s', cursor: 'pointer' }}
-                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.borderColor = '#334155'; }}
-                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = '#1e293b'; }}>
-                                <div style={{ background: 'rgba(234, 179, 8, 0.1)', padding: '12px', borderRadius: '16px', color: '#eab308' }}>
-                                    <ArrowRightLeft size={24} />
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ color: '#fff', fontWeight: '700', fontSize: '1rem' }}>Timeline</div>
-                                    <div style={{ color: '#475569', fontSize: '0.8rem' }}>Transactions history</div>
-                                </div>
-                                <ChevronRight size={20} color="#334155" />
-                            </div>
-                        </Link>
                     </div>
                 </div>
 

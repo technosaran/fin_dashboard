@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from 'react';
-import { useFinance, Goal } from '../components/FinanceContext';
+import { useFinance, Goal } from '../components/SupabaseFinanceContext';
 import {
     Target,
     Plus,
@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 
 export default function GoalsPage() {
-    const { goals, addGoal, updateGoal, deleteGoal } = useFinance();
+    const { goals, addGoal, updateGoal, deleteGoal, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
 
@@ -35,7 +35,7 @@ export default function GoalsPage() {
     const [category, setCategory] = useState('Savings');
     const [description, setDescription] = useState('');
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!name || !targetAmount) return;
 
@@ -49,9 +49,9 @@ export default function GoalsPage() {
         };
 
         if (editId) {
-            updateGoal({ ...goalData, id: editId });
+            await updateGoal({ ...goalData, id: editId });
         } else {
-            addGoal(goalData);
+            await addGoal(goalData);
         }
 
         resetForm();
@@ -82,6 +82,16 @@ export default function GoalsPage() {
     const totalTarget = goals.reduce((sum, g) => sum + g.targetAmount, 0);
     const totalCurrent = goals.reduce((sum, g) => sum + g.currentAmount, 0);
     const overallProgress = totalTarget > 0 ? (totalCurrent / totalTarget) * 100 : 0;
+
+    if (loading) {
+        return (
+            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your goals...</div>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>

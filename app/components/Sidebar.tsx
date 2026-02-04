@@ -11,7 +11,8 @@ import {
     Settings,
     LogOut,
     Command,
-    Users
+    Users,
+    TrendingUp
 } from 'lucide-react';
 
 export default function Sidebar() {
@@ -20,6 +21,7 @@ export default function Sidebar() {
     const navItems = [
         { label: 'Dashboard', href: '/', icon: <LayoutDashboard size={20} /> },
         { label: 'Accounts', href: '/accounts', icon: <Wallet size={20} /> },
+        { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Salary Hub', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
@@ -28,7 +30,7 @@ export default function Sidebar() {
 
     return (
         <aside style={{
-            width: '280px',
+            width: '200px',
             backgroundColor: '#020617',
             borderRight: '1px solid #1e293b',
             display: 'flex',
@@ -38,7 +40,7 @@ export default function Sidebar() {
             zIndex: 100
         }}>
             {/* Logo / Brand */}
-            <div style={{ padding: '32px 24px', display: 'flex', alignItems: 'center', gap: '16px', overflow: 'hidden' }}>
+            <div style={{ padding: '24px 16px', display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden' }}>
                 <div style={{
                     minWidth: '40px', height: '40px',
                     background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
@@ -55,18 +57,18 @@ export default function Sidebar() {
             </div>
 
             {/* Navigation */}
-            <nav style={{ flex: 1, padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
 
                 {navItems.map((item) => {
                     const isActive = pathname === item.href;
                     return (
                         <Link key={item.href} href={item.href} style={{ textDecoration: 'none' }}>
                             <div style={{
-                                padding: '12px 16px',
+                                padding: '10px 12px',
                                 borderRadius: '14px',
                                 display: 'flex',
                                 alignItems: 'center',
-                                gap: '16px',
+                                gap: '12px',
                                 background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                                 color: isActive ? '#fff' : '#64748b',
                                 transition: 'all 0.2s',
@@ -100,14 +102,14 @@ export default function Sidebar() {
             </nav>
 
             {/* Bottom Section */}
-            <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: '8px', borderTop: '1px solid #1e293b' }}>
+            <div style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid #1e293b' }}>
                 <Link href="/settings" style={{ textDecoration: 'none' }}>
                     <div style={{
-                        padding: '12px 16px',
+                        padding: '10px 12px',
                         borderRadius: '14px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '16px',
+                        gap: '12px',
                         color: '#64748b',
                         transition: 'all 0.2s',
                         cursor: 'pointer'
@@ -116,16 +118,16 @@ export default function Sidebar() {
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                     >
                         <Settings size={20} />
-                        <span style={{ fontWeight: '600', fontSize: '0.95rem' }}>Preferences</span>
+                        <span style={{ fontWeight: '600', fontSize: '0.95rem' }}>Settings</span>
                     </div>
                 </Link>
 
                 <div style={{
-                    padding: '12px 16px',
+                    padding: '10px 12px',
                     borderRadius: '14px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '16px',
+                    gap: '12px',
                     color: '#f87171',
                     transition: 'all 0.2s',
                     cursor: 'pointer',
@@ -135,7 +137,7 @@ export default function Sidebar() {
                     onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                 >
                     <LogOut size={20} />
-                    <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Terminate Session</span>
+                    <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Logout</span>
                 </div>
             </div>
         </aside>

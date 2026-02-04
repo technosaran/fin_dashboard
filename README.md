@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Financial Dashboard
+
+A modern financial dashboard built with Next.js and Supabase.
+
+## Features
+
+- **Account Management**: Track multiple bank accounts, wallets, and investment accounts
+- **Transaction Tracking**: Log income and expenses with detailed categorization
+- **Goal Setting**: Set and track financial goals with progress monitoring
+- **Real-time Data**: All data is stored in Supabase and synced in real-time
+- **Modern UI**: Clean, professional interface with dark theme
+
+## Tech Stack
+
+- **Frontend**: Next.js 16, React 19, TypeScript
+- **Backend**: Supabase (PostgreSQL database, authentication, real-time subscriptions)
+- **Styling**: Custom CSS with modern design patterns
+- **Charts**: Recharts for data visualization
+
+## Database Schema
+
+The application uses the following main tables:
+- `accounts` - Bank accounts, wallets, and financial entities
+- `transactions` - Income and expense records
+- `goals` - Financial goals and targets
+- `family_transfers` - Family money transfers
 
 ## Getting Started
 
-First, run the development server:
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+2. Set up environment variables in `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
+   ```
+
+3. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Supabase Setup
+
+The project is already configured with Supabase. The database schema includes:
+- Proper indexing for performance
+- Row Level Security (RLS) ready
+- Automatic timestamps with triggers
+- Type-safe TypeScript definitions
+
+## Project Structure
+
+```
+app/
+├── components/
+│   ├── Dashboard.tsx          # Main dashboard
+│   ├── SupabaseFinanceContext.tsx  # Data context with Supabase
+│   └── Sidebar.tsx           # Navigation sidebar
+├── accounts/                 # Account management page
+├── goals/                    # Goals tracking page
+├── ledger/                   # Transaction history page
+├── salary/                   # Income tracking page
+└── layout.tsx               # Root layout
+
+lib/
+├── supabase.ts              # Supabase client configuration
+└── database.types.ts        # Generated TypeScript types
+
+supabase/
+└── migrations/              # Database migration files
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contributing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from 'react';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { useFinance, Account } from '../components/FinanceContext';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Area, AreaChart } from 'recharts';
+import { useFinance, Account } from '../components/SupabaseFinanceContext';
 import {
     Wallet,
     CreditCard,
@@ -27,7 +27,8 @@ import {
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
 export default function AccountsPage() {
-    const { accounts, addAccount, updateAccount, addFunds } = useFinance();
+    const { accounts, addAccount, updateAccount, addFunds, loading } = useFinance();
+    const [activeTab, setActiveTab] = useState<'accounts' | 'allocation'>('accounts');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
 
@@ -50,14 +51,14 @@ export default function AccountsPage() {
     const [targetAccountId, setTargetAccountId] = useState<number | ''>('');
     const [transferAmount, setTransferAmount] = useState('');
 
-    const handleAddAccount = (e: React.FormEvent) => {
+    const handleAddAccount = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!accountName || !balance || !bankName) return;
 
         if (editId !== null) {
             const existingAccount = accounts.find(acc => acc.id === editId);
             if (existingAccount) {
-                updateAccount({
+                await updateAccount({
                     ...existingAccount,
                     name: accountName,
                     bankName,
@@ -67,7 +68,7 @@ export default function AccountsPage() {
                 });
             }
         } else {
-            addAccount({
+            await addAccount({
                 name: accountName,
                 bankName,
                 type: accountType,
@@ -98,24 +99,24 @@ export default function AccountsPage() {
         setIsModalOpen(true);
     };
 
-    const handleAddFundsSubmit = (e: React.FormEvent) => {
+    const handleAddFundsSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (selectedAccountId === null || !addFundsAmount) return;
-        addFunds(selectedAccountId, parseFloat(addFundsAmount), addFundsDescription, addFundsCategory);
+        await addFunds(selectedAccountId, parseFloat(addFundsAmount), addFundsDescription, addFundsCategory);
         setIsAddFundsModalOpen(false);
         setAddFundsAmount('');
         setAddFundsDescription('');
     };
 
-    const handleTransfer = (e: React.FormEvent) => {
+    const handleTransfer = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!sourceAccountId || !targetAccountId || !transferAmount) return;
         const amount = parseFloat(transferAmount);
         const sourceAccount = accounts.find(acc => acc.id === Number(sourceAccountId));
         const targetAccount = accounts.find(acc => acc.id === Number(targetAccountId));
         if (sourceAccount && targetAccount) {
-            updateAccount({ ...sourceAccount, balance: sourceAccount.balance - amount });
-            updateAccount({ ...targetAccount, balance: targetAccount.balance + amount });
+            await updateAccount({ ...sourceAccount, balance: sourceAccount.balance - amount });
+            await updateAccount({ ...targetAccount, balance: targetAccount.balance + amount });
         }
         setIsTransferModalOpen(false);
     };
@@ -133,12 +134,22 @@ export default function AccountsPage() {
 
     const totalBalanceINR = accounts.filter(a => a.currency === 'INR').reduce((sum, acc) => sum + acc.balance, 0);
 
+    if (loading) {
+        return (
+            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your accounts...</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                     <div>
                         <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Personal Vault</h1>
                         <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Securely manage your assets and financial entities</p>
@@ -157,241 +168,287 @@ export default function AccountsPage() {
                     </div>
                 </div>
 
-                {/* Main Content Layout */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) 350px', gap: '40px' }}>
+                {/* Tab Navigation */}
+                <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '16px', border: '1px solid #1e293b', marginBottom: '32px', width: 'fit-content' }}>
+                    {[
+                        { id: 'accounts', label: 'Accounts', icon: <Wallet size={18} /> },
+                        { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} /> }
+                    ].map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id as 'accounts' | 'allocation')}
+                            style={{
+                                padding: '12px 24px',
+                                borderRadius: '12px',
+                                border: 'none',
+                                background: activeTab === tab.id ? '#6366f1' : 'transparent',
+                                color: activeTab === tab.id ? '#fff' : '#64748b',
+                                fontWeight: '700',
+                                fontSize: '0.9rem',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s'
+                            }}
+                            onMouseEnter={e => {
+                                if (activeTab !== tab.id) {
+                                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                                    e.currentTarget.style.color = '#cbd5e1';
+                                }
+                            }}
+                            onMouseLeave={e => {
+                                if (activeTab !== tab.id) {
+                                    e.currentTarget.style.background = 'transparent';
+                                    e.currentTarget.style.color = '#64748b';
+                                }
+                            }}
+                        >
+                            {tab.icon}
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
 
-                    {/* Left: Accounts Cards */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                {/* Tab Content */}
+                {activeTab === 'accounts' && (
+                    <>
+                        {/* Main Content Layout - Single Column */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
 
-                        {/* Summary Bar */}
-                        <div style={{ 
-                            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
-                            padding: '32px', 
-                            borderRadius: '32px', 
-                            border: '1px solid #1e293b', 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            position: 'relative', 
-                            overflow: 'hidden',
-                            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
-                        }}>
-                            {/* Enhanced animated gradient background */}
+                            {/* Summary Bar */}
                             <div style={{ 
-                                position: 'absolute', 
-                                top: '-50%', 
-                                right: '-10%', 
-                                width: '400px', 
-                                height: '400px', 
-                                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-                                filter: 'blur(60px)',
-                                animation: 'float 6s ease-in-out infinite'
-                            }} />
-                            <div style={{ 
-                                position: 'absolute', 
-                                bottom: '-50%', 
-                                left: '-10%', 
-                                width: '350px', 
-                                height: '350px', 
-                                background: 'radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%)',
-                                filter: 'blur(60px)',
-                                animation: 'float 8s ease-in-out infinite reverse'
-                            }} />
-                            
-                            <div style={{ position: 'relative', zIndex: 1 }}>
+                                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', 
+                                padding: '32px', 
+                                borderRadius: '32px', 
+                                border: '1px solid #1e293b', 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center', 
+                                position: 'relative', 
+                                overflow: 'hidden',
+                                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)'
+                            }}>
+                                {/* Enhanced animated gradient background */}
                                 <div style={{ 
-                                    color: '#64748b', 
-                                    fontSize: '0.75rem', 
-                                    fontWeight: '800', 
-                                    textTransform: 'uppercase', 
-                                    letterSpacing: '1.5px', 
-                                    marginBottom: '8px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 12px rgba(52, 211, 153, 0.6)' }} />
-                                    Total Vault Liquidity
-                                </div>
+                                    position: 'absolute', 
+                                    top: '-50%', 
+                                    right: '-10%', 
+                                    width: '400px', 
+                                    height: '400px', 
+                                    background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+                                    filter: 'blur(60px)',
+                                    animation: 'float 6s ease-in-out infinite'
+                                }} />
                                 <div style={{ 
-                                    fontSize: '2.8rem', 
-                                    fontWeight: '950', 
-                                    color: '#fff', 
-                                    letterSpacing: '-1.5px',
-                                    textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)'
-                                }}>₹{totalBalanceINR.toLocaleString()}</div>
-                                <div style={{ 
-                                    marginTop: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: '0.9rem',
-                                    fontWeight: '700'
-                                }}>
+                                    position: 'absolute', 
+                                    bottom: '-50%', 
+                                    left: '-10%', 
+                                    width: '350px', 
+                                    height: '350px', 
+                                    background: 'radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%)',
+                                    filter: 'blur(60px)',
+                                    animation: 'float 8s ease-in-out infinite reverse'
+                                }} />
+                                
+                                <div style={{ position: 'relative', zIndex: 1 }}>
                                     <div style={{ 
-                                        background: 'rgba(52, 211, 153, 0.15)', 
-                                        color: '#34d399', 
-                                        padding: '4px 12px', 
-                                        borderRadius: '100px',
-                                        border: '1px solid rgba(52, 211, 153, 0.3)',
+                                        color: '#64748b', 
+                                        fontSize: '0.75rem', 
+                                        fontWeight: '800', 
+                                        textTransform: 'uppercase', 
+                                        letterSpacing: '1.5px', 
+                                        marginBottom: '8px',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '4px'
+                                        gap: '8px'
                                     }}>
-                                        <TrendingUp size={14} /> +5.2% this month
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 12px rgba(52, 211, 153, 0.6)' }} />
+                                        Total Vault Liquidity
+                                    </div>
+                                    <div style={{ 
+                                        fontSize: '2.8rem', 
+                                        fontWeight: '950', 
+                                        color: '#fff', 
+                                        letterSpacing: '-1.5px',
+                                        textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)'
+                                    }}>₹{totalBalanceINR.toLocaleString()}</div>
+                                    <div style={{ 
+                                        marginTop: '12px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '8px',
+                                        fontSize: '0.9rem',
+                                        fontWeight: '700'
+                                    }}>
+                                        <div style={{ 
+                                            background: 'rgba(52, 211, 153, 0.15)', 
+                                            color: '#34d399', 
+                                            padding: '4px 12px', 
+                                            borderRadius: '100px',
+                                            border: '1px solid rgba(52, 211, 153, 0.3)',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}>
+                                            <TrendingUp size={14} /> +5.2% this month
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
 
-                        </div>
-
-                        {/* Search & Filter Bar */}
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
-                                <Search size={18} color="#475569" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                                <input placeholder="Search entities..." style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+                            {/* Search & Filter Bar */}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ position: 'relative', flex: 1, maxWidth: '400px' }}>
+                                    <Search size={18} color="#475569" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                                    <input placeholder="Search entities..." style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }} />
+                                </div>
+                                <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: '600' }}>{accounts.length} Active Entities</div>
                             </div>
-                            <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: '600' }}>{accounts.length} Active Entities</div>
-                        </div>
 
-                        {/* Accounts Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
-                            {accounts.map((account, idx) => (
-                                <div key={account.id} style={{
-                                    background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                                    borderRadius: '28px',
-                                    border: '1px solid #1e293b',
-                                    padding: '24px',
-                                    position: 'relative',
-                                    overflow: 'hidden',
-                                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-                                    cursor: 'pointer'
-                                }}
-                                    onMouseEnter={e => { 
-                                        e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)'; 
-                                        e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60'; 
-                                        e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS[idx % COLORS.length]}30, 0 0 0 1px ${COLORS[idx % COLORS.length]}20`; 
-                                    }}
-                                    onMouseLeave={e => { 
-                                        e.currentTarget.style.transform = 'translateY(0) scale(1)'; 
-                                        e.currentTarget.style.borderColor = '#1e293b'; 
-                                        e.currentTarget.style.boxShadow = 'none'; 
-                                    }}
-                                    onClick={() => handleEditClick(account)}
-                                >
-                                    {/* Enhanced card decoration with gradient overlay */}
-                                    <div style={{ 
-                                        position: 'absolute', 
-                                        top: 0, 
-                                        right: 0, 
-                                        width: '200px', 
-                                        height: '200px', 
-                                        background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}15 0%, transparent 70%)`,
-                                        filter: 'blur(40px)'
-                                    }} />
-                                    
-                                    {/* Accent line */}
-                                    <div style={{ 
-                                        position: 'absolute', 
-                                        top: 0, 
-                                        left: 0, 
-                                        right: 0, 
-                                        height: '3px', 
-                                        background: `linear-gradient(90deg, ${COLORS[idx % COLORS.length]} 0%, transparent 100%)`,
-                                        borderRadius: '28px 28px 0 0'
-                                    }} />
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
-                                        <div style={{ 
-                                            background: `${COLORS[idx % COLORS.length]}15`, 
-                                            padding: '12px', 
-                                            borderRadius: '16px', 
-                                            color: COLORS[idx % COLORS.length],
-                                            border: `1px solid ${COLORS[idx % COLORS.length]}30`,
-                                            boxShadow: `0 4px 16px ${COLORS[idx % COLORS.length]}20`
-                                        }}>
-                                            {getAccountIcon(account.type)}
-                                        </div>
-                                        <div style={{
-                                            padding: '6px 14px', 
-                                            borderRadius: '100px', 
-                                            background: 'rgba(255,255,255,0.05)', 
-                                            color: '#94a3b8', 
-                                            fontSize: '0.7rem', 
-                                            fontWeight: '800', 
-                                            textTransform: 'uppercase', 
-                                            letterSpacing: '1px', 
-                                            border: '1px solid rgba(255,255,255,0.1)',
-                                            backdropFilter: 'blur(8px)'
-                                        }}>
-                                            {account.type}
-                                        </div>
-                                    </div>
-
-                                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
-                                        <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{account.name}</div>
-                                        <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{account.bankName}</div>
-                                    </div>
-
-                                    <div style={{ 
-                                        display: 'flex', 
-                                        justifyContent: 'space-between', 
-                                        alignItems: 'flex-end', 
-                                        paddingTop: '24px', 
-                                        borderTop: '1px solid rgba(255,255,255,0.06)',
+                            {/* Accounts Grid */}
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '24px' }}>
+                                {accounts.map((account, idx) => (
+                                    <div key={account.id} style={{
+                                        background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
+                                        borderRadius: '28px',
+                                        border: '1px solid #1e293b',
+                                        padding: '24px',
                                         position: 'relative',
-                                        zIndex: 1
-                                    }}>
-                                        <div>
+                                        overflow: 'hidden',
+                                        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        cursor: 'pointer'
+                                    }}
+                                        onMouseEnter={e => { 
+                                            e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)'; 
+                                            e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60'; 
+                                            e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS[idx % COLORS.length]}30, 0 0 0 1px ${COLORS[idx % COLORS.length]}20`; 
+                                        }}
+                                        onMouseLeave={e => { 
+                                            e.currentTarget.style.transform = 'translateY(0) scale(1)'; 
+                                            e.currentTarget.style.borderColor = '#1e293b'; 
+                                            e.currentTarget.style.boxShadow = 'none'; 
+                                        }}
+                                        onClick={() => handleEditClick(account)}
+                                    >
+                                        {/* Enhanced card decoration with gradient overlay */}
+                                        <div style={{ 
+                                            position: 'absolute', 
+                                            top: 0, 
+                                            right: 0, 
+                                            width: '200px', 
+                                            height: '200px', 
+                                            background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}15 0%, transparent 70%)`,
+                                            filter: 'blur(40px)'
+                                        }} />
+                                        
+                                        {/* Accent line */}
+                                        <div style={{ 
+                                            position: 'absolute', 
+                                            top: 0, 
+                                            left: 0, 
+                                            right: 0, 
+                                            height: '3px', 
+                                            background: `linear-gradient(90deg, ${COLORS[idx % COLORS.length]} 0%, transparent 100%)`,
+                                            borderRadius: '28px 28px 0 0'
+                                        }} />
+
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
                                             <div style={{ 
-                                                color: '#64748b', 
+                                                background: `${COLORS[idx % COLORS.length]}15`, 
+                                                padding: '12px', 
+                                                borderRadius: '16px', 
+                                                color: COLORS[idx % COLORS.length],
+                                                border: `1px solid ${COLORS[idx % COLORS.length]}30`,
+                                                boxShadow: `0 4px 16px ${COLORS[idx % COLORS.length]}20`
+                                            }}>
+                                                {getAccountIcon(account.type)}
+                                            </div>
+                                            <div style={{
+                                                padding: '6px 14px', 
+                                                borderRadius: '100px', 
+                                                background: 'rgba(255,255,255,0.05)', 
+                                                color: '#94a3b8', 
                                                 fontSize: '0.7rem', 
                                                 fontWeight: '800', 
                                                 textTransform: 'uppercase', 
-                                                marginBottom: '6px',
-                                                letterSpacing: '1px'
-                                            }}>Available Balance</div>
-                                            <div style={{ 
-                                                fontSize: '1.9rem', 
-                                                fontWeight: '900', 
-                                                color: '#fff',
-                                                textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)'
+                                                letterSpacing: '1px', 
+                                                border: '1px solid rgba(255,255,255,0.1)',
+                                                backdropFilter: 'blur(8px)'
                                             }}>
-                                                {account.currency === 'INR' ? '₹' : '$'}{account.balance.toLocaleString()}
+                                                {account.type}
                                             </div>
                                         </div>
-                                        <button onClick={(e) => { e.stopPropagation(); setSelectedAccountId(account.id); setIsAddFundsModalOpen(true); }} style={{
-                                            background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`, 
-                                            color: '#fff', 
-                                            border: 'none', 
-                                            width: '44px', 
-                                            height: '44px', 
-                                            borderRadius: '14px', 
-                                            display: 'flex', 
-                                            alignItems: 'center', 
-                                            justifyContent: 'center', 
-                                            cursor: 'pointer', 
-                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                            boxShadow: `0 4px 12px ${COLORS[idx % COLORS.length]}40`
-                                        }} 
-                                        onMouseEnter={e => {
-                                            e.currentTarget.style.transform = 'scale(1.15)';
-                                            e.currentTarget.style.boxShadow = `0 8px 20px ${COLORS[idx % COLORS.length]}60`;
-                                        }} 
-                                        onMouseLeave={e => {
-                                            e.currentTarget.style.transform = 'scale(1)';
-                                            e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
-                                        }}>
-                                            <Plus size={20} strokeWidth={3} />
-                                        </button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
 
-                    {/* Right: Distribution & Insights */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+                                        <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
+                                            <div style={{ fontSize: '1.2rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{account.name}</div>
+                                            <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{account.bankName}</div>
+                                        </div>
+
+                                        <div style={{ 
+                                            display: 'flex', 
+                                            justifyContent: 'space-between', 
+                                            alignItems: 'flex-end', 
+                                            paddingTop: '24px', 
+                                            borderTop: '1px solid rgba(255,255,255,0.06)',
+                                            position: 'relative',
+                                            zIndex: 1
+                                        }}>
+                                            <div>
+                                                <div style={{ 
+                                                    color: '#64748b', 
+                                                    fontSize: '0.7rem', 
+                                                    fontWeight: '800', 
+                                                    textTransform: 'uppercase', 
+                                                    marginBottom: '6px',
+                                                    letterSpacing: '1px'
+                                                }}>Available Balance</div>
+                                                <div style={{ 
+                                                    fontSize: '1.9rem', 
+                                                    fontWeight: '900', 
+                                                    color: '#fff',
+                                                    textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)'
+                                                }}>
+                                                    {account.currency === 'INR' ? '₹' : '$'}{account.balance.toLocaleString()}
+                                                </div>
+                                            </div>
+                                            <button onClick={(e) => { e.stopPropagation(); setSelectedAccountId(account.id); setIsAddFundsModalOpen(true); }} style={{
+                                                background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`, 
+                                                color: '#fff', 
+                                                border: 'none', 
+                                                width: '44px', 
+                                                height: '44px', 
+                                                borderRadius: '14px', 
+                                                display: 'flex', 
+                                                alignItems: 'center', 
+                                                justifyContent: 'center', 
+                                                cursor: 'pointer', 
+                                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                boxShadow: `0 4px 12px ${COLORS[idx % COLORS.length]}40`
+                                            }} 
+                                            onMouseEnter={e => {
+                                                e.currentTarget.style.transform = 'scale(1.15)';
+                                                e.currentTarget.style.boxShadow = `0 8px 20px ${COLORS[idx % COLORS.length]}60`;
+                                            }} 
+                                            onMouseLeave={e => {
+                                                e.currentTarget.style.transform = 'scale(1)';
+                                                e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
+                                            }}>
+                                                <Plus size={20} strokeWidth={3} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {activeTab === 'allocation' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '32px' }}>
+                        
+                        {/* Portfolio Distribution Chart */}
                         <div style={{ 
                             background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', 
                             padding: '32px', 
@@ -400,7 +457,7 @@ export default function AccountsPage() {
                             boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                         }}>
                             <h3 style={{ 
-                                fontSize: '1.1rem', 
+                                fontSize: '1.2rem', 
                                 fontWeight: '800', 
                                 marginBottom: '24px', 
                                 margin: 0,
@@ -408,20 +465,19 @@ export default function AccountsPage() {
                                 alignItems: 'center',
                                 gap: '10px'
                             }}>
-                                <PieChartIcon size={20} color="#6366f1" />
-                                Portfolio Shift
+                                <PieChartIcon size={22} color="#6366f1" />
+                                Portfolio Distribution
                             </h3>
-                            <div style={{ height: '240px', marginBottom: '32px', position: 'relative' }}>
-                                {/* Add a subtle glow effect */}
+                            <div style={{ height: '300px', position: 'relative' }}>
                                 <div style={{ 
                                     position: 'absolute', 
                                     top: '50%', 
                                     left: '50%', 
                                     transform: 'translate(-50%, -50%)', 
-                                    width: '160px', 
-                                    height: '160px', 
+                                    width: '180px', 
+                                    height: '180px', 
                                     background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-                                    filter: 'blur(30px)',
+                                    filter: 'blur(40px)',
                                     zIndex: 0
                                 }} />
                                 <ResponsiveContainer width="100%" height="100%">
@@ -430,13 +486,12 @@ export default function AccountsPage() {
                                             data={accounts} 
                                             cx="50%" 
                                             cy="50%" 
-                                            innerRadius={60} 
-                                            outerRadius={90} 
-                                            paddingAngle={5} 
+                                            innerRadius={70} 
+                                            outerRadius={120} 
+                                            paddingAngle={3} 
                                             dataKey="balance" 
                                             animationBegin={0} 
-                                            animationDuration={1200}
-                                            animationEasing="ease-out"
+                                            animationDuration={1500}
                                         >
                                             {accounts.map((_, index) => (
                                                 <Cell 
@@ -444,8 +499,7 @@ export default function AccountsPage() {
                                                     fill={COLORS[index % COLORS.length]} 
                                                     stroke="none"
                                                     style={{ 
-                                                        filter: `drop-shadow(0 0 8px ${COLORS[index % COLORS.length]}40)`,
-                                                        transition: 'all 0.3s'
+                                                        filter: `drop-shadow(0 0 12px ${COLORS[index % COLORS.length]}50)`,
                                                     }}
                                                 />
                                             ))}
@@ -455,58 +509,207 @@ export default function AccountsPage() {
                                                 background: '#020617', 
                                                 border: '1px solid #334155', 
                                                 borderRadius: '12px', 
-                                                padding: '12px',
+                                                padding: '16px',
                                                 boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)'
                                             }}
-                                            formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Value']}
+                                            formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                {accounts.map((acc, idx) => (
-                                    <div key={acc.id} style={{ 
-                                        display: 'flex', 
-                                        justifyContent: 'space-between', 
-                                        alignItems: 'center',
-                                        padding: '12px',
-                                        borderRadius: '12px',
-                                        background: 'rgba(255,255,255,0.02)',
-                                        border: '1px solid rgba(255,255,255,0.03)',
-                                        transition: 'all 0.3s',
-                                        cursor: 'pointer'
-                                    }}
-                                    onMouseEnter={e => {
-                                        e.currentTarget.style.background = `${COLORS[idx % COLORS.length]}10`;
-                                        e.currentTarget.style.borderColor = `${COLORS[idx % COLORS.length]}30`;
-                                    }}
-                                    onMouseLeave={e => {
-                                        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                                        e.currentTarget.style.borderColor = 'rgba(255,255,255,0.03)';
-                                    }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                            <div style={{ 
-                                                width: '12px', 
-                                                height: '12px', 
-                                                borderRadius: '50%', 
-                                                background: COLORS[idx % COLORS.length],
-                                                boxShadow: `0 0 12px ${COLORS[idx % COLORS.length]}60`
-                                            }} />
-                                            <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#cbd5e1' }}>{acc.name}</span>
-                                        </div>
-                                        <span style={{ 
-                                            fontSize: '0.9rem', 
-                                            fontWeight: '800', 
-                                            color: COLORS[idx % COLORS.length]
-                                        }}>{((acc.balance / totalBalanceINR) * 100).toFixed(1)}%</span>
-                                    </div>
-                                ))}
+                        </div>
+
+                        {/* Account Balance Trends */}
+                        <div style={{ 
+                            background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', 
+                            padding: '32px', 
+                            borderRadius: '32px', 
+                            border: '1px solid #1e293b',
+                            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
+                        }}>
+                            <h3 style={{ 
+                                fontSize: '1.2rem', 
+                                fontWeight: '800', 
+                                marginBottom: '24px', 
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <TrendingUp size={22} color="#34d399" />
+                                Balance Distribution
+                            </h3>
+                            <div style={{ height: '300px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={accounts} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                                        <XAxis 
+                                            dataKey="name" 
+                                            stroke="#64748b" 
+                                            fontSize={12}
+                                            angle={-45}
+                                            textAnchor="end"
+                                            height={80}
+                                        />
+                                        <YAxis 
+                                            stroke="#64748b" 
+                                            fontSize={12}
+                                            tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{ 
+                                                background: '#020617', 
+                                                border: '1px solid #334155', 
+                                                borderRadius: '12px', 
+                                                padding: '12px'
+                                            }}
+                                            formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
+                                        />
+                                        <Bar 
+                                            dataKey="balance" 
+                                            fill="#6366f1"
+                                            radius={[4, 4, 0, 0]}
+                                        />
+                                    </BarChart>
+                                </ResponsiveContainer>
                             </div>
                         </div>
 
+                        {/* Account Type Distribution */}
+                        <div style={{ 
+                            background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', 
+                            padding: '32px', 
+                            borderRadius: '32px', 
+                            border: '1px solid #1e293b',
+                            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
+                        }}>
+                            <h3 style={{ 
+                                fontSize: '1.2rem', 
+                                fontWeight: '800', 
+                                marginBottom: '24px', 
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <Building2 size={22} color="#f59e0b" />
+                                Account Types
+                            </h3>
+                            <div style={{ height: '300px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie 
+                                            data={accounts.reduce((acc, account) => {
+                                                const existing = acc.find(item => item.type === account.type);
+                                                if (existing) {
+                                                    existing.value += account.balance;
+                                                    existing.count += 1;
+                                                } else {
+                                                    acc.push({ type: account.type, value: account.balance, count: 1 });
+                                                }
+                                                return acc;
+                                            }, [] as any[])} 
+                                            cx="50%" 
+                                            cy="50%" 
+                                            outerRadius={100} 
+                                            dataKey="value" 
+                                            nameKey="type"
+                                            animationBegin={0} 
+                                            animationDuration={1200}
+                                        >
+                                            {accounts.map((_, index) => (
+                                                <Cell 
+                                                    key={`cell-${index}`} 
+                                                    fill={COLORS[index % COLORS.length]} 
+                                                />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip
+                                            contentStyle={{ 
+                                                background: '#020617', 
+                                                border: '1px solid #334155', 
+                                                borderRadius: '12px', 
+                                                padding: '12px'
+                                            }}
+                                            formatter={(value: any, name: any, props: any) => [
+                                                `₹${Number(value).toLocaleString()}`, 
+                                                `${props.payload.type} (${props.payload.count} accounts)`
+                                            ]}
+                                        />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
 
+                        {/* Currency Distribution */}
+                        <div style={{ 
+                            background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', 
+                            padding: '32px', 
+                            borderRadius: '32px', 
+                            border: '1px solid #1e293b',
+                            boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
+                        }}>
+                            <h3 style={{ 
+                                fontSize: '1.2rem', 
+                                fontWeight: '800', 
+                                marginBottom: '24px', 
+                                margin: 0,
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <DollarSign size={22} color="#10b981" />
+                                Currency Allocation
+                            </h3>
+                            <div style={{ height: '300px' }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <AreaChart 
+                                        data={[
+                                            { 
+                                                currency: 'INR', 
+                                                amount: accounts.filter(a => a.currency === 'INR').reduce((sum, acc) => sum + acc.balance, 0),
+                                                percentage: (accounts.filter(a => a.currency === 'INR').reduce((sum, acc) => sum + acc.balance, 0) / totalBalanceINR) * 100
+                                            },
+                                            { 
+                                                currency: 'USD', 
+                                                amount: accounts.filter(a => a.currency === 'USD').reduce((sum, acc) => sum + acc.balance, 0),
+                                                percentage: (accounts.filter(a => a.currency === 'USD').reduce((sum, acc) => sum + acc.balance, 0) / totalBalanceINR) * 100
+                                            }
+                                        ]}
+                                    >
+                                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                                        <XAxis dataKey="currency" stroke="#64748b" />
+                                        <YAxis 
+                                            stroke="#64748b" 
+                                            tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
+                                        />
+                                        <Tooltip
+                                            contentStyle={{ 
+                                                background: '#020617', 
+                                                border: '1px solid #334155', 
+                                                borderRadius: '12px', 
+                                                padding: '12px'
+                                            }}
+                                            formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
+                                        />
+                                        <Area 
+                                            type="monotone" 
+                                            dataKey="amount" 
+                                            stroke="#10b981" 
+                                            fill="url(#colorGradient)" 
+                                        />
+                                        <defs>
+                                            <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
+                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                            </linearGradient>
+                                        </defs>
+                                    </AreaChart>
+                                </ResponsiveContainer>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                )}
 
             </div>
 

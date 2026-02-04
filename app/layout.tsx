@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 
 import Sidebar from "./components/Sidebar";
 
-import { FinanceProvider } from "./components/FinanceContext";
+import { SupabaseFinanceProvider } from "./components/SupabaseFinanceContext";
 
 export default function RootLayout({
   children,
@@ -29,12 +29,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <FinanceProvider>
+        <SupabaseFinanceProvider>
           <Sidebar />
           <main style={{ flex: 1, overflowY: 'auto', height: '100vh', position: 'relative' }}>
             {children}
           </main>
-        </FinanceProvider>
+        </SupabaseFinanceProvider>
       </body>
     </html>
   );

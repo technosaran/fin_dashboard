@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { useFinance } from '../components/FinanceContext';
+import { useFinance } from '../components/SupabaseFinanceContext';
 import {
     Book,
     Plus,
@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 export default function LedgerPage() {
-    const { transactions, addTransaction } = useFinance();
+    const { transactions, addTransaction, loading } = useFinance();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
     const [searchQuery, setSearchQuery] = useState('');
@@ -33,11 +33,11 @@ export default function LedgerPage() {
     const [amount, setAmount] = useState('');
     const [type, setType] = useState<'Income' | 'Expense'>('Expense');
 
-    const handleAddTransaction = (e: React.FormEvent) => {
+    const handleAddTransaction = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!description || !amount || !category) return;
 
-        addTransaction({
+        await addTransaction({
             date,
             description,
             category,
@@ -63,6 +63,16 @@ export default function LedgerPage() {
     const dayTotalIncome = filteredTransactions.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0);
     const dayTotalExpense = filteredTransactions.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0);
 
+    if (loading) {
+        return (
+            <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your transactions...</div>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="main-content" style={{ padding: '40px 60px', backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
@@ -85,56 +95,77 @@ export default function LedgerPage() {
                     </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '40px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-                    {/* Left Sidebar: Calendar & Summary */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '28px', border: '1px solid #1e293b' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#818cf8' }}>
-                                <CalendarIcon size={18} strokeWidth={2.5} />
-                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Date Selector</span>
+                    {/* Top Section: Calendar and Summary Stats */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '300px 1fr 1fr', gap: '24px', marginBottom: '16px' }}>
+                        {/* Small Square Calendar */}
+                        <div style={{ background: '#0f172a', padding: '20px', borderRadius: '20px', border: '1px solid #1e293b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px', color: '#818cf8' }}>
+                                <CalendarIcon size={16} strokeWidth={2.5} />
+                                <span style={{ fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Date Filter</span>
                             </div>
                             <style>{`
-                                .custom-calendar {
+                                .compact-calendar {
                                     width: 100% !important;
                                     background: transparent !important;
                                     border: none !important;
                                     color: #cbd5e1 !important;
                                     font-family: inherit !important;
+                                    font-size: 0.75rem !important;
                                 }
-                                .react-calendar__tile { color: #94a3b8 !important; padding: 12px 8px !important; border-radius: 8px !important; }
-                                .react-calendar__tile--now { background: rgba(99, 102, 241, 0.1) !important; color: #818cf8 !important; }
-                                .react-calendar__tile--active { background: #6366f1 !important; color: white !important; font-weight: 800 !important; }
-                                .react-calendar__navigation button { color: #f8fafc !important; font-weight: 800 !important; }
-                                .react-calendar__month-view__weekdays { font-size: 0.7rem !important; text-transform: uppercase !important; color: #475569 !important; }
+                                .compact-calendar .react-calendar__tile { 
+                                    color: #94a3b8 !important; 
+                                    padding: 8px 4px !important; 
+                                    border-radius: 6px !important; 
+                                    font-size: 0.7rem !important;
+                                }
+                                .compact-calendar .react-calendar__tile--now { 
+                                    background: rgba(99, 102, 241, 0.1) !important; 
+                                    color: #818cf8 !important; 
+                                }
+                                .compact-calendar .react-calendar__tile--active { 
+                                    background: #6366f1 !important; 
+                                    color: white !important; 
+                                    font-weight: 800 !important; 
+                                }
+                                .compact-calendar .react-calendar__navigation button { 
+                                    color: #f8fafc !important; 
+                                    font-weight: 800 !important; 
+                                    font-size: 0.8rem !important;
+                                }
+                                .compact-calendar .react-calendar__month-view__weekdays { 
+                                    font-size: 0.6rem !important; 
+                                    text-transform: uppercase !important; 
+                                    color: #475569 !important; 
+                                }
+                                .compact-calendar .react-calendar__month-view__days__day--neighboringMonth {
+                                    color: #374151 !important;
+                                }
                             `}</style>
                             <Calendar
                                 onChange={(value: any) => setSelectedDate(value)}
                                 value={selectedDate}
-                                className="custom-calendar"
+                                className="compact-calendar"
                             />
                         </div>
-
-                        {/* Daily Stats */}
-                        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '28px', border: '1px solid #1e293b' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#94a3b8' }}>
-                                <History size={18} />
-                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Velocity</span>
+                        
+                        {/* Summary Stats */}
+                        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#34d399' }}>
+                                <ArrowUpRight size={18} />
+                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Inflow</span>
                             </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div>
-                                    <div style={{ color: '#475569', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Inflow</div>
-                                    <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#34d399' }}>₹{dayTotalIncome.toLocaleString()}</div>
-                                </div>
-                                <div>
-                                    <div style={{ color: '#475569', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Outflow</div>
-                                    <div style={{ fontSize: '1.4rem', fontWeight: '900', color: '#f87171' }}>₹{dayTotalExpense.toLocaleString()}</div>
-                                </div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#34d399' }}>₹{dayTotalIncome.toLocaleString()}</div>
+                        </div>
+                        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#f87171' }}>
+                                <ArrowDownRight size={18} />
+                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Outflow</span>
                             </div>
+                            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#f87171' }}>₹{dayTotalExpense.toLocaleString()}</div>
                         </div>
                     </div>
-
-                    {/* Right: Timeline View */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                         {/* Interactive Toolbar */}
