@@ -52,13 +52,13 @@ body {
 
 @media (min-width: 768px) {
   .main-content {
-    padding: 32px;
+    padding: 24px;
   }
 }
 
 @media (min-width: 1024px) {
   .main-content {
-    padding: 40px;
+    padding: 32px;
   }
 }
 
