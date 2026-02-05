@@ -205,6 +205,7 @@ export interface Stock {
     currentValue: number;
     pnl: number;
     pnlPercentage: number;
+    previousPrice?: number;
 }
 
 export interface StockTransaction {
@@ -244,6 +245,7 @@ export interface MutualFund {
     pnl: number;
     pnlPercentage: number;
     folioNumber?: string;
+    previousNav?: number;
 }
 
 export interface MutualFundTransaction {
@@ -316,6 +318,7 @@ interface FinanceContextType {
     addFnoTrade: (trade: Omit<FnoTrade, 'id'>) => Promise<void>;
     updateFnoTrade: (trade: FnoTrade) => Promise<void>;
     deleteFnoTrade: (id: number) => Promise<void>;
+    refreshPortfolio: () => Promise<void>;
 }
 
 const FinanceContext = createContext<FinanceContextType | undefined>(undefined);
@@ -429,7 +432,8 @@ const dbStockToStock = (dbStock: StockRow): Stock => ({
     investmentAmount: Number(dbStock.investment_amount),
     currentValue: Number(dbStock.current_value),
     pnl: Number(dbStock.pnl),
-    pnlPercentage: Number(dbStock.pnl_percentage)
+    pnlPercentage: Number(dbStock.pnl_percentage),
+    previousPrice: dbStock.previous_price ? Number(dbStock.previous_price) : undefined
 });
 
 const dbStockTransactionToStockTransaction = (dbTransaction: StockTransactionRow): StockTransaction => ({
@@ -468,7 +472,8 @@ const dbMutualFundToMutualFund = (dbMF: MutualFundRow): MutualFund => ({
     currentValue: Number(dbMF.current_value),
     pnl: Number(dbMF.pnl),
     pnlPercentage: Number(dbMF.pnl_percentage),
-    folioNumber: dbMF.folio_number || undefined
+    folioNumber: dbMF.folio_number || undefined,
+    previousNav: dbMF.previous_nav ? Number(dbMF.previous_nav) : undefined
 });
 
 const dbMutualFundTransactionToMutualFundTransaction = (dbTx: MutualFundTransactionRow): MutualFundTransaction => ({
@@ -533,10 +538,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
             setLoading(true);
             try {
-                // Load Settings from LocalStorage for now (will migrate to DB if needed)
-                const savedSettings = localStorage.getItem('fincore_settings');
-                if (savedSettings) {
-                    setSettings(JSON.parse(savedSettings));
+                // Initialize settings from DB (fall back to localStorage if DB fetch fails)
+                let currentSettings = settings;
+                const savedLocalSettings = localStorage.getItem('fincore_settings');
+                if (savedLocalSettings) {
+                    currentSettings = JSON.parse(savedLocalSettings);
                 }
 
                 const [
@@ -562,7 +568,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     supabase.from('mutual_funds').select('*').order('name', { ascending: true }),
                     supabase.from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
                     (supabase as any).from('fno_trades').select('*').order('entry_date', { ascending: false }),
-                    (supabase as any).from('app_settings').select('*').eq('id', 1).single()
+                    (supabase as any).from('app_settings').select('*').eq('user_id', user.id).maybeSingle()
                 ]);
 
                 if (accountsError) console.error('Error loading accounts:', accountsError);
@@ -597,6 +603,32 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
                 if (!settingsError && settingsData) {
                     setSettings(dbSettingsToSettings(settingsData));
+                } else if (!settingsData) {
+                    // Create settings in DB if they don't exist
+                    console.log('No settings found in DB, creating for user:', user.id);
+                    const { data: newSettingsData, error: insertError } = await (supabase as any)
+                        .from('app_settings')
+                        .insert({
+                            user_id: user.id,
+                            brokerage_type: currentSettings.brokerageType,
+                            brokerage_value: currentSettings.brokerageValue,
+                            stt_rate: currentSettings.sttRate,
+                            transaction_charge_rate: currentSettings.transactionChargeRate,
+                            sebi_charge_rate: currentSettings.sebiChargeRate,
+                            stamp_duty_rate: currentSettings.stampDutyRate,
+                            gst_rate: currentSettings.gstRate,
+                            dp_charges: currentSettings.dpCharges,
+                            auto_calculate_charges: currentSettings.autoCalculateCharges,
+                            default_stock_account_id: currentSettings.defaultStockAccountId || null,
+                            default_mf_account_id: currentSettings.defaultMfAccountId || null,
+                            default_salary_account_id: currentSettings.defaultSalaryAccountId || null
+                        })
+                        .select()
+                        .maybeSingle();
+
+                    if (!insertError && newSettingsData) {
+                        setSettings(dbSettingsToSettings(newSettingsData));
+                    }
                 }
 
 
@@ -607,10 +639,111 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             }
         };
         loadData();
+
+        // 60 second auto-refresh
+        const interval = setInterval(() => {
+            refreshPortfolio();
+        }, 60000);
+
+        return () => clearInterval(interval);
     }, [user, authLoading]);
+
+    const refreshPortfolio = async () => {
+        if (!user || stocks.length === 0 && mutualFunds.length === 0) return;
+
+        console.log('Refreshing portfolio quotes...');
+
+        // Refresh Stocks
+        const updatedStocks = await Promise.all(stocks.map(async (stock) => {
+            try {
+                const res = await fetch(`/api/stocks/quote?symbol=${stock.symbol}`);
+                const data = await res.json();
+                if (data.currentPrice) {
+                    const newPrice = data.currentPrice;
+                    const prevPrice = data.previousClose || stock.previousPrice || newPrice;
+                    const newValue = stock.quantity * newPrice;
+                    const newPnL = newValue - stock.investmentAmount;
+
+                    const updated = {
+                        ...stock,
+                        currentPrice: newPrice,
+                        previousPrice: prevPrice,
+                        currentValue: newValue,
+                        pnl: newPnL,
+                        pnlPercentage: stock.investmentAmount > 0 ? (newPnL / stock.investmentAmount) * 100 : 0
+                    };
+
+                    // Update DB in background
+                    supabase.from('stocks').update({
+                        current_price: newPrice,
+                        previous_price: prevPrice,
+                        current_value: newValue,
+                        pnl: newPnL,
+                        pnl_percentage: updated.pnlPercentage
+                    }).eq('id', stock.id).then(({ error }) => {
+                        if (error) console.error(`Sync error for ${stock.symbol}:`, error);
+                    });
+
+                    return updated;
+                }
+            } catch (e) {
+                console.error(`Failed to refresh ${stock.symbol}:`, e);
+            }
+            return stock;
+        }));
+
+        // Refresh Mutual Funds
+        const updatedMFs = await Promise.all(mutualFunds.map(async (mf) => {
+            try {
+                if (mf.schemeCode) {
+                    const res = await fetch(`/api/mf/quote?code=${mf.schemeCode}`);
+                    const data = await res.json();
+                    if (data.currentNav) {
+                        const newNav = data.currentNav;
+                        const prevNav = data.previousNav || mf.previousNav || newNav;
+                        const newValue = mf.units * newNav;
+                        const newPnL = newValue - mf.investmentAmount;
+
+                        const updated = {
+                            ...mf,
+                            currentNav: newNav,
+                            previousNav: prevNav,
+                            currentValue: newValue,
+                            pnl: newPnL,
+                            pnlPercentage: mf.investmentAmount > 0 ? (newPnL / mf.investmentAmount) * 100 : 0
+                        };
+
+                        // Update DB in background
+                        supabase.from('mutual_funds').update({
+                            current_nav: newNav,
+                            previous_nav: prevNav,
+                            current_value: newValue,
+                            pnl: newPnL,
+                            pnl_percentage: updated.pnlPercentage
+                        }).eq('id', mf.id).then(({ error }) => {
+                            if (error) console.error(`Sync error for ${mf.name}:`, error);
+                        });
+
+                        return updated;
+                    }
+                }
+            } catch (e) {
+                console.error(`Failed to refresh ${mf.name}:`, e);
+            }
+            return mf;
+        }));
+
+        setStocks(updatedStocks);
+        setMutualFunds(updatedMFs);
+    };
 
     const updateSettings = async (newSettings: AppSettings) => {
         setSettings(newSettings);
+
+        if (!user) {
+            localStorage.setItem('fincore_settings', JSON.stringify(newSettings));
+            return;
+        }
 
         const { error } = await (supabase as any)
             .from('app_settings')
@@ -629,7 +762,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 default_salary_account_id: newSettings.defaultSalaryAccountId || null,
                 updated_at: new Date().toISOString()
             })
-            .eq('id', 1);
+            .eq('user_id', user.id);
 
         if (error) {
             console.error('Error updating settings in DB:', error);
@@ -672,7 +805,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
-    const updateAccount = async (updatedAccount: Account) => {
+    const updateAccount = async (updatedAccount: Account, skipLedgerEntry: boolean = false) => {
         const { error } = await supabase
             .from('accounts')
             .update({
@@ -691,20 +824,22 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         setAccounts(prev => prev.map(acc => acc.id === updatedAccount.id ? updatedAccount : acc));
 
-        // Add transaction for balance change
-        const oldAccount = accounts.find(acc => acc.id === updatedAccount.id);
-        if (oldAccount && oldAccount.balance !== updatedAccount.balance) {
-            const diff = updatedAccount.balance - oldAccount.balance;
-            const isIncome = diff > 0;
+        // Add transaction for balance change only if not skipped
+        if (!skipLedgerEntry) {
+            const oldAccount = accounts.find(acc => acc.id === updatedAccount.id);
+            if (oldAccount && oldAccount.balance !== updatedAccount.balance) {
+                const diff = updatedAccount.balance - oldAccount.balance;
+                const isIncome = diff > 0;
 
-            await addTransaction({
-                date: new Date().toISOString().split('T')[0],
-                description: `Balance Update - ${updatedAccount.name}`,
-                category: 'Adjustment',
-                type: isIncome ? 'Income' : 'Expense',
-                amount: Math.abs(diff),
-                accountId: updatedAccount.id
-            });
+                await addTransaction({
+                    date: new Date().toISOString().split('T')[0],
+                    description: `Balance Update - ${updatedAccount.name}`,
+                    category: 'Adjustment',
+                    type: isIncome ? 'Income' : 'Expense',
+                    amount: Math.abs(diff),
+                    accountId: updatedAccount.id
+                });
+            }
         }
     };
 
@@ -731,7 +866,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 await updateAccount({
                     ...account,
                     balance: account.balance + balanceChange
-                });
+                }, true); // Important: skipLedgerEntry=true to prevent loop
             }
         }
 
@@ -962,7 +1097,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 investment_amount: stockData.investmentAmount,
                 current_value: stockData.currentValue,
                 pnl: stockData.pnl,
-                pnl_percentage: stockData.pnlPercentage
+                pnl_percentage: stockData.pnlPercentage,
+                previous_price: stockData.previousPrice || stockData.currentPrice
             })
             .select()
             .single();
@@ -990,7 +1126,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 investment_amount: updatedStock.investmentAmount,
                 current_value: updatedStock.currentValue,
                 pnl: updatedStock.pnl,
-                pnl_percentage: updatedStock.pnlPercentage
+                pnl_percentage: updatedStock.pnlPercentage,
+                previous_price: updatedStock.previousPrice
             })
             .eq('id', updatedStock.id);
 
@@ -1132,7 +1269,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 current_value: mfData.currentValue,
                 pnl: mfData.pnl,
                 pnl_percentage: mfData.pnlPercentage,
-                folio_number: mfData.folioNumber
+                folio_number: mfData.folioNumber,
+                previous_nav: mfData.previousNav || mfData.currentNav
             })
             .select()
             .single();
@@ -1161,7 +1299,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 current_value: updatedMF.currentValue,
                 pnl: updatedMF.pnl,
                 pnl_percentage: updatedMF.pnlPercentage,
-                folio_number: updatedMF.folioNumber
+                folio_number: updatedMF.folioNumber,
+                previous_nav: updatedMF.previousNav
             })
             .eq('id', updatedMF.id);
 
@@ -1263,6 +1402,42 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const addFnoTrade = async (tradeData: Omit<FnoTrade, 'id'>) => {
+        const investment = tradeData.avgPrice * tradeData.quantity;
+
+        // 1. Balance Check (for Initial Outflow)
+        if (tradeData.accountId) {
+            const account = accounts.find(acc => acc.id === tradeData.accountId);
+            if (account && account.balance < investment) {
+                alert(`Insufficient funds in ${account.name} to enter this position.`);
+                return;
+            }
+        }
+
+        // 2. Ledger Registry (Entry/Investment)
+        if (tradeData.accountId) {
+            await addTransaction({
+                date: tradeData.entryDate,
+                description: `FnO Entry: ${tradeData.instrument} (${tradeData.quantity} qty)`,
+                category: 'Investments',
+                type: 'Expense',
+                amount: investment,
+                accountId: tradeData.accountId
+            });
+        }
+
+        // 3. If trade is ALREADY closed on creation, record the exit too
+        if (tradeData.status === 'CLOSED' && tradeData.accountId) {
+            const proceeds = investment + (tradeData.pnl || 0);
+            await addTransaction({
+                date: tradeData.exitDate || tradeData.entryDate,
+                description: `FnO Exit: ${tradeData.instrument}`,
+                category: 'Investments',
+                type: 'Income',
+                amount: proceeds,
+                accountId: tradeData.accountId
+            });
+        }
+
         const { data, error } = await (supabase as any)
             .from('fno_trades')
             .insert({
@@ -1292,6 +1467,23 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const updateFnoTrade = async (updatedTrade: FnoTrade) => {
+        const oldTrade = fnoTrades.find(t => t.id === updatedTrade.id);
+
+        // 1. Ledger Registry (Exit/Proceeds) if position just closed
+        if (oldTrade && oldTrade.status === 'OPEN' && updatedTrade.status === 'CLOSED' && updatedTrade.accountId) {
+            const investment = updatedTrade.avgPrice * updatedTrade.quantity;
+            const proceeds = investment + (updatedTrade.pnl || 0);
+
+            await addTransaction({
+                date: updatedTrade.exitDate || new Date().toISOString().split('T')[0],
+                description: `FnO Realized Exit: ${updatedTrade.instrument}`,
+                category: 'Investments',
+                type: 'Income',
+                amount: proceeds,
+                accountId: updatedTrade.accountId
+            });
+        }
+
         const { error } = await (supabase as any)
             .from('fno_trades')
             .update({
@@ -1373,7 +1565,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             deleteMutualFundTransaction,
             addFnoTrade,
             updateFnoTrade,
-            deleteFnoTrade
+            deleteFnoTrade,
+            refreshPortfolio
         }}>
             {children}
         </FinanceContext.Provider>

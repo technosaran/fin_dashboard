@@ -28,6 +28,7 @@ import {
     Wallet,
     Edit3,
     Trash2,
+    ArrowRight,
     PieChart as PieChartIcon
 } from 'lucide-react';
 
@@ -36,7 +37,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
 export default function StocksClient() {
     const {
         accounts, stocks, stockTransactions, addStock, updateStock, deleteStock,
-        addStockTransaction, deleteStockTransaction, settings, loading
+        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
     const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime' | 'allocation'>('portfolio');
@@ -50,6 +51,7 @@ export default function StocksClient() {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFetchingQuote, setIsFetchingQuote] = useState(false);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Form States
     const [symbol, setSymbol] = useState('');
@@ -217,6 +219,15 @@ export default function StocksClient() {
         setIsModalOpen(true);
     };
 
+    const handleExitStock = (stock: Stock) => {
+        setModalType('transaction');
+        setSelectedStockId(stock.id);
+        setTransactionType('SELL');
+        setTransactionQuantity(stock.quantity.toString());
+        setTransactionPrice(stock.currentPrice.toString());
+        setIsModalOpen(true);
+    };
+
     const resetTransactionForm = () => {
         setSelectedStockId('');
         setTransactionType('BUY');
@@ -239,6 +250,10 @@ export default function StocksClient() {
     const totalCurrentValue = stocks.reduce((sum, stock) => sum + stock.currentValue, 0);
     const totalPnL = totalCurrentValue - totalInvestment;
     const totalPnLPercentage = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
+    const totalDayPnL = stocks.reduce((sum, stock) => {
+        const dayChange = (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
+        return sum + dayChange;
+    }, 0);
 
     // Lifetime Metrics Calculation
     const totalBuys = stockTransactions.filter(t => t.transactionType === 'BUY').reduce((sum, t) => sum + t.totalAmount, 0);
@@ -248,6 +263,13 @@ export default function StocksClient() {
     // Lifetime Earned = (Total Sells + Current Value) - (Total Buys + Total Charges)
     const lifetimeEarned = (totalSells + totalCurrentValue) - (totalBuys + totalCharges);
     const lifetimeReturnPercentage = totalBuys > 0 ? (lifetimeEarned / totalBuys) * 100 : 0;
+
+    const handleManualRefresh = async () => {
+        setIsRefreshing(true);
+        await refreshPortfolio();
+        setIsRefreshing(false);
+        showNotification('success', 'Portfolio prices refreshed');
+    };
 
     // Sector-wise distribution
     const sectorData = stocks.reduce((acc, stock) => {
@@ -284,9 +306,32 @@ export default function StocksClient() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Stock Portfolio</h1>
-                    <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px' }}>Real-time market insights and lifetime performance tracking</p>
+                    <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        Real-time market insights and lifetime performance tracking
+                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#64748b' }} />
+                        <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: '700' }}>NSE / BSE Live</span>
+                    </p>
                 </div>
-                <div style={{ display: 'flex', gap: '16px' }}>
+                <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                    <button
+                        onClick={handleManualRefresh}
+                        disabled={isRefreshing}
+                        style={{
+                            padding: '12px',
+                            borderRadius: '14px',
+                            background: '#0f172a',
+                            color: isRefreshing ? '#64748b' : '#818cf8',
+                            border: '1px solid #1e293b',
+                            cursor: isRefreshing ? 'wait' : 'pointer',
+                            transition: '0.2s',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                        title="Refresh Markets"
+                    >
+                        <Zap size={20} className={isRefreshing ? 'spin-animation' : ''} fill={isRefreshing ? 'none' : 'currentColor'} />
+                    </button>
                     <button onClick={() => openModal('transaction')} style={{
                         padding: '14px 28px', borderRadius: '16px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: '0.2s'
                     }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'}>
@@ -382,6 +427,7 @@ export default function StocksClient() {
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg. cost</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>LTP</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Cur. value</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day's P&L</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>P&L</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Net chg.</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>
@@ -398,6 +444,14 @@ export default function StocksClient() {
                                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>₹{stock.avgPrice.toFixed(2)}</td>
                                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{stock.currentPrice.toFixed(2)}</td>
                                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{stock.currentValue.toLocaleString()}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                            <div style={{ fontWeight: '800', color: (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) >= 0 ? '#10b981' : '#f43f5e' }}>
+                                                {(stock.currentPrice - (stock.previousPrice || stock.currentPrice)) >= 0 ? '+' : ''}₹{((stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                                <div style={{ fontSize: '0.65rem', fontWeight: '600', opacity: 0.8 }}>
+                                                    ({stock.previousPrice ? (((stock.currentPrice - stock.previousPrice) / stock.previousPrice) * 100).toFixed(2) : '0.00'}%)
+                                                </div>
+                                            </div>
+                                        </td>
                                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '800', color: stock.pnl >= 0 ? '#10b981' : '#f43f5e' }}>
                                             {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toLocaleString()}
                                         </td>
@@ -409,6 +463,9 @@ export default function StocksClient() {
                                         </td>
                                         <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                <button onClick={(e) => { e.stopPropagation(); handleExitStock(stock); }} title="Exit / Sell" style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '4px', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                                    <ArrowRight size={16} strokeWidth={3} />
+                                                </button>
                                                 <button onClick={(e) => { e.stopPropagation(); handleEditStock(stock); }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>
                                                     <Edit3 size={16} />
                                                 </button>
@@ -437,6 +494,9 @@ export default function StocksClient() {
                                         <td style={{ padding: '20px 24px', fontWeight: '800', color: '#64748b' }}>TOTAL</td>
                                         <td colSpan={3}></td>
                                         <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: '#fff', fontSize: '1rem' }}>₹{totalCurrentValue.toLocaleString()}</td>
+                                        <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: totalDayPnL >= 0 ? '#10b981' : '#f43f5e', fontSize: '1rem' }}>
+                                            {totalDayPnL >= 0 ? '+' : ''}₹{totalDayPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                                        </td>
                                         <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: totalPnL >= 0 ? '#10b981' : '#f43f5e', fontSize: '1rem' }}>
                                             {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
                                         </td>
@@ -820,6 +880,6 @@ export default function StocksClient() {
                     </div>
                 )
             }
-        </div >
+        </div>
     );
 }

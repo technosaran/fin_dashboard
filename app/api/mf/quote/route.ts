@@ -47,11 +47,13 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
 
     if (data && data.meta && data.data && data.data.length > 0) {
       const latestNav = data.data[0];
+      const previousNav = data.data.length > 1 ? data.data[1] : latestNav;
       return createSuccessResponse({
         schemeCode: data.meta.scheme_code,
         schemeName: data.meta.scheme_name,
         category: data.meta.scheme_category || 'N/A',
         currentNav: parseFloat(latestNav.nav) || 0,
+        previousNav: parseFloat(previousNav.nav) || 0,
         date: latestNav.date,
       });
     }
@@ -59,14 +61,14 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
     return createErrorResponse('Mutual fund not found', 404);
   } catch (error) {
     logError('MF quote fetch failed', error, { code });
-    
+
     if (error instanceof Error) {
       if (error.message.includes('timeout')) {
         return createErrorResponse('Request timeout. Please try again.', 504);
       }
       return createErrorResponse('Failed to fetch mutual fund details. Please try again later.', 500);
     }
-    
+
     return createErrorResponse('An unexpected error occurred', 500);
   }
 }

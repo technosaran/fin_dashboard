@@ -164,6 +164,22 @@ export default function FnOClient() {
         setIsModalOpen(true);
     };
 
+    const handleExit = (trade: FnoTrade) => {
+        setEditId(trade.id);
+        setInstrument(trade.instrument);
+        setTradeType(trade.tradeType);
+        setProduct(trade.product);
+        setQuantity(trade.quantity.toString());
+        setAvgPrice(trade.avgPrice.toString());
+        setExitPrice(trade.exitPrice?.toString() || '');
+        setEntryDate(trade.entryDate);
+        setExitDate(new Date().toISOString().split('T')[0]);
+        setStatus('CLOSED');
+        setNotes(trade.notes || '');
+        setAccountId(trade.accountId?.toString() || '');
+        setIsModalOpen(true);
+    };
+
     if (loading) {
         return (
             <div className="main-content" style={{ background: '#020617', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -259,7 +275,10 @@ export default function FnOClient() {
                                         <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '800', color: '#fff' }}>₹0.00</td>
                                         <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                                             <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                <button onClick={() => handleEdit(trade)} title="Exit / Modify" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>
+                                                <button onClick={() => handleExit(trade)} title="Exit / Close" style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '4px', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                                    <ArrowRight size={16} strokeWidth={3} />
+                                                </button>
+                                                <button onClick={() => handleEdit(trade)} title="Modify" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>
                                                     <Edit3 size={16} />
                                                 </button>
                                                 <button onClick={async () => { (await customConfirm({ title: 'Delete Trade', message: 'Remove this position?', type: 'error' })) && deleteFnoTrade(trade.id) }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#f43f5e'}>
@@ -438,7 +457,18 @@ export default function FnOClient() {
                                 </div>
                             )}
 
-                            <button type="submit" style={{ marginTop: '20px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '950', fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 15px 30px rgba(99, 102, 241, 0.4)' }}>{editId ? 'Commit Modifications' : 'Add to Terminal'}</button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <label style={{ fontSize: '0.75rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Operating Bank Account</label>
+                                <select value={accountId} onChange={e => setAccountId(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '16px 20px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }}>
+                                    <option value="">No Account (Ledger Only)</option>
+                                    {accounts.map(acc => (
+                                        <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
+                                    ))}
+                                </select>
+                                <p style={{ fontSize: '0.7rem', color: '#475569', marginTop: '4px' }}>Margin/Investment will be {status === 'CLOSED' ? 'settled with' : 'taken from'} this account.</p>
+                            </div>
+
+                            <button type="submit" style={{ marginTop: '20px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '950', fontSize: '1.2rem', cursor: 'pointer', boxShadow: '0 15px 30px rgba(99, 102, 241, 0.4)' }}>{editId ? 'Commit Modifications' : 'Confirm Trade Log'}</button>
                         </form>
                     </div>
                 </div>
