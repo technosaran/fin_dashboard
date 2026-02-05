@@ -19,6 +19,7 @@ export default function LoginPage() {
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [rememberDevice, setRememberDevice] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
@@ -148,7 +149,7 @@ export default function LoginPage() {
                         <div>
                             <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>Email Address</label>
                             <div style={{ position: 'relative' }}>
-                                <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                                <Mail size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', transition: 'color 0.3s' }} />
                                 <input
                                     type="email"
                                     value={email}
@@ -156,6 +157,19 @@ export default function LoginPage() {
                                     placeholder="name@company.com"
                                     required
                                     aria-label="Email Address"
+                                    aria-describedby="email-hint"
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#6366f1';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+                                        const icon = e.target.previousSibling as HTMLElement;
+                                        if (icon) icon.style.color = '#6366f1';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = 'rgba(51, 65, 85, 0.5)';
+                                        e.target.style.boxShadow = 'none';
+                                        const icon = e.target.previousSibling as HTMLElement;
+                                        if (icon) icon.style.color = '#64748b';
+                                    }}
                                     style={{
                                         width: '100%',
                                         background: 'rgba(15, 23, 42, 0.6)',
@@ -165,7 +179,7 @@ export default function LoginPage() {
                                         color: '#fff',
                                         fontSize: '0.95rem',
                                         outline: 'none',
-                                        transition: '0.2s'
+                                        transition: 'border-color 0.3s, box-shadow 0.3s'
                                     }}
                                 />
                             </div>
@@ -175,10 +189,10 @@ export default function LoginPage() {
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Password</label>
-                                <a href="#" style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '600', textDecoration: 'none' }}>Forgot password?</a>
+                                <a href="#" style={{ color: '#6366f1', fontSize: '0.8rem', fontWeight: '600', textDecoration: 'none', transition: 'color 0.2s' }} onMouseEnter={(e) => e.currentTarget.style.color = '#818cf8'} onMouseLeave={(e) => e.currentTarget.style.color = '#6366f1'}>Forgot password?</a>
                             </div>
                             <div style={{ position: 'relative' }}>
-                                <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
+                                <Lock size={18} style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b', transition: 'color 0.3s' }} />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     value={password}
@@ -186,6 +200,19 @@ export default function LoginPage() {
                                     placeholder="••••••••"
                                     required
                                     aria-label="Password"
+                                    aria-describedby="password-hint"
+                                    onFocus={(e) => {
+                                        e.target.style.borderColor = '#6366f1';
+                                        e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+                                        const icon = e.target.previousSibling as HTMLElement;
+                                        if (icon) icon.style.color = '#6366f1';
+                                    }}
+                                    onBlur={(e) => {
+                                        e.target.style.borderColor = 'rgba(51, 65, 85, 0.5)';
+                                        e.target.style.boxShadow = 'none';
+                                        const icon = e.target.previousSibling as HTMLElement;
+                                        if (icon) icon.style.color = '#64748b';
+                                    }}
                                     style={{
                                         width: '100%',
                                         background: 'rgba(15, 23, 42, 0.6)',
@@ -195,18 +222,48 @@ export default function LoginPage() {
                                         color: '#fff',
                                         fontSize: '0.95rem',
                                         outline: 'none',
-                                        transition: '0.2s'
+                                        transition: 'border-color 0.3s, box-shadow 0.3s'
                                     }}
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
                                     aria-label={showPassword ? "Hide password" : "Show password"}
-                                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '8px' }}
+                                    onMouseEnter={(e) => e.currentTarget.style.color = '#6366f1'}
+                                    onMouseLeave={(e) => e.currentTarget.style.color = '#64748b'}
+                                    style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '8px', transition: 'color 0.2s' }}
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
                             </div>
+                        </div>
+
+                        {/* Remember Device Checkbox */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                            <input
+                                type="checkbox"
+                                id="rememberDevice"
+                                checked={rememberDevice}
+                                onChange={(e) => setRememberDevice(e.target.checked)}
+                                aria-label="Remember this device"
+                                style={{
+                                    width: '18px',
+                                    height: '18px',
+                                    cursor: 'pointer',
+                                    accentColor: '#6366f1'
+                                }}
+                            />
+                            <label 
+                                htmlFor="rememberDevice" 
+                                style={{ 
+                                    fontSize: '0.85rem', 
+                                    color: '#94a3b8', 
+                                    cursor: 'pointer',
+                                    userSelect: 'none'
+                                }}
+                            >
+                                Remember this device for 30 days
+                            </label>
                         </div>
 
                         {/* Login Button */}
@@ -214,6 +271,16 @@ export default function LoginPage() {
                             type="submit"
                             disabled={isLoading}
                             aria-label="Sign in to your account"
+                            onMouseEnter={(e) => {
+                                if (!isLoading) {
+                                    e.currentTarget.style.transform = 'translateY(-2px)';
+                                    e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.4)';
+                                }
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 10px 20px rgba(99, 102, 241, 0.25)';
+                            }}
                             style={{
                                 marginTop: '12px',
                                 background: isLoading ? 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)' : 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
@@ -229,7 +296,7 @@ export default function LoginPage() {
                                 justifyContent: 'center',
                                 gap: '10px',
                                 boxShadow: '0 10px 20px rgba(99, 102, 241, 0.25)',
-                                transition: '0.3s',
+                                transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s',
                                 opacity: isLoading ? 0.7 : 1
                             }}
                         >
