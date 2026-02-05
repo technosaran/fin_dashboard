@@ -22,7 +22,7 @@ type TransactionRow = {
     category: string;
     type: string;
     amount: number;
-    account_id?: number;
+    account_id?: number | null;
     [key: string]: unknown;
 };
 
@@ -33,7 +33,7 @@ type GoalRow = {
     current_amount: number;
     deadline: string;
     category: string;
-    description?: string;
+    description?: string | null;
     [key: string]: unknown;
 };
 
@@ -44,8 +44,8 @@ type FamilyTransferRow = {
     relationship: string;
     amount: number;
     purpose: string;
-    notes?: string;
-    account_id?: number;
+    notes?: string | null;
+    account_id?: number | null;
     [key: string]: unknown;
 };
 
@@ -56,7 +56,7 @@ type StockRow = {
     quantity: number;
     avg_price: number;
     current_price: number;
-    sector?: string;
+    sector?: string | null;
     exchange: string;
     investment_amount: number;
     current_value: number;
@@ -67,15 +67,16 @@ type StockRow = {
 
 type StockTransactionRow = {
     id: number;
-    stock_id: number;
+    stock_id?: number | null;
     transaction_type: string;
     quantity: number;
     price: number;
     total_amount: number;
-    brokerage?: number;
-    taxes?: number;
+    brokerage?: number | null;
+    taxes?: number | null;
     transaction_date: string;
-    notes?: string;
+    notes?: string | null;
+    account_id?: number | null;
     [key: string]: unknown;
 };
 
@@ -83,52 +84,56 @@ type WatchlistRow = {
     id: number;
     symbol: string;
     company_name: string;
-    target_price: number;
-    notes?: string;
+    target_price?: number | null;
+    current_price?: number | null;
+    notes?: string | null;
     [key: string]: unknown;
 };
 
 type MutualFundRow = {
     id: number;
-    fund_name: string;
-    fund_house: string;
-    scheme_code: string;
-    category: string;
-    nav: number;
+    name: string;
+    isin?: string | null;
+    scheme_code?: string | null;
+    category?: string | null;
     units: number;
-    invested_amount: number;
+    avg_nav: number;
+    current_nav: number;
+    investment_amount: number;
     current_value: number;
-    returns: number;
-    returns_percentage: number;
+    pnl: number;
+    pnl_percentage: number;
+    folio_number?: string | null;
     [key: string]: unknown;
 };
 
 type MutualFundTransactionRow = {
     id: number;
-    mutual_fund_id: number;
+    mutual_fund_id?: number | null;
     transaction_type: string;
     units: number;
     nav: number;
     total_amount: number;
     transaction_date: string;
-    notes?: string;
+    notes?: string | null;
+    account_id?: number | null;
     [key: string]: unknown;
 };
 
 type FnoTradeRow = {
     id: number;
-    symbol: string;
-    instrument_type: string;
-    strike_price?: number;
-    expiry_date?: string;
+    instrument: string;
     trade_type: string;
+    product: string;
     quantity: number;
-    entry_price: number;
-    exit_price?: number;
-    realized_pnl?: number;
-    trade_date: string;
-    exit_date?: string;
-    notes?: string;
+    avg_price: number;
+    exit_price?: number | null;
+    entry_date: string;
+    exit_date?: string | null;
+    status: string;
+    pnl: number;
+    notes?: string | null;
+    account_id?: number | null;
     [key: string]: unknown;
 };
 
