@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
 import {
     LayoutDashboard,
     Wallet,
@@ -45,30 +44,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
         { label: 'Goals', href: '/goals', icon: <Target size={20} /> },
     ];
-
-    const sidebarStyle: React.CSSProperties = {
-        width: '200px',
-        minWidth: '200px',
-        backgroundColor: '#020617',
-        borderRight: '1px solid #1e293b',
-        display: 'flex',
-        flexDirection: 'column',
-        position: 'fixed',
-        left: isOpen ? '0' : '-200px',
-        top: '0',
-        bottom: '0',
-        height: '100vh',
-        zIndex: 100,
-        flexShrink: 0,
-        transition: 'left 0.3s ease-in-out',
-    };
-
-    // On desktop, the sidebar should be relative and always visible
-    const desktopSidebarStyle: React.CSSProperties = {
-        ...sidebarStyle,
-        position: 'sticky',
-        left: '0',
-    };
 
     return (
         <>

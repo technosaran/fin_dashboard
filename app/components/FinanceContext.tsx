@@ -333,7 +333,7 @@ export const calculateStockCharges = (
     const turnover = quantity * price;
 
     // 1. Brokerage
-    let brokerage = settings.brokerageType === 'flat'
+    const brokerage = settings.brokerageType === 'flat'
         ? settings.brokerageValue
         : (turnover * settings.brokerageValue) / 100;
 
