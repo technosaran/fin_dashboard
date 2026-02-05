@@ -2,20 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { Database } from '../../lib/database.types';
 import { useAuth } from './AuthContext';
-
-// Types based on database schema
-type AccountRow = any;
-type TransactionRow = any;
-type GoalRow = any;
-type FamilyTransferRow = any;
-type StockRow = any;
-type StockTransactionRow = any;
-type WatchlistRow = any;
-type MutualFundRow = any;
-type MutualFundTransactionRow = any;
-type FnoTradeRow = any;
 
 export interface AppSettings {
     brokerageType: 'flat' | 'percentage';

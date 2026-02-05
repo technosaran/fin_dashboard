@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Area, AreaChart } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Area, AreaChart } from 'recharts';
 import { useFinance, Account } from '../components/FinanceContext';
 import {
     Wallet,
@@ -14,13 +14,7 @@ import {
     ArrowRightLeft,
     Plus,
     X,
-    ShieldCheck,
-    ChevronDown,
-    MoreVertical,
-    ArrowUpRight,
-    ArrowDownRight,
     Search,
-    IndianRupee,
     DollarSign,
     PieChart as PieChartIcon,
     Trash2
@@ -561,7 +555,7 @@ export default function AccountsClient() {
                                             padding: '16px',
                                             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)'
                                         }}
-                                        formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
+                                        formatter={(value: number | string) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
                                     />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -612,7 +606,7 @@ export default function AccountsClient() {
                                             borderRadius: '12px',
                                             padding: '12px'
                                         }}
-                                        formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
+                                        formatter={(value: number | string) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
                                     />
                                     <Bar
                                         dataKey="balance"
@@ -657,7 +651,7 @@ export default function AccountsClient() {
                                                 acc.push({ type: account.type, value: account.balance, count: 1 });
                                             }
                                             return acc;
-                                        }, [] as any[])}
+                                        }, [] as Array<{ type: string; value: number; count: number }>)}
                                         cx="50%"
                                         cy="50%"
                                         outerRadius={100}
@@ -680,7 +674,7 @@ export default function AccountsClient() {
                                             borderRadius: '12px',
                                             padding: '12px'
                                         }}
-                                        formatter={(value: any, name: any, props: any) => [
+                                        formatter={(value: number | string, _name: string, props: { payload: { type: string; count: number } }) => [
                                             `₹${Number(value).toLocaleString()}`,
                                             `${props.payload.type} (${props.payload.count} accounts)`
                                         ]}
@@ -739,7 +733,7 @@ export default function AccountsClient() {
                                             borderRadius: '12px',
                                             padding: '12px'
                                         }}
-                                        formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
+                                        formatter={(value: number | string) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
                                     />
                                     <Area
                                         type="monotone"

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import { AuthProvider, useAuth } from './AuthContext';
 import { FinanceProvider } from './FinanceContext';
 import { NotificationProvider } from './NotificationContext';
+import { useKeyboardShortcuts } from './KeyboardShortcuts';
 import { Menu, X, Command } from 'lucide-react';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
@@ -26,6 +27,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
 function AuthConsumer({ children, isAuthPage }: { children: React.ReactNode, isAuthPage: boolean }) {
     const { loading: authLoading } = useAuth();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    
+    // Enable keyboard shortcuts
+    useKeyboardShortcuts();
 
     if (authLoading) {
         return (
