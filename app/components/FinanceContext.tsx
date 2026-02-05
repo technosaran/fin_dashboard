@@ -578,7 +578,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     
                     // Check if Physical Cash account exists, if not create it
                     const hasPhysicalCash = loadedAccounts.some(acc => 
-                        acc.name.toLowerCase().includes('physical cash')
+                        acc.name.toLowerCase() === 'physical cash'
                     );
                     
                     if (!hasPhysicalCash && loadedAccounts.length === 0) {
@@ -596,7 +596,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             .select()
                             .single();
                         
-                        if (!insertError && newAccount) {
+                        if (insertError) {
+                            console.error('Error creating Physical Cash account:', insertError);
+                        } else if (newAccount) {
                             setAccounts([dbAccountToAccount(newAccount)]);
                         }
                     }
