@@ -372,89 +372,82 @@ export default function StocksClient() {
 
             {/* Tab Content */}
             {activeTab === 'portfolio' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                    {/* Holdings List - Full Width */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                            <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0 }}>Active Portfolio</h3>
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 16px', borderRadius: '12px', border: '1px solid #1e293b', fontSize: '0.8rem', fontWeight: '700', color: '#64748b' }}>
-                                    {stocks.length} SECURITIES
-                                </div>
-                            </div>
-                        </div>
-                        {stocks.length > 0 ? (
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '20px' }}>
-                                {stocks.map((stock) => (
-                                    <div key={stock.id} style={{
-                                        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                                        padding: '24px',
-                                        borderRadius: '24px',
-                                        border: '1px solid #1e293b',
-                                        transition: 'all 0.3s',
-                                        cursor: 'pointer',
-                                        position: 'relative',
-                                        overflow: 'hidden'
-                                    }}
-                                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.borderColor = '#334155'; }}
-                                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = '#1e293b'; }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
-                                            <div style={{ display: 'flex', gap: '14px' }}>
-                                                <div style={{ width: '48px', height: '48px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '900', color: '#6366f1', fontSize: '1.1rem' }}>
-                                                    {stock.symbol[0]}
-                                                </div>
-                                                <div>
-                                                    <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#fff', marginBottom: '2px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                                        {stock.symbol}
-                                                        <span style={{ fontSize: '0.65rem', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', padding: '2px 8px', borderRadius: '6px', textTransform: 'uppercase' }}>{stock.sector || 'Equities'}</span>
-                                                    </div>
-                                                    <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{stock.companyName}</div>
-                                                </div>
+                <div className="fade-in">
+                    <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid #1e293b' }}>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>Instrument</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Qty.</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg. cost</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>LTP</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Cur. value</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>P&L</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Net chg.</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {stocks.length > 0 ? stocks.map((stock) => (
+                                    <tr key={stock.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.01)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <div style={{ fontWeight: '800', color: '#fff' }}>{stock.symbol}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{stock.exchange}</div>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>{stock.quantity}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>₹{stock.avgPrice.toFixed(2)}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{stock.currentPrice.toFixed(2)}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{stock.currentValue.toLocaleString()}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '800', color: stock.pnl >= 0 ? '#10b981' : '#f43f5e' }}>
+                                            {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toLocaleString()}
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                            <div style={{ color: stock.pnl >= 0 ? '#10b981' : '#f43f5e', fontWeight: '900', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px' }}>
+                                                {stock.pnlPercentage.toFixed(2)}%
+                                                {stock.pnl >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
                                             </div>
-                                            <div style={{ display: 'flex', gap: '6px' }}>
-                                                <button onClick={(e) => { e.stopPropagation(); handleEditStock(stock); }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#94a3b8', cursor: 'pointer', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center' }}><Edit3 size={14} /></button>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                <button onClick={(e) => { e.stopPropagation(); handleEditStock(stock); }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>
+                                                    <Edit3 size={16} />
+                                                </button>
                                                 <button onClick={async (e) => {
                                                     e.stopPropagation();
-                                                    const isConfirmed = await customConfirm({ title: 'Delete Stock', message: `Are you sure you want to remove ${stock.symbol}? History remains intact.`, type: 'error', confirmLabel: 'Delete' });
-                                                    if (isConfirmed) { await deleteStock(stock.id); showNotification('success', `${stock.symbol} removed`); }
-                                                }} style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.1)', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px', display: 'flex', alignItems: 'center' }}><Trash2 size={14} /></button>
+                                                    const isConfirmed = await customConfirm({ title: 'Delete Stock', message: `Remove ${stock.symbol}?`, type: 'error', confirmLabel: 'Delete' });
+                                                    if (isConfirmed) await deleteStock(stock.id);
+                                                }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#f43f5e'}>
+                                                    <Trash2 size={16} />
+                                                </button>
                                             </div>
-                                        </div>
-
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '20px' }}>
-                                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '4px' }}>Market Value</div>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: '900' }}>₹{stock.currentValue.toLocaleString()}</div>
-                                            </div>
-                                            <div style={{ background: 'rgba(255,255,255,0.02)', padding: '14px', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '4px' }}>Unrealized P&L</div>
-                                                <div style={{ fontSize: '1.1rem', fontWeight: '900', color: stock.pnl >= 0 ? '#10b981' : '#f43f5e' }}>
-                                                    {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toLocaleString()}
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.8rem' }}>
-                                            <div style={{ display: 'flex', gap: '12px', color: '#64748b', fontWeight: '700' }}>
-                                                <span>{stock.quantity} QTY</span>
-                                                <span style={{ opacity: 0.3 }}>|</span>
-                                                <span>AVG: ₹{stock.avgPrice.toFixed(2)}</span>
-                                            </div>
-                                            <div style={{ color: stock.pnl >= 0 ? '#10b981' : '#f43f5e', fontWeight: '900', background: stock.pnl >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', padding: '4px 10px', borderRadius: '8px' }}>
-                                                {stock.pnl >= 0 ? <ArrowUpRight size={12} style={{ marginRight: '4px' }} /> : <ArrowDownRight size={12} style={{ marginRight: '4px' }} />}
-                                                {stock.pnlPercentage.toFixed(2)}%
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        ) : (
-                            <div style={{ padding: '80px', textAlign: 'center', color: '#475569', border: '2px dashed #1e293b', borderRadius: '32px', background: 'rgba(15, 23, 42, 0.2)' }}>
-                                <TrendingUp size={48} style={{ marginBottom: '20px', opacity: 0.3 }} />
-                                <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#94a3b8', marginBottom: '8px' }}>Empty High-Growth Portfolio</div>
-                                <div style={{ fontSize: '0.95rem' }}>Start building your wealth by adding your first equity holding.</div>
-                            </div>
-                        )}
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan={8} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                            <div style={{ marginBottom: '12px' }}><Activity size={40} opacity={0.3} /></div>
+                                            <div style={{ fontWeight: '700' }}>No active holdings found.</div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                            {stocks.length > 0 && (
+                                <tfoot style={{ background: 'rgba(255,255,255,0.03)', borderTop: '2px solid #1e293b' }}>
+                                    <tr>
+                                        <td style={{ padding: '20px 24px', fontWeight: '800', color: '#64748b' }}>TOTAL</td>
+                                        <td colSpan={3}></td>
+                                        <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: '#fff', fontSize: '1rem' }}>₹{totalCurrentValue.toLocaleString()}</td>
+                                        <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: totalPnL >= 0 ? '#10b981' : '#f43f5e', fontSize: '1rem' }}>
+                                            {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
+                                        </td>
+                                        <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: totalPnL >= 0 ? '#10b981' : '#f43f5e' }}>
+                                            {totalInvestment > 0 ? ((totalCurrentValue - totalInvestment) / totalInvestment * 100).toFixed(2) : '0.00'}%
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            )}
+                        </table>
                     </div>
                 </div>
             )}
@@ -549,12 +542,6 @@ export default function StocksClient() {
                                 ))}
                             </div>
                         </div>
-
-                        <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)', padding: '32px', borderRadius: '32px', border: '1px solid rgba(99, 102, 241, 0.2)' }}>
-                            <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '8px' }}>Portfolio Strategy</div>
-                            <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#fff', marginBottom: '12px' }}>Concentrated Growth</div>
-                            <p style={{ fontSize: '0.9rem', color: '#94a3b8', margin: 0, lineHeight: 1.6 }}>Your key holdings account for {((stocks.slice(0, 3).reduce((s, tx) => s + tx.currentValue, 0) / totalCurrentValue) * 100).toFixed(0)}% of your total equity exposure.</p>
-                        </div>
                     </div>
                 </div>
             )}
@@ -640,194 +627,199 @@ export default function StocksClient() {
                         </div>
                     )}
                 </div>
-            )}
+            )
+            }
 
-            {activeTab === 'lifetime' && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-                    <div style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
-                        <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                            <Star color="#f59e0b" fill="#f59e0b" size={24} /> Lifetime Wealth Report
-                        </h3>
+            {
+                activeTab === 'lifetime' && (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
+                        <div style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
+                            <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <Star color="#f59e0b" fill="#f59e0b" size={24} /> Lifetime Wealth Report
+                            </h3>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', marginBottom: '48px' }}>
-                            <div>
-                                <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '12px' }}>Total Money Inflow</div>
-                                <div style={{ fontSize: '2.5rem', fontWeight: '950', color: '#fff' }}>₹{totalBuys.toLocaleString()}</div>
-                                <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '8px' }}>Combined value of all BUY orders</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '12px' }}>Total Lifetime Gains</div>
-                                <div style={{ fontSize: '2.5rem', fontWeight: '950', color: lifetimeEarned >= 0 ? '#10b981' : '#ef4444' }}>
-                                    {lifetimeEarned >= 0 ? '+' : ''}₹{lifetimeEarned.toLocaleString()}
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', marginBottom: '48px' }}>
+                                <div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '12px' }}>Total Money Inflow</div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: '950', color: '#fff' }}>₹{totalBuys.toLocaleString()}</div>
+                                    <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '8px' }}>Combined value of all BUY orders</div>
                                 </div>
-                                <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '8px' }}>Absolute profit after all charges</div>
-                            </div>
-                        </div>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '32px' }}>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>Total Withdrawals</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>₹{totalSells.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>Regulatory Charges</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ef4444' }}>₹{totalCharges.toLocaleString()}</div>
-                            </div>
-                            <div>
-                                <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>XIRR Equivalent</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#10b981' }}>{lifetimeReturnPercentage.toFixed(2)}%</div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            )}
-
-            {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
-                    <div style={{ background: '#0f172a', padding: '32px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
-                                    {modalType === 'stock' ? <TrendingUp size={20} /> : <Activity size={20} />}
-                                </div>
-                                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>
-                                    {modalType === 'stock' && (editId ? 'Edit Stock' : 'Add Stock')}
-                                    {modalType === 'transaction' && 'Add Transaction'}
-                                </h2>
-                            </div>
-                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                <X size={18} />
-                            </button>
-                        </div>
-
-                        {modalType === 'stock' && (
-                            <form onSubmit={handleStockSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <div style={{ position: 'relative' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Search Stock</label>
-                                    <div style={{ position: 'relative' }}>
-                                        <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
-                                        <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search by name or symbol..." style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px 12px 12px 40px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} onFocus={() => setShowResults(true)} />
-                                        {isSearching && <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />}
+                                <div>
+                                    <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '12px' }}>Total Lifetime Gains</div>
+                                    <div style={{ fontSize: '2.5rem', fontWeight: '950', color: lifetimeEarned >= 0 ? '#10b981' : '#ef4444' }}>
+                                        {lifetimeEarned >= 0 ? '+' : ''}₹{lifetimeEarned.toLocaleString()}
                                     </div>
-                                    {showResults && searchResults.length > 0 && (
-                                        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', marginTop: '8px', zIndex: 1100, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-                                            {searchResults.map((item, idx) => (
-                                                <div key={idx} onClick={() => selectStock(item)} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #1e293b' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
-                                                    <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#fff' }}>{item.symbol}</div>
-                                                    <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.companyName} ({item.exchange})</div>
-                                                </div>
-                                            ))}
+                                    <div style={{ fontSize: '0.85rem', color: '#475569', marginTop: '8px' }}>Absolute profit after all charges</div>
+                                </div>
+                            </div>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '32px' }}>
+                                <div>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>Total Withdrawals</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>₹{totalSells.toLocaleString()}</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>Regulatory Charges</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ef4444' }}>₹{totalCharges.toLocaleString()}</div>
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>XIRR Equivalent</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#10b981' }}>{lifetimeReturnPercentage.toFixed(2)}%</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                )
+            }
+
+            {
+                isModalOpen && (
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000 }}>
+                        <div style={{ background: '#0f172a', padding: '32px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
+                                        {modalType === 'stock' ? <TrendingUp size={20} /> : <Activity size={20} />}
+                                    </div>
+                                    <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>
+                                        {modalType === 'stock' && (editId ? 'Edit Stock' : 'Add Stock')}
+                                        {modalType === 'transaction' && 'Add Transaction'}
+                                    </h2>
+                                </div>
+                                <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            {modalType === 'stock' && (
+                                <form onSubmit={handleStockSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div style={{ position: 'relative' }}>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Search Stock</label>
+                                        <div style={{ position: 'relative' }}>
+                                            <Search size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
+                                            <input value={searchQuery} onChange={e => setSearchQuery(e.target.value)} placeholder="Search by name or symbol..." style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px 12px 12px 40px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} onFocus={() => setShowResults(true)} />
+                                            {isSearching && <Loader2 size={18} className="animate-spin" style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />}
+                                        </div>
+                                        {showResults && searchResults.length > 0 && (
+                                            <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#0f172a', border: '1px solid #1e293b', borderRadius: '12px', marginTop: '8px', zIndex: 1100, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                                                {searchResults.map((item, idx) => (
+                                                    <div key={idx} onClick={() => selectStock(item)} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #1e293b' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                                        <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#fff' }}>{item.symbol}</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.companyName} ({item.exchange})</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Symbol</label>
+                                            <input value={symbol} readOnly style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#94a3b8', fontSize: '0.9rem' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Exchange</label>
+                                            <select value={exchange} onChange={e => setExchange(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
+                                                <option value="NSE">NSE</option>
+                                                <option value="BSE">BSE</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Quantity</label>
+                                            <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Avg Price</label>
+                                            <input type="number" step="0.01" value={avgPrice} onChange={e => setAvgPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>LTP</label>
+                                            <input type="number" step="0.01" value={currentPrice} onChange={e => setCurrentPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                    </div>
+                                    <button type="submit" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '16px', borderRadius: '16px', border: 'none', fontWeight: '800', cursor: 'pointer' }}>
+                                        {editId ? 'Update Stock' : 'Add Stock'}
+                                    </button>
+                                </form>
+                            )}
+
+                            {modalType === 'transaction' && (
+                                <form onSubmit={handleTransactionSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                                    <div>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Select Security</label>
+                                        <select value={selectedStockId} onChange={e => setSelectedStockId(Number(e.target.value))} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
+                                            <option value="" disabled>Select Stock</option>
+                                            {stocks.map(stock => <option key={stock.id} value={stock.id}>{stock.symbol} - {stock.companyName}</option>)}
+                                        </select>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Type</label>
+                                            <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'BUY' | 'SELL')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
+                                                <option value="BUY">BUY</option>
+                                                <option value="SELL">SELL</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Quantity</label>
+                                            <input type="number" value={transactionQuantity} onChange={e => setTransactionQuantity(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Execution Price</label>
+                                            <input type="number" step="0.01" value={transactionPrice} onChange={e => setTransactionPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Date</label>
+                                            <input type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Brokerage (₹)</label>
+                                            <input type="number" step="0.01" value={brokerage} onChange={e => setBrokerage(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                        <div>
+                                            <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Taxes & Charges (₹)</label>
+                                            <input type="number" step="0.01" value={taxes} onChange={e => setTaxes(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
+                                        </div>
+                                    </div>
+
+                                    {settings.autoCalculateCharges && transactionQuantity && transactionPrice && (
+                                        <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '16px', borderRadius: '12px', border: '1px dashed rgba(99, 102, 241, 0.2)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Preview Brokerage:</span>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fff' }}>₹{calculateStockCharges(transactionType, Number(transactionQuantity), Number(transactionPrice), settings).brokerage.toFixed(2)}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Preview Gov. Charges:</span>
+                                                <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fff' }}>₹{calculateStockCharges(transactionType, Number(transactionQuantity), Number(transactionPrice), settings).taxes.toFixed(2)}</span>
+                                            </div>
                                         </div>
                                     )}
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+
                                     <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Symbol</label>
-                                        <input value={symbol} readOnly style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#94a3b8', fontSize: '0.9rem' }} />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Exchange</label>
-                                        <select value={exchange} onChange={e => setExchange(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
-                                            <option value="NSE">NSE</option>
-                                            <option value="BSE">BSE</option>
+                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Operating Bank Account</label>
+                                        <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
+                                            <option value="">No Account (Ledger Only)</option>
+                                            {accounts.map(acc => (
+                                                <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
+                                            ))}
                                         </select>
+                                        <p style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '6px' }}>Money will be {transactionType === 'BUY' ? 'deducted from' : 'added to'} this account.</p>
                                     </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Quantity</label>
-                                        <input type="number" value={quantity} onChange={e => setQuantity(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Avg Price</label>
-                                        <input type="number" step="0.01" value={avgPrice} onChange={e => setAvgPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>LTP</label>
-                                        <input type="number" step="0.01" value={currentPrice} onChange={e => setCurrentPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                </div>
-                                <button type="submit" style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '16px', borderRadius: '16px', border: 'none', fontWeight: '800', cursor: 'pointer' }}>
-                                    {editId ? 'Update Stock' : 'Add Stock'}
-                                </button>
-                            </form>
-                        )}
-
-                        {modalType === 'transaction' && (
-                            <form onSubmit={handleTransactionSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                                <div>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Select Security</label>
-                                    <select value={selectedStockId} onChange={e => setSelectedStockId(Number(e.target.value))} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
-                                        <option value="" disabled>Select Stock</option>
-                                        {stocks.map(stock => <option key={stock.id} value={stock.id}>{stock.symbol} - {stock.companyName}</option>)}
-                                    </select>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Type</label>
-                                        <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'BUY' | 'SELL')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
-                                            <option value="BUY">BUY</option>
-                                            <option value="SELL">SELL</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Quantity</label>
-                                        <input type="number" value={transactionQuantity} onChange={e => setTransactionQuantity(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Execution Price</label>
-                                        <input type="number" step="0.01" value={transactionPrice} onChange={e => setTransactionPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Date</label>
-                                        <input type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Brokerage (₹)</label>
-                                        <input type="number" step="0.01" value={brokerage} onChange={e => setBrokerage(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                    <div>
-                                        <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Taxes & Charges (₹)</label>
-                                        <input type="number" step="0.01" value={taxes} onChange={e => setTaxes(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
-                                    </div>
-                                </div>
-
-                                {settings.autoCalculateCharges && transactionQuantity && transactionPrice && (
-                                    <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '16px', borderRadius: '12px', border: '1px dashed rgba(99, 102, 241, 0.2)' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
-                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Preview Brokerage:</span>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fff' }}>₹{calculateStockCharges(transactionType, Number(transactionQuantity), Number(transactionPrice), settings).brokerage.toFixed(2)}</span>
-                                        </div>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Preview Gov. Charges:</span>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: '800', color: '#fff' }}>₹{calculateStockCharges(transactionType, Number(transactionQuantity), Number(transactionPrice), settings).taxes.toFixed(2)}</span>
-                                        </div>
-                                    </div>
-                                )}
-
-                                <div>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Operating Bank Account</label>
-                                    <select value={selectedAccountId} onChange={e => setSelectedAccountId(Number(e.target.value))} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
-                                        <option value="">No Account (Ledger Only)</option>
-                                        {accounts.map(acc => (
-                                            <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
-                                        ))}
-                                    </select>
-                                    <p style={{ fontSize: '0.65rem', color: '#64748b', marginTop: '6px' }}>Money will be {transactionType === 'BUY' ? 'deducted from' : 'added to'} this account.</p>
-                                </div>
-                                <button type="submit" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', padding: '16px', borderRadius: '16px', border: 'none', fontWeight: '800', cursor: 'pointer' }}>
-                                    Confirm Transaction
-                                </button>
-                            </form>
-                        )}
+                                    <button type="submit" style={{ background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', padding: '16px', borderRadius: '16px', border: 'none', fontWeight: '800', cursor: 'pointer' }}>
+                                        Confirm Transaction
+                                    </button>
+                                </form>
+                            )}
+                        </div>
                     </div>
-                </div>
-            )}
-        </div>
+                )
+            }
+        </div >
     );
 }

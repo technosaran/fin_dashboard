@@ -321,67 +321,81 @@ export default function MutualFundsClient() {
 
             {/* Content */}
             {activeTab === 'holdings' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(450px, 1fr))', gap: '20px' }}>
-                        {mutualFunds.map(mf => (
-                            <div key={mf.id} style={{
-                                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                                padding: '32px',
-                                borderRadius: '32px',
-                                border: '1px solid #1e293b',
-                                position: 'relative',
-                                transition: 'all 0.3s'
-                            }}
-                                onMouseEnter={e => e.currentTarget.style.borderColor = '#334155'}
-                                onMouseLeave={e => e.currentTarget.style.borderColor = '#1e293b'}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '24px' }}>
-                                    <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                                        <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'rgba(99, 102, 241, 0.05)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1', fontSize: '1.25rem', fontWeight: '900', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
-                                            {mf.name[0]}
-                                        </div>
-                                        <div>
-                                            <div style={{ fontSize: '1.2rem', fontWeight: '900', marginBottom: '6px', color: '#fff' }}>{mf.name}</div>
-                                            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                                                <span style={{ fontSize: '0.7rem', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', padding: '4px 10px', borderRadius: '8px', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{mf.category}</span>
-                                                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '600' }}>{mf.units.toFixed(3)} units</span>
+                <div className="fade-in">
+                    <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid #1e293b' }}>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>Scheme Name</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Units</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg. NAV</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Curr. NAV</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Amount</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Returns</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {mutualFunds.length > 0 ? mutualFunds.map(mf => (
+                                    <tr key={mf.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.01)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <div style={{ fontWeight: '800', color: '#fff' }}>{mf.name}</div>
+                                            <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{mf.category}</div>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>{mf.units.toFixed(3)}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>₹{mf.avgNav.toFixed(2)}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{mf.currentNav.toFixed(2)}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{mf.currentValue.toLocaleString()}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right' }}>
+                                            <div style={{ fontWeight: '800', color: mf.pnl >= 0 ? '#10b981' : '#f87171' }}>
+                                                {mf.pnl >= 0 ? '+' : ''}₹{mf.pnl.toLocaleString()}
                                             </div>
-                                        </div>
-                                    </div>
-                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                        <button onClick={(e) => { e.stopPropagation(); handleEditFund(mf); }} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Edit3 size={16} /></button>
-                                        <button onClick={async (e) => {
-                                            e.stopPropagation();
-                                            const isConfirmed = await customConfirm({ title: 'Delete Fund', message: `Are you sure you want to remove ${mf.name}?`, type: 'error', confirmLabel: 'Remove' });
-                                            if (isConfirmed) { await deleteMutualFund(mf.id); showNotification('success', 'Fund removed'); }
-                                        }} style={{ background: 'rgba(244, 63, 94, 0.05)', border: '1px solid rgba(244, 63, 94, 0.1)', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Trash2 size={16} /></button>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '24px', marginBottom: '24px' }}>
-                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>Current Valuation</div>
-                                        <div style={{ fontSize: '1.5rem', fontWeight: '950' }}>₹{mf.currentValue.toLocaleString()}</div>
-                                    </div>
-                                    <div style={{ background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                                        <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '0.5px' }}>Returns</div>
-                                        <div style={{ fontSize: '1.5rem', fontWeight: '950', color: mf.pnl >= 0 ? '#10b981' : '#f87171' }}>
-                                            {mf.pnl >= 0 ? '+' : ''}₹{mf.pnl.toLocaleString()}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0 4px' }}>
-                                    <div style={{ display: 'flex', gap: '16px', fontSize: '0.8rem', color: '#64748b', fontWeight: '700' }}>
-                                        <span>NAV: ₹{mf.currentNav.toFixed(4)}</span>
-                                        <span style={{ opacity: 0.3 }}>|</span>
-                                        <span>AVG: ₹{mf.avgNav.toFixed(2)}</span>
-                                    </div>
-                                    <div style={{ padding: '6px 14px', borderRadius: '12px', background: mf.pnl >= 0 ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', color: mf.pnl >= 0 ? '#10b981' : '#f87171', fontWeight: '900', fontSize: '0.85rem' }}>
-                                        {mf.pnlPercentage.toFixed(2)}%
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                                            <div style={{ fontSize: '0.75rem', color: mf.pnl >= 0 ? '#10b981' : '#f87171', fontWeight: '700' }}>
+                                                {mf.pnlPercentage.toFixed(2)}%
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                <button onClick={() => handleEditFund(mf)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }} title="Edit">
+                                                    <Edit3 size={16} />
+                                                </button>
+                                                <button onClick={async () => {
+                                                    const isConfirmed = await customConfirm({ title: 'Delete Fund', message: `Remove ${mf.name}?`, type: 'error', confirmLabel: 'Remove' });
+                                                    if (isConfirmed) await deleteMutualFund(mf.id);
+                                                }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }} title="Delete">
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan={7} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                            <div style={{ marginBottom: '12px' }}><Briefcase size={40} opacity={0.3} /></div>
+                                            <div style={{ fontWeight: '700' }}>No mutual fund investments found.</div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                            {mutualFunds.length > 0 && (
+                                <tfoot style={{ background: 'rgba(255,255,255,0.03)', borderTop: '2px solid #1e293b' }}>
+                                    <tr>
+                                        <td style={{ padding: '20px 24px', fontWeight: '800', color: '#64748b' }}>TOTAL</td>
+                                        <td colSpan={3}></td>
+                                        <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: '#fff', fontSize: '1rem' }}>₹{totalCurrentValue.toLocaleString()}</td>
+                                        <td style={{ padding: '20px 24px', textAlign: 'right' }}>
+                                            <div style={{ fontWeight: '900', color: totalPnL >= 0 ? '#10b981' : '#f87171', fontSize: '1rem' }}>
+                                                {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
+                                            </div>
+                                            <div style={{ fontSize: '0.75rem', color: totalPnL >= 0 ? '#10b981' : '#f87171', fontWeight: '700' }}>
+                                                {totalInvestment > 0 ? ((totalCurrentValue - totalInvestment) / totalInvestment * 100).toFixed(2) : '0.00'}%
+                                            </div>
+                                        </td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            )}
+                        </table>
                     </div>
                 </div>
             )}

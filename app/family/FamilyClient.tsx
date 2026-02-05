@@ -110,10 +110,6 @@ export default function FamilyClient() {
                 {/* Header Section */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#f472b6', marginBottom: '12px' }}>
-                            <div style={{ width: '12px', height: '12px', background: '#f472b6', borderRadius: '50%', boxShadow: '0 0 10px rgba(244, 114, 182, 0.4)' }} aria-hidden="true" />
-                            <span style={{ fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Care Network Active</span>
-                        </div>
                         <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Family Support Hub</h1>
                         <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Track financial support to parents and loved ones</p>
                     </div>

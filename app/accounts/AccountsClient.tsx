@@ -231,7 +231,7 @@ export default function AccountsClient() {
                         {/* Summary Bar */}
                         <div style={{
                             background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                            padding: '24px',
+                            padding: '16px 24px',
                             borderRadius: '24px',
                             border: '1px solid #1e293b',
                             display: 'flex',
@@ -320,13 +320,13 @@ export default function AccountsClient() {
                         </div>
 
                         {/* Accounts Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '24px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
                             {accounts.map((account, idx) => (
                                 <div key={account.id} style={{
                                     background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                                    borderRadius: '28px',
+                                    borderRadius: '24px',
                                     border: '1px solid #1e293b',
-                                    padding: '24px',
+                                    padding: '20px',
                                     position: 'relative',
                                     overflow: 'hidden',
                                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
@@ -366,7 +366,7 @@ export default function AccountsClient() {
                                         borderRadius: '28px 28px 0 0'
                                     }} />
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '32px', position: 'relative', zIndex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', position: 'relative', zIndex: 1 }}>
                                         <div style={{
                                             background: `${COLORS[idx % COLORS.length]}15`,
                                             padding: '12px',
@@ -430,7 +430,7 @@ export default function AccountsClient() {
                                         </div>
                                     </div>
 
-                                    <div style={{ marginBottom: '24px', position: 'relative', zIndex: 1 }}>
+                                    <div style={{ marginBottom: '16px', position: 'relative', zIndex: 1 }}>
                                         <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', fontWeight: '800', color: '#fff', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.name}</div>
                                         <div style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.85rem)', color: '#94a3b8', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.bankName}</div>
                                     </div>
@@ -439,7 +439,7 @@ export default function AccountsClient() {
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'flex-end',
-                                        paddingTop: '24px',
+                                        paddingTop: '16px',
                                         borderTop: '1px solid rgba(255,255,255,0.06)',
                                         position: 'relative',
                                         zIndex: 1
@@ -504,8 +504,8 @@ export default function AccountsClient() {
                     {/* Portfolio Distribution Chart */}
                     <div style={{
                         background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                        padding: '32px',
-                        borderRadius: '32px',
+                        padding: '24px',
+                        borderRadius: '24px',
                         border: '1px solid #1e293b',
                         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                     }}>
@@ -575,8 +575,8 @@ export default function AccountsClient() {
                     {/* Account Balance Trends */}
                     <div style={{
                         background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                        padding: '32px',
-                        borderRadius: '32px',
+                        padding: '24px',
+                        borderRadius: '24px',
                         border: '1px solid #1e293b',
                         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                     }}>
@@ -631,8 +631,8 @@ export default function AccountsClient() {
                     {/* Account Type Distribution */}
                     <div style={{
                         background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                        padding: '32px',
-                        borderRadius: '32px',
+                        padding: '24px',
+                        borderRadius: '24px',
                         border: '1px solid #1e293b',
                         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                     }}>
@@ -697,8 +697,8 @@ export default function AccountsClient() {
                     {/* Currency Distribution */}
                     <div style={{
                         background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                        padding: '32px',
-                        borderRadius: '32px',
+                        padding: '24px',
+                        borderRadius: '24px',
                         border: '1px solid #1e293b',
                         boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)'
                     }}>

@@ -227,36 +227,66 @@ export default function FnOClient() {
 
             {/* Content Rendering */}
             {activeTab === 'positions' && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {openPositions.length > 0 ? openPositions.map(trade => (
-                        <div key={trade.id} style={{ background: '#0f172a', borderRadius: '20px', border: '1px solid #1e293b', padding: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                                    <span style={{ fontSize: '0.7rem', fontWeight: '900', padding: '4px 8px', borderRadius: '6px', background: trade.tradeType === 'BUY' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)', color: trade.tradeType === 'BUY' ? '#10b981' : '#f43f5e' }}>{trade.tradeType}</span>
-                                    <span style={{ fontSize: '0.7rem', fontWeight: '900', padding: '4px 8px', borderRadius: '6px', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8' }}>{trade.product}</span>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: '900', color: '#fff' }}>{trade.instrument}</div>
-                                </div>
-                                <div style={{ display: 'flex', gap: '24px', color: '#64748b', fontSize: '0.85rem', fontWeight: '600' }}>
-                                    <span>Qty: <b style={{ color: '#cbd5e1' }}>{trade.quantity}</b></span>
-                                    <span>Avg: <b style={{ color: '#cbd5e1' }}>₹{trade.avgPrice.toLocaleString()}</b></span>
-                                    <span>Entry: <b style={{ color: '#cbd5e1' }}>{new Date(trade.entryDate).toLocaleDateString()}</b></span>
-                                </div>
-                            </div>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <button onClick={() => handleEdit(trade)} style={{ background: 'rgba(99, 102, 241, 0.1)', border: 'none', color: '#818cf8', cursor: 'pointer', padding: '10px 20px', borderRadius: '12px', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <Edit3 size={16} /> Exit / Modify
-                                </button>
-                                <button onClick={async () => { (await customConfirm({ title: 'Delete Trade', message: 'Remove this position?', type: 'error' })) && deleteFnoTrade(trade.id) }} style={{ background: 'rgba(244, 63, 94, 0.05)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}>
-                                    <Trash2 size={16} />
-                                </button>
-                            </div>
-                        </div>
-                    )) : (
-                        <div style={{ textAlign: 'center', padding: '80px', background: '#0f172a', borderRadius: '32px', border: '1px dotted #1e293b' }}>
-                            <Zap size={48} color="#1e293b" style={{ marginBottom: '16px' }} />
-                            <div style={{ color: '#475569', fontWeight: '700' }}>No active positions found in your terminal</div>
-                        </div>
-                    )}
+                <div className="fade-in">
+                    <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
+                        <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '0.9rem' }}>
+                            <thead>
+                                <tr style={{ background: 'rgba(255,255,255,0.02)', borderBottom: '1px solid #1e293b' }}>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>Product</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem' }}>Instrument</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Qty.</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg.</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>LTP</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>P&L</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {openPositions.length > 0 ? openPositions.map(trade => (
+                                    <tr key={trade.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.01)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <span style={{ fontSize: '0.7rem', fontWeight: '950', padding: '4px 8px', borderRadius: '6px', background: 'rgba(99, 102, 241, 0.1)', color: '#818cf8', border: '1px solid rgba(99, 102, 241, 0.2)' }}>{trade.product}</span>
+                                        </td>
+                                        <td style={{ padding: '16px 24px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                                <span style={{ fontSize: '0.65rem', fontWeight: '900', color: trade.tradeType === 'BUY' ? '#10b981' : '#f43f5e' }}>{trade.tradeType}</span>
+                                                <div style={{ fontWeight: '800', color: '#fff' }}>{trade.instrument}</div>
+                                            </div>
+                                        </td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>{trade.quantity}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>₹{trade.avgPrice.toLocaleString()}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#fff' }}>₹{trade.avgPrice.toLocaleString()}</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '800', color: '#fff' }}>₹0.00</td>
+                                        <td style={{ padding: '16px 24px', textAlign: 'center' }}>
+                                            <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
+                                                <button onClick={() => handleEdit(trade)} title="Exit / Modify" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>
+                                                    <Edit3 size={16} />
+                                                </button>
+                                                <button onClick={async () => { (await customConfirm({ title: 'Delete Trade', message: 'Remove this position?', type: 'error' })) && deleteFnoTrade(trade.id) }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#f43f5e'}>
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                )) : (
+                                    <tr>
+                                        <td colSpan={7} style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}>
+                                            <div style={{ marginBottom: '12px' }}><Zap size={40} opacity={0.3} /></div>
+                                            <div style={{ fontWeight: '700' }}>No active positions found in your terminal</div>
+                                        </td>
+                                    </tr>
+                                )}
+                            </tbody>
+                            <tfoot style={{ background: 'rgba(255,255,255,0.03)', borderTop: '2px solid #1e293b' }}>
+                                <tr>
+                                    <td style={{ padding: '20px 24px', fontWeight: '800', color: '#64748b' }}>TOTAL</td>
+                                    <td colSpan={4}></td>
+                                    <td style={{ padding: '20px 24px', textAlign: 'right', fontWeight: '900', color: '#fff' }}>₹0.00</td>
+                                    <td colSpan={1}></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
                 </div>
             )}
 

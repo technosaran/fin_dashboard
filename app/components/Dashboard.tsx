@@ -139,9 +139,6 @@ export default function Dashboard() {
                             </span>
                         </span>
                     </h1>
-                    <p style={{ color: '#64748b', fontSize: '1.1rem', fontWeight: '600', marginTop: '8px', opacity: 0.8 }}>
-                        Financial status: <span style={{ color: '#10b981' }}>Optimal Growth</span>
-                    </p>
                 </div>
                 <div className="fade-in" style={{ animationDelay: '0.1s' }}>
                     <div style={{ display: 'flex', gap: '8px' }}>
