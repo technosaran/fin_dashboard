@@ -333,7 +333,7 @@ export const calculateStockCharges = (
     const turnover = quantity * price;
 
     // 1. Brokerage
-    let brokerage = settings.brokerageType === 'flat'
+    const brokerage = settings.brokerageType === 'flat'
         ? settings.brokerageValue
         : (turnover * settings.brokerageValue) / 100;
 
@@ -572,7 +572,37 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 ]);
 
                 if (accountsError) console.error('Error loading accounts:', accountsError);
-                else setAccounts(accountsData.map(dbAccountToAccount));
+                else {
+                    const loadedAccounts = accountsData.map(dbAccountToAccount);
+                    setAccounts(loadedAccounts);
+                    
+                    // Check if Physical Cash account exists, if not create it
+                    const hasPhysicalCash = loadedAccounts.some(acc => 
+                        acc.name.toLowerCase() === 'physical cash'
+                    );
+                    
+                    if (!hasPhysicalCash && loadedAccounts.length === 0) {
+                        // Only auto-create for new users (no accounts yet)
+                        console.log('Creating default Physical Cash account');
+                        const { data: newAccount, error: insertError } = await supabase
+                            .from('accounts')
+                            .insert({
+                                name: 'Physical Cash',
+                                bank_name: 'Cash',
+                                type: 'Cash',
+                                balance: 0,
+                                currency: 'INR'
+                            })
+                            .select()
+                            .single();
+                        
+                        if (insertError) {
+                            console.error('Error creating Physical Cash account:', insertError);
+                        } else if (newAccount) {
+                            setAccounts([dbAccountToAccount(newAccount)]);
+                        }
+                    }
+                }
 
                 if (transactionsError) console.error('Error loading transactions:', transactionsError);
                 else setTransactions(transactionsData.map(dbTransactionToTransaction));

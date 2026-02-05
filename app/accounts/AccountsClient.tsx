@@ -320,22 +320,22 @@ export default function AccountsClient() {
                         </div>
 
                         {/* Accounts Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '16px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '14px' }}>
                             {accounts.map((account, idx) => (
                                 <div key={account.id} style={{
                                     background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                                    borderRadius: '24px',
+                                    borderRadius: '18px',
                                     border: '1px solid #1e293b',
-                                    padding: '20px',
+                                    padding: '14px',
                                     position: 'relative',
                                     overflow: 'hidden',
                                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                     cursor: 'pointer'
                                 }}
                                     onMouseEnter={e => {
-                                        e.currentTarget.style.transform = 'translateY(-12px) scale(1.02)';
+                                        e.currentTarget.style.transform = 'translateY(-8px) scale(1.01)';
                                         e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60';
-                                        e.currentTarget.style.boxShadow = `0 25px 50px -12px ${COLORS[idx % COLORS.length]}30, 0 0 0 1px ${COLORS[idx % COLORS.length]}20`;
+                                        e.currentTarget.style.boxShadow = `0 20px 40px -12px ${COLORS[idx % COLORS.length]}30, 0 0 0 1px ${COLORS[idx % COLORS.length]}20`;
                                     }}
                                     onMouseLeave={e => {
                                         e.currentTarget.style.transform = 'translateY(0) scale(1)';
@@ -366,27 +366,27 @@ export default function AccountsClient() {
                                         borderRadius: '28px 28px 0 0'
                                     }} />
 
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', position: 'relative', zIndex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', position: 'relative', zIndex: 1 }}>
                                         <div style={{
                                             background: `${COLORS[idx % COLORS.length]}15`,
-                                            padding: '12px',
-                                            borderRadius: '16px',
+                                            padding: '10px',
+                                            borderRadius: '12px',
                                             color: COLORS[idx % COLORS.length],
                                             border: `1px solid ${COLORS[idx % COLORS.length]}30`,
                                             boxShadow: `0 4px 16px ${COLORS[idx % COLORS.length]}20`
                                         }}>
                                             {getAccountIcon(account.type)}
                                         </div>
-                                        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                                             <div style={{
-                                                padding: '6px 14px',
+                                                padding: '4px 10px',
                                                 borderRadius: '100px',
                                                 background: 'rgba(255,255,255,0.05)',
                                                 color: '#94a3b8',
-                                                fontSize: '0.7rem',
+                                                fontSize: '0.65rem',
                                                 fontWeight: '800',
                                                 textTransform: 'uppercase',
-                                                letterSpacing: '1px',
+                                                letterSpacing: '0.5px',
                                                 border: '1px solid rgba(255,255,255,0.1)',
                                                 backdropFilter: 'blur(8px)'
                                             }}>
@@ -430,16 +430,16 @@ export default function AccountsClient() {
                                         </div>
                                     </div>
 
-                                    <div style={{ marginBottom: '16px', position: 'relative', zIndex: 1 }}>
-                                        <div style={{ fontSize: 'clamp(1rem, 2.5vw, 1.2rem)', fontWeight: '800', color: '#fff', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.name}</div>
-                                        <div style={{ fontSize: 'clamp(0.75rem, 1.8vw, 0.85rem)', color: '#94a3b8', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.bankName}</div>
+                                    <div style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
+                                        <div style={{ fontSize: 'clamp(0.9rem, 2vw, 1rem)', fontWeight: '800', color: '#fff', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.name}</div>
+                                        <div style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', color: '#94a3b8', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.bankName}</div>
                                     </div>
 
                                     <div style={{
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'flex-end',
-                                        paddingTop: '16px',
+                                        paddingTop: '12px',
                                         borderTop: '1px solid rgba(255,255,255,0.06)',
                                         position: 'relative',
                                         zIndex: 1
@@ -447,14 +447,14 @@ export default function AccountsClient() {
                                         <div>
                                             <div style={{
                                                 color: '#94a3b8',
-                                                fontSize: 'clamp(0.65rem, 1.5vw, 0.7rem)',
+                                                fontSize: 'clamp(0.6rem, 1.3vw, 0.65rem)',
                                                 fontWeight: '800',
                                                 textTransform: 'uppercase',
-                                                marginBottom: '6px',
-                                                letterSpacing: '1px'
+                                                marginBottom: '4px',
+                                                letterSpacing: '0.5px'
                                             }}>Available Balance</div>
                                             <div style={{
-                                                fontSize: 'clamp(1.5rem, 3.5vw, 1.9rem)',
+                                                fontSize: 'clamp(1.3rem, 3vw, 1.6rem)',
                                                 fontWeight: '900',
                                                 color: '#fff',
                                                 textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)',
@@ -469,9 +469,9 @@ export default function AccountsClient() {
                                             background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`,
                                             color: '#fff',
                                             border: 'none',
-                                            width: '44px',
-                                            height: '44px',
-                                            borderRadius: '14px',
+                                            width: '36px',
+                                            height: '36px',
+                                            borderRadius: '12px',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
@@ -488,7 +488,7 @@ export default function AccountsClient() {
                                                 e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
                                             }}
                                             aria-label={`Add funds to ${account.name}`}>
-                                            <Plus size={20} strokeWidth={3} aria-hidden="true" />
+                                            <Plus size={18} strokeWidth={3} aria-hidden="true" />
                                         </button>
                                     </div>
                                 </div>
