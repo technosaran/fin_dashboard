@@ -812,7 +812,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 name: updatedAccount.name,
                 bank_name: updatedAccount.bankName,
                 type: updatedAccount.type,
-                balance: updatedAccount.balance,
+                // balance is now managed by database triggers on transactions
                 currency: updatedAccount.currency
             })
             .eq('id', updatedAccount.id);
@@ -858,18 +858,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const addTransaction = async (transactionData: Omit<Transaction, 'id'>) => {
-        // 1. If accountId is provided, update account balance first
-        if (transactionData.accountId) {
-            const account = accounts.find(acc => acc.id === transactionData.accountId);
-            if (account) {
-                const balanceChange = transactionData.type === 'Income' ? transactionData.amount : -transactionData.amount;
-                await updateAccount({
-                    ...account,
-                    balance: account.balance + balanceChange
-                }, true); // Important: skipLedgerEntry=true to prevent loop
-            }
-        }
-
         const { data, error } = await supabase
             .from('transactions')
             .insert({
@@ -890,6 +878,16 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         const newTransaction = dbTransactionToTransaction(data);
         setTransactions(prev => [newTransaction, ...prev]);
+
+        // Refresh accounts to get updated balance from trigger
+        setTimeout(() => refreshAccounts(), 500);
+    };
+
+    const refreshAccounts = async () => {
+        const { data, error } = await supabase.from('accounts').select('*');
+        if (!error && data) {
+            setAccounts(data.map(dbAccountToAccount));
+        }
     };
 
     const updateTransaction = async (updatedTransaction: Transaction) => {
@@ -1182,15 +1180,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             }
         }
 
-        // 2. Ledger Registry
-        await addTransaction({
-            date: transaction.transactionDate,
-            description: `${transaction.transactionType} ${transaction.quantity} shares of ${stocks.find(s => s.id === transaction.stockId)?.symbol || 'Stock'}`,
-            category: 'Investments',
-            type: transaction.transactionType === 'BUY' ? 'Expense' : 'Income',
-            amount: effectiveTotal,
-            accountId: transaction.accountId
-        });
+        // Ledger Registry is now handled by backend triggers for atomic precision
+        // Every stock trade automatically creates a labeled entry in the transactions table
+
 
         const { data, error } = await supabase
             .from('stock_transactions')
@@ -1216,6 +1208,14 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         const newTransaction = dbStockTransactionToStockTransaction(data);
         setStockTransactions(prev => [newTransaction, ...prev]);
+
+        // Refresh accounts and transactions to see the auto-generated ledger entry
+        setTimeout(() => {
+            refreshAccounts();
+            // Re-fetch transactions to show the new ledger entry
+            supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100)
+                .then(({ data }) => data && setTransactions(data.map(dbTransactionToTransaction)));
+        }, 800);
     };
 
     const addToWatchlist = async (itemData: Omit<WatchlistItem, 'id'>) => {
@@ -1338,16 +1338,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             }
         }
 
-        // 2. Ledger Registry (Centralized Balance Update)
-        const mf = mutualFunds.find(m => m.id === transactionData.mutualFundId);
-        await addTransaction({
-            date: transactionData.transactionDate,
-            description: `${transactionData.transactionType} execution: ${mf?.name || 'Unknown'}`,
-            category: 'Investments',
-            type: isOutflow ? 'Expense' : 'Income',
-            amount: transactionData.totalAmount,
-            accountId: transactionData.accountId
-        });
+        // Ledger Registry is now handled by backend triggers
+
 
         const { data, error } = await supabase
             .from('mutual_fund_transactions')
@@ -1371,6 +1363,13 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         const newTransaction = dbMutualFundTransactionToMutualFundTransaction(data);
         setMutualFundTransactions(prev => [newTransaction, ...prev]);
+
+        // Refresh accounts and transactions
+        setTimeout(() => {
+            refreshAccounts();
+            supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100)
+                .then(({ data }) => data && setTransactions(data.map(dbTransactionToTransaction)));
+        }, 800);
     };
 
     const deleteStockTransaction = async (id: number) => {
@@ -1413,30 +1412,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             }
         }
 
-        // 2. Ledger Registry (Entry/Investment)
-        if (tradeData.accountId) {
-            await addTransaction({
-                date: tradeData.entryDate,
-                description: `FnO Entry: ${tradeData.instrument} (${tradeData.quantity} qty)`,
-                category: 'Investments',
-                type: 'Expense',
-                amount: investment,
-                accountId: tradeData.accountId
-            });
-        }
+        // Ledger Registry is now handled by backend triggers
 
-        // 3. If trade is ALREADY closed on creation, record the exit too
-        if (tradeData.status === 'CLOSED' && tradeData.accountId) {
-            const proceeds = investment + (tradeData.pnl || 0);
-            await addTransaction({
-                date: tradeData.exitDate || tradeData.entryDate,
-                description: `FnO Exit: ${tradeData.instrument}`,
-                category: 'Investments',
-                type: 'Income',
-                amount: proceeds,
-                accountId: tradeData.accountId
-            });
-        }
 
         const { data, error } = await (supabase as any)
             .from('fno_trades')
@@ -1464,25 +1441,20 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         const newTrade = dbFnoTradeToFnoTrade(data);
         setFnoTrades(prev => [newTrade, ...prev]);
+
+        // Refresh accounts and transactions
+        setTimeout(() => {
+            refreshAccounts();
+            supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100)
+                .then(({ data }) => data && setTransactions(data.map(dbTransactionToTransaction)));
+        }, 800);
     };
 
     const updateFnoTrade = async (updatedTrade: FnoTrade) => {
         const oldTrade = fnoTrades.find(t => t.id === updatedTrade.id);
 
-        // 1. Ledger Registry (Exit/Proceeds) if position just closed
-        if (oldTrade && oldTrade.status === 'OPEN' && updatedTrade.status === 'CLOSED' && updatedTrade.accountId) {
-            const investment = updatedTrade.avgPrice * updatedTrade.quantity;
-            const proceeds = investment + (updatedTrade.pnl || 0);
+        // Ledger Registry is now handled by backend triggers
 
-            await addTransaction({
-                date: updatedTrade.exitDate || new Date().toISOString().split('T')[0],
-                description: `FnO Realized Exit: ${updatedTrade.instrument}`,
-                category: 'Investments',
-                type: 'Income',
-                amount: proceeds,
-                accountId: updatedTrade.accountId
-            });
-        }
 
         const { error } = await (supabase as any)
             .from('fno_trades')
@@ -1507,6 +1479,15 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }
 
         setFnoTrades(prev => prev.map(t => t.id === updatedTrade.id ? updatedTrade : t));
+
+        // Refresh accounts and transactions if status was changed to CLOSED
+        if (oldTrade?.status === 'OPEN' && updatedTrade.status === 'CLOSED') {
+            setTimeout(() => {
+                refreshAccounts();
+                supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100)
+                    .then(({ data }) => data && setTransactions(data.map(dbTransactionToTransaction)));
+            }, 800);
+        }
     };
 
     const deleteFnoTrade = async (id: number) => {
