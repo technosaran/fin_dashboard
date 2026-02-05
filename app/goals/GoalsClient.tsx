@@ -104,77 +104,77 @@ export default function GoalsClient() {
             <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
 
                 {/* Header Section */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px', flexWrap: 'wrap', gap: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
                     <div>
-                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Target Milestones</h1>
-                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Engineered for ambitious wealth accumulation</p>
+                        <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Target Milestones</h1>
+                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', marginTop: '6px' }}>Engineered for ambitious wealth accumulation</p>
                     </div>
                     <button
                         onClick={() => { resetForm(); setIsModalOpen(true); }}
                         aria-label="Create new goal"
                         style={{
-                            padding: '14px 28px',
-                            borderRadius: '16px',
+                            padding: '10px 20px',
+                            borderRadius: '14px',
                             background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                             color: 'white',
                             border: 'none',
                             cursor: 'pointer',
                             fontWeight: '800',
-                            fontSize: '0.9rem',
-                            boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)',
+                            fontSize: '0.85rem',
+                            boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '10px',
+                            gap: '8px',
                             transition: 'all 0.2s',
                             whiteSpace: 'nowrap'
                         }}
                         onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
                         onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
                     >
-                        <Plus size={18} strokeWidth={3} /> New Directive
+                        <Plus size={16} strokeWidth={3} /> New Directive
                     </button>
                 </div>
 
                 {/* Achievement Statistics */}
                 <div style={{
                     background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                    padding: '40px',
-                    borderRadius: '32px',
+                    padding: '28px',
+                    borderRadius: '24px',
                     border: '1px solid #1e293b',
-                    marginBottom: '48px',
+                    marginBottom: '24px',
                     position: 'relative',
                     overflow: 'hidden'
                 }}>
-                    <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '60px', alignItems: 'center' }}>
+                    <div style={{ position: 'relative', zIndex: 1, display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '40px', alignItems: 'center' }}>
                         <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                <div style={{ background: 'rgba(52, 211, 153, 0.1)', padding: '10px', borderRadius: '12px', color: '#34d399' }}>
-                                    <Trophy size={24} />
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                                <div style={{ background: 'rgba(52, 211, 153, 0.1)', padding: '8px', borderRadius: '10px', color: '#34d399' }}>
+                                    <Trophy size={20} />
                                 </div>
-                                <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#818cf8', textTransform: 'uppercase', letterSpacing: '2px' }}>Aggregate Success</span>
+                                <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Aggregate Success</span>
                             </div>
-                            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: '950', color: '#fff', margin: '0 0 24px 0', letterSpacing: '-2.5px' }}>
-                                {overallProgress.toFixed(1)}% <span style={{ color: '#64748b', fontSize: 'clamp(1rem, 3vw, 1.5rem)', fontWeight: '700', letterSpacing: '0' }}>Realized</span>
+                            <h2 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.75rem)', fontWeight: '950', color: '#fff', margin: '0 0 16px 0', letterSpacing: '-2px' }}>
+                                {overallProgress.toFixed(1)}% <span style={{ color: '#64748b', fontSize: 'clamp(0.9rem, 2.5vw, 1.25rem)', fontWeight: '700', letterSpacing: '0' }}>Realized</span>
                             </h2>
-                            <div style={{ width: '100%', height: '14px', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', overflow: 'hidden' }}>
+                            <div style={{ width: '100%', height: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '100px', overflow: 'hidden' }}>
                                 <div style={{ width: `${overallProgress}%`, height: '100%', background: 'linear-gradient(90deg, #6366f1 0%, #34d399 100%)', borderRadius: '100px', transition: 'width 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }} />
                             </div>
                         </div>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '32px' }}>
-                            <div style={{ textAlign: 'left', padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                                <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Accumulated</div>
-                                <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#34d399', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{totalCurrent.toLocaleString()}</div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '20px' }}>
+                            <div style={{ textAlign: 'left', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                <div style={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.8px' }}>Accumulated</div>
+                                <div style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)', fontWeight: '900', color: '#34d399', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{totalCurrent.toLocaleString()}</div>
                             </div>
-                            <div style={{ textAlign: 'left', padding: '24px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.03)' }}>
-                                <div style={{ color: '#94a3b8', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Global Target</div>
-                                <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{totalTarget.toLocaleString()}</div>
+                            <div style={{ textAlign: 'left', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                <div style={{ color: '#94a3b8', fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '6px', letterSpacing: '0.8px' }}>Global Target</div>
+                                <div style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)', fontWeight: '900', color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{totalTarget.toLocaleString()}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* Goals Grid */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '32px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))', gap: '20px' }}>
                     {goals.length > 0 ? (
                         goals.map(goal => {
                             const progress = (goal.currentAmount / goal.targetAmount) * 100;
@@ -183,20 +183,20 @@ export default function GoalsClient() {
                             return (
                                 <div key={goal.id} style={{
                                     background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                                    borderRadius: '32px',
+                                    borderRadius: '24px',
                                     border: '1px solid #1e293b',
-                                    padding: '32px',
+                                    padding: '24px',
                                     transition: 'all 0.3s',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    gap: '24px',
+                                    gap: '16px',
                                     position: 'relative',
                                     overflow: 'hidden'
                                 }}
                                     onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
+                                        e.currentTarget.style.transform = 'translateY(-6px)';
                                         e.currentTarget.style.borderColor = '#334155';
-                                        e.currentTarget.style.boxShadow = '0 25px 50px -12px rgba(0, 0, 0, 0.5)';
+                                        e.currentTarget.style.boxShadow = '0 20px 40px -10px rgba(0, 0, 0, 0.4)';
                                     }}
                                     onMouseLeave={(e) => {
                                         e.currentTarget.style.transform = 'translateY(0)';
@@ -204,18 +204,18 @@ export default function GoalsClient() {
                                         e.currentTarget.style.boxShadow = 'none';
                                     }}
                                 >
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', flexWrap: 'wrap' }}>
-                                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
-                                            <div style={{ background: isCompleted ? 'rgba(52, 211, 153, 0.1)' : 'rgba(99, 102, 241, 0.1)', padding: '12px', borderRadius: '16px', color: isCompleted ? '#34d399' : '#818cf8', display: 'flex', flexShrink: 0 }} aria-hidden="true">
-                                                {isCompleted ? <CheckCircle2 size={24} /> : <Flame size={24} />}
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px', flexWrap: 'wrap' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
+                                            <div style={{ background: isCompleted ? 'rgba(52, 211, 153, 0.1)' : 'rgba(99, 102, 241, 0.1)', padding: '10px', borderRadius: '14px', color: isCompleted ? '#34d399' : '#818cf8', display: 'flex', flexShrink: 0 }} aria-hidden="true">
+                                                {isCompleted ? <CheckCircle2 size={20} /> : <Flame size={20} />}
                                             </div>
                                             <div style={{ minWidth: 0 }}>
-                                                <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', fontWeight: '800', margin: 0, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{goal.name}</h3>
-                                                <span style={{ fontSize: '0.75rem', color: '#6366f1', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>{goal.category}</span>
+                                                <h3 style={{ fontSize: 'clamp(0.95rem, 1.8vw, 1.1rem)', fontWeight: '800', margin: 0, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{goal.name}</h3>
+                                                <span style={{ fontSize: '0.7rem', color: '#6366f1', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '0.8px' }}>{goal.category}</span>
                                             </div>
                                         </div>
-                                        <div style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
-                                            <button onClick={() => handleEdit(goal)} aria-label={`Edit goal ${goal.name}`} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Edit3 size={16} /></button>
+                                        <div style={{ display: 'flex', gap: '6px', flexShrink: 0 }}>
+                                            <button onClick={() => handleEdit(goal)} aria-label={`Edit goal ${goal.name}`} style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '8px', borderRadius: '10px' }}><Edit3 size={15} /></button>
                                             <button onClick={async () => {
                                                 const isConfirmed = await customConfirm({
                                                     title: 'Terminate Directive',

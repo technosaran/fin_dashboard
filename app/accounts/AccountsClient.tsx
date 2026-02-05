@@ -153,30 +153,30 @@ export default function AccountsClient() {
         <div className="page-container">
 
             {/* Header Section */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '12px' }}>
                 <div>
-                    <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Personal Vault</h1>
-                    <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Securely manage your assets and financial entities</p>
+                    <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Personal Vault</h1>
+                    <p style={{ color: '#94a3b8', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', marginTop: '6px' }}>Securely manage your assets and financial entities</p>
                 </div>
-                <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     <button onClick={() => setIsTransferModalOpen(true)} style={{
-                        padding: '14px 28px', borderRadius: '16px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: '0.2s'
+                        padding: '10px 20px', borderRadius: '14px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: '0.2s'
                     }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'} aria-label="Transfer funds between accounts">
-                        <ArrowRightLeft size={18} color="#818cf8" aria-hidden="true" /> Internal Transfer
+                        <ArrowRightLeft size={16} color="#818cf8" aria-hidden="true" /> Internal Transfer
                     </button>
                     <button onClick={() => { resetAccountForm(); setIsModalOpen(true); }} style={{
-                        padding: '14px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: 'white', border: 'none', fontWeight: '700', fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)', transition: '0.2s'
+                        padding: '10px 20px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: 'white', border: 'none', fontWeight: '700', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)', transition: '0.2s'
                     }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'} aria-label="Add new account">
-                        <Plus size={18} strokeWidth={3} aria-hidden="true" /> New Entity
+                        <Plus size={16} strokeWidth={3} aria-hidden="true" /> New Entity
                     </button>
                 </div>
             </div>
 
             {/* Tab Navigation */}
-            <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '16px', border: '1px solid #1e293b', marginBottom: '32px', width: 'fit-content', flexWrap: 'wrap' }} role="tablist" aria-label="Account view tabs">
+            <div style={{ display: 'flex', background: '#0f172a', padding: '5px', borderRadius: '14px', border: '1px solid #1e293b', marginBottom: '20px', width: 'fit-content', flexWrap: 'wrap' }} role="tablist" aria-label="Account view tabs">
                 {[
-                    { id: 'accounts', label: 'Accounts', icon: <Wallet size={18} aria-hidden="true" /> },
-                    { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} aria-hidden="true" /> }
+                    { id: 'accounts', label: 'Accounts', icon: <Wallet size={16} aria-hidden="true" /> },
+                    { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={16} aria-hidden="true" /> }
                 ].map(tab => (
                     <button
                         key={tab.id}
@@ -186,8 +186,8 @@ export default function AccountsClient() {
                         aria-controls={`${tab.id}-panel`}
                         aria-label={`View ${tab.label}`}
                         style={{
-                            padding: '12px 24px',
-                            borderRadius: '12px',
+                            padding: '10px 20px',
+                            borderRadius: '10px',
                             border: 'none',
                             background: activeTab === tab.id ? '#6366f1' : 'transparent',
                             color: activeTab === tab.id ? '#fff' : '#94a3b8',
@@ -222,13 +222,13 @@ export default function AccountsClient() {
             {activeTab === 'accounts' && (
                 <>
                     {/* Main Content Layout - Single Column */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                         {/* Summary Bar */}
                         <div style={{
                             background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                            padding: '32px',
-                            borderRadius: '32px',
+                            padding: '24px',
+                            borderRadius: '24px',
                             border: '1px solid #1e293b',
                             display: 'flex',
                             justifyContent: 'space-between',
@@ -262,31 +262,31 @@ export default function AccountsClient() {
                             <div style={{ position: 'relative', zIndex: 1 }}>
                                 <div style={{
                                     color: '#94a3b8',
-                                    fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
+                                    fontSize: 'clamp(0.6rem, 1.3vw, 0.7rem)',
                                     fontWeight: '800',
                                     textTransform: 'uppercase',
-                                    letterSpacing: '1.5px',
-                                    marginBottom: '8px',
+                                    letterSpacing: '1.2px',
+                                    marginBottom: '6px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '8px'
+                                    gap: '6px'
                                 }}>
-                                    <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 12px rgba(52, 211, 153, 0.6)' }} aria-hidden="true" />
+                                    <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#34d399', boxShadow: '0 0 10px rgba(52, 211, 153, 0.5)' }} aria-hidden="true" />
                                     Total Vault Liquidity
                                 </div>
                                 <div style={{
-                                    fontSize: 'clamp(2rem, 5vw, 2.8rem)',
+                                    fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
                                     fontWeight: '950',
                                     color: '#fff',
-                                    letterSpacing: '-1.5px',
+                                    letterSpacing: '-1.2px',
                                     textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)'
                                 }}>₹{totalBalanceINR.toLocaleString()}</div>
                                 <div style={{
-                                    marginTop: '12px',
+                                    marginTop: '10px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '8px',
-                                    fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)',
+                                    gap: '6px',
+                                    fontSize: 'clamp(0.75rem, 1.6vw, 0.85rem)',
                                     fontWeight: '700'
                                 }}>
                                     <div style={{
