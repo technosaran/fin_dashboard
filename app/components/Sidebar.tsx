@@ -97,7 +97,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             `}</style>
             <aside>
                 {/* Logo / Brand */}
-                <div style={{ padding: '24px 16px', display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', flexShrink: 0 }}>
+                <div style={{ padding: '20px 16px', display: 'flex', alignItems: 'center', gap: '12px', overflow: 'hidden', flexShrink: 0 }}>
                     <div style={{
                         minWidth: '40px', height: '40px',
                         background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
@@ -115,7 +115,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </div>
 
                 {/* Navigation */}
-                <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '6px' }} role="navigation" aria-label="Main navigation">
+                <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }} role="navigation" aria-label="Main navigation">
                     {navItems.map((item) => {
                         const isActive = pathname === item.href;
                         return (
@@ -127,11 +127,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                 onClick={onClose}
                             >
                                 <div style={{
-                                    padding: '10px 12px',
-                                    borderRadius: '14px',
+                                    padding: '8px 12px',
+                                    borderRadius: '12px',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    gap: '12px',
+                                    gap: '10px',
                                     background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
                                     color: isActive ? '#fff' : '#94a3b8',
                                     transition: 'all 0.2s',
@@ -154,7 +154,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                     <div style={{ color: isActive ? '#818cf8' : 'inherit', transition: 'color 0.2s' }} aria-hidden="true">
                                         {item.icon}
                                     </div>
-                                    <span style={{ fontWeight: isActive ? '700' : '600', fontSize: '0.95rem' }}>{item.label}</span>
+                                    <span style={{ fontWeight: isActive ? '700' : '600', fontSize: '0.9rem' }}>{item.label}</span>
 
                                     {isActive && (
                                         <div style={{ position: 'absolute', right: '12px', width: '6px', height: '6px', borderRadius: '50%', background: '#818cf8', boxShadow: '0 0 10px #818cf8' }} aria-hidden="true" />
@@ -166,17 +166,17 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 </nav>
 
                 {/* Bottom Section */}
-                <div style={{ padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '6px', borderTop: '1px solid #1e293b' }}>
+                <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px', borderTop: '1px solid #1e293b' }}>
 
 
 
                     <Link href="/settings" style={{ textDecoration: 'none' }} onClick={onClose}>
                         <div style={{
-                            padding: '10px 12px',
-                            borderRadius: '14px',
+                            padding: '8px 12px',
+                            borderRadius: '12px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
+                            gap: '10px',
                             color: '#64748b',
                             transition: 'all 0.2s',
                             cursor: 'pointer'
@@ -185,7 +185,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                             onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#64748b'; }}
                         >
                             <Settings size={20} />
-                            <span style={{ fontWeight: '600', fontSize: '0.95rem' }}>Settings</span>
+                            <span style={{ fontWeight: '600', fontSize: '0.9rem' }}>Settings</span>
                         </div>
                     </Link>
 
@@ -204,21 +204,21 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                             }
                         }}
                         style={{
-                            padding: '10px 12px',
-                            borderRadius: '14px',
+                            padding: '8px 12px',
+                            borderRadius: '12px',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
+                            gap: '10px',
                             color: '#f87171',
                             transition: 'all 0.2s',
                             cursor: 'pointer',
-                            marginTop: '8px'
+                            marginTop: '4px'
                         }}
                         onMouseEnter={e => { e.currentTarget.style.background = 'rgba(248, 113, 113, 0.05)'; }}
                         onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; }}
                     >
                         <LogOut size={20} />
-                        <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Logout</span>
+                        <span style={{ fontWeight: '700', fontSize: '0.9rem' }}>Logout</span>
                     </div>
                 </div>
 
