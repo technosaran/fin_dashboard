@@ -183,7 +183,8 @@ Added proper type definitions for:
 1. `app/components/SkeletonLoader.tsx` - Reusable loading components
 2. `app/components/KeyboardShortcuts.tsx` - Keyboard navigation system
 3. `lib/exportUtils.ts` - CSV export utilities
-4. `ENHANCEMENT_SUMMARY.md` - This document
+4. `supabase/migrations/20260205201000_auto_ledger_entries.sql` - Automated ledger integration
+5. `ENHANCEMENT_SUMMARY.md` - This document
 
 ### Modified Files:
 1. `app/globals.css` - Enhanced animations and styles
@@ -194,6 +195,9 @@ Added proper type definitions for:
 6. `app/accounts/AccountsClient.tsx` - Export functionality, type fixes
 7. `app/ledger/LedgerClient.tsx` - Export functionality
 8. `app/goals/GoalsClient.tsx` - Export functionality
+
+### Database Changes:
+1. `sync_investment_to_ledger()` - Modified to always create ledger entries
 
 ---
 
@@ -210,6 +214,44 @@ Added proper type definitions for:
 - ✅ Removed unused imports
 - ✅ Improved type safety
 - ✅ Better code organization
+
+---
+
+## Future Enhancement Opportunities
+
+---
+
+## 7. Automated Ledger Integration 📝
+
+### Problem Statement
+Previously, ledger entries for investment transactions (Stocks, FNO, and Mutual Funds) were only created when users explicitly selected an account. This required manual action for each transaction, which was inconvenient and could lead to missing ledger entries.
+
+### Solution Implemented
+Modified the database trigger `sync_investment_to_ledger()` to automatically create ledger entries for ALL investment transactions, regardless of whether an account is selected.
+
+**Key Changes:**
+- **Database Migration**: Created `20260205201000_auto_ledger_entries.sql`
+- **Automatic Logging**: Removed the `IF NEW.account_id IS NOT NULL` condition
+- **Backward Compatible**: Account linking remains optional
+- **Balance Safety**: Account balances only update when an account is explicitly linked
+
+**Benefits:**
+- ✅ **No Manual Action Required**: Ledger entries automatically created for all transactions
+- ✅ **Complete Audit Trail**: Every buy/sell/exit transaction is logged
+- ✅ **Flexible Accounting**: Users can still link accounts for balance tracking
+- ✅ **Consistent Behavior**: Same automatic logging for Stocks, FNO, and Mutual Funds
+
+**Technical Details:**
+- Ledger entries always created with category 'Investments'
+- For Stocks: Includes brokerage and tax charges in amount
+- For FNO: Separate entries for entry (expense) and exit (income)
+- For Mutual Funds: BUY/SIP as expense, SELL as income
+- account_id is nullable, allowing ledger-only entries
+
+**Transaction Types Covered:**
+1. **Stock Transactions**: BUY → Expense, SELL → Income
+2. **FNO Trades**: Entry → Expense, Exit → Income (includes P&L)
+3. **Mutual Fund Transactions**: BUY/SIP → Expense, SELL → Income
 
 ---
 
@@ -235,12 +277,14 @@ Added proper type definitions for:
 - 🎨 **Modern Interface**: Smooth animations and transitions
 - 💪 **Professional Feel**: Enterprise-grade polish
 - ♿ **Accessibility**: Better keyboard navigation support
+- 📝 **Automatic Ledger**: All investment transactions automatically logged
 
 ### Developer Benefits:
 - 🔒 **Type Safety**: Fewer runtime errors
 - 🧹 **Clean Code**: Better organization
 - 🚀 **Performance**: Optimized rendering
 - 📝 **Maintainability**: Well-documented changes
+- 🛡️ **Data Integrity**: Database-enforced ledger entries
 
 ---
 
@@ -252,8 +296,9 @@ This enhancement significantly improves the FINCORE Financial Dashboard by addin
 - Essential data export capabilities
 - Better code quality and type safety
 - Smooth animations and transitions
+- **Automated ledger integration for all investment transactions**
 
-The dashboard now provides an enterprise-grade experience with improved usability, accessibility, and visual appeal while maintaining excellent performance and code quality.
+The dashboard now provides an enterprise-grade experience with improved usability, accessibility, and visual appeal while maintaining excellent performance and code quality. The automated ledger integration ensures complete audit trails without manual intervention, improving data integrity and user convenience.
 
 ---
 
