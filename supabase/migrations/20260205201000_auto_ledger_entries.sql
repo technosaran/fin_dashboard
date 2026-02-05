@@ -23,7 +23,6 @@ BEGIN
         v_amount := NEW.total_amount;
 
     ELSIF TG_TABLE_NAME = 'fno_trades' THEN
-        v_desc := 'FnO Settlement: ' || NEW.instrument;
         -- For FnO, we handle this slightly differently since it's entry/exit
         -- If status changed to CLOSED, we log the result
         IF (TG_OP = 'INSERT' AND NEW.status = 'OPEN') THEN
@@ -33,6 +32,8 @@ BEGIN
         ELSIF (TG_OP = 'UPDATE' AND OLD.status = 'OPEN' AND NEW.status = 'CLOSED') THEN
             v_desc := 'FnO Exit: ' || NEW.instrument;
             v_type := 'Income';
+            -- Exit amount = entry_cost + P&L = (avg_price * quantity) + P&L
+            -- Since P&L = (exit_price - avg_price) * quantity, this equals exit_price * quantity
             v_amount := (NEW.avg_price * NEW.quantity) + COALESCE(NEW.pnl, 0);
         ELSE
             RETURN NEW; -- Don't log if just updating notes/etc
@@ -41,7 +42,8 @@ BEGIN
 
     -- 2. ALWAYS insert into transactions table to create ledger entry
     -- account_id is optional - can be NULL for ledger-only entries
-    -- This will fire the tr_update_balance_transactions trigger automatically only if account_id is present
+    -- The tr_update_balance_transactions trigger (from migration 20260205194000) will only
+    -- update account balances when account_id IS NOT NULL, ensuring safe operation
     INSERT INTO public.transactions (user_id, account_id, date, description, category, type, amount)
     VALUES (NEW.user_id, NEW.account_id, COALESCE(NEW.transaction_date, CURRENT_DATE), v_desc, 'Investments', v_type, v_amount);
 
