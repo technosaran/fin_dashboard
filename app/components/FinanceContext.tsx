@@ -4,6 +4,134 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from './AuthContext';
 
+// Database row types (flexible for now)
+type AccountRow = {
+    id: number;
+    name: string;
+    bank_name: string;
+    type: string;
+    balance: number;
+    currency: string;
+    [key: string]: unknown;
+};
+
+type TransactionRow = {
+    id: number;
+    date: string;
+    description: string;
+    category: string;
+    type: string;
+    amount: number;
+    account_id?: number;
+    [key: string]: unknown;
+};
+
+type GoalRow = {
+    id: number;
+    name: string;
+    target_amount: number;
+    current_amount: number;
+    deadline: string;
+    category: string;
+    description?: string;
+    [key: string]: unknown;
+};
+
+type FamilyTransferRow = {
+    id: number;
+    date: string;
+    recipient: string;
+    relationship: string;
+    amount: number;
+    purpose: string;
+    notes?: string;
+    account_id?: number;
+    [key: string]: unknown;
+};
+
+type StockRow = {
+    id: number;
+    symbol: string;
+    company_name: string;
+    quantity: number;
+    avg_price: number;
+    current_price: number;
+    sector?: string;
+    exchange: string;
+    investment_amount: number;
+    current_value: number;
+    pnl: number;
+    pnl_percentage: number;
+    [key: string]: unknown;
+};
+
+type StockTransactionRow = {
+    id: number;
+    stock_id: number;
+    transaction_type: string;
+    quantity: number;
+    price: number;
+    total_amount: number;
+    brokerage?: number;
+    taxes?: number;
+    transaction_date: string;
+    notes?: string;
+    [key: string]: unknown;
+};
+
+type WatchlistRow = {
+    id: number;
+    symbol: string;
+    company_name: string;
+    target_price: number;
+    notes?: string;
+    [key: string]: unknown;
+};
+
+type MutualFundRow = {
+    id: number;
+    fund_name: string;
+    fund_house: string;
+    scheme_code: string;
+    category: string;
+    nav: number;
+    units: number;
+    invested_amount: number;
+    current_value: number;
+    returns: number;
+    returns_percentage: number;
+    [key: string]: unknown;
+};
+
+type MutualFundTransactionRow = {
+    id: number;
+    mutual_fund_id: number;
+    transaction_type: string;
+    units: number;
+    nav: number;
+    total_amount: number;
+    transaction_date: string;
+    notes?: string;
+    [key: string]: unknown;
+};
+
+type FnoTradeRow = {
+    id: number;
+    symbol: string;
+    instrument_type: string;
+    strike_price?: number;
+    expiry_date?: string;
+    trade_type: string;
+    quantity: number;
+    entry_price: number;
+    exit_price?: number;
+    realized_pnl?: number;
+    trade_date: string;
+    exit_date?: string;
+    notes?: string;
+    [key: string]: unknown;
+};
+
 export interface AppSettings {
     brokerageType: 'flat' | 'percentage';
     brokerageValue: number;

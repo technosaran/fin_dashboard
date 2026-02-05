@@ -246,7 +246,7 @@ export default function Dashboard() {
                                         </Pie>
                                         <Tooltip
                                             contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
-                                            formatter={(val: number | string) => [`₹${(Number(val) || 0).toLocaleString()}`, 'Value']}
+                                            formatter={(val) => [`₹${(Number(val) || 0).toLocaleString()}`, 'Value']}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>

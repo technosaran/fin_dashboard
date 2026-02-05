@@ -5,6 +5,7 @@ import { useNotifications } from '../components/NotificationContext';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
 import { useFinance } from '../components/FinanceContext';
+import { exportTransactionsToCSV } from '../../lib/exportUtils';
 import {
     Book,
     Plus,
@@ -112,9 +113,20 @@ export default function LedgerClient() {
                         <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Iterative audit trail of all movements</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                        <button aria-label="Export transactions to CSV" style={{
-                            padding: '12px 20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700'
-                        }}><Download size={18} /> <span style={{ whiteSpace: 'nowrap' }}>Export CSV</span></button>
+                        <button 
+                            onClick={() => {
+                                exportTransactionsToCSV(transactions);
+                                showNotification('success', 'Transactions exported successfully!');
+                            }}
+                            aria-label="Export transactions to CSV" 
+                            style={{
+                                padding: '12px 20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', transition: '0.2s'
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.color = '#10b981'; }}
+                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#94a3b8'; }}
+                        >
+                            <Download size={18} /> <span style={{ whiteSpace: 'nowrap' }}>Export CSV</span>
+                        </button>
                         <button onClick={() => setIsModalOpen(true)} aria-label="Add new transaction record" style={{
                             padding: '12px 24px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)'
                         }}>

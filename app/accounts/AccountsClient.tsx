@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Area, AreaChart } from 'recharts';
 import { useFinance, Account } from '../components/FinanceContext';
+import { exportAccountsToCSV } from '../../lib/exportUtils';
 import {
     Wallet,
     CreditCard,
@@ -17,7 +18,8 @@ import {
     Search,
     DollarSign,
     PieChart as PieChartIcon,
-    Trash2
+    Trash2,
+    Download
 } from 'lucide-react';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
@@ -153,6 +155,14 @@ export default function AccountsClient() {
                     <p style={{ color: '#94a3b8', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', marginTop: '6px' }}>Securely manage your assets and financial entities</p>
                 </div>
                 <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                    <button onClick={() => {
+                        exportAccountsToCSV(accounts);
+                        showNotification('success', 'Accounts exported successfully!');
+                    }} style={{
+                        padding: '10px 20px', borderRadius: '14px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: '0.2s'
+                    }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'} aria-label="Export accounts to CSV">
+                        <Download size={16} color="#10b981" aria-hidden="true" /> Export CSV
+                    </button>
                     <button onClick={() => setIsTransferModalOpen(true)} style={{
                         padding: '10px 20px', borderRadius: '14px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', transition: '0.2s'
                     }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'} aria-label="Transfer funds between accounts">
@@ -555,7 +565,7 @@ export default function AccountsClient() {
                                             padding: '16px',
                                             boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)'
                                         }}
-                                        formatter={(value: number | string) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
+                                        formatter={(value: number | string | undefined) => [`₹${Number(value || 0).toLocaleString()}`, 'Balance']}
                                     />
                                 </PieChart>
                             </ResponsiveContainer>
@@ -606,7 +616,7 @@ export default function AccountsClient() {
                                             borderRadius: '12px',
                                             padding: '12px'
                                         }}
-                                        formatter={(value: number | string) => [`₹${Number(value).toLocaleString()}`, 'Balance']}
+                                        formatter={(value: number | string | undefined) => [`₹${Number(value || 0).toLocaleString()}`, 'Balance']}
                                     />
                                     <Bar
                                         dataKey="balance"
@@ -674,9 +684,9 @@ export default function AccountsClient() {
                                             borderRadius: '12px',
                                             padding: '12px'
                                         }}
-                                        formatter={(value: number | string, _name: string, props: { payload: { type: string; count: number } }) => [
-                                            `₹${Number(value).toLocaleString()}`,
-                                            `${props.payload.type} (${props.payload.count} accounts)`
+                                        formatter={(value, _name, props) => [
+                                            `₹${Number(value || 0).toLocaleString()}`,
+                                            props.payload ? `${props.payload.type} (${props.payload.count} accounts)` : ''
                                         ]}
                                     />
                                 </PieChart>
@@ -733,7 +743,7 @@ export default function AccountsClient() {
                                             borderRadius: '12px',
                                             padding: '12px'
                                         }}
-                                        formatter={(value: number | string) => [`₹${Number(value).toLocaleString()}`, 'Amount']}
+                                        formatter={(value: number | string | undefined) => [`₹${Number(value || 0).toLocaleString()}`, 'Amount']}
                                     />
                                     <Area
                                         type="monotone"
