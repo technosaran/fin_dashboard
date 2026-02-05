@@ -15,6 +15,7 @@ import { useFinance } from './FinanceContext';
 import Link from 'next/link';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { MutualFundTransaction } from '@/lib/types';
+import { SkeletonCard, SkeletonTable } from './SkeletonLoader';
 
 /**
  * Get time-based greeting
@@ -108,10 +109,21 @@ export default function Dashboard() {
     // Show loading state
     if (loading) {
         return (
-            <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#818cf8', fontWeight: '700' }}>Loading your financial dashboard...</div>
-                    <div style={{ marginTop: '12px', fontSize: '0.9rem', color: '#64748b' }}>Calculating your net worth and portfolio</div>
+            <div className="page-container">
+                <div style={{ marginBottom: '20px' }}>
+                    <div className="skeleton" style={{ height: '40px', width: '300px', marginBottom: '10px' }} />
+                    <div className="skeleton" style={{ height: '20px', width: '400px' }} />
+                </div>
+                
+                {/* Skeleton for Wealth Overview */}
+                <div style={{ marginBottom: '20px' }}>
+                    <SkeletonCard />
+                </div>
+
+                {/* Skeleton for Activity & Goals */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
+                    <div><SkeletonTable /></div>
+                    <div><SkeletonCard /></div>
                 </div>
             </div>
         );
@@ -131,7 +143,7 @@ export default function Dashboard() {
             </div>
 
             {/* 2. Wealth Overview - Combined Card */}
-            <div style={{ marginBottom: '20px' }}>
+            <div style={{ marginBottom: '20px' }} className="fade-in">
                 <div style={{
                     background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
                     padding: 'clamp(20px, 4vw, 28px)',
@@ -140,7 +152,7 @@ export default function Dashboard() {
                     position: 'relative',
                     overflow: 'hidden',
                     boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                }}>
+                }} className="card-hover">
                     <div style={{ position: 'absolute', top: 0, right: 0, width: '400px', height: '100%', background: 'linear-gradient(to left, rgba(99, 102, 241, 0.05), transparent)' }} />
 
                     <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexWrap: 'wrap', gap: '24px' }}>
@@ -202,7 +214,6 @@ export default function Dashboard() {
                                                 cx = 0,
                                                 cy = 0,
                                                 midAngle = 0,
-                                                innerRadius = 0,
                                                 outerRadius = 0,
                                                 value = 0,
                                                 index = 0
@@ -235,7 +246,7 @@ export default function Dashboard() {
                                         </Pie>
                                         <Tooltip
                                             contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}
-                                            formatter={(val: any) => [`₹${(val || 0).toLocaleString()}`, 'Value']}
+                                            formatter={(val) => [`₹${(Number(val) || 0).toLocaleString()}`, 'Value']}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
@@ -257,7 +268,7 @@ export default function Dashboard() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 300px), 1fr))', gap: '20px' }}>
 
                 {/* Recent Transactions */}
-                <div style={{ background: '#0f172a', borderRadius: '20px', border: '1px solid #1e293b', padding: 'clamp(16px, 3.5vw, 24px)', gridColumn: 'span 1' }}>
+                <div style={{ background: '#0f172a', borderRadius: '20px', border: '1px solid #1e293b', padding: 'clamp(16px, 3.5vw, 24px)', gridColumn: 'span 1' }} className="fade-in card-hover">
                     <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', gap: '10px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <Activity size={18} color="#818cf8" />
@@ -268,7 +279,7 @@ export default function Dashboard() {
                         </Link>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                        {recentTx.length > 0 ? recentTx.map((tx, idx) => (
+                        {recentTx.length > 0 ? recentTx.map((tx) => (
                             <div key={tx.id} style={{
                                 display: 'flex',
                                 alignItems: 'center',
@@ -302,8 +313,8 @@ export default function Dashboard() {
                 </div>
 
                 {/* Retirement / Goal Target */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', gridColumn: 'span 1' }}>
-                    <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '20px', border: '1px solid #1e293b', padding: 'clamp(16px, 3.5vw, 24px)', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', gridColumn: 'span 1' }} className="slide-in-right">
+                    <div style={{ background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)', borderRadius: '20px', border: '1px solid #1e293b', padding: 'clamp(16px, 3.5vw, 24px)', flex: 1 }} className="card-hover">
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                                 <Target size={18} color="#818cf8" />

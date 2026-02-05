@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { useFinance, Goal } from '../components/FinanceContext';
+import { exportGoalsToCSV } from '../../lib/exportUtils';
 import {
     Target,
     Plus,
@@ -20,7 +21,8 @@ import {
     AlertCircle,
     CheckCircle2,
     Clock,
-    Flame
+    Flame,
+    Download
 } from 'lucide-react';
 
 export default function GoalsClient() {
@@ -109,13 +111,39 @@ export default function GoalsClient() {
                         <h1 style={{ fontSize: 'clamp(1.5rem, 3.5vw, 2rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Target Milestones</h1>
                         <p style={{ color: '#94a3b8', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', marginTop: '6px' }}>Engineered for ambitious wealth accumulation</p>
                     </div>
-                    <button
-                        onClick={() => { resetForm(); setIsModalOpen(true); }}
-                        aria-label="Create new goal"
-                        style={{
-                            padding: '10px 20px',
-                            borderRadius: '14px',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                        <button
+                            onClick={() => {
+                                exportGoalsToCSV(goals);
+                                showNotification('success', 'Goals exported successfully!');
+                            }}
+                            aria-label="Export goals to CSV"
+                            style={{
+                                padding: '10px 20px',
+                                borderRadius: '14px',
+                                background: '#0f172a',
+                                color: '#fff',
+                                border: '1px solid #1e293b',
+                                cursor: 'pointer',
+                                fontWeight: '700',
+                                fontSize: '0.85rem',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: '0.2s'
+                            }}
+                            onMouseEnter={(e) => { e.currentTarget.style.background = '#1e293b'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.background = '#0f172a'; }}
+                        >
+                            <Download size={16} color="#10b981" /> Export CSV
+                        </button>
+                        <button
+                            onClick={() => { resetForm(); setIsModalOpen(true); }}
+                            aria-label="Create new goal"
+                            style={{
+                                padding: '10px 20px',
+                                borderRadius: '14px',
+                                background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                             color: 'white',
                             border: 'none',
                             cursor: 'pointer',
@@ -133,6 +161,7 @@ export default function GoalsClient() {
                     >
                         <Plus size={16} strokeWidth={3} /> New Directive
                     </button>
+                    </div>
                 </div>
 
                 {/* Achievement Statistics */}
