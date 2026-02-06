@@ -507,7 +507,7 @@ export default function MutualFundsClient() {
                                                     <text
                                                         x={x}
                                                         y={y}
-                                                        fill="#94a3b8"
+                                                        fill="#d8e2ec"
                                                         textAnchor={x > cx ? 'start' : 'end'}
                                                         dominantBaseline="central"
                                                         style={{ fontSize: '0.75rem', fontWeight: '800', fontFamily: 'Inter' }}
@@ -645,10 +645,10 @@ export default function MutualFundsClient() {
                             <div style={{ height: '200px', width: '100%', padding: '20px', background: 'rgba(255,255,255,0.02)', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.05)' }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={mutualFunds.slice(0, 6)}>
-                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.13)" />
                                         <XAxis dataKey="name" hide />
                                         <YAxis hide />
-                                        <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: '#020617', border: '1px solid #1e293b' }} />
+                                        <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: '#020617', border: '1px solid #1e293b' }} itemStyle={{ color: '#e8eef4' }} />
                                         <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
                                             {mutualFunds.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                         </Bar>

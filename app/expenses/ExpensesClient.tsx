@@ -241,11 +241,17 @@ export default function ExpensesClient() {
                                     paddingAngle={8}
                                     dataKey="value"
                                     stroke="none"
-                                    label={({ percent = 0 }) => `${(percent * 100).toFixed(0)}%`}
+                                    label={({ cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0, percent = 0 }) => {
+                                        const RADIAN = Math.PI / 180;
+                                        const radius = outerRadius + 20;
+                                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                                        return <text x={x} y={y} fill="#dbe4ed" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">{`${(percent * 100).toFixed(0)}%`}</text>;
+                                    }}
                                 >
                                     {categoryBreakdown.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                 </Pie>
-                                <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} />
+                                <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} itemStyle={{ color: '#ebf1f7' }} />
                             </PieChart>
                         </ResponsiveContainer>
                     </div>
@@ -263,11 +269,11 @@ export default function ExpensesClient() {
                                 <defs>
                                     <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
                                         <stop offset="5%" stopColor="#818cf8" stopOpacity={0.8} />
-                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0.1} />
+                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0.28} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 10 }} dy={10} />
-                                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#b3c2d1', fontSize: 10 }} dy={10} />
+                                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} itemStyle={{ color: '#e9eff5' }} />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>

@@ -354,12 +354,12 @@ export default function FnOClient() {
                                     <defs>
                                         <linearGradient id="colorPnl" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#6366f1" stopOpacity={0.8} />
-                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                                            <stop offset="95%" stopColor="#6366f1" stopOpacity={0.21} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#475569', fontSize: 10 }} dy={10} />
-                                    <RechartsTooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.14)" vertical={false} />
+                                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#a8b9ca', fontSize: 10 }} dy={10} />
+                                    <RechartsTooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} itemStyle={{ color: '#e7edf4' }} />
                                     <Area type="monotone" dataKey="pnl" stroke="#6366f1" strokeWidth={4} fillOpacity={1} fill="url(#colorPnl)" />
                                 </AreaChart>
                             </ResponsiveContainer>
@@ -375,7 +375,7 @@ export default function FnOClient() {
                                             <Cell fill="#10b981" />
                                             <Cell fill="#f43f5e" />
                                         </Pie>
-                                        <RechartsTooltip />
+                                        <RechartsTooltip itemStyle={{ color: '#e6ecf2' }} />
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>

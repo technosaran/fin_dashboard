@@ -595,17 +595,17 @@ export default function AccountsClient() {
                         <div style={{ height: '300px' }}>
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={accounts} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(30, 41, 59, 0.6)" />
                                     <XAxis
                                         dataKey="name"
-                                        stroke="#94a3b8"
+                                        stroke="#aebdce"
                                         fontSize={12}
                                         angle={-45}
                                         textAnchor="end"
                                         height={80}
                                     />
                                     <YAxis
-                                        stroke="#94a3b8"
+                                        stroke="#afbecf"
                                         fontSize={12}
                                         tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
                                     />
@@ -614,7 +614,8 @@ export default function AccountsClient() {
                                             background: '#020617',
                                             border: '1px solid #334155',
                                             borderRadius: '12px',
-                                            padding: '12px'
+                                            padding: '12px',
+                                            color: '#e5ebf0'
                                         }}
                                         formatter={(value: number | string | undefined) => [`₹${Number(value || 0).toLocaleString()}`, 'Balance']}
                                     />
@@ -682,7 +683,8 @@ export default function AccountsClient() {
                                             background: '#020617',
                                             border: '1px solid #334155',
                                             borderRadius: '12px',
-                                            padding: '12px'
+                                            padding: '12px',
+                                            color: '#e7edf3'
                                         }}
                                         formatter={(value, _name, props) => [
                                             `₹${Number(value || 0).toLocaleString()}`,
@@ -730,10 +732,10 @@ export default function AccountsClient() {
                                         }
                                     ]}
                                 >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                                    <XAxis dataKey="currency" stroke="#94a3b8" />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(30, 41, 59, 0.55)" />
+                                    <XAxis dataKey="currency" stroke="#b0bfcf" />
                                     <YAxis
-                                        stroke="#94a3b8"
+                                        stroke="#b1c0d0"
                                         tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
                                     />
                                     <Tooltip
@@ -741,7 +743,8 @@ export default function AccountsClient() {
                                             background: '#020617',
                                             border: '1px solid #334155',
                                             borderRadius: '12px',
-                                            padding: '12px'
+                                            padding: '12px',
+                                            color: '#e6ecf1'
                                         }}
                                         formatter={(value: number | string | undefined) => [`₹${Number(value || 0).toLocaleString()}`, 'Amount']}
                                     />
@@ -754,7 +757,7 @@ export default function AccountsClient() {
                                     <defs>
                                         <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
                                             <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.19} />
                                         </linearGradient>
                                     </defs>
                                 </AreaChart>

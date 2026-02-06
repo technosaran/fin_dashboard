@@ -556,7 +556,7 @@ export default function StocksClient() {
                                                 <text
                                                     x={x}
                                                     y={y}
-                                                    fill="#94a3b8"
+                                                    fill="#d3dde7"
                                                     textAnchor={x > cx ? 'start' : 'end'}
                                                     dominantBaseline="central"
                                                     style={{ fontSize: '0.75rem', fontWeight: '800', fontFamily: 'Inter' }}
@@ -568,7 +568,7 @@ export default function StocksClient() {
                                     >
                                         {sectorData.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
                                     </Pie>
-                                    <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', padding: '12px' }} />
+                                    <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)', padding: '12px' }} itemStyle={{ color: '#e4ebf1' }} />
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
