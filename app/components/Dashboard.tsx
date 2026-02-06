@@ -150,100 +150,97 @@ export default function Dashboard() {
                 </div>
             </header>
 
-            {/* Main Wealth Card */}
+            {/* Main Wealth Card: Unified Net Worth & Allocation */}
             <section style={{ marginBottom: '32px' }} className="fade-in">
-                <div className="premium-card" style={{ padding: '0', background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.4) 100%)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))' }}>
+                <div className="premium-card" style={{
+                    padding: '40px',
+                    background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%)',
+                    position: 'relative',
+                    overflow: 'hidden'
+                }}>
+                    {/* Decorative glow */}
+                    <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%)', filter: 'blur(50px)', zIndex: 0 }} />
 
-                        {/* Summary Section */}
-                        <div style={{ padding: '40px', borderRight: '1px solid var(--surface-border)' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px', position: 'relative', zIndex: 1 }}>
+
+                        {/* Left: Net Worth Summary */}
+                        <div style={{ flex: '1 1 400px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                                 <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', padding: '10px', borderRadius: '12px', color: '#fff', boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)' }}>
                                     <Zap size={20} />
                                 </div>
-                                <span className="stat-label">Consolidated Net Worth</span>
+                                <span className="stat-label">Total Net Worth</span>
                             </div>
 
-                            <div style={{ marginBottom: '32px' }}>
-                                <div className="stat-value" style={{ fontSize: 'clamp(2.5rem, 8vw, 4.5rem)', lineHeight: 0.9 }}>
+                            <div style={{ marginBottom: '16px' }}>
+                                <div className="stat-value" style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', lineHeight: 1, fontWeight: '950', letterSpacing: '-0.04em' }}>
                                     ₹{financialMetrics.totalNetWorth.toLocaleString()}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '24px' }}>
-                                <div className="premium-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px' }}>
-                                    <div className="stat-label" style={{ fontSize: '0.65rem', marginBottom: '4px' }}>Cash Liquidity</div>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>₹{financialMetrics.liquidityINR.toLocaleString()}</div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                                <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '6px 12px', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <TrendingUp size={14} /> +₹{financialMetrics.globalLifetimeWealth.toLocaleString()} lifetime
                                 </div>
-                                <div className="premium-card" style={{ padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px' }}>
-                                    <div className="stat-label" style={{ fontSize: '0.65rem', marginBottom: '4px' }}>Invested Assets</div>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>₹{(financialMetrics.stocksValue + financialMetrics.mfValue).toLocaleString()}</div>
-                                </div>
+                                <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '600' }}>Portfolio Analysis</span>
                             </div>
 
-                            <div style={{ marginTop: '32px', padding: '20px', borderRadius: '16px', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <div>
-                                    <div className="stat-label" style={{ color: '#10b981', fontSize: '0.65rem' }}>Lifetime Wealth Created</div>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: '900', color: '#10b981' }}>
-                                        {financialMetrics.globalLifetimeWealth >= 0 ? '+' : ''}₹{financialMetrics.globalLifetimeWealth.toLocaleString()}
-                                    </div>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
+                                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div className="stat-label" style={{ fontSize: '0.65rem', marginBottom: '4px' }}>Liquid Cash</div>
+                                    <div style={{ fontSize: '1.15rem', fontWeight: '900', color: '#fff' }}>₹{financialMetrics.liquidityINR.toLocaleString()}</div>
                                 </div>
-                                <div style={{ background: 'rgba(16, 185, 129, 0.2)', padding: '10px', borderRadius: '12px', color: '#10b981' }}>
-                                    <TrendingUp size={24} />
+                                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div className="stat-label" style={{ fontSize: '0.65rem', marginBottom: '4px' }}>Investments</div>
+                                    <div style={{ fontSize: '1.15rem', fontWeight: '900', color: '#fff' }}>₹{(financialMetrics.stocksValue + financialMetrics.mfValue).toLocaleString()}</div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Chart Section */}
-                        <div style={{ padding: '40px', background: 'rgba(0,0,0,0.2)', display: 'flex', flexDirection: 'column' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
-                                <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '10px', borderRadius: '12px', color: '#818cf8' }}>
-                                    <PieIcon size={20} />
-                                </div>
-                                <span className="stat-label">Asset Distribution</span>
-                            </div>
-
-                            <div style={{ flex: 1, minHeight: '250px', position: 'relative' }}>
+                        {/* Right: Asset Allocation integrated */}
+                        <div style={{ flex: '0 1 350px', minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                            <div style={{ width: '100%', height: '220px', position: 'relative', marginBottom: '16px' }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
                                         <Pie
                                             data={allocationData}
                                             cx="50%"
                                             cy="50%"
-                                            innerRadius={70}
-                                            outerRadius={95}
+                                            innerRadius={65}
+                                            outerRadius={85}
                                             paddingAngle={8}
                                             dataKey="value"
                                             stroke="none"
                                         >
                                             {allocationData.map((entry, index) => (
-                                                <Cell key={`cell-${index}`} fill={entry.color} style={{ filter: `drop-shadow(0 0 8px ${entry.color}44)` }} />
+                                                <Cell key={`cell-${index}`} fill={entry.color} style={{ filter: `drop-shadow(0 0 8px ${entry.color}33)` }} />
                                             ))}
                                         </Pie>
                                         <Tooltip
-                                            contentStyle={{ background: 'rgba(2, 6, 23, 0.9)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', backdropFilter: 'blur(10px)', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
+                                            contentStyle={{ background: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', backdropFilter: 'blur(10px)' }}
                                             itemStyle={{ color: '#fff', fontWeight: '700' }}
                                             labelStyle={{ display: 'none' }}
-                                            formatter={(val) => [`₹${(Number(val) || 0).toLocaleString()}`, 'Value']}
+                                            formatter={(val) => [`₹${(Number(val) || 0).toLocaleString()}`, '']}
                                         />
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>Assets</div>
-                                    <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#fff' }}>{allocationData.length}</div>
+                                    <div style={{ fontSize: '0.6rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Diversity</div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '900', color: '#fff' }}>{allocationData.length} Paths</div>
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '20px', marginTop: '24px' }}>
+                            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px' }}>
                                 {allocationData.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <div style={{ width: '10px', height: '10px', borderRadius: '3px', background: item.color, boxShadow: `0 0 10px ${item.color}66` }} />
-                                        <span style={{ fontSize: '0.85rem', fontWeight: '700', color: '#94a3b8' }}>{item.name}</span>
-                                        <span style={{ fontSize: '0.85rem', fontWeight: '800', color: '#fff' }}>{((item.value / financialMetrics.totalNetWorth) * 100).toFixed(0)}%</span>
+                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '6px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                        <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }} />
+                                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>{item.name}</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#fff' }}>{((item.value / financialMetrics.totalNetWorth) * 100).toFixed(0)}%</span>
                                     </div>
                                 ))}
                             </div>
                         </div>
+
                     </div>
                 </div>
             </section>

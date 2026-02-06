@@ -92,33 +92,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     </span>
                 </div>
 
-                <div style={{ padding: '0 12px 16px' }}>
-                    <button
-                        onClick={() => { setIsTransactionModalOpen(true); onClose?.(); }}
-                        style={{
-                            width: '100%',
-                            padding: '10px',
-                            background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '12px',
-                            fontWeight: '700',
-                            fontSize: '0.85rem',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '8px',
-                            boxShadow: '0 4px 12px rgba(99, 102, 241, 0.2)',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(99, 102, 241, 0.3)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(99, 102, 241, 0.2)'; }}
-                    >
-                        <Plus size={16} strokeWidth={3} />
-                        Add New
-                    </button>
-                </div>
+
 
                 {/* Navigation */}
                 <nav style={{ flex: 1, padding: '16px 12px', display: 'flex', flexDirection: 'column', gap: '4px', overflow: 'hidden' }} role="navigation" aria-label="Main navigation">
