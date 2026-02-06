@@ -37,7 +37,8 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
 export default function StocksClient() {
     const {
         accounts, stocks, stockTransactions, addStock, updateStock, deleteStock,
-        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio
+        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio,
+        setIsTransactionModalOpen
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
     const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime' | 'allocation'>('portfolio');
@@ -59,6 +60,7 @@ export default function StocksClient() {
     const [quantity, setQuantity] = useState('');
     const [avgPrice, setAvgPrice] = useState('');
     const [currentPrice, setCurrentPrice] = useState('');
+    const [previousPrice, setPreviousPrice] = useState<number | null>(null);
     const [sector, setSector] = useState('');
     const [exchange, setExchange] = useState('NSE');
 
@@ -113,6 +115,7 @@ export default function StocksClient() {
             const data = await res.json();
             if (!data.error) {
                 setCurrentPrice(data.currentPrice.toString());
+                setPreviousPrice(data.previousClose || data.currentPrice);
                 setExchange(data.exchange.includes('BSE') ? 'BSE' : 'NSE');
             }
         } catch (error) {
@@ -140,6 +143,7 @@ export default function StocksClient() {
             quantity: qty,
             avgPrice: avg,
             currentPrice: current,
+            previousPrice: previousPrice || current,
             sector: sector || undefined,
             exchange,
             investmentAmount: investment,
@@ -201,6 +205,7 @@ export default function StocksClient() {
         setQuantity('');
         setAvgPrice('');
         setCurrentPrice('');
+        setPreviousPrice(null);
         setSector('');
         setExchange('NSE');
         setSearchQuery('');
@@ -214,6 +219,7 @@ export default function StocksClient() {
         setQuantity(stock.quantity.toString());
         setAvgPrice(stock.avgPrice.toString());
         setCurrentPrice(stock.currentPrice.toString());
+        setPreviousPrice(stock.previousPrice || stock.currentPrice);
         setSector(stock.sector || '');
         setExchange(stock.exchange);
         setIsModalOpen(true);
@@ -331,11 +337,6 @@ export default function StocksClient() {
                         title="Refresh Markets"
                     >
                         <Zap size={20} className={isRefreshing ? 'spin-animation' : ''} fill={isRefreshing ? 'none' : 'currentColor'} />
-                    </button>
-                    <button onClick={() => openModal('transaction')} style={{
-                        padding: '14px 28px', borderRadius: '16px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: '0.2s'
-                    }} onMouseEnter={e => e.currentTarget.style.background = '#1e293b'} onMouseLeave={e => e.currentTarget.style.background = '#0f172a'}>
-                        <Activity size={18} color="#10b981" /> Add Transaction
                     </button>
                     <button onClick={() => openModal('stock')} style={{
                         padding: '14px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: 'white', border: 'none', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)', transition: '0.2s'

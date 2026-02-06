@@ -318,6 +318,8 @@ interface FinanceContextType {
     addFnoTrade: (trade: Omit<FnoTrade, 'id'>) => Promise<void>;
     updateFnoTrade: (trade: FnoTrade) => Promise<void>;
     deleteFnoTrade: (id: number) => Promise<void>;
+    isTransactionModalOpen: boolean;
+    setIsTransactionModalOpen: (isOpen: boolean) => void;
     refreshPortfolio: () => Promise<void>;
 }
 
@@ -528,6 +530,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     });
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
     useEffect(() => {
         const loadData = async () => {
@@ -575,14 +578,13 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 else {
                     const loadedAccounts = accountsData.map(dbAccountToAccount);
                     setAccounts(loadedAccounts);
-                    
+
                     // Check if Physical Cash account exists, if not create it
-                    const hasPhysicalCash = loadedAccounts.some(acc => 
+                    const hasPhysicalCash = loadedAccounts.some(acc =>
                         acc.name.toLowerCase() === 'physical cash'
                     );
-                    
-                    if (!hasPhysicalCash && loadedAccounts.length === 0) {
-                        // Only auto-create for new users (no accounts yet)
+
+                    if (!hasPhysicalCash) {
                         console.log('Creating default Physical Cash account');
                         const { data: newAccount, error: insertError } = await supabase
                             .from('accounts')
@@ -595,11 +597,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             })
                             .select()
                             .single();
-                        
+
                         if (insertError) {
                             console.error('Error creating Physical Cash account:', insertError);
                         } else if (newAccount) {
-                            setAccounts([dbAccountToAccount(newAccount)]);
+                            setAccounts(prev => [...prev, dbAccountToAccount(newAccount)]);
                         }
                     }
                 }
@@ -1577,7 +1579,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             addFnoTrade,
             updateFnoTrade,
             deleteFnoTrade,
-            refreshPortfolio
+            refreshPortfolio,
+            isTransactionModalOpen,
+            setIsTransactionModalOpen
         }}>
             {children}
         </FinanceContext.Provider>

@@ -41,7 +41,8 @@ export default function MutualFundsClient() {
         deleteMutualFundTransaction,
         settings,
         loading,
-        refreshPortfolio
+        refreshPortfolio,
+        setIsTransactionModalOpen
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
@@ -65,6 +66,7 @@ export default function MutualFundsClient() {
     const [units, setUnits] = useState('');
     const [avgNav, setAvgNav] = useState('');
     const [currentNav, setCurrentNav] = useState('');
+    const [previousNav, setPreviousNav] = useState<number | null>(null);
     const [isin, setIsin] = useState('');
     const [folioNumber, setFolioNumber] = useState('');
 
@@ -145,6 +147,7 @@ export default function MutualFundsClient() {
             const data = await res.json();
             if (data.currentNav) {
                 setCurrentNav(data.currentNav.toString());
+                setPreviousNav(data.previousNav || data.currentNav);
                 setCategory(data.category);
             }
         } catch (error) {
@@ -169,6 +172,7 @@ export default function MutualFundsClient() {
             units: unitsVal,
             avgNav: avgNavVal,
             currentNav: curNavVal,
+            previousNav: previousNav || curNavVal,
             investmentAmount: investment,
             currentValue,
             pnl: currentValue - investment,
@@ -197,6 +201,7 @@ export default function MutualFundsClient() {
         setUnits(mf.units.toString());
         setAvgNav(mf.avgNav.toString());
         setCurrentNav(mf.currentNav.toString());
+        setPreviousNav(mf.previousNav || mf.currentNav);
         setIsin(mf.isin || '');
         setFolioNumber(mf.folioNumber || '');
         setIsModalOpen(true);
@@ -252,6 +257,7 @@ export default function MutualFundsClient() {
         setUnits('');
         setAvgNav('');
         setCurrentNav('');
+        setPreviousNav(null);
         setSearchQuery('');
     };
 
@@ -295,11 +301,6 @@ export default function MutualFundsClient() {
                         title="Refresh NAVs"
                     >
                         <Zap size={20} className={isRefreshing ? 'spin-animation' : ''} fill={isRefreshing ? 'none' : 'currentColor'} />
-                    </button>
-                    <button onClick={() => { setModalType('transaction'); setIsModalOpen(true); }} style={{
-                        padding: '14px 28px', borderRadius: '16px', background: '#0f172a', color: '#fff', border: '1px solid #1e293b', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', transition: '0.2s'
-                    }}>
-                        <Activity size={18} color="#10b981" /> Add Transaction
                     </button>
                     <button onClick={() => { setModalType('fund'); setIsModalOpen(true); }} style={{
                         padding: '14px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: 'white', border: 'none', fontWeight: '700', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)'

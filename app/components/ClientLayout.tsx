@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import { AuthProvider, useAuth } from './AuthContext';
-import { FinanceProvider } from './FinanceContext';
+import { FinanceProvider, useFinance } from './FinanceContext';
 import { NotificationProvider } from './NotificationContext';
+import AddTransactionModal from './AddTransactionModal';
 
 import { Menu, X, Command } from 'lucide-react';
 
@@ -63,6 +64,7 @@ function AuthConsumer({ children, isAuthPage }: { children: React.ReactNode, isA
 
     return (
         <FinanceProvider>
+            <TransactionModalWrapper />
             <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#020617', flexDirection: 'column' }}>
                 {!isAuthPage && (
                     <header className="mobile-header">
@@ -100,6 +102,16 @@ function AuthConsumer({ children, isAuthPage }: { children: React.ReactNode, isA
                 </div>
             </div>
         </FinanceProvider>
+    );
+}
+
+function TransactionModalWrapper() {
+    const { isTransactionModalOpen, setIsTransactionModalOpen } = useFinance();
+    return (
+        <AddTransactionModal
+            isOpen={isTransactionModalOpen}
+            onClose={() => setIsTransactionModalOpen(false)}
+        />
     );
 }
 

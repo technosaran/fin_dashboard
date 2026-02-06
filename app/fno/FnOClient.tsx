@@ -47,7 +47,7 @@ import {
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f43f5e', '#14b8a6'];
 
 export default function FnOClient() {
-    const { fnoTrades, addFnoTrade, updateFnoTrade, deleteFnoTrade, loading, accounts } = useFinance();
+    const { fnoTrades, addFnoTrade, updateFnoTrade, deleteFnoTrade, loading, accounts, setIsTransactionModalOpen } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
     const [activeTab, setActiveTab] = useState<'positions' | 'history' | 'lifetime'>('positions');
@@ -198,14 +198,6 @@ export default function FnOClient() {
                     <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '950', margin: 0, letterSpacing: '-2.5px', color: '#fff' }}>FnO Terminal</h1>
                     <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', fontWeight: '600' }}>Derivatives tracking & lifetime analytics</p>
                 </div>
-                <button
-                    onClick={() => setIsModalOpen(true)}
-                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', padding: '16px 32px', borderRadius: '18px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 12px 24px rgba(99, 102, 241, 0.3)', transition: 'all 0.3s' }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.4)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.3)'; }}
-                >
-                    <Plus size={20} strokeWidth={3} /> Log New Trade
-                </button>
             </div>
 
             {/* Quick Stats Banner */}

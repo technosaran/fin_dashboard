@@ -320,25 +320,25 @@ export default function AccountsClient() {
                         </div>
 
                         {/* Accounts Grid */}
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))', gap: '14px' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '10px' }}>
                             {accounts.map((account, idx) => (
                                 <div key={account.id} style={{
                                     background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                                    borderRadius: '18px',
+                                    borderRadius: '16px',
                                     border: '1px solid #1e293b',
-                                    padding: '14px',
+                                    padding: '12px',
                                     position: 'relative',
                                     overflow: 'hidden',
                                     transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
                                     cursor: 'pointer'
                                 }}
                                     onMouseEnter={e => {
-                                        e.currentTarget.style.transform = 'translateY(-8px) scale(1.01)';
+                                        e.currentTarget.style.transform = 'translateY(-4px)';
                                         e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60';
-                                        e.currentTarget.style.boxShadow = `0 20px 40px -12px ${COLORS[idx % COLORS.length]}30, 0 0 0 1px ${COLORS[idx % COLORS.length]}20`;
+                                        e.currentTarget.style.boxShadow = `0 10px 20px -8px ${COLORS[idx % COLORS.length]}30`;
                                     }}
                                     onMouseLeave={e => {
-                                        e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                                        e.currentTarget.style.transform = 'translateY(0)';
                                         e.currentTarget.style.borderColor = '#1e293b';
                                         e.currentTarget.style.boxShadow = 'none';
                                     }}
@@ -349,118 +349,95 @@ export default function AccountsClient() {
                                         position: 'absolute',
                                         top: 0,
                                         right: 0,
-                                        width: '200px',
-                                        height: '200px',
-                                        background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}15 0%, transparent 70%)`,
-                                        filter: 'blur(40px)'
+                                        width: '150px',
+                                        height: '150px',
+                                        background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}10 0%, transparent 70%)`,
+                                        filter: 'blur(30px)'
                                     }} />
 
-                                    {/* Accent line */}
-                                    <div style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        right: 0,
-                                        height: '3px',
-                                        background: `linear-gradient(90deg, ${COLORS[idx % COLORS.length]} 0%, transparent 100%)`,
-                                        borderRadius: '28px 28px 0 0'
-                                    }} />
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px', position: 'relative', zIndex: 1 }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px', position: 'relative', zIndex: 1 }}>
                                         <div style={{
                                             background: `${COLORS[idx % COLORS.length]}15`,
-                                            padding: '10px',
-                                            borderRadius: '12px',
+                                            padding: '8px',
+                                            borderRadius: '10px',
                                             color: COLORS[idx % COLORS.length],
-                                            border: `1px solid ${COLORS[idx % COLORS.length]}30`,
-                                            boxShadow: `0 4px 16px ${COLORS[idx % COLORS.length]}20`
+                                            border: `1px solid ${COLORS[idx % COLORS.length]}20`,
                                         }}>
                                             {getAccountIcon(account.type)}
                                         </div>
-                                        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                        <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                                             <div style={{
-                                                padding: '4px 10px',
+                                                padding: '3px 8px',
                                                 borderRadius: '100px',
                                                 background: 'rgba(255,255,255,0.05)',
                                                 color: '#94a3b8',
-                                                fontSize: '0.65rem',
+                                                fontSize: '0.6rem',
                                                 fontWeight: '800',
                                                 textTransform: 'uppercase',
-                                                letterSpacing: '0.5px',
                                                 border: '1px solid rgba(255,255,255,0.1)',
-                                                backdropFilter: 'blur(8px)'
                                             }}>
                                                 {account.type}
                                             </div>
-                                            {!(account.name.toLowerCase().includes('physical')) && (
+                                            {account.name.toLowerCase() !== 'physical cash' && (
                                                 <button
                                                     onClick={async (e) => {
                                                         e.stopPropagation();
                                                         const isConfirmed = await customConfirm({
                                                             title: 'Delete Account',
-                                                            message: `Are you sure you want to delete ${account.name}? This action cannot be undone.`,
+                                                            message: `Are you sure you want to delete ${account.name}?`,
                                                             confirmLabel: 'Delete',
                                                             type: 'error'
                                                         });
 
                                                         if (isConfirmed) {
                                                             await deleteAccount(account.id);
-                                                            showNotification('success', 'Account deleted successfully');
+                                                            showNotification('success', 'Account deleted');
                                                         }
                                                     }}
                                                     style={{
                                                         background: 'rgba(244, 63, 94, 0.1)',
                                                         border: 'none',
                                                         color: '#f43f5e',
-                                                        padding: '6px',
-                                                        borderRadius: '8px',
+                                                        padding: '5px',
+                                                        borderRadius: '6px',
                                                         cursor: 'pointer',
                                                         display: 'flex',
                                                         alignItems: 'center',
                                                         justifyContent: 'center',
-                                                        transition: 'all 0.2s'
                                                     }}
-                                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'}
-                                                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)'}
-                                                    aria-label={`Delete ${account.name}`}
                                                 >
-                                                    <Trash2 size={14} />
+                                                    <Trash2 size={12} />
                                                 </button>
                                             )}
                                         </div>
                                     </div>
 
-                                    <div style={{ marginBottom: '12px', position: 'relative', zIndex: 1 }}>
-                                        <div style={{ fontSize: 'clamp(0.9rem, 2vw, 1rem)', fontWeight: '800', color: '#fff', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.name}</div>
-                                        <div style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', color: '#94a3b8', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.bankName}</div>
+                                    <div style={{ marginBottom: '10px', position: 'relative', zIndex: 1 }}>
+                                        <div style={{ fontSize: '0.85rem', fontWeight: '800', color: '#fff', marginBottom: '1px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.name}</div>
+                                        <div style={{ fontSize: '0.65rem', color: '#64748b', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{account.bankName}</div>
                                     </div>
 
                                     <div style={{
                                         display: 'flex',
                                         justifyContent: 'space-between',
                                         alignItems: 'flex-end',
-                                        paddingTop: '12px',
+                                        paddingTop: '8px',
                                         borderTop: '1px solid rgba(255,255,255,0.06)',
                                         position: 'relative',
                                         zIndex: 1
                                     }}>
                                         <div>
                                             <div style={{
-                                                color: '#94a3b8',
-                                                fontSize: 'clamp(0.6rem, 1.3vw, 0.65rem)',
+                                                color: '#64748b',
+                                                fontSize: '0.6rem',
                                                 fontWeight: '800',
                                                 textTransform: 'uppercase',
-                                                marginBottom: '4px',
-                                                letterSpacing: '0.5px'
-                                            }}>Available Balance</div>
+                                                marginBottom: '2px',
+                                            }}>Balance</div>
                                             <div style={{
-                                                fontSize: 'clamp(1.3rem, 3vw, 1.6rem)',
+                                                fontSize: '1.2rem',
                                                 fontWeight: '900',
                                                 color: '#fff',
-                                                textShadow: '0 2px 8px rgba(255, 255, 255, 0.1)',
-                                                overflow: 'hidden',
-                                                textOverflow: 'ellipsis',
-                                                whiteSpace: 'nowrap'
                                             }}>
                                                 {account.currency === 'INR' ? '₹' : '$'}{account.balance.toLocaleString()}
                                             </div>
@@ -469,26 +446,16 @@ export default function AccountsClient() {
                                             background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`,
                                             color: '#fff',
                                             border: 'none',
-                                            width: '36px',
-                                            height: '36px',
-                                            borderRadius: '12px',
+                                            width: '30px',
+                                            height: '30px',
+                                            borderRadius: '10px',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
                                             cursor: 'pointer',
-                                            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                            boxShadow: `0 4px 12px ${COLORS[idx % COLORS.length]}40`
-                                        }}
-                                            onMouseEnter={e => {
-                                                e.currentTarget.style.transform = 'scale(1.15)';
-                                                e.currentTarget.style.boxShadow = `0 8px 20px ${COLORS[idx % COLORS.length]}60`;
-                                            }}
-                                            onMouseLeave={e => {
-                                                e.currentTarget.style.transform = 'scale(1)';
-                                                e.currentTarget.style.boxShadow = `0 4px 12px ${COLORS[idx % COLORS.length]}40`;
-                                            }}
-                                            aria-label={`Add funds to ${account.name}`}>
-                                            <Plus size={18} strokeWidth={3} aria-hidden="true" />
+                                            boxShadow: `0 4px 8px ${COLORS[idx % COLORS.length]}30`
+                                        }}>
+                                            <Plus size={16} strokeWidth={3} />
                                         </button>
                                     </div>
                                 </div>
@@ -779,11 +746,11 @@ export default function AccountsClient() {
                         <form onSubmit={handleAddAccount} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 3vw, 24px)' }} aria-label={editId ? 'Edit account form' : 'Add account form'}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="entity-name" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Entity Name</label>
-                                <input id="entity-name" value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="e.g. Primary Savings" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus required aria-required="true" />
+                                <input id="entity-name" value={accountName} onChange={e => setAccountName(e.target.value)} disabled={accountName.toLowerCase() === 'physical cash'} placeholder="e.g. Primary Savings" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: accountName.toLowerCase() === 'physical cash' ? '#64748b' : '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} autoFocus required aria-required="true" />
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label htmlFor="bank-name" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Financial Institution</label>
-                                <input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} placeholder="e.g. HDFC Bank" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
+                                <input id="bank-name" value={bankName} onChange={e => setBankName(e.target.value)} disabled={accountName.toLowerCase() === 'physical cash'} placeholder="e.g. HDFC Bank" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: accountName.toLowerCase() === 'physical cash' ? '#64748b' : '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none' }} required aria-required="true" />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '20px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -795,7 +762,7 @@ export default function AccountsClient() {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <label htmlFor="type-select" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Type</label>
-                                    <select id="type-select" value={accountType} onChange={e => setAccountType(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: 'pointer' }} aria-label="Select account type">
+                                    <select id="type-select" value={accountType} onChange={e => setAccountType(e.target.value)} disabled={accountName.toLowerCase() === 'physical cash'} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: accountName.toLowerCase() === 'physical cash' ? '#64748b' : '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: accountName.toLowerCase() === 'physical cash' ? 'default' : 'pointer' }} aria-label="Select account type">
                                         <option value="Checking">Checking</option>
                                         <option value="Savings">Savings</option>
                                         <option value="Credit Card">Credit Card</option>
