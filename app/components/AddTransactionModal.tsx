@@ -18,11 +18,28 @@ interface StockSearchResult {
     companyName: string;
 }
 
+interface StockQuoteResult {
+    currentPrice: number;
+    previousClose: number;
+    exchange: string;
+}
+
 interface MutualFundSearchResult {
     schemeName: string;
     schemeCode: string;
     shortName?: string;
 }
+
+interface MutualFundQuoteResult {
+    currentNav: number;
+    previousNav: number;
+    category?: string;
+    isin?: string;
+}
+
+type SelectedStockItem = StockSearchResult & StockQuoteResult;
+type SelectedMFItem = MutualFundSearchResult & MutualFundQuoteResult;
+type SelectedItem = SelectedStockItem | SelectedMFItem;
 
 type SearchResult = StockSearchResult | MutualFundSearchResult;
 
@@ -56,7 +73,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
     const [isFetchingQuote, setIsFetchingQuote] = useState(false);
 
     // Selected Item Info
-    const [selectedItem, setSelectedItem] = useState<Stock | MutualFund | null>(null);
+    const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
 
     // Specific Fields
     const [quantity, setQuantity] = useState('');
@@ -157,7 +174,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
     };
 
     const handleStockSubmit = async () => {
-        if (!selectedItem || !quantity || !price) return;
+        if (!selectedItem || !quantity || !price || !('symbol' in selectedItem)) return;
 
         const qty = parseFloat(quantity);
         const p = parseFloat(price);
@@ -170,7 +187,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             // Add to portfolio first
             await addStock({
                 symbol: selectedItem.symbol,
-                companyName: selectedItem.companyName || selectedItem.shortName,
+                companyName: selectedItem.companyName,
                 quantity: qty,
                 avgPrice: p,
                 currentPrice: p,
@@ -218,7 +235,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
     };
 
     const handleMfSubmit = async () => {
-        if (!selectedItem || !quantity || !price) return;
+        if (!selectedItem || !quantity || !price || !('schemeCode' in selectedItem)) return;
 
         const qty = parseFloat(quantity);
         const p = parseFloat(price);
@@ -228,7 +245,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
         if (!existingMf) {
             await addMutualFund({
-                name: selectedItem.schemeName || selectedItem.name,
+                name: selectedItem.schemeName,
                 schemeCode: selectedItem.schemeCode,
                 category: selectedItem.category,
                 units: qty,
@@ -377,8 +394,8 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     {selectedItem && (
                         <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(99, 102, 241, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: '800' }}>{selectedItem.symbol || selectedItem.schemeName}</div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{selectedItem.companyName || selectedItem.shortName || selectedItem.category}</div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '800' }}>{'symbol' in selectedItem ? selectedItem.symbol : selectedItem.schemeName}</div>
+                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{'companyName' in selectedItem ? selectedItem.companyName : (selectedItem.shortName || selectedItem.category)}</div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ fontSize: '1rem', fontWeight: '900', color: '#10b981' }}>₹{price}</div>
@@ -390,7 +407,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div>
                             <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Transaction Type</label>
-                            <select value={subType} onChange={e => setSubType(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                            <select value={subType} onChange={e => setSubType(e.target.value as 'BUY' | 'SELL' | 'SIP')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
                                 <option value="BUY">BUY</option>
                                 <option value="SELL">SELL</option>
                                 {type === 'MUTUAL_FUND' && <option value="SIP">SIP</option>}

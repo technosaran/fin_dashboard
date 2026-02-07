@@ -45,6 +45,7 @@ export default function StocksClient() {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
 
     // Form States
     const [symbol, setSymbol] = useState('');
@@ -284,7 +285,7 @@ export default function StocksClient() {
             });
         }
         return acc;
-    }, [] as Array<{ name: string; value: number; investment: number; pnl: number }>);
+    }, [] as Array<{ sector: string; value: number; investment: number; pnl: number }>);
 
     if (loading) {
         return (
@@ -385,7 +386,7 @@ export default function StocksClient() {
                 ].map(tab => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as 'overview' | 'transactions' | 'lifetime')}
+                        onClick={() => setActiveTab(tab.id as 'portfolio' | 'allocation' | 'history' | 'lifetime')}
                         style={{
                             padding: '12px 24px',
                             borderRadius: '12px',
@@ -757,7 +758,7 @@ export default function StocksClient() {
                                                 {searchResults.map((item, idx) => (
                                                     <div key={idx} onClick={() => selectStock(item)} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #1e293b' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                                         <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#fff' }}>{item.symbol}</div>
-                                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.companyName} ({item.exchange})</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.companyName}</div>
                                                     </div>
                                                 ))}
                                             </div>

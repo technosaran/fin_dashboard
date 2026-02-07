@@ -52,6 +52,7 @@ export default function MutualFundsClient() {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
 
     // Fund Form States
     const [fundName, setFundName] = useState('');
@@ -338,7 +339,7 @@ export default function MutualFundsClient() {
                 ].map(tab => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as 'overview' | 'transactions' | 'lifetime')}
+                        onClick={() => setActiveTab(tab.id as 'holdings' | 'allocation' | 'history' | 'lifetime')}
                         style={{
                             padding: '12px 24px',
                             borderRadius: '14px',

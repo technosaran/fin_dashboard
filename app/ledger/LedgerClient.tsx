@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { useFinance } from '../components/FinanceContext';
+import { useFinance, Transaction } from '../components/FinanceContext';
 import { exportTransactionsToCSV } from '../../lib/exportUtils';
 import {
     Book,
@@ -199,7 +199,7 @@ export default function LedgerClient() {
                                 }
                             `}</style>
                             <Calendar
-                                onChange={(value: Date | null) => setSelectedDate(value)}
+                                onChange={(value) => setSelectedDate(value as Date)}
                                 value={selectedDate}
                                 className="compact-calendar"
                             />

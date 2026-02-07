@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import { useFinance } from '../components/FinanceContext';
+import { useFinance, Transaction } from '../components/FinanceContext';
 import { useNotifications } from '../components/NotificationContext';
 import {
     Plus,
