@@ -45,7 +45,6 @@ export default function StocksClient() {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
 
     // Form States
     const [symbol, setSymbol] = useState('');
@@ -102,7 +101,6 @@ export default function StocksClient() {
         setSearchQuery(item.symbol);
 
         // Fetch real-time quote
-        setIsFetchingQuote(true);
         try {
             const res = await fetch(`/api/stocks/quote?symbol=${item.symbol}`);
             const data = await res.json();
@@ -113,8 +111,6 @@ export default function StocksClient() {
             }
         } catch (error) {
             console.error('Quote fetch failed:', error);
-        } finally {
-            setIsFetchingQuote(false);
         }
     };
 

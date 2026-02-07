@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Info } from 'lucide-react';
-import { useFinance, Stock, MutualFund } from './FinanceContext';
+import { useFinance } from './FinanceContext';
 import { useNotifications } from './NotificationContext';
 import { calculateStockCharges } from './FinanceContext';
 

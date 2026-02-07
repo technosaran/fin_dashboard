@@ -52,7 +52,6 @@ export default function MutualFundsClient() {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
-    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
 
     // Fund Form States
     const [fundName, setFundName] = useState('');
@@ -136,7 +135,6 @@ export default function MutualFundsClient() {
         setShowResults(false);
         setSearchQuery(fund.schemeName);
 
-        setIsFetchingQuote(true);
         try {
             const res = await fetch(`/api/mf/quote?code=${fund.schemeCode}`);
             const data = await res.json();
@@ -147,8 +145,6 @@ export default function MutualFundsClient() {
             }
         } catch (error) {
             console.error('MF Quote fetch failed:', error);
-        } finally {
-            setIsFetchingQuote(false);
         }
     };
 
