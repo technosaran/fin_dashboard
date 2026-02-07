@@ -701,6 +701,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }, 60000);
 
         return () => clearInterval(interval);
+    // refreshPortfolio and settings are intentionally excluded to prevent infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, authLoading]);
 

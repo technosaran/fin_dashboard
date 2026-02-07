@@ -75,6 +75,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         if (!isOpen) {
             resetForm();
         }
+    // resetForm is intentionally excluded to prevent infinite re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
@@ -113,6 +114,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             }
         }, 500);
         return () => clearTimeout(timer);
+    // handleSearch and selectedItem are intentionally excluded to prevent re-renders
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, type]);
 
