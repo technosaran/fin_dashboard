@@ -72,7 +72,7 @@ export default function LedgerClient() {
         setEditId(null);
     };
 
-    const handleEdit = (tx: any) => {
+    const handleEdit = (tx: Transaction) => {
         setEditId(tx.id);
         setDescription(tx.description);
         setCategory(tx.category);
@@ -204,7 +204,7 @@ export default function LedgerClient() {
                                 }
                             `}</style>
                             <Calendar
-                                onChange={(value: any) => setSelectedDate(value)}
+                                onChange={(value: Date | null) => setSelectedDate(value)}
                                 value={selectedDate}
                                 className="compact-calendar"
                             />

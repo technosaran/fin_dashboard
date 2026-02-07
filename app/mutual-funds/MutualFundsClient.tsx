@@ -53,7 +53,7 @@ export default function MutualFundsClient() {
 
     // Search & Data Fetching States
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<Array<{ schemeName: string; schemeCode: string }>>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFetchingQuote, setIsFetchingQuote] = useState(false);
@@ -88,8 +88,8 @@ export default function MutualFundsClient() {
     }, 0);
 
     // Lifetime Metrics Calculation
-    const totalBuys = mutualFundTransactions.filter((t: any) => t.transactionType === 'BUY' || t.transactionType === 'SIP').reduce((sum: number, t: any) => sum + t.totalAmount, 0);
-    const totalSells = mutualFundTransactions.filter((t: any) => t.transactionType === 'SELL').reduce((sum: number, t: any) => sum + t.totalAmount, 0);
+    const totalBuys = mutualFundTransactions.filter((t: MutualFundTransaction) => t.transactionType === 'BUY' || t.transactionType === 'SIP').reduce((sum: number, t: MutualFundTransaction) => sum + t.totalAmount, 0);
+    const totalSells = mutualFundTransactions.filter((t: MutualFundTransaction) => t.transactionType === 'SELL').reduce((sum: number, t: MutualFundTransaction) => sum + t.totalAmount, 0);
 
     // Lifetime Earned = (Total Sells + Current Value) - Total Buys
     const lifetimeEarned = (totalSells + totalCurrentValue) - totalBuys;
@@ -109,7 +109,7 @@ export default function MutualFundsClient() {
         if (existing) existing.value += mf.currentValue;
         else acc.push({ name: cat, value: mf.currentValue });
         return acc;
-    }, [] as any[]);
+    }, [] as Array<{ name: string; value: number }>);
 
     // Debounced Search
     useEffect(() => {
@@ -135,7 +135,7 @@ export default function MutualFundsClient() {
         }
     };
 
-    const selectFund = async (fund: any) => {
+    const selectFund = async (fund: { schemeName: string; schemeCode: string }) => {
         setFundName(fund.schemeName);
         setSchemeCode(fund.schemeCode);
         setShowResults(false);
@@ -344,7 +344,7 @@ export default function MutualFundsClient() {
                 ].map(tab => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id as 'overview' | 'transactions' | 'lifetime')}
                         style={{
                             padding: '12px 24px',
                             borderRadius: '14px',
@@ -378,7 +378,7 @@ export default function MutualFundsClient() {
                                         <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Units</th>
                                         <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg. NAV</th>
                                         <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Curr. NAV</th>
-                                        <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day's P&L</th>
+                                        <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day&apos;s P&L</th>
                                         <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Amount</th>
                                         <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Returns</th>
                                         <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>
@@ -572,7 +572,7 @@ export default function MutualFundsClient() {
                 activeTab === 'history' && (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                         <h3 style={{ fontSize: '1.2rem', fontWeight: '800', margin: 0 }}>Investment History</h3>
-                        {mutualFundTransactions.map((t: any) => {
+                        {mutualFundTransactions.map((t: MutualFundTransaction) => {
                             const fund = mutualFunds.find(f => f.id === t.mutualFundId);
                             return (
                                 <div key={t.id} style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -707,7 +707,7 @@ export default function MutualFundsClient() {
                                         </div>
                                         {showResults && searchResults.length > 0 && (
                                             <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', marginTop: '12px', zIndex: 1100, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
-                                                {searchResults.map((fund: any) => (
+                                                {searchResults.map((fund: { schemeName: string; schemeCode: string }) => (
                                                     <div key={fund.schemeCode} onClick={() => selectFund(fund)} style={{ padding: '16px', cursor: 'pointer', borderBottom: '1px solid #1e293b' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                                         <div style={{ fontWeight: '700', color: '#fff', fontSize: '0.9rem' }}>{fund.schemeName}</div>
                                                         <div style={{ fontSize: '0.7rem', color: '#64748b' }}>Code: {fund.schemeCode}</div>
@@ -749,7 +749,7 @@ export default function MutualFundsClient() {
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Type</label>
-                                            <select value={transactionType} onChange={e => setTransactionType(e.target.value as any)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                                            <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'BUY' | 'SELL' | 'SIP')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
                                                 <option value="BUY">BUY</option>
                                                 <option value="SELL">SELL</option>
                                                 <option value="SIP">SIP</option>

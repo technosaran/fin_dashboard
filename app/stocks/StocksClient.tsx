@@ -48,7 +48,7 @@ export default function StocksClient() {
 
     // Search States
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<Array<{ symbol: string; companyName: string }>>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFetchingQuote, setIsFetchingQuote] = useState(false);
@@ -102,7 +102,7 @@ export default function StocksClient() {
         }
     };
 
-    const selectStock = async (item: any) => {
+    const selectStock = async (item: { symbol: string; companyName: string }) => {
         setSymbol(item.symbol);
         setCompanyName(item.companyName);
         setShowResults(false);
@@ -293,7 +293,7 @@ export default function StocksClient() {
             });
         }
         return acc;
-    }, [] as any[]);
+    }, [] as Array<{ name: string; value: number; investment: number; pnl: number }>);
 
     if (loading) {
         return (
@@ -394,7 +394,7 @@ export default function StocksClient() {
                 ].map(tab => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id as 'overview' | 'transactions' | 'lifetime')}
                         style={{
                             padding: '12px 24px',
                             borderRadius: '12px',
@@ -428,7 +428,7 @@ export default function StocksClient() {
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg. cost</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>LTP</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Cur. value</th>
-                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day's P&L</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day&apos;s P&L</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>P&L</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Net chg.</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>

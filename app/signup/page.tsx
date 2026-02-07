@@ -49,8 +49,8 @@ export default function SignupPage() {
             if (authError) throw authError;
 
             setSuccess(true);
-        } catch (err: any) {
-            setError(err.message || 'Signup failed');
+        } catch (err: unknown) {
+            setError(err instanceof Error ? err.message : 'Signup failed');
             setIsLoading(false);
         }
     };
@@ -92,7 +92,7 @@ export default function SignupPage() {
                     </div>
                     <h1 style={{ fontSize: '1.75rem', fontWeight: '800', marginBottom: '16px' }}>Check your email</h1>
                     <p style={{ color: '#94a3b8', lineHeight: '1.6', marginBottom: '32px' }}>
-                        We've sent a confirmation link to <strong>{email}</strong>. Please check your inbox to activate your account.
+                        We&apos;ve sent a confirmation link to <strong>{email}</strong>. Please check your inbox to activate your account.
                     </p>
                     <Link href="/login" style={{
                         display: 'inline-block',

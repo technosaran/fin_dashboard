@@ -85,11 +85,11 @@ export default function FnOClient() {
     // Graph Data
     const pnlTrend = useMemo(() => {
         const closed = [...tradeHistory].sort((a, b) => new Date(a.exitDate!).getTime() - new Date(b.exitDate!).getTime());
-        let runningPnl = 0;
-        return closed.map(t => {
-            runningPnl += t.pnl;
-            return { date: t.exitDate, pnl: runningPnl };
-        });
+        return closed.reduce((acc: { date: string; pnl: number }[], t) => {
+            const previousPnl = acc.length > 0 ? acc[acc.length - 1].pnl : 0;
+            acc.push({ date: t.exitDate!, pnl: previousPnl + t.pnl });
+            return acc;
+        }, []);
     }, [tradeHistory]);
 
     const handleAction = async (e: React.FormEvent) => {

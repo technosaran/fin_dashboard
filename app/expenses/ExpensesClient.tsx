@@ -163,7 +163,7 @@ export default function ExpensesClient() {
         setEditId(null);
     };
 
-    const handleEdit = (ex: any) => {
+    const handleEdit = (ex: Transaction) => {
         setEditId(ex.id);
         setDescription(ex.description);
         setCategory(ex.category);
