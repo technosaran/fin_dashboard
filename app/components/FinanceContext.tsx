@@ -15,6 +15,23 @@ type AccountRow = {
     [key: string]: unknown;
 };
 
+type AppSettingsRow = {
+    user_id: string;
+    brokerage_type: string;
+    brokerage_value: number;
+    stt_rate: number;
+    transaction_charge_rate: number;
+    sebi_charge_rate: number;
+    stamp_duty_rate: number;
+    gst_rate: number;
+    dp_charges: number;
+    auto_calculate_charges: boolean;
+    default_stock_account_id?: number | null;
+    default_mf_account_id?: number | null;
+    default_salary_account_id?: number | null;
+    [key: string]: unknown;
+};
+
 type TransactionRow = {
     id: number;
     date: string;
@@ -366,8 +383,14 @@ export const calculateStockCharges = (
     };
 };
 
+type SupabaseClient = typeof supabase;
+type ExtendedSupabaseClient = SupabaseClient & {
+    from(table: 'fno_trades'): ReturnType<SupabaseClient['from']>;
+    from(table: 'app_settings'): ReturnType<SupabaseClient['from']>;
+};
+
 // Helper functions to convert between database and app types
-const dbSettingsToSettings = (dbSettings: any): AppSettings => ({
+const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings => ({
     brokerageType: dbSettings.brokerage_type as 'flat' | 'percentage',
     brokerageValue: Number(dbSettings.brokerage_value),
     sttRate: Number(dbSettings.stt_rate),
@@ -570,8 +593,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     supabase.from('watchlist').select('*').order('symbol', { ascending: true }),
                     supabase.from('mutual_funds').select('*').order('name', { ascending: true }),
                     supabase.from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
-                    (supabase as any).from('fno_trades').select('*').order('entry_date', { ascending: false }),
-                    (supabase as any).from('app_settings').select('*').eq('user_id', user.id).maybeSingle()
+                    (supabase as ExtendedSupabaseClient).from('fno_trades').select('*').order('entry_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('app_settings').select('*').eq('user_id', user.id).maybeSingle()
                 ]);
 
                 if (accountsError) console.error('Error loading accounts:', accountsError);
@@ -638,7 +661,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 } else if (!settingsData) {
                     // Create settings in DB if they don't exist
                     console.log('No settings found in DB, creating for user:', user.id);
-                    const { data: newSettingsData, error: insertError } = await (supabase as any)
+                    const { data: newSettingsData, error: insertError } = await (supabase as ExtendedSupabaseClient)
                         .from('app_settings')
                         .insert({
                             user_id: user.id,
@@ -678,6 +701,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }, 60000);
 
         return () => clearInterval(interval);
+    // refreshPortfolio and settings are intentionally excluded to prevent infinite loops
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, authLoading]);
 
     const refreshPortfolio = async () => {
@@ -777,7 +802,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             return;
         }
 
-        const { error } = await (supabase as any)
+        const { error } = await (supabase as ExtendedSupabaseClient)
             .from('app_settings')
             .update({
                 brokerage_type: newSettings.brokerageType,
@@ -957,7 +982,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setTransactions(prev => prev.filter(t => t.id !== id));
     };
 
-    const addFunds = async (accountId: number, amount: number, description: string, category: string) => {
+    const addFunds = async (accountId: number, amount: number) => {
         // Update account balance
         const account = accounts.find(acc => acc.id === accountId);
         if (!account) return;
@@ -1447,7 +1472,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         // Ledger Registry is now handled by backend triggers
 
 
-        const { data, error } = await (supabase as any)
+        const { data, error } = await (supabase as ExtendedSupabaseClient)
             .from('fno_trades')
             .insert({
                 instrument: tradeData.instrument,
@@ -1488,7 +1513,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         // Ledger Registry is now handled by backend triggers
 
 
-        const { error } = await (supabase as any)
+        const { error } = await (supabase as ExtendedSupabaseClient)
             .from('fno_trades')
             .update({
                 instrument: updatedTrade.instrument,
@@ -1523,7 +1548,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const deleteFnoTrade = async (id: number) => {
-        const { error } = await (supabase as any)
+        const { error } = await (supabase as ExtendedSupabaseClient)
             .from('fno_trades')
             .delete()
             .eq('id', id);

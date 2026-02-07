@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Calendar, Info } from 'lucide-react';
-import { useFinance, Stock, MutualFund } from './FinanceContext';
+import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Info } from 'lucide-react';
+import { useFinance } from './FinanceContext';
 import { useNotifications } from './NotificationContext';
 import { calculateStockCharges } from './FinanceContext';
 
@@ -12,6 +12,36 @@ interface AddTransactionModalProps {
 }
 
 type TransactionType = 'STOCK' | 'MUTUAL_FUND' | 'FNO';
+
+interface StockSearchResult {
+    symbol: string;
+    companyName: string;
+}
+
+interface StockQuoteResult {
+    currentPrice: number;
+    previousClose: number;
+    exchange: string;
+}
+
+interface MutualFundSearchResult {
+    schemeName: string;
+    schemeCode: string;
+    shortName?: string;
+}
+
+interface MutualFundQuoteResult {
+    currentNav: number;
+    previousNav: number;
+    category?: string;
+    isin?: string;
+}
+
+type SelectedStockItem = StockSearchResult & StockQuoteResult;
+type SelectedMFItem = MutualFundSearchResult & MutualFundQuoteResult;
+type SelectedItem = SelectedStockItem | SelectedMFItem;
+
+type SearchResult = StockSearchResult | MutualFundSearchResult;
 
 export default function AddTransactionModal({ isOpen, onClose }: AddTransactionModalProps) {
     const {
@@ -37,14 +67,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
     // Search / Selection
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFetchingQuote, setIsFetchingQuote] = useState(false);
 
     // Selected Item Info
-    const [selectedItem, setSelectedItem] = useState<any>(null);
-    const [isNewItem, setIsNewItem] = useState(false);
+    const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
 
     // Specific Fields
     const [quantity, setQuantity] = useState('');
@@ -63,12 +92,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         if (!isOpen) {
             resetForm();
         }
+    // resetForm is intentionally excluded to prevent infinite re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const resetForm = () => {
         setSearchQuery('');
         setSelectedItem(null);
-        setIsNewItem(false);
         setQuantity('');
         setPrice('');
         setPreviousPrice(null);
@@ -101,22 +131,23 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             }
         }, 500);
         return () => clearTimeout(timer);
+    // handleSearch and selectedItem are intentionally excluded to prevent re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, type]);
 
-    const selectItem = async (item: any) => {
-        setIsNewItem(false);
-        setSearchQuery(item.symbol || item.schemeName);
+    const selectItem = async (item: SearchResult) => {
+        setSearchQuery('symbol' in item ? item.symbol : item.schemeName);
         setShowResults(false);
         setIsFetchingQuote(true);
 
         try {
-            if (type === 'STOCK') {
+            if (type === 'STOCK' && 'symbol' in item) {
                 const res = await fetch(`/api/stocks/quote?symbol=${item.symbol}`);
                 const data = await res.json();
                 setSelectedItem({ ...item, ...data });
                 setPrice(data.currentPrice.toString());
                 setPreviousPrice(data.previousClose || data.currentPrice);
-            } else {
+            } else if (type === 'MUTUAL_FUND' && 'schemeCode' in item) {
                 const res = await fetch(`/api/mf/quote?code=${item.schemeCode}`);
                 const data = await res.json();
                 setSelectedItem({ ...item, ...data });
@@ -143,7 +174,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
     };
 
     const handleStockSubmit = async () => {
-        if (!selectedItem || !quantity || !price) return;
+        if (!selectedItem || !quantity || !price || !('symbol' in selectedItem)) return;
 
         const qty = parseFloat(quantity);
         const p = parseFloat(price);
@@ -156,7 +187,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             // Add to portfolio first
             await addStock({
                 symbol: selectedItem.symbol,
-                companyName: selectedItem.companyName || selectedItem.shortName,
+                companyName: selectedItem.companyName,
                 quantity: qty,
                 avgPrice: p,
                 currentPrice: p,
@@ -181,14 +212,14 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         let finalTaxes = taxes ? parseFloat(taxes) : undefined;
 
         if (settings.autoCalculateCharges && qty && p) {
-            const calculated = calculateStockCharges(subType as any, qty, p, settings);
+            const calculated = calculateStockCharges(subType as 'BUY' | 'SELL', qty, p, settings);
             finalBrokerage = calculated.brokerage;
             finalTaxes = calculated.taxes;
         }
 
         await addStockTransaction({
             stockId: existingStock.id,
-            transactionType: subType as any,
+            transactionType: subType as 'BUY' | 'SELL',
             quantity: qty,
             price: p,
             totalAmount: total,
@@ -204,7 +235,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
     };
 
     const handleMfSubmit = async () => {
-        if (!selectedItem || !quantity || !price) return;
+        if (!selectedItem || !quantity || !price || !('schemeCode' in selectedItem)) return;
 
         const qty = parseFloat(quantity);
         const p = parseFloat(price);
@@ -214,7 +245,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
         if (!existingMf) {
             await addMutualFund({
-                name: selectedItem.schemeName || selectedItem.name,
+                name: selectedItem.schemeName,
                 schemeCode: selectedItem.schemeCode,
                 category: selectedItem.category,
                 units: qty,
@@ -234,7 +265,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
         await addMutualFundTransaction({
             mutualFundId: existingMf.id,
-            transactionType: subType as any,
+            transactionType: subType as 'BUY' | 'SELL' | 'SIP',
             units: qty,
             nav: p,
             totalAmount: total,
@@ -261,7 +292,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
         await addFnoTrade({
             instrument: searchQuery,
-            tradeType: subType as any,
+            tradeType: subType as 'BUY' | 'SELL',
             product: fnoProduct,
             quantity: qty,
             avgPrice: entryP,
@@ -302,7 +333,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     ].map(t => (
                         <button
                             key={t.id}
-                            onClick={() => { setType(t.id as any); resetForm(); }}
+                            onClick={() => { setType(t.id as TransactionType); resetForm(); }}
                             style={{
                                 padding: '10px',
                                 borderRadius: '12px',
@@ -344,16 +375,16 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
                         {showResults && searchResults.length > 0 && (
                             <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#0f172a', border: '1px solid #1e293b', borderRadius: '16px', marginTop: '8px', zIndex: 2100, maxHeight: '200px', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}>
-                                {searchResults.map((item: any) => (
+                                {searchResults.map((item: SearchResult) => (
                                     <div
-                                        key={item.symbol || item.schemeCode}
+                                        key={'symbol' in item ? item.symbol : item.schemeCode}
                                         onClick={() => selectItem(item)}
                                         style={{ padding: '14px 16px', cursor: 'pointer', borderBottom: '1px solid #1e293b' }}
                                         onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                                     >
-                                        <div style={{ fontWeight: '700', color: '#fff', fontSize: '0.9rem' }}>{item.symbol || item.schemeName}</div>
-                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{item.companyName || item.shortName || `Code: ${item.schemeCode}`}</div>
+                                        <div style={{ fontWeight: '700', color: '#fff', fontSize: '0.9rem' }}>{'symbol' in item ? item.symbol : item.schemeName}</div>
+                                        <div style={{ fontSize: '0.7rem', color: '#64748b' }}>{'companyName' in item ? item.companyName : item.shortName || `Code: ${item.schemeCode}`}</div>
                                     </div>
                                 ))}
                             </div>
@@ -363,8 +394,8 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     {selectedItem && (
                         <div style={{ background: 'rgba(99, 102, 241, 0.05)', padding: '16px', borderRadius: '16px', border: '1px solid rgba(99, 102, 241, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: '800' }}>{selectedItem.symbol || selectedItem.schemeName}</div>
-                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{selectedItem.companyName || selectedItem.shortName || selectedItem.category}</div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '800' }}>{'symbol' in selectedItem ? selectedItem.symbol : selectedItem.schemeName}</div>
+                                <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{'companyName' in selectedItem ? selectedItem.companyName : (selectedItem.shortName || selectedItem.category)}</div>
                             </div>
                             <div style={{ textAlign: 'right' }}>
                                 <div style={{ fontSize: '1rem', fontWeight: '900', color: '#10b981' }}>₹{price}</div>
@@ -376,7 +407,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div>
                             <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Transaction Type</label>
-                            <select value={subType} onChange={e => setSubType(e.target.value as any)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                            <select value={subType} onChange={e => setSubType(e.target.value as 'BUY' | 'SELL' | 'SIP')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
                                 <option value="BUY">BUY</option>
                                 <option value="SELL">SELL</option>
                                 {type === 'MUTUAL_FUND' && <option value="SIP">SIP</option>}
@@ -404,14 +435,14 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                                 <div>
                                     <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Product</label>
-                                    <select value={fnoProduct} onChange={e => setFnoProduct(e.target.value as any)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                                    <select value={fnoProduct} onChange={e => setFnoProduct(e.target.value as 'NRML' | 'MIS')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
                                         <option value="NRML">NRML</option>
                                         <option value="MIS">MIS</option>
                                     </select>
                                 </div>
                                 <div>
                                     <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Status</label>
-                                    <select value={fnoStatus} onChange={e => setFnoStatus(e.target.value as any)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                                    <select value={fnoStatus} onChange={e => setFnoStatus(e.target.value as 'OPEN' | 'CLOSED')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
                                         <option value="OPEN">OPEN POSITION</option>
                                         <option value="CLOSED">CLOSED TRADE</option>
                                     </select>

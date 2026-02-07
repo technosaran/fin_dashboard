@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Area, AreaChart } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance, Stock, calculateStockCharges } from '../components/FinanceContext';
 import {
     TrendingUp,
@@ -10,22 +10,16 @@ import {
     Plus,
     X,
     Search,
-    Eye,
     DollarSign,
     BarChart3,
     Activity,
-    Target,
-    AlertCircle,
-    CheckCircle2,
     ArrowUpRight,
     ArrowDownRight,
     Zap,
     Star,
-    ExternalLink,
     Loader2,
     History,
     Calendar,
-    Wallet,
     Edit3,
     Trash2,
     ArrowRight,
@@ -37,8 +31,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
 export default function StocksClient() {
     const {
         accounts, stocks, stockTransactions, addStock, updateStock, deleteStock,
-        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio,
-        setIsTransactionModalOpen
+        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
     const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime' | 'allocation'>('portfolio');
@@ -48,10 +41,9 @@ export default function StocksClient() {
 
     // Search States
     const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<any[]>([]);
+    const [searchResults, setSearchResults] = useState<Array<{ symbol: string; companyName: string }>>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
-    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Form States
@@ -102,14 +94,13 @@ export default function StocksClient() {
         }
     };
 
-    const selectStock = async (item: any) => {
+    const selectStock = async (item: { symbol: string; companyName: string }) => {
         setSymbol(item.symbol);
         setCompanyName(item.companyName);
         setShowResults(false);
         setSearchQuery(item.symbol);
 
         // Fetch real-time quote
-        setIsFetchingQuote(true);
         try {
             const res = await fetch(`/api/stocks/quote?symbol=${item.symbol}`);
             const data = await res.json();
@@ -120,8 +111,6 @@ export default function StocksClient() {
             }
         } catch (error) {
             console.error('Quote fetch failed:', error);
-        } finally {
-            setIsFetchingQuote(false);
         }
     };
 
@@ -255,7 +244,6 @@ export default function StocksClient() {
     const totalInvestment = stocks.reduce((sum, stock) => sum + stock.investmentAmount, 0);
     const totalCurrentValue = stocks.reduce((sum, stock) => sum + stock.currentValue, 0);
     const totalPnL = totalCurrentValue - totalInvestment;
-    const totalPnLPercentage = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
     const totalDayPnL = stocks.reduce((sum, stock) => {
         const dayChange = (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
         return sum + dayChange;
@@ -293,7 +281,7 @@ export default function StocksClient() {
             });
         }
         return acc;
-    }, [] as any[]);
+    }, [] as Array<{ sector: string; value: number; investment: number; pnl: number }>);
 
     if (loading) {
         return (
@@ -394,7 +382,7 @@ export default function StocksClient() {
                 ].map(tab => (
                     <button
                         key={tab.id}
-                        onClick={() => setActiveTab(tab.id as any)}
+                        onClick={() => setActiveTab(tab.id as 'portfolio' | 'allocation' | 'history' | 'lifetime')}
                         style={{
                             padding: '12px 24px',
                             borderRadius: '12px',
@@ -428,7 +416,7 @@ export default function StocksClient() {
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Avg. cost</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>LTP</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Cur. value</th>
-                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day's P&L</th>
+                                    <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Day&apos;s P&L</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>P&L</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'right' }}>Net chg.</th>
                                     <th style={{ padding: '16px 24px', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', fontSize: '0.7rem', textAlign: 'center' }}>Actions</th>
@@ -539,7 +527,6 @@ export default function StocksClient() {
                                             cx = 0,
                                             cy = 0,
                                             midAngle = 0,
-                                            innerRadius = 0,
                                             outerRadius = 0,
                                             value = 0,
                                             index = 0
@@ -767,7 +754,7 @@ export default function StocksClient() {
                                                 {searchResults.map((item, idx) => (
                                                     <div key={idx} onClick={() => selectStock(item)} style={{ padding: '12px 16px', cursor: 'pointer', borderBottom: '1px solid #1e293b' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                                         <div style={{ fontWeight: '700', fontSize: '0.9rem', color: '#fff' }}>{item.symbol}</div>
-                                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.companyName} ({item.exchange})</div>
+                                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{item.companyName}</div>
                                                     </div>
                                                 ))}
                                             </div>

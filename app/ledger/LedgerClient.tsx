@@ -4,22 +4,17 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { useFinance } from '../components/FinanceContext';
+import { useFinance, Transaction } from '../components/FinanceContext';
 import { exportTransactionsToCSV } from '../../lib/exportUtils';
 import {
     Book,
     Plus,
     X,
     Search,
-    Filter,
     Calendar as CalendarIcon,
     ArrowUpRight,
     ArrowDownRight,
-    MoreHorizontal,
-    ChevronLeft,
-    ChevronRight,
     Download,
-    History,
     Edit3,
     Trash2
 } from 'lucide-react';
@@ -72,7 +67,7 @@ export default function LedgerClient() {
         setEditId(null);
     };
 
-    const handleEdit = (tx: any) => {
+    const handleEdit = (tx: Transaction) => {
         setEditId(tx.id);
         setDescription(tx.description);
         setCategory(tx.category);
@@ -204,7 +199,7 @@ export default function LedgerClient() {
                                 }
                             `}</style>
                             <Calendar
-                                onChange={(value: any) => setSelectedDate(value)}
+                                onChange={(value) => setSelectedDate(value as Date)}
                                 value={selectedDate}
                                 className="compact-calendar"
                             />

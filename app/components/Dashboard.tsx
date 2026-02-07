@@ -6,12 +6,9 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     Target,
-    PieChart as PieIcon,
     Activity,
     ChevronRight,
     Zap,
-    Wallet,
-    TrendingDown,
     Award
 } from 'lucide-react';
 import { useFinance } from './FinanceContext';

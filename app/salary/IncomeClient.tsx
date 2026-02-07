@@ -2,24 +2,17 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { useFinance } from '../components/FinanceContext';
+import { useFinance, Transaction } from '../components/FinanceContext';
 import {
-    Banknote,
     TrendingUp,
     Calendar,
-    Building2,
     Plus,
     X,
-    ArrowUpRight,
     Clock,
-    Zap,
     Briefcase,
     Globe,
     Award,
-    ChevronDown,
-    ArrowRight,
     Heart,
-    Star,
     Coffee,
     Edit3,
     Trash2
@@ -85,7 +78,7 @@ export default function IncomeClient() {
         setEditId(null);
     };
 
-    const handleEdit = (item: any) => {
+    const handleEdit = (item: Transaction) => {
         setEditId(item.id);
         setAmount(item.amount.toString());
         setEmployerName(item.description);
@@ -116,7 +109,7 @@ export default function IncomeClient() {
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '14px', border: '1px solid #1e293b' }}>
                             {['This Year', 'All Time'].map(tab => (
-                                <button key={tab} onClick={() => setActiveTab(tab as any)} aria-pressed={activeTab === tab} style={{
+                                <button key={tab} onClick={() => setActiveTab(tab as 'This Year' | 'All Time')} aria-pressed={activeTab === tab} style={{
                                     padding: '10px 20px', borderRadius: '10px', border: 'none', background: activeTab === tab ? 'linear-gradient(135deg, #334155 0%, #1e293b 100%)' : 'transparent', color: activeTab === tab ? '#fff' : '#64748b', fontWeight: '700', cursor: 'pointer', transition: '0.3s', fontSize: '0.85rem'
                                 }}>{tab}</button>
                             ))}
@@ -343,7 +336,7 @@ export default function IncomeClient() {
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                                 <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Which Bank Account? (Optional)</label>
                                 <select value={selectedAccountId} onChange={e => setSelectedAccountId(e.target.value ? Number(e.target.value) : '')} aria-label="Select bank account" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }}>
-                                    <option value="">Just log it, don't add to bank</option>
+                                    <option value="">Just log it, don&apos;t add to bank</option>
                                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>)}
                                 </select>
                             </div>

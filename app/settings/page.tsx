@@ -4,15 +4,11 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { useFinance, AppSettings } from '../components/FinanceContext';
 import {
-    Settings as SettingsIcon,
     Save,
     Undo,
-    Shield,
     Calculator,
-    CreditCard,
     Layers,
-    Info,
-    CheckCircle2
+    Info
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -24,7 +20,7 @@ export default function SettingsPage() {
         try {
             await updateSettings(localSettings);
             showNotification('success', 'Configuration updated successfully');
-        } catch (error) {
+        } catch {
             showNotification('error', 'Failed to save settings');
         }
     };
