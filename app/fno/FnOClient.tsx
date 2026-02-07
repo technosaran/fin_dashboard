@@ -4,29 +4,13 @@ import { useState, useMemo } from 'react';
 import { useFinance, FnoTrade } from '../components/FinanceContext';
 import { useNotifications } from '../components/NotificationContext';
 import {
-    Activity,
-    Plus,
-    X,
-    Search,
-    Filter,
-    ArrowUpRight,
-    ArrowDownRight,
-    History,
-    PieChart as PieIcon,
-    BarChart3,
     TrendingUp,
-    TrendingDown,
-    Calendar,
-    ChevronLeft,
-    ChevronRight,
+    X,
     Edit3,
     Trash2,
     Zap,
-    Briefcase,
-    LayoutGrid,
     Clock,
     Trophy,
-    Percent,
     ArrowRight
 } from 'lucide-react';
 import {
@@ -35,27 +19,20 @@ import {
     Cell,
     ResponsiveContainer,
     Tooltip as RechartsTooltip,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
     AreaChart,
-    Area
+    Area,
+    CartesianGrid,
+    XAxis
 } from 'recharts';
 
-const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f43f5e', '#14b8a6'];
-
 export default function FnOClient() {
-    const { fnoTrades, addFnoTrade, updateFnoTrade, deleteFnoTrade, loading, accounts, setIsTransactionModalOpen } = useFinance();
+    const { fnoTrades, addFnoTrade, updateFnoTrade, deleteFnoTrade, loading, accounts } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
     const [activeTab, setActiveTab] = useState<'positions' | 'history' | 'lifetime'>('positions');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
-    const [searchQuery, setSearchQuery] = useState('');
 
-    // Form State
     const [instrument, setInstrument] = useState('');
     const [tradeType, setTradeType] = useState<'BUY' | 'SELL'>('BUY');
     const [product, setProduct] = useState<'NRML' | 'MIS'>('NRML');
@@ -273,7 +250,7 @@ export default function FnOClient() {
                                                 <button onClick={() => handleEdit(trade)} title="Modify" style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#fff'}>
                                                     <Edit3 size={16} />
                                                 </button>
-                                                <button onClick={async () => { (await customConfirm({ title: 'Delete Trade', message: 'Remove this position?', type: 'error' })) && deleteFnoTrade(trade.id) }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#f43f5e'}>
+                                                <button onClick={async () => { if (await customConfirm({ title: 'Delete Trade', message: 'Remove this position?', type: 'error' })) { deleteFnoTrade(trade.id); } }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#f43f5e'}>
                                                     <Trash2 size={16} />
                                                 </button>
                                             </div>

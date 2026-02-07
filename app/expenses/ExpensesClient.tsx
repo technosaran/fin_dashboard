@@ -4,27 +4,19 @@ import { useState, useMemo } from 'react';
 import { useFinance } from '../components/FinanceContext';
 import { useNotifications } from '../components/NotificationContext';
 import {
-    LayoutDashboard,
     Plus,
     X,
     Search,
-    Filter,
+    TrendingDown,
     ArrowDownRight,
-    ArrowUpRight,
     PieChart as PieIcon,
     BarChart3,
-    TrendingDown,
-    Calendar,
-    ChevronLeft,
-    ChevronRight,
     Edit3,
     Trash2,
-    DollarSign,
     ShoppingBag,
     Coffee,
     Home,
     Car,
-    Smartphone,
     Utensils,
     Heart,
     Zap,
@@ -38,10 +30,7 @@ import {
     Tooltip,
     BarChart,
     Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Legend
+    XAxis
 } from 'recharts';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f43f5e', '#14b8a6'];
@@ -241,7 +230,7 @@ export default function ExpensesClient() {
                                     paddingAngle={8}
                                     dataKey="value"
                                     stroke="none"
-                                    label={({ cx = 0, cy = 0, midAngle = 0, innerRadius = 0, outerRadius = 0, percent = 0 }) => {
+                                    label={({ cx = 0, cy = 0, midAngle = 0, outerRadius = 0, percent = 0 }) => {
                                         const RADIAN = Math.PI / 180;
                                         const radius = outerRadius + 20;
                                         const x = cx + radius * Math.cos(-midAngle * RADIAN);

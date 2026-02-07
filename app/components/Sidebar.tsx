@@ -15,13 +15,11 @@ import {
     ArrowDownRight,
     Settings,
     LogOut,
-    Command,
-    Plus
+    Command
 } from 'lucide-react';
 
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationContext';
-import { useFinance } from './FinanceContext';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -31,7 +29,6 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
     const { signOut } = useAuth();
-    const { setIsTransactionModalOpen } = useFinance();
     const { confirm: customConfirm } = useNotifications();
 
 

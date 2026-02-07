@@ -144,7 +144,7 @@ export function getClientIP(request: Request): string {
  */
 export function applyRateLimit(request: Request): NextResponse | null {
   const ip = getClientIP(request);
-  const { success, remaining } = rateLimit(ip, 30, 60000); // 30 requests per minute
+  const { success } = rateLimit(ip, 30, 60000); // 30 requests per minute
 
   if (!success) {
     return NextResponse.json(

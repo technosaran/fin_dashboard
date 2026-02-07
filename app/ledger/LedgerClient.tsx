@@ -11,15 +11,10 @@ import {
     Plus,
     X,
     Search,
-    Filter,
     Calendar as CalendarIcon,
     ArrowUpRight,
     ArrowDownRight,
-    MoreHorizontal,
-    ChevronLeft,
-    ChevronRight,
     Download,
-    History,
     Edit3,
     Trash2
 } from 'lucide-react';

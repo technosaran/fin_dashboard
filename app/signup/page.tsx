@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { supabase } from '../../lib/supabase';
 import {
     Command,
@@ -11,13 +10,11 @@ import {
     EyeOff,
     ArrowRight,
     ShieldCheck,
-    Loader2,
-    User
+    Loader2
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function SignupPage() {
-    const router = useRouter();
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');

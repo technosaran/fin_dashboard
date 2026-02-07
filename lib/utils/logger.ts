@@ -5,8 +5,6 @@
 
 import { isDevelopment } from '../config/env';
 
-type LogLevel = 'info' | 'warn' | 'error' | 'debug';
-
 interface LogContext {
   [key: string]: unknown;
 }

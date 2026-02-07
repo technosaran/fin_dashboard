@@ -3,7 +3,7 @@
  * Prevents XSS, injection, and other security vulnerabilities
  */
 
-import { isValidEmail, isValidStockSymbol, isValidMFCode } from '../utils/string';
+import { isValidEmail, isValidMFCode } from '../utils/string';
 
 export interface ValidationResult {
   isValid: boolean;

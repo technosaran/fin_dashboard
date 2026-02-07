@@ -4,22 +4,15 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { useFinance } from '../components/FinanceContext';
 import {
-    Banknote,
     TrendingUp,
     Calendar,
-    Building2,
     Plus,
     X,
-    ArrowUpRight,
     Clock,
-    Zap,
     Briefcase,
     Globe,
     Award,
-    ChevronDown,
-    ArrowRight,
     Heart,
-    Star,
     Coffee,
     Edit3,
     Trash2

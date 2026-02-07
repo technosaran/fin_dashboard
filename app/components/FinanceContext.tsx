@@ -701,6 +701,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }, 60000);
 
         return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, authLoading]);
 
     const refreshPortfolio = async () => {
@@ -980,7 +981,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setTransactions(prev => prev.filter(t => t.id !== id));
     };
 
-    const addFunds = async (accountId: number, amount: number, description: string, category: string) => {
+    const addFunds = async (accountId: number, amount: number) => {
         // Update account balance
         const account = accounts.find(acc => acc.id === accountId);
         if (!account) return;

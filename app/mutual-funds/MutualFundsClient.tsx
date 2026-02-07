@@ -4,16 +4,12 @@ import { useState, useEffect } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip as RechartsTooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
 import {
-    LayoutDashboard,
-    Wallet,
     TrendingUp,
-    TrendingDown,
     Activity,
     Plus,
     X,
     Search,
     ArrowUpRight,
-    ArrowDownRight,
     Loader2,
     Calendar,
     Star,
@@ -41,8 +37,7 @@ export default function MutualFundsClient() {
         deleteMutualFundTransaction,
         settings,
         loading,
-        refreshPortfolio,
-        setIsTransactionModalOpen
+        refreshPortfolio
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
@@ -56,7 +51,6 @@ export default function MutualFundsClient() {
     const [searchResults, setSearchResults] = useState<Array<{ schemeName: string; schemeCode: string }>>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
-    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Fund Form States
@@ -490,7 +484,6 @@ export default function MutualFundsClient() {
                                                 cx = 0,
                                                 cy = 0,
                                                 midAngle = 0,
-                                                innerRadius = 0,
                                                 outerRadius = 0,
                                                 value = 0,
                                                 index = 0

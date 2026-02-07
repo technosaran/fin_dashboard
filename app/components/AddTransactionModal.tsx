@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Calendar, Info } from 'lucide-react';
+import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Info } from 'lucide-react';
 import { useFinance, Stock, MutualFund } from './FinanceContext';
 import { useNotifications } from './NotificationContext';
 import { calculateStockCharges } from './FinanceContext';
@@ -57,7 +57,6 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
     // Selected Item Info
     const [selectedItem, setSelectedItem] = useState<Stock | MutualFund | null>(null);
-    const [isNewItem, setIsNewItem] = useState(false);
 
     // Specific Fields
     const [quantity, setQuantity] = useState('');
@@ -76,12 +75,12 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         if (!isOpen) {
             resetForm();
         }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const resetForm = () => {
         setSearchQuery('');
         setSelectedItem(null);
-        setIsNewItem(false);
         setQuantity('');
         setPrice('');
         setPreviousPrice(null);
@@ -114,10 +113,10 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             }
         }, 500);
         return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, type]);
 
     const selectItem = async (item: SearchResult) => {
-        setIsNewItem(false);
         setSearchQuery('symbol' in item ? item.symbol : item.schemeName);
         setShowResults(false);
         setIsFetchingQuote(true);

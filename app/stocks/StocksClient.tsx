@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, Area, AreaChart } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance, Stock, calculateStockCharges } from '../components/FinanceContext';
 import {
     TrendingUp,
@@ -10,22 +10,16 @@ import {
     Plus,
     X,
     Search,
-    Eye,
     DollarSign,
     BarChart3,
     Activity,
-    Target,
-    AlertCircle,
-    CheckCircle2,
     ArrowUpRight,
     ArrowDownRight,
     Zap,
     Star,
-    ExternalLink,
     Loader2,
     History,
     Calendar,
-    Wallet,
     Edit3,
     Trash2,
     ArrowRight,
@@ -37,8 +31,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
 export default function StocksClient() {
     const {
         accounts, stocks, stockTransactions, addStock, updateStock, deleteStock,
-        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio,
-        setIsTransactionModalOpen
+        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
     const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime' | 'allocation'>('portfolio');
@@ -51,7 +44,6 @@ export default function StocksClient() {
     const [searchResults, setSearchResults] = useState<Array<{ symbol: string; companyName: string }>>([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
-    const [isFetchingQuote, setIsFetchingQuote] = useState(false);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     // Form States
@@ -255,7 +247,6 @@ export default function StocksClient() {
     const totalInvestment = stocks.reduce((sum, stock) => sum + stock.investmentAmount, 0);
     const totalCurrentValue = stocks.reduce((sum, stock) => sum + stock.currentValue, 0);
     const totalPnL = totalCurrentValue - totalInvestment;
-    const totalPnLPercentage = totalInvestment > 0 ? (totalPnL / totalInvestment) * 100 : 0;
     const totalDayPnL = stocks.reduce((sum, stock) => {
         const dayChange = (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
         return sum + dayChange;
@@ -539,7 +530,6 @@ export default function StocksClient() {
                                             cx = 0,
                                             cy = 0,
                                             midAngle = 0,
-                                            innerRadius = 0,
                                             outerRadius = 0,
                                             value = 0,
                                             index = 0
