@@ -608,7 +608,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     );
 
                     if (!hasPhysicalCash) {
-                        console.log('Creating default Physical Cash account');
                         const { data: newAccount, error: insertError } = await supabase
                             .from('accounts')
                             .insert({
@@ -660,7 +659,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     setSettings(dbSettingsToSettings(settingsData));
                 } else if (!settingsData) {
                     // Create settings in DB if they don't exist
-                    console.log('No settings found in DB, creating for user:', user.id);
                     const { data: newSettingsData, error: insertError } = await (supabase as ExtendedSupabaseClient)
                         .from('app_settings')
                         .insert({
@@ -707,8 +705,6 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
     const refreshPortfolio = async () => {
         if (!user || stocks.length === 0 && mutualFunds.length === 0) return;
-
-        console.log('Refreshing portfolio quotes...');
 
         // Refresh Stocks
         const updatedStocks = await Promise.all(stocks.map(async (stock) => {
