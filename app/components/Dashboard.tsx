@@ -114,8 +114,8 @@ export default function Dashboard() {
                     <SkeletonCard />
                 </div>
                 <div className="dashboard-grid">
-                    <div style={{ gridColumn: 'span 8' }}><SkeletonTable /></div>
-                    <div style={{ gridColumn: 'span 4' }}><SkeletonCard /></div>
+                    <div style={{ gridColumn: 'span 12' }}><SkeletonTable /></div>
+                    <div style={{ gridColumn: 'span 12' }}><SkeletonCard /></div>
                 </div>
             </div>
         );
@@ -126,7 +126,7 @@ export default function Dashboard() {
             <div className="bg-mesh" />
 
             {/* Header Section */}
-            <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '24px' }}>
+            <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '16px', flexWrap: 'wrap' }}>
                 <div className="fade-in">
                     <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '950', margin: 0, letterSpacing: '-0.03em', color: '#fff', display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <span className="animate-sparkle" style={{ fontSize: '0.8em' }}>✨</span>
@@ -160,8 +160,8 @@ export default function Dashboard() {
 
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px', position: 'relative', zIndex: 1 }}>
 
-                        {/* Left: Net Worth Summary */}
-                        <div style={{ flex: '1 1 400px' }}>
+                {/* Left: Net Worth Summary */}
+                        <div style={{ flex: '1 1 300px', minWidth: '280px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
                                 <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', padding: '10px', borderRadius: '12px', color: '#fff', boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)' }}>
                                     <Zap size={20} />
@@ -195,7 +195,7 @@ export default function Dashboard() {
                         </div>
 
                         {/* Right: Asset Allocation integrated */}
-                        <div style={{ flex: '0 1 350px', minWidth: '300px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                        <div style={{ flex: '0 1 350px', minWidth: '280px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                             <div style={{ width: '100%', height: '220px', position: 'relative', marginBottom: '16px' }}>
                                 <ResponsiveContainer width="100%" height="100%">
                                     <PieChart>
@@ -246,7 +246,7 @@ export default function Dashboard() {
             <div className="dashboard-grid">
 
                 {/* Recent Activity */}
-                <div style={{ gridColumn: 'span 8' }} className="fade-in">
+                <div style={{ gridColumn: 'span 12' }} className="fade-in recent-activity-section">
                     <div className="premium-card" style={{ padding: '32px', height: '100%' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '28px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -309,7 +309,8 @@ export default function Dashboard() {
                 </div>
 
                 {/* Right Column: Goal & Health */}
-                <div style={{ gridColumn: 'span 4', display: 'flex', flexDirection: 'column', gap: '24px' }} className="slide-in-right">
+                <div style={{ gridColumn: 'span 12' }} className="slide-in-right goals-section">
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                     {/* Top Goal */}
                     <div className="premium-card" style={{ padding: '32px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%)' }}>
@@ -391,6 +392,7 @@ export default function Dashboard() {
                         </div>
                     </div>
 
+                    </div>
                 </div>
             </div>
 
@@ -398,10 +400,33 @@ export default function Dashboard() {
                 .premium-card:hover .stat-value {
                     filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
                 }
-                @media (max-width: 1200px) {
+                .dashboard-grid {
+                    display: grid;
+                    grid-template-columns: repeat(12, 1fr);
+                    gap: 24px;
+                }
+                .recent-activity-section {
+                    grid-column: span 12;
+                }
+                .goals-section {
+                    grid-column: span 12;
+                }
+                @media (min-width: 1024px) {
+                    .recent-activity-section {
+                        grid-column: span 8;
+                    }
+                    .goals-section {
+                        grid-column: span 4;
+                    }
+                }
+                @media (max-width: 767px) {
                     .dashboard-grid {
                         display: flex;
                         flex-direction: column;
+                        gap: 16px;
+                    }
+                    .premium-card {
+                        padding: 20px !important;
                     }
                 }
             `}</style>
