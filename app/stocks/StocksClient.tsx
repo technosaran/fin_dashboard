@@ -335,7 +335,7 @@ export default function StocksClient() {
             </div>
 
             {/* Portfolio Summary Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${activeTab === 'lifetime' ? 4 : 3}, 1fr)`, gap: '24px', marginBottom: '32px' }}>
+            <div className="grid-responsive-4" style={{ marginBottom: '32px' }}>
                 <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#6366f1' }}>
                         <DollarSign size={18} />
@@ -502,7 +502,7 @@ export default function StocksClient() {
             )}
 
             {activeTab === 'allocation' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+                <div className="grid-responsive-2" style={{ gap: '32px' }}>
                     <div style={{ background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)', padding: '40px', borderRadius: '32px', border: '1px solid #1e293b' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
                             <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#6366f1' }}>
@@ -560,7 +560,7 @@ export default function StocksClient() {
                                 </PieChart>
                             </ResponsiveContainer>
                         </div>
-                        <div style={{ marginTop: '32px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                        <div className="grid-responsive-2" style={{ marginTop: '32px', gap: '16px' }}>
                             {sectorData.map((sec, idx) => (
                                 <div key={idx} style={{ padding: '12px 16px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
                                     <div style={{ width: '10px', height: '10px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }} />
@@ -680,13 +680,13 @@ export default function StocksClient() {
 
             {
                 activeTab === 'lifetime' && (
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
-                        <div style={{ gridColumn: 'span 2', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
+                    <div className="grid-responsive-3" style={{ gap: '32px' }}>
+                        <div className="lifetime-report-card" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Star color="#f59e0b" fill="#f59e0b" size={24} /> Lifetime Wealth Report
                             </h3>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '48px', marginBottom: '48px' }}>
+                            <div className="grid-responsive-2" style={{ gap: '48px', marginBottom: '48px' }}>
                                 <div>
                                     <div style={{ fontSize: '0.8rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', marginBottom: '12px' }}>Total Money Inflow</div>
                                     <div style={{ fontSize: '2.5rem', fontWeight: '950', color: '#fff' }}>₹{totalBuys.toLocaleString()}</div>
@@ -701,7 +701,7 @@ export default function StocksClient() {
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '32px' }}>
+                            <div className="grid-responsive-3" style={{ gap: '24px', borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '32px' }}>
                                 <div>
                                     <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', marginBottom: '8px' }}>Total Withdrawals</div>
                                     <div style={{ fontSize: '1.25rem', fontWeight: '800' }}>₹{totalSells.toLocaleString()}</div>
@@ -760,7 +760,7 @@ export default function StocksClient() {
                                             </div>
                                         )}
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Symbol</label>
                                             <input value={symbol} readOnly style={{ width: '100%', background: 'rgba(15, 23, 42, 0.5)', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#94a3b8', fontSize: '0.9rem' }} />
@@ -802,7 +802,7 @@ export default function StocksClient() {
                                             {stocks.map(stock => <option key={stock.id} value={stock.id}>{stock.symbol} - {stock.companyName}</option>)}
                                         </select>
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Type</label>
                                             <select value={transactionType} onChange={e => setTransactionType(e.target.value as 'BUY' | 'SELL')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }}>
@@ -815,7 +815,7 @@ export default function StocksClient() {
                                             <input type="number" value={transactionQuantity} onChange={e => setTransactionQuantity(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
                                         </div>
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Execution Price</label>
                                             <input type="number" step="0.01" value={transactionPrice} onChange={e => setTransactionPrice(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
@@ -825,7 +825,7 @@ export default function StocksClient() {
                                             <input type="date" value={transactionDate} onChange={e => setTransactionDate(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
                                         </div>
                                     </div>
-                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))', gap: '16px' }}>
                                         <div>
                                             <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Brokerage (₹)</label>
                                             <input type="number" step="0.01" value={brokerage} onChange={e => setBrokerage(e.target.value)} placeholder={settings.autoCalculateCharges ? "Auto-calculating..." : "0.00"} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff' }} />
