@@ -681,7 +681,7 @@ export default function StocksClient() {
             {
                 activeTab === 'lifetime' && (
                     <div className="grid-responsive-3" style={{ gap: '32px' }}>
-                        <div style={{ gridColumn: '1 / -1', background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
+                        <div className="lifetime-report-card" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', borderRadius: '32px', border: '1px solid #1e293b', padding: '40px' }}>
                             <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '32px', display: 'flex', alignItems: 'center', gap: '12px' }}>
                                 <Star color="#f59e0b" fill="#f59e0b" size={24} /> Lifetime Wealth Report
                             </h3>

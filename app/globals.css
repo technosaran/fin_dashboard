@@ -425,3 +425,10 @@ select:focus {
     gap: 16px;
   }
 }
+
+/* Stocks lifetime report card - spans all columns on desktop */
+@media (min-width: 1024px) {
+  .lifetime-report-card {
+    grid-column: 1 / -1;
+  }
+}

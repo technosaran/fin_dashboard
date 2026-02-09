@@ -309,8 +309,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Right Column: Goal & Health */}
-                <div style={{ gridColumn: 'span 12' }} className="slide-in-right goals-section">
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                <div className="slide-in-right goals-section" style={{ gridColumn: 'span 12', display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
                     {/* Top Goal */}
                     <div className="premium-card" style={{ padding: '32px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%)' }}>
@@ -392,7 +391,6 @@ export default function Dashboard() {
                         </div>
                     </div>
 
-                    </div>
                 </div>
             </div>
 
