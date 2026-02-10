@@ -126,70 +126,63 @@ export default function Dashboard() {
             <div className="bg-mesh" />
 
             {/* Header Section */}
-            <header style={{ marginBottom: '32px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', gap: '16px', flexWrap: 'wrap' }}>
+            <header className="dashboard-header">
                 <div className="fade-in">
-                    <h1 style={{ fontSize: 'clamp(1.75rem, 5vw, 2.5rem)', fontWeight: '950', margin: 0, letterSpacing: '-0.03em', color: '#fff', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <h1 className="dashboard-title">
                         <span className="animate-sparkle" style={{ fontSize: '0.8em' }}>✨</span>
                         <span>
-                            {greeting.text}, <span style={{ color: '#818cf8', position: 'relative' }} className="text-glow">Saran
-                                <span style={{ position: 'absolute', bottom: '-4px', left: 0, width: '100%', height: '4px', background: 'linear-gradient(90deg, #6366f1, transparent)', borderRadius: '2px' }} />
+                            {greeting.text}, <span className="title-accent text-glow">Saran
+                                <span className="title-underline" />
                             </span>
                         </span>
                     </h1>
                 </div>
                 <div className="fade-in" style={{ animationDelay: '0.1s' }}>
-                    <div style={{ display: 'flex', gap: '8px' }}>
-                        <div style={{ background: 'rgba(255,255,255,0.03)', padding: '8px 16px', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                            <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981' }} />
-                            <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#94a3b8', textTransform: 'uppercase' }}>Live System</span>
-                        </div>
+                    <div className="status-badge">
+                        <div className="status-indicator" />
+                        <span className="status-text">Live System</span>
                     </div>
                 </div>
             </header>
 
             {/* Main Wealth Card: Unified Net Worth & Allocation */}
-            <section style={{ marginBottom: '32px' }} className="fade-in">
-                <div className="premium-card" style={{
-                    padding: '40px',
-                    background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%)',
-                    position: 'relative',
-                    overflow: 'hidden'
-                }}>
+            <section className="wealth-card fade-in">
+                <div className="premium-card wealth-card-content">
                     {/* Decorative glow */}
-                    <div style={{ position: 'absolute', top: '-10%', right: '-5%', width: '300px', height: '300px', background: 'radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%)', filter: 'blur(50px)', zIndex: 0 }} />
+                    <div className="wealth-card-glow" />
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '40px', position: 'relative', zIndex: 1 }}>
+                    <div className="wealth-card-inner">
 
                 {/* Left: Net Worth Summary */}
-                        <div style={{ flex: '1 1 300px', minWidth: '280px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}>
-                                <div style={{ background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)', padding: '10px', borderRadius: '12px', color: '#fff', boxShadow: '0 8px 16px rgba(99, 102, 241, 0.3)' }}>
+                        <div className="wealth-section">
+                            <div className="badge-wrapper">
+                                <div className="icon-badge">
                                     <Zap size={20} />
                                 </div>
                                 <span className="stat-label">Total Net Worth</span>
                             </div>
 
-                            <div style={{ marginBottom: '16px' }}>
-                                <div className="stat-value" style={{ fontSize: 'clamp(2.5rem, 6vw, 4rem)', lineHeight: 1, fontWeight: '950', letterSpacing: '-0.04em' }}>
+                            <div className="mb-md">
+                                <div className="stat-value net-worth-value">
                                     ₹{financialMetrics.totalNetWorth.toLocaleString()}
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
-                                <div style={{ background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', padding: '6px 12px', borderRadius: '100px', fontSize: '0.8rem', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div className="flex items-center gap-sm mb-xl">
+                                <div className="lifetime-badge">
                                     <TrendingUp size={14} /> +₹{financialMetrics.globalLifetimeWealth.toLocaleString()} lifetime
                                 </div>
-                                <span style={{ color: '#64748b', fontSize: '0.8rem', fontWeight: '600' }}>Portfolio Analysis</span>
+                                <span style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: '600' }}>Portfolio Analysis</span>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '16px' }}>
-                                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <div className="stat-label" style={{ fontSize: '0.65rem', marginBottom: '4px' }}>Liquid Cash</div>
-                                    <div style={{ fontSize: '1.15rem', fontWeight: '900', color: '#fff' }}>₹{financialMetrics.liquidityINR.toLocaleString()}</div>
+                            <div className="metric-grid">
+                                <div className="metric-card">
+                                    <div className="stat-label metric-label">Liquid Cash</div>
+                                    <div className="metric-value">₹{financialMetrics.liquidityINR.toLocaleString()}</div>
                                 </div>
-                                <div style={{ padding: '16px', background: 'rgba(255,255,255,0.03)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <div className="stat-label" style={{ fontSize: '0.65rem', marginBottom: '4px' }}>Investments</div>
-                                    <div style={{ fontSize: '1.15rem', fontWeight: '900', color: '#fff' }}>₹{(financialMetrics.stocksValue + financialMetrics.mfValue).toLocaleString()}</div>
+                                <div className="metric-card">
+                                    <div className="stat-label metric-label">Investments</div>
+                                    <div className="metric-value">₹{(financialMetrics.stocksValue + financialMetrics.mfValue).toLocaleString()}</div>
                                 </div>
                             </div>
                         </div>
@@ -222,17 +215,17 @@ export default function Dashboard() {
                                     </PieChart>
                                 </ResponsiveContainer>
                                 <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '0.6rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Diversity</div>
-                                    <div style={{ fontSize: '1.1rem', fontWeight: '900', color: '#fff' }}>{allocationData.length} Paths</div>
+                                    <div style={{ fontSize: '0.6rem', color: 'var(--text-tertiary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Diversity</div>
+                                    <div style={{ fontSize: '1.1rem', fontWeight: '900', color: 'var(--text-primary)' }}>{allocationData.length} Paths</div>
                                 </div>
                             </div>
 
                             <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '16px' }}>
                                 {allocationData.map((item, idx) => (
-                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'rgba(255,255,255,0.02)', padding: '6px 12px', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.03)' }}>
+                                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--glass)', padding: '6px 12px', borderRadius: '10px', border: '1px solid var(--glass-border)' }}>
                                         <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: item.color }} />
-                                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: '#94a3b8' }}>{item.name}</span>
-                                        <span style={{ fontSize: '0.75rem', fontWeight: '900', color: '#fff' }}>{((item.value / financialMetrics.totalNetWorth) * 100).toFixed(0)}%</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)' }}>{item.name}</span>
+                                        <span style={{ fontSize: '0.75rem', fontWeight: '900', color: 'var(--text-primary)' }}>{((item.value / financialMetrics.totalNetWorth) * 100).toFixed(0)}%</span>
                                     </div>
                                 ))}
                             </div>
