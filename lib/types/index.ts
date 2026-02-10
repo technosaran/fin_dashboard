@@ -27,18 +27,18 @@ export interface Account {
 // ============================================================================
 
 export type TransactionType = 'Income' | 'Expense';
-export type TransactionCategory = 
-  | 'Salary' 
-  | 'Business' 
-  | 'Investment' 
-  | 'Rent' 
-  | 'Food' 
-  | 'Transport' 
-  | 'Entertainment' 
-  | 'Healthcare' 
-  | 'Education' 
-  | 'Shopping' 
-  | 'Utilities' 
+export type TransactionCategory =
+  | 'Salary'
+  | 'Business'
+  | 'Investment'
+  | 'Rent'
+  | 'Food'
+  | 'Transport'
+  | 'Entertainment'
+  | 'Healthcare'
+  | 'Education'
+  | 'Shopping'
+  | 'Utilities'
   | 'Other';
 
 export interface Transaction {
@@ -58,13 +58,13 @@ export interface Transaction {
 // Goal Types
 // ============================================================================
 
-export type GoalCategory = 
-  | 'Retirement' 
-  | 'Home' 
-  | 'Education' 
-  | 'Vacation' 
-  | 'Emergency Fund' 
-  | 'Investment' 
+export type GoalCategory =
+  | 'Retirement'
+  | 'Home'
+  | 'Education'
+  | 'Vacation'
+  | 'Emergency Fund'
+  | 'Investment'
   | 'Other';
 
 export interface Goal {
@@ -84,13 +84,13 @@ export interface Goal {
 // Family Transfer Types
 // ============================================================================
 
-export type RelationshipType = 
-  | 'Parent' 
-  | 'Spouse' 
-  | 'Child' 
-  | 'Sibling' 
-  | 'Relative' 
-  | 'Friend' 
+export type RelationshipType =
+  | 'Parent'
+  | 'Spouse'
+  | 'Child'
+  | 'Sibling'
+  | 'Relative'
+  | 'Friend'
   | 'Other';
 
 export interface FamilyTransfer {
@@ -164,13 +164,13 @@ export interface Watchlist {
 // ============================================================================
 
 export type MutualFundTransactionType = 'BUY' | 'SELL' | 'SIP';
-export type MutualFundCategory = 
-  | 'Equity' 
-  | 'Debt' 
-  | 'Hybrid' 
-  | 'Index' 
-  | 'ELSS' 
-  | 'Liquid' 
+export type MutualFundCategory =
+  | 'Equity'
+  | 'Debt'
+  | 'Hybrid'
+  | 'Index'
+  | 'ELSS'
+  | 'Liquid'
   | 'Other';
 
 export interface MutualFund {
@@ -234,6 +234,51 @@ export interface FnoTrade {
 }
 
 // ============================================================================
+// Bond Types
+// ============================================================================
+
+export type BondTransactionType = 'BUY' | 'SELL' | 'MATURITY' | 'INTEREST';
+export type InterestFrequency = 'Monthly' | 'Quarterly' | 'Half-Yearly' | 'Yearly' | 'Cumulative';
+
+export interface Bond {
+  id: number;
+  name: string;
+  isin?: string;
+  companyName?: string;
+  faceValue: number;
+  couponRate: number;
+  maturityDate: string;
+  quantity: number;
+  avgPrice: number;
+  currentPrice: number;
+  investmentAmount: number;
+  currentValue: number;
+  pnl: number;
+  pnlPercentage: number;
+  yieldToMaturity?: number;
+  interestFrequency: InterestFrequency | string;
+  nextInterestDate?: string;
+  status: 'ACTIVE' | 'MATURED' | 'SOLD';
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface BondTransaction {
+  id: number;
+  bondId: number;
+  transactionType: BondTransactionType;
+  quantity: number;
+  price: number;
+  totalAmount: number;
+  transactionDate: string;
+  notes?: string;
+  accountId?: number;
+  userId?: string;
+  createdAt?: string;
+}
+
+// ============================================================================
 // Settings Types
 // ============================================================================
 
@@ -249,6 +294,7 @@ export interface AppSettings {
   gstRate: number;
   dpCharges: number;
   autoCalculateCharges: boolean;
+  bondsEnabled: boolean;
   defaultStockAccountId?: number;
   defaultMfAccountId?: number;
   defaultSalaryAccountId?: number;
@@ -295,38 +341,42 @@ export interface FinanceContextState {
   addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
   updateAccount: (id: number, account: Partial<Account>) => Promise<void>;
   deleteAccount: (id: number) => Promise<void>;
-  
+
   // Transactions
   transactions: Transaction[];
   addTransaction: (transaction: Omit<Transaction, 'id'>) => Promise<void>;
   updateTransaction: (id: number, transaction: Partial<Transaction>) => Promise<void>;
   deleteTransaction: (id: number) => Promise<void>;
-  
+
   // Goals
   goals: Goal[];
   addGoal: (goal: Omit<Goal, 'id'>) => Promise<void>;
   updateGoal: (id: number, goal: Partial<Goal>) => Promise<void>;
   deleteGoal: (id: number) => Promise<void>;
-  
+
   // Stocks
   stocks: Stock[];
   stockTransactions: StockTransaction[];
   watchlist: Watchlist[];
-  
+
   // Mutual Funds
   mutualFunds: MutualFund[];
   mutualFundTransactions: MutualFundTransaction[];
-  
+
+  // Bonds
+  bonds: Bond[];
+  bondTransactions: BondTransaction[];
+
   // F&O
   fnoTrades: FnoTrade[];
-  
+
   // Family Transfers
   familyTransfers: FamilyTransfer[];
-  
+
   // Settings
   settings: AppSettings;
   updateSettings: (settings: Partial<AppSettings>) => void;
-  
+
   // Loading state
   loading: boolean;
   error: string | null;
@@ -350,9 +400,9 @@ export type DeepPartial<T> = {
 };
 
 export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
-  Pick<T, Exclude<keyof T, Keys>> 
+  Pick<T, Exclude<keyof T, Keys>>
   & {
-      [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
   }[Keys];
 
 export type Nullable<T> = T | null;

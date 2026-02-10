@@ -15,11 +15,13 @@ import {
     Settings,
     LogOut,
     Command,
-    ShoppingBag
+    ShoppingBag,
+    Landmark
 } from 'lucide-react';
 
 import { useAuth } from './AuthContext';
 import { useNotifications } from './NotificationContext';
+import { useFinance } from './FinanceContext';
 
 interface SidebarProps {
     isOpen?: boolean;
@@ -29,7 +31,7 @@ interface SidebarProps {
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
     const { signOut } = useAuth();
-    const { confirm: customConfirm } = useNotifications();
+    const { confirm: customConfirm } = useNotifications(); const { settings } = useFinance();
 
 
     const navItems = [
@@ -37,13 +39,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         { label: 'Accounts', href: '/accounts', icon: <Wallet size={20} /> },
         { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={20} /> },
         { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={20} /> },
+        { label: 'Bonds', href: '/bonds', icon: <Landmark size={20} />, enabled: settings.bondsEnabled },
         { label: 'FnO', href: '/fno', icon: <Zap size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Income', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Expenses', href: '/expenses', icon: <ShoppingBag size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
         { label: 'Goals', href: '/goals', icon: <Target size={20} /> },
-    ];
+    ].filter(item => item.enabled === undefined || item.enabled === true);
 
     return (
         <>

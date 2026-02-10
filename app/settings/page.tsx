@@ -43,7 +43,8 @@ export default function SettingsPage() {
                 stampDutyRate: 0.015,
                 gstRate: 18,
                 dpCharges: 15.93,
-                autoCalculateCharges: true
+                autoCalculateCharges: true,
+                bondsEnabled: true
             };
             setLocalSettings(defaults);
             await updateSettings(defaults);
@@ -351,6 +352,20 @@ export default function SettingsPage() {
                                         <option value="">None / Manual Selection</option>
                                         {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
                                     </select>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px' }}>
+                                    <div>
+                                        <div style={{ fontWeight: '700', fontSize: '0.95rem' }}>Enable Bonds Tracking</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Track Indian NCDs and Corporate Bonds</div>
+                                    </div>
+                                    <div
+                                        onClick={() => setLocalSettings({ ...localSettings, bondsEnabled: !localSettings.bondsEnabled })}
+                                        role="switch"
+                                        aria-checked={localSettings.bondsEnabled}
+                                        style={{ width: '50px', height: '26px', background: localSettings.bondsEnabled ? '#10b981' : '#1e293b', borderRadius: '100px', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
+                                    >
+                                        <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '3px', left: localSettings.bondsEnabled ? '27px' : '3px', transition: 'left 0.3s' }} />
+                                    </div>
                                 </div>
                             </div>
                         </div>

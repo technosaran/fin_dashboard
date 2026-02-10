@@ -178,7 +178,6 @@ export default function FnOClient() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                 <div>
                     <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '950', margin: 0, letterSpacing: '-2.5px', color: '#fff' }}>FnO Terminal</h1>
-                    <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', fontWeight: '600' }}>Derivatives tracking & lifetime analytics</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}

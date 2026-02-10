@@ -26,6 +26,7 @@ type AppSettingsRow = {
     gst_rate: number;
     dp_charges: number;
     auto_calculate_charges: boolean;
+    bonds_enabled: boolean;
     default_stock_account_id?: number | null;
     default_mf_account_id?: number | null;
     default_salary_account_id?: number | null;
@@ -154,6 +155,41 @@ type FnoTradeRow = {
     [key: string]: unknown;
 };
 
+type BondRow = {
+    id: number;
+    name: string;
+    company_name?: string | null;
+    isin?: string | null;
+    face_value: number;
+    coupon_rate: number;
+    maturity_date: string;
+    quantity: number;
+    avg_price: number;
+    current_price: number;
+    investment_amount: number;
+    current_value: number;
+    pnl: number;
+    pnl_percentage: number;
+    yield_to_maturity?: number | null;
+    interest_frequency: string;
+    next_interest_date?: string | null;
+    status: string;
+    [key: string]: unknown;
+};
+
+type BondTransactionRow = {
+    id: number;
+    bond_id?: number | null;
+    transaction_type: string;
+    quantity: number;
+    price: number;
+    total_amount: number;
+    transaction_date: string;
+    notes?: string | null;
+    account_id?: number | null;
+    [key: string]: unknown;
+};
+
 export interface AppSettings {
     brokerageType: 'flat' | 'percentage';
     brokerageValue: number;
@@ -164,6 +200,7 @@ export interface AppSettings {
     gstRate: number;
     dpCharges: number;
     autoCalculateCharges: boolean;
+    bondsEnabled: boolean;
     defaultStockAccountId?: number;
     defaultMfAccountId?: number;
     defaultSalaryAccountId?: number;
@@ -293,6 +330,40 @@ export interface FnoTrade {
     accountId?: number;
 }
 
+export interface Bond {
+    id: number;
+    name: string;
+    companyName?: string;
+    isin?: string;
+    faceValue: number;
+    couponRate: number;
+    maturityDate: string;
+    quantity: number;
+    avgPrice: number;
+    currentPrice: number;
+    investmentAmount: number;
+    currentValue: number;
+    pnl: number;
+    pnlPercentage: number;
+    yieldToMaturity?: number;
+    interestFrequency: string;
+    nextInterestDate?: string;
+    status: 'ACTIVE' | 'MATURED' | 'SOLD';
+    previousPrice?: number;
+}
+
+export interface BondTransaction {
+    id: number;
+    bondId: number;
+    transactionType: 'BUY' | 'SELL' | 'MATURITY' | 'INTEREST';
+    quantity: number;
+    price: number;
+    totalAmount: number;
+    transactionDate: string;
+    notes?: string;
+    accountId?: number;
+}
+
 interface FinanceContextType {
     accounts: Account[];
     transactions: Transaction[];
@@ -304,6 +375,8 @@ interface FinanceContextType {
     mutualFunds: MutualFund[];
     mutualFundTransactions: MutualFundTransaction[];
     fnoTrades: FnoTrade[];
+    bonds: Bond[];
+    bondTransactions: BondTransaction[];
     settings: AppSettings;
     updateSettings: (newSettings: AppSettings) => Promise<void>;
     loading: boolean;
@@ -332,6 +405,11 @@ interface FinanceContextType {
     deleteMutualFund: (id: number) => Promise<void>;
     addMutualFundTransaction: (transaction: Omit<MutualFundTransaction, 'id'>) => Promise<void>;
     deleteMutualFundTransaction: (id: number) => Promise<void>;
+    addBond: (bond: Omit<Bond, 'id'>) => Promise<void>;
+    updateBond: (bond: Bond) => Promise<void>;
+    deleteBond: (id: number) => Promise<void>;
+    addBondTransaction: (transaction: Omit<BondTransaction, 'id'>) => Promise<void>;
+    deleteBondTransaction: (id: number) => Promise<void>;
     addFnoTrade: (trade: Omit<FnoTrade, 'id'>) => Promise<void>;
     updateFnoTrade: (trade: FnoTrade) => Promise<void>;
     deleteFnoTrade: (id: number) => Promise<void>;
@@ -386,6 +464,8 @@ export const calculateStockCharges = (
 type SupabaseClient = typeof supabase;
 type ExtendedSupabaseClient = SupabaseClient & {
     from(table: 'fno_trades'): ReturnType<SupabaseClient['from']>;
+    from(table: 'bonds'): ReturnType<SupabaseClient['from']>;
+    from(table: 'bond_transactions'): ReturnType<SupabaseClient['from']>;
     from(table: 'app_settings'): ReturnType<SupabaseClient['from']>;
 };
 
@@ -400,6 +480,7 @@ const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings => ({
     gstRate: Number(dbSettings.gst_rate),
     dpCharges: Number(dbSettings.dp_charges),
     autoCalculateCharges: dbSettings.auto_calculate_charges,
+    bondsEnabled: dbSettings.bonds_enabled ?? true,
     defaultStockAccountId: dbSettings.default_stock_account_id ? Number(dbSettings.default_stock_account_id) : undefined,
     defaultMfAccountId: dbSettings.default_mf_account_id ? Number(dbSettings.default_mf_account_id) : undefined,
     defaultSalaryAccountId: dbSettings.default_salary_account_id ? Number(dbSettings.default_salary_account_id) : undefined
@@ -529,6 +610,40 @@ const dbFnoTradeToFnoTrade = (dbTx: FnoTradeRow): FnoTrade => ({
     accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
 });
 
+const dbBondToBond = (dbBond: BondRow): Bond => ({
+    id: Number(dbBond.id),
+    name: dbBond.name,
+    companyName: dbBond.company_name || undefined,
+    isin: dbBond.isin || undefined,
+    faceValue: Number(dbBond.face_value),
+    couponRate: Number(dbBond.coupon_rate),
+    maturityDate: dbBond.maturity_date,
+    quantity: Number(dbBond.quantity),
+    avgPrice: Number(dbBond.avg_price),
+    currentPrice: Number(dbBond.current_price),
+    investmentAmount: Number(dbBond.investment_amount),
+    currentValue: Number(dbBond.current_value),
+    pnl: Number(dbBond.pnl),
+    pnlPercentage: Number(dbBond.pnl_percentage),
+    yieldToMaturity: dbBond.yield_to_maturity ? Number(dbBond.yield_to_maturity) : undefined,
+    interestFrequency: dbBond.interest_frequency,
+    nextInterestDate: dbBond.next_interest_date || undefined,
+    status: dbBond.status as 'ACTIVE' | 'MATURED' | 'SOLD',
+    previousPrice: dbBond.previous_price ? Number(dbBond.previous_price) : undefined
+});
+
+const dbBondTransactionToBondTransaction = (dbTx: BondTransactionRow): BondTransaction => ({
+    id: Number(dbTx.id),
+    bondId: Number(dbTx.bond_id),
+    transactionType: dbTx.transaction_type as 'BUY' | 'SELL' | 'MATURITY' | 'INTEREST',
+    quantity: Number(dbTx.quantity),
+    price: Number(dbTx.price),
+    totalAmount: Number(dbTx.total_amount),
+    transactionDate: dbTx.transaction_date,
+    notes: dbTx.notes || undefined,
+    accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
+});
+
 export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -540,6 +655,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const [mutualFunds, setMutualFunds] = useState<MutualFund[]>([]);
     const [mutualFundTransactions, setMutualFundTransactions] = useState<MutualFundTransaction[]>([]);
     const [fnoTrades, setFnoTrades] = useState<FnoTrade[]>([]);
+    const [bonds, setBonds] = useState<Bond[]>([]);
+    const [bondTransactions, setBondTransactions] = useState<BondTransaction[]>([]);
     const [settings, setSettings] = useState<AppSettings>({
         brokerageType: 'percentage',
         brokerageValue: 0,
@@ -549,7 +666,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         stampDutyRate: 0.015,
         gstRate: 18,
         dpCharges: 15.93, // 13.5 + 18% GST
-        autoCalculateCharges: true
+        autoCalculateCharges: true,
+        bondsEnabled: true
     });
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -582,6 +700,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     { data: mutualFundsData, error: mutualFundsError },
                     { data: mutualFundTransactionsData, error: mutualFundTransactionsError },
                     { data: fnoTradesData, error: fnoTradesError },
+                    { data: bondsData, error: bondsError },
+                    { data: bondTransactionsData, error: bondTransactionsError },
                     { data: settingsData, error: settingsError }
                 ] = await Promise.all([
                     supabase.from('accounts').select('*').order('created_at', { ascending: false }),
@@ -594,6 +714,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     supabase.from('mutual_funds').select('*').order('name', { ascending: true }),
                     supabase.from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
                     (supabase as ExtendedSupabaseClient).from('fno_trades').select('*').order('entry_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('bonds').select('*').order('name', { ascending: true }),
+                    (supabase as ExtendedSupabaseClient).from('bond_transactions').select('*').order('transaction_date', { ascending: false }),
                     (supabase as ExtendedSupabaseClient).from('app_settings').select('*').eq('user_id', user.id).maybeSingle()
                 ]);
 
@@ -655,6 +777,12 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 if (fnoTradesError) console.error('Error loading FnO trades:', fnoTradesError);
                 else setFnoTrades(fnoTradesData.map(dbFnoTradeToFnoTrade));
 
+                if (bondsError) console.error('Error loading bonds:', bondsError);
+                else setBonds(bondsData.map(dbBondToBond));
+
+                if (bondTransactionsError) console.error('Error loading bond transactions:', bondTransactionsError);
+                else setBondTransactions(bondTransactionsData.map(dbBondTransactionToBondTransaction));
+
                 if (!settingsError && settingsData) {
                     setSettings(dbSettingsToSettings(settingsData));
                 } else if (!settingsData) {
@@ -672,6 +800,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             gst_rate: currentSettings.gstRate,
                             dp_charges: currentSettings.dpCharges,
                             auto_calculate_charges: currentSettings.autoCalculateCharges,
+                            bonds_enabled: currentSettings.bondsEnabled,
                             default_stock_account_id: currentSettings.defaultStockAccountId || null,
                             default_mf_account_id: currentSettings.defaultMfAccountId || null,
                             default_salary_account_id: currentSettings.defaultSalaryAccountId || null
@@ -704,7 +833,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     }, [user, authLoading]);
 
     const refreshPortfolio = async () => {
-        if (!user || stocks.length === 0 && mutualFunds.length === 0) return;
+        if (!user || (stocks.length === 0 && mutualFunds.length === 0 && bonds.length === 0)) return;
 
         // Refresh Stocks
         const updatedStocks = await Promise.all(stocks.map(async (stock) => {
@@ -786,8 +915,51 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             return mf;
         }));
 
+        // Refresh Bonds
+        const updatedBonds = await Promise.all(bonds.map(async (bond) => {
+            try {
+                if (bond.isin) {
+                    const res = await fetch(`/api/bonds/quote?isin=${bond.isin}`);
+                    const data = await res.json();
+                    if (data.status === 200 && data.data) {
+                        // For bonds, we usually apply a multiplier to the face value based on market price
+                        const currentPrice = bond.faceValue * data.data.currentPriceMultiplier;
+                        const prevPrice = bond.previousPrice || currentPrice;
+                        const newValue = bond.quantity * currentPrice;
+                        const newPnL = newValue - bond.investmentAmount;
+
+                        const updated = {
+                            ...bond,
+                            currentPrice: currentPrice,
+                            previousPrice: prevPrice,
+                            currentValue: newValue,
+                            pnl: newPnL,
+                            pnlPercentage: bond.investmentAmount > 0 ? (newPnL / bond.investmentAmount) * 100 : 0
+                        };
+
+                        // Update DB in background
+                        (supabase as ExtendedSupabaseClient).from('bonds').update({
+                            current_price: currentPrice,
+                            previous_price: prevPrice,
+                            current_value: newValue,
+                            pnl: newPnL,
+                            pnl_percentage: updated.pnlPercentage
+                        }).eq('id', bond.id).then(({ error }: { error: any }) => {
+                            if (error) console.error(`Sync error for ${bond.name}:`, error);
+                        });
+
+                        return updated;
+                    }
+                }
+            } catch (e) {
+                console.error(`Failed to refresh bond ${bond.name}:`, e);
+            }
+            return bond;
+        }));
+
         setStocks(updatedStocks);
         setMutualFunds(updatedMFs);
+        setBonds(updatedBonds);
     };
 
     const updateSettings = async (newSettings: AppSettings) => {
@@ -813,6 +985,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 default_stock_account_id: newSettings.defaultStockAccountId || null,
                 default_mf_account_id: newSettings.defaultMfAccountId || null,
                 default_salary_account_id: newSettings.defaultSalaryAccountId || null,
+                bonds_enabled: newSettings.bondsEnabled,
                 updated_at: new Date().toISOString()
             })
             .eq('user_id', user.id);
@@ -1453,6 +1626,144 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setMutualFundTransactions(prev => prev.filter(t => t.id !== id));
     };
 
+    const addBond = async (bondData: Omit<Bond, 'id'>) => {
+        const { data, error } = await (supabase as ExtendedSupabaseClient)
+            .from('bonds')
+            .insert({
+                name: bondData.name,
+                company_name: bondData.companyName,
+                isin: bondData.isin,
+                face_value: bondData.faceValue,
+                coupon_rate: bondData.couponRate,
+                maturity_date: bondData.maturityDate,
+                quantity: bondData.quantity,
+                avg_price: bondData.avgPrice,
+                current_price: bondData.currentPrice,
+                investment_amount: bondData.investmentAmount,
+                current_value: bondData.currentValue,
+                pnl: bondData.pnl,
+                pnl_percentage: bondData.pnlPercentage,
+                yield_to_maturity: bondData.yieldToMaturity,
+                interest_frequency: bondData.interestFrequency,
+                next_interest_date: bondData.nextInterestDate,
+                status: bondData.status,
+                previous_price: bondData.previousPrice || bondData.currentPrice
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding bond:', error);
+            return;
+        }
+
+        const newBond = dbBondToBond(data);
+        setBonds(prev => [...prev, newBond]);
+    };
+
+    const updateBond = async (updatedBond: Bond) => {
+        const { error } = await (supabase as ExtendedSupabaseClient)
+            .from('bonds')
+            .update({
+                name: updatedBond.name,
+                company_name: updatedBond.companyName,
+                isin: updatedBond.isin,
+                face_value: updatedBond.faceValue,
+                coupon_rate: updatedBond.couponRate,
+                maturity_date: updatedBond.maturityDate,
+                quantity: updatedBond.quantity,
+                avg_price: updatedBond.avgPrice,
+                current_price: updatedBond.currentPrice,
+                investment_amount: updatedBond.investmentAmount,
+                current_value: updatedBond.currentValue,
+                pnl: updatedBond.pnl,
+                pnl_percentage: updatedBond.pnlPercentage,
+                yield_to_maturity: updatedBond.yieldToMaturity,
+                interest_frequency: updatedBond.interestFrequency,
+                next_interest_date: updatedBond.nextInterestDate,
+                status: updatedBond.status,
+                previous_price: updatedBond.previousPrice
+            })
+            .eq('id', updatedBond.id);
+
+        if (error) {
+            console.error('Error updating bond:', error);
+            return;
+        }
+
+        setBonds(prev => prev.map(b => b.id === updatedBond.id ? updatedBond : b));
+    };
+
+    const deleteBond = async (id: number) => {
+        const { error } = await (supabase as ExtendedSupabaseClient)
+            .from('bonds')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting bond:', error);
+            return;
+        }
+
+        setBonds(prev => prev.filter(b => b.id !== id));
+    };
+
+    const addBondTransaction = async (transactionData: Omit<BondTransaction, 'id'>) => {
+        const isOutflow = transactionData.transactionType === 'BUY';
+
+        if (transactionData.accountId) {
+            const account = accounts.find(acc => acc.id === transactionData.accountId);
+            if (account && isOutflow && account.balance < transactionData.totalAmount) {
+                alert(`Insufficient funds in ${account.name} for this ${transactionData.transactionType}!`);
+                return;
+            }
+        }
+
+        const { data, error } = await (supabase as ExtendedSupabaseClient)
+            .from('bond_transactions')
+            .insert({
+                bond_id: transactionData.bondId,
+                transaction_type: transactionData.transactionType,
+                quantity: transactionData.quantity,
+                price: transactionData.price,
+                total_amount: transactionData.totalAmount,
+                transaction_date: transactionData.transactionDate,
+                notes: transactionData.notes,
+                account_id: transactionData.accountId || null
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding bond transaction:', error);
+            return;
+        }
+
+        const newTransaction = dbBondTransactionToBondTransaction(data);
+        setBondTransactions(prev => [newTransaction, ...prev]);
+
+        // Refresh accounts and transactions
+        setTimeout(() => {
+            refreshAccounts();
+            supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100)
+                .then(({ data }) => data && setTransactions(data.map(dbTransactionToTransaction)));
+        }, 800);
+    };
+
+    const deleteBondTransaction = async (id: number) => {
+        const { error } = await (supabase as ExtendedSupabaseClient)
+            .from('bond_transactions')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting bond transaction:', error);
+            return;
+        }
+
+        setBondTransactions(prev => prev.filter(t => t.id !== id));
+    };
+
     const addFnoTrade = async (tradeData: Omit<FnoTrade, 'id'>) => {
         const investment = tradeData.avgPrice * tradeData.quantity;
 
@@ -1568,6 +1879,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             mutualFunds,
             mutualFundTransactions,
             fnoTrades,
+            bonds,
+            bondTransactions,
             settings,
             updateSettings,
             loading,
@@ -1596,6 +1909,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             deleteMutualFund,
             addMutualFundTransaction,
             deleteMutualFundTransaction,
+            addBond,
+            updateBond,
+            deleteBond,
+            addBondTransaction,
+            deleteBondTransaction,
             addFnoTrade,
             updateFnoTrade,
             deleteFnoTrade,

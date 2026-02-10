@@ -300,11 +300,6 @@ export default function StocksClient() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
                 <div>
                     <h1 style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Stock Portfolio</h1>
-                    <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        Real-time market insights and lifetime performance tracking
-                        <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#64748b' }} />
-                        <span style={{ fontSize: '0.85rem', color: '#10b981', fontWeight: '700' }}>NSE / BSE Live</span>
-                    </p>
                 </div>
                 <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                     <button
