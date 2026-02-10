@@ -4,21 +4,23 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { useFinance, Transaction } from '../components/FinanceContext';
 import {
-    TrendingUp,
+    TrendingDown,
     Calendar,
     Plus,
     X,
     Clock,
-    Briefcase,
-    Globe,
-    Award,
-    Heart,
+    ShoppingBag,
     Coffee,
     Edit3,
-    Trash2
+    Trash2,
+    Car,
+    Home,
+    Heart,
+    GraduationCap,
+    Zap
 } from 'lucide-react';
 
-export default function IncomeClient() {
+export default function ExpensesClient() {
     const { accounts, transactions, addTransaction, updateTransaction, deleteTransaction, settings, loading } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,45 +28,46 @@ export default function IncomeClient() {
     const [activeTab, setActiveTab] = useState<'This Year' | 'All Time'>('This Year');
     const [selectedAccountId, setSelectedAccountId] = useState<number | ''>(settings.defaultSalaryAccountId || '');
 
-    // Salary Data Filtering
-    const salaryItems = transactions.filter(t => t.category === 'Salary');
+    // Expense Data Filtering
+    const expenseItems = transactions.filter(t => t.type === 'Expense');
 
-    // Process Employers/Sources
-    const employersMap = salaryItems.reduce((acc, item) => {
-        const name = item.description || 'Unknown Employer';
-        if (!acc[name]) acc[name] = { total: 0, count: 0 };
-        acc[name].total += item.amount;
-        acc[name].count += 1;
+    // Process Categories
+    const categoriesMap = expenseItems.reduce((acc, item) => {
+        const category = item.category || 'Other';
+        if (!acc[category]) acc[category] = { total: 0, count: 0 };
+        acc[category].total += item.amount;
+        acc[category].count += 1;
         return acc;
     }, {} as Record<string, { total: number; count: number }>);
 
-    const employers = Object.entries(employersMap).sort((a, b) => b[1].total - a[1].total);
-    const totalIncome = salaryItems.reduce((sum, item) => sum + item.amount, 0);
+    const categories = Object.entries(categoriesMap).sort((a, b) => b[1].total - a[1].total);
+    const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
 
     // Form State
     const [amount, setAmount] = useState('');
-    const [employerName, setEmployerName] = useState('');
+    const [description, setDescription] = useState('');
+    const [category, setCategory] = useState('Food');
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-    const handleLogIncome = async (e: React.FormEvent) => {
+    const handleLogExpense = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!amount || !employerName) return;
+        if (!amount || !description) return;
 
         const txData = {
             date,
-            description: employerName,
-            category: 'Salary',
-            type: 'Income' as const,
+            description,
+            category,
+            type: 'Expense' as const,
             amount: parseFloat(amount),
             accountId: selectedAccountId ? Number(selectedAccountId) : undefined
         };
 
         if (editId) {
             await updateTransaction({ ...txData, id: editId });
-            showNotification('success', 'Income record updated');
+            showNotification('success', 'Expense record updated');
         } else {
             await addTransaction(txData);
-            showNotification('success', 'New income recorded! 🥳');
+            showNotification('success', 'Expense tracked successfully! 💸');
         }
 
         resetForm();
@@ -73,7 +76,8 @@ export default function IncomeClient() {
 
     const resetForm = () => {
         setAmount('');
-        setEmployerName('');
+        setDescription('');
+        setCategory('Food');
         setDate(new Date().toISOString().split('T')[0]);
         setEditId(null);
     };
@@ -81,16 +85,30 @@ export default function IncomeClient() {
     const handleEdit = (item: Transaction) => {
         setEditId(item.id);
         setAmount(item.amount.toString());
-        setEmployerName(item.description);
+        setDescription(item.description);
+        setCategory(item.category);
         setDate(item.date);
         setIsModalOpen(true);
+    };
+
+    const getCategoryIcon = (cat: string) => {
+        switch (cat) {
+            case 'Food': return <Coffee size={24} />;
+            case 'Transport': return <Car size={24} />;
+            case 'Shopping': return <ShoppingBag size={24} />;
+            case 'Healthcare': return <Heart size={24} />;
+            case 'Education': return <GraduationCap size={24} />;
+            case 'Utilities': return <Zap size={24} />;
+            case 'Entertainment': return <Home size={24} />;
+            default: return <ShoppingBag size={24} />;
+        }
     };
 
     if (loading) {
         return (
             <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#94a3b8' }}>Getting your pay history ready...</div>
+                    <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#94a3b8' }}>Loading your expenses...</div>
                 </div>
             </div>
         );
@@ -103,8 +121,8 @@ export default function IncomeClient() {
                 {/* Header Section */}
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '48px', flexWrap: 'wrap', gap: '16px' }}>
                     <div>
-                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Income Hub</h1>
-                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', marginTop: '8px', fontWeight: '500' }}>Track your hard-earned money and where it comes from</p>
+                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em', background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Expenses Hub</h1>
+                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', marginTop: '8px', fontWeight: '500' }}>Track and manage your spending across categories</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                         <div style={{ display: 'flex', background: '#0f172a', padding: '6px', borderRadius: '14px', border: '1px solid #1e293b' }}>
@@ -114,12 +132,12 @@ export default function IncomeClient() {
                                 }}>{tab}</button>
                             ))}
                         </div>
-                        <button onClick={() => setIsModalOpen(true)} aria-label="Add new income" style={{
-                            padding: '12px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: 'white', border: 'none', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.25)', transition: '0.3s', whiteSpace: 'nowrap'
+                        <button onClick={() => setIsModalOpen(true)} aria-label="Add new expense" style={{
+                            padding: '12px 28px', borderRadius: '16px', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: 'white', border: 'none', fontWeight: '800', fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)', transition: '0.3s', whiteSpace: 'nowrap'
                         }}
                             onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'}
                             onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
-                            <Plus size={18} strokeWidth={3} /> Add New Income
+                            <Plus size={18} strokeWidth={3} /> Add Expense
                         </button>
                     </div>
                 </div>
@@ -127,9 +145,9 @@ export default function IncomeClient() {
                 {/* Key Summary Cards */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '32px', marginBottom: '48px' }}>
                     {[
-                        { label: activeTab === 'This Year' ? 'Total Earnings (Year)' : 'Total Earnings (Forever)', value: `₹${totalIncome.toLocaleString()}`, icon: <TrendingUp size={22} />, color: '#6366f1', sub: 'Great job this year!', gradient: 'linear-gradient(135deg, #6366f120 0%, #4f46e510 100%)' },
-                        { label: 'Average per Month', value: `₹${(totalIncome / (activeTab === 'This Year' ? new Date().getMonth() + 1 : Math.max(salaryItems.length, 1))).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: <Calendar size={22} />, color: '#10b981', sub: 'Calculated monthly', gradient: 'linear-gradient(135deg, #10b98120 0%, #05966910 100%)' },
-                        { label: 'Places I Work', value: employers.length, icon: <Briefcase size={22} />, color: '#f59e0b', sub: 'Income sources', gradient: 'linear-gradient(135deg, #f59e0b20 0%, #d9770610 100%)' }
+                        { label: activeTab === 'This Year' ? 'Total Expenses (Year)' : 'Total Expenses (All Time)', value: `₹${totalExpenses.toLocaleString()}`, icon: <TrendingDown size={22} />, color: '#ef4444', sub: 'Money spent', gradient: 'linear-gradient(135deg, #ef444420 0%, #dc262610 100%)' },
+                        { label: 'Average per Month', value: `₹${(totalExpenses / (activeTab === 'This Year' ? new Date().getMonth() + 1 : Math.max(expenseItems.length, 1))).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: <Calendar size={22} />, color: '#f59e0b', sub: 'Monthly spending', gradient: 'linear-gradient(135deg, #f59e0b20 0%, #d9770610 100%)' },
+                        { label: 'Expense Categories', value: categories.length, icon: <ShoppingBag size={22} />, color: '#6366f1', sub: 'Tracked categories', gradient: 'linear-gradient(135deg, #6366f120 0%, #4f46e510 100%)' }
                     ].map((stat, i) => (
                         <div key={i} style={{
                             background: `#0f172a`,
@@ -162,13 +180,13 @@ export default function IncomeClient() {
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))', gap: '40px' }}>
 
-                    {/* Employers List */}
+                    {/* Categories List */}
                     <div>
                         <h3 style={{ fontSize: 'clamp(1.05rem, 2vw, 1.25rem)', fontWeight: '900', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#fff' }}>
-                            <Globe size={20} color="#6366f1" aria-hidden="true" /> My Employers
+                            <ShoppingBag size={20} color="#6366f1" aria-hidden="true" /> Expense Categories
                         </h3>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                            {employers.length > 0 ? employers.map(([name, stats]) => (
+                            {categories.length > 0 ? categories.map(([name, stats]) => (
                                 <div key={name} style={{
                                     background: '#0f172a',
                                     padding: '24px',
@@ -193,49 +211,49 @@ export default function IncomeClient() {
                                         <div style={{
                                             width: '52px',
                                             height: '52px',
-                                            background: 'rgba(99, 102, 241, 0.1)',
+                                            background: 'rgba(239, 68, 68, 0.1)',
                                             borderRadius: '16px',
                                             display: 'flex',
                                             alignItems: 'center',
                                             justifyContent: 'center',
-                                            color: '#818cf8',
-                                            border: '1px solid rgba(99, 102, 241, 0.2)',
+                                            color: '#f87171',
+                                            border: '1px solid rgba(239, 68, 68, 0.2)',
                                             flexShrink: 0
                                         }} aria-hidden="true">
-                                            <Award size={24} />
+                                            {getCategoryIcon(name)}
                                         </div>
                                         <div style={{ minWidth: 0 }}>
                                             <div style={{ color: '#fff', fontWeight: '800', fontSize: 'clamp(0.95rem, 2vw, 1.1rem)', marginBottom: '4px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{name}</div>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                                <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>{stats.count} Income Records</span>
+                                                <span style={{ color: '#94a3b8', fontSize: '0.85rem', fontWeight: '600' }}>{stats.count} Transactions</span>
                                             </div>
                                         </div>
                                     </div>
                                     <div style={{ textAlign: 'right' }}>
-                                        <div style={{ color: '#10b981', fontSize: 'clamp(1.2rem, 2.5vw, 1.4rem)', fontWeight: '900', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{stats.total.toLocaleString()}</div>
-                                        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>Total Earned</div>
+                                        <div style={{ color: '#ef4444', fontSize: 'clamp(1.2rem, 2.5vw, 1.4rem)', fontWeight: '900', overflow: 'hidden', textOverflow: 'ellipsis' }}>₹{stats.total.toLocaleString()}</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '800', textTransform: 'uppercase' }}>Total Spent</div>
                                     </div>
                                 </div>
                             )) : (
                                 <div style={{ padding: '40px 20px', textAlign: 'center', background: '#0f172a', borderRadius: '24px', border: '1px solid #1e293b', color: '#94a3b8' }}>
                                     <Coffee size={32} style={{ marginBottom: '16px' }} aria-hidden="true" />
-                                    <p>No jobs added yet. Start by logging your first income!</p>
+                                    <p>No expenses recorded yet. Start tracking your spending!</p>
                                 </div>
                             )}
                         </div>
                     </div>
 
-                    {/* Recent Pay History */}
+                    {/* Recent Expenses History */}
                     <div>
                         <h3 style={{ fontSize: 'clamp(1.05rem, 2vw, 1.25rem)', fontWeight: '900', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '12px', color: '#fff' }}>
                             <div style={{
-                                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                                 padding: '8px',
                                 borderRadius: '12px'
                             }} aria-hidden="true">
                                 <Clock size={20} color="#fff" />
                             </div>
-                            <span>Recent Income History</span>
+                            <span>Recent Expenses</span>
                         </h3>
                         <div style={{
                             background: '#0f172a',
@@ -246,7 +264,7 @@ export default function IncomeClient() {
                             flexDirection: 'column',
                             gap: '12px'
                         }}>
-                            {salaryItems.length > 0 ? salaryItems.slice(0, 8).map((item) => (
+                            {expenseItems.length > 0 ? expenseItems.slice(0, 8).map((item) => (
                                 <div key={item.id} style={{
                                     background: 'rgba(255,255,255,0.02)',
                                     padding: '16px 20px',
@@ -262,21 +280,21 @@ export default function IncomeClient() {
                                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
                                     onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0 }}>
-                                        <div style={{ color: '#10b981', background: 'rgba(16, 185, 129, 0.1)', padding: '8px', borderRadius: '10px', flexShrink: 0 }} aria-hidden="true">
-                                            <Heart size={16} fill="currentColor" />
+                                        <div style={{ color: '#ef4444', background: 'rgba(239, 68, 68, 0.1)', padding: '8px', borderRadius: '10px', flexShrink: 0 }} aria-hidden="true">
+                                            {getCategoryIcon(item.category)}
                                         </div>
                                         <div style={{ minWidth: 0 }}>
                                             <div style={{ fontWeight: '800', fontSize: '1rem', color: '#e2e8f0', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{item.description}</div>
-                                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600' }}>{new Date(item.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}</div>
+                                            <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: '600' }}>{item.category} • {new Date(item.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</div>
                                         </div>
                                     </div>
                                     <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                        <div style={{ color: '#10b981', fontWeight: '950', fontSize: 'clamp(1rem, 2vw, 1.2rem)', overflow: 'hidden', textOverflow: 'ellipsis' }}>+₹{item.amount.toLocaleString()}</div>
+                                        <div style={{ color: '#ef4444', fontWeight: '950', fontSize: 'clamp(1rem, 2vw, 1.2rem)', overflow: 'hidden', textOverflow: 'ellipsis' }}>-₹{item.amount.toLocaleString()}</div>
                                         <div style={{ display: 'flex', gap: '8px' }}>
                                             <button
                                                 onClick={(e) => { e.stopPropagation(); handleEdit(item); }}
                                                 style={{ background: 'rgba(255,255,255,0.03)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px' }}
-                                                aria-label="Edit income"
+                                                aria-label="Edit expense"
                                             >
                                                 <Edit3 size={14} />
                                             </button>
@@ -284,18 +302,18 @@ export default function IncomeClient() {
                                                 onClick={async (e) => {
                                                     e.stopPropagation();
                                                     const isConfirmed = await customConfirm({
-                                                        title: 'Delete Income',
-                                                        message: 'Are you sure you want to delete this income record?',
+                                                        title: 'Delete Expense',
+                                                        message: 'Are you sure you want to delete this expense record?',
                                                         type: 'error',
                                                         confirmLabel: 'Delete'
                                                     });
                                                     if (isConfirmed) {
                                                         await deleteTransaction(item.id);
-                                                        showNotification('success', 'Income record removed');
+                                                        showNotification('success', 'Expense record removed');
                                                     }
                                                 }}
                                                 style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px' }}
-                                                aria-label="Delete income"
+                                                aria-label="Delete expense"
                                             >
                                                 <Trash2 size={14} />
                                             </button>
@@ -303,44 +321,57 @@ export default function IncomeClient() {
                                     </div>
                                 </div>
                             )) : (
-                                <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>No payment history found.</p>
+                                <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>No expense history found.</p>
                             )}
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Simple Modal - Add Income */}
+            {/* Simple Modal - Add Expense */}
             {isModalOpen && (
                 <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
                     <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '480px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', gap: '12px' }}>
-                            <h2 style={{ fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', fontWeight: '900', margin: 0, color: '#fff' }}>{editId ? 'Modify Income' : 'Income Logged! 🥳'}</h2>
+                            <h2 style={{ fontSize: 'clamp(1.3rem, 3vw, 1.8rem)', fontWeight: '900', margin: 0, color: '#fff' }}>{editId ? 'Edit Expense' : 'Track Expense 💸'}</h2>
                             <button onClick={() => setIsModalOpen(false)} aria-label="Close modal" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}><X size={20} /></button>
                         </div>
-                        <form onSubmit={handleLogIncome} aria-label="Log income form" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                        <form onSubmit={handleLogExpense} aria-label="Log expense form" style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Who paid you? (Job Name)</label>
-                                <input value={employerName} onChange={e => setEmployerName(e.target.value)} placeholder="e.g. Acme Corp or Freelance" required aria-label="Employer name" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} autoFocus />
+                                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>What did you spend on?</label>
+                                <input value={description} onChange={e => setDescription(e.target.value)} placeholder="e.g. Groceries, Uber ride, Movie tickets" required aria-label="Expense description" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} autoFocus />
                             </div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '20px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>How much? (₹)</label>
-                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" required aria-label="Payment amount" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Amount (₹)</label>
+                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" required aria-label="Expense amount" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>When?</label>
-                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} aria-label="Payment date" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Date</label>
+                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} aria-label="Expense date" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
                             </div>
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Which Bank Account? (Optional)</label>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Category</label>
+                                <select value={category} onChange={e => setCategory(e.target.value)} aria-label="Expense category" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }}>
+                                    <option value="Food">Food & Dining</option>
+                                    <option value="Transport">Transport</option>
+                                    <option value="Shopping">Shopping</option>
+                                    <option value="Entertainment">Entertainment</option>
+                                    <option value="Healthcare">Healthcare</option>
+                                    <option value="Education">Education</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Bank Account (Optional)</label>
                                 <select value={selectedAccountId} onChange={e => setSelectedAccountId(e.target.value ? Number(e.target.value) : '')} aria-label="Select bank account" style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }}>
-                                    <option value="">Just log it, don&apos;t add to bank</option>
+                                    <option value="">Just log it, don&apos;t deduct from bank</option>
                                     {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>)}
                                 </select>
                             </div>
-                            <button type="submit" aria-label="Save income" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)' }}>{editId ? 'Update Income' : 'Save This Income'}</button>
+                            <button type="submit" aria-label="Save expense" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)' }}>{editId ? 'Update Expense' : 'Track This Expense'}</button>
                         </form>
                     </div>
                 </div>
