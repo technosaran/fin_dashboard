@@ -891,7 +891,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             gst_rate: currentSettings.gstRate,
                             dp_charges: currentSettings.dpCharges,
                             auto_calculate_charges: currentSettings.autoCalculateCharges,
-                            bonds_enabled: currentSettings.bondsEnabled,
+                            bonds_enabled: currentSettings.bondsEnabled ?? true,
                             forex_enabled: currentSettings.forexEnabled ?? true,
                             default_stock_account_id: currentSettings.defaultStockAccountId || null,
                             default_mf_account_id: currentSettings.defaultMfAccountId || null,
