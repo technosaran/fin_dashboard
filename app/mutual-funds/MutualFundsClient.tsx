@@ -19,9 +19,10 @@ import {
     Edit3,
     Trash2,
     ArrowRight,
+    Eye,
     PieChart as PieChartIcon
 } from 'lucide-react';
-import { useFinance, MutualFund, MutualFundTransaction } from '../components/FinanceContext';
+import { useFinance, MutualFund, MutualFundTransaction, calculateMfCharges } from '../components/FinanceContext';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
@@ -45,6 +46,7 @@ export default function MutualFundsClient() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<'fund' | 'transaction'>('fund');
     const [editId, setEditId] = useState<number | null>(null);
+    const [viewingCharges, setViewingCharges] = useState<MutualFund | null>(null);
 
     // Search & Data Fetching States
     const [searchQuery, setSearchQuery] = useState('');
@@ -399,7 +401,10 @@ export default function MutualFundsClient() {
                                             </td>
                                             <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                                                 <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>
-                                                    <button onClick={() => handleExitFund(mf)} title="Exit / Sell" style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '4px', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                                    <button onClick={(e) => { e.stopPropagation(); setViewingCharges(mf); }} title="Estimated Sell Charges" style={{ background: 'none', border: 'none', color: '#6366f1', cursor: 'pointer', padding: '4px', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                                                        <Eye size={16} />
+                                                    </button>
+                                                    <button onClick={(e) => { e.stopPropagation(); handleExitFund(mf); }} title="Exit / Sell" style={{ background: 'none', border: 'none', color: '#10b981', cursor: 'pointer', padding: '4px', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.2)'} onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
                                                         <ArrowRight size={16} strokeWidth={3} />
                                                     </button>
                                                     <button onClick={() => handleEditFund(mf)} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }} title="Edit">
@@ -774,6 +779,68 @@ export default function MutualFundsClient() {
                     </div>
                 )
             }
+            {viewingCharges && (() => {
+                const charges = calculateMfCharges('SELL', viewingCharges.currentValue);
+                return (
+                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
+                        <div style={{ background: '#0f172a', padding: '32px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '400px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b' }}>
+                                        <Eye size={20} />
+                                    </div>
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>MF Charge Estimator</h2>
+                                </div>
+                                <button onClick={() => setViewingCharges(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <X size={18} />
+                                </button>
+                            </div>
+
+                            <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px' }}>
+                                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: '700' }}>{viewingCharges.category}</div>
+                                <div style={{ fontSize: '1rem', fontWeight: '900', color: '#fff' }}>{viewingCharges.name}</div>
+                            </div>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Entry/Exit Load</span>
+                                        <span style={{ color: '#475569', fontSize: '0.7rem' }}>Varies (Fixed ₹0 for Direct)</span>
+                                    </div>
+                                    <span style={{ color: '#fff', fontWeight: '700' }}>₹0.00</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Stamp Duty</span>
+                                        <span style={{ color: '#475569', fontSize: '0.7rem' }}>0.005% (Applicable on Buy Only)</span>
+                                    </div>
+                                    <span style={{ color: '#475569', fontWeight: '700' }}>N/A (Selling)</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Expense Ratio</span>
+                                        <span style={{ color: '#475569', fontSize: '0.7rem' }}>Already adjusted in NAV</span>
+                                    </div>
+                                    <span style={{ color: '#10b981', fontWeight: '700' }}>Included</span>
+                                </div>
+                                <div style={{ height: '1px', background: '#1e293b', margin: '8px 0' }} />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ color: '#fff', fontWeight: '800' }}>Estimated Total Charges</span>
+                                    <span style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: '950' }}>₹0.00</span>
+                                </div>
+                            </div>
+
+                            <p style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '20px', fontStyle: 'italic', lineHeight: '1.4' }}>
+                                * For Direct Mutual Funds, there are typically no transaction charges. Stamp duty is only levied on purchase. Exit loads may apply if redeemed within the lock-in period.
+                            </p>
+
+                            <button onClick={() => setViewingCharges(null)} style={{ width: '100%', background: '#f59e0b', color: '#000', padding: '14px', borderRadius: '16px', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '24px' }}>
+                                Close
+                            </button>
+                        </div>
+                    </div>
+                );
+            })()}
         </div>
     );
 }

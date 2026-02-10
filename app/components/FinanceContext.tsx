@@ -449,15 +449,63 @@ export const calculateStockCharges = (
     // 6. GST (18% on Brokerage + Trans Charges + SEBI)
     const gst = (brokerage + transCharges + sebiCharges) * (settings.gstRate / 100);
 
-    // 7. DP Charges (Flat ₹13.5 + GST on Sell Scrip - simplified as flat per transaction for this engine)
+    // 7. DP Charges (Flat ₹13.5 + GST on Sell Scrip)
     const dpCharges = type === 'SELL' ? settings.dpCharges : 0;
 
     const totalCharges = brokerage + stt + transCharges + sebiCharges + stampDuty + gst + dpCharges;
 
     return {
         brokerage: Number(brokerage.toFixed(2)),
+        stt: Number(stt.toFixed(2)),
+        transactionCharges: Number(transCharges.toFixed(2)),
+        sebiCharges: Number(sebiCharges.toFixed(2)),
+        stampDuty: Number(stampDuty.toFixed(2)),
+        gst: Number(gst.toFixed(2)),
+        dpCharges: Number(dpCharges.toFixed(2)),
         taxes: Number((totalCharges - brokerage).toFixed(2)),
         total: Number(totalCharges.toFixed(2))
+    };
+};
+
+export const calculateMfCharges = (
+    type: 'BUY' | 'SELL' | 'SIP',
+    amount: number
+) => {
+    // Stamp duty is 0.005% on Purchase/SIP (0.00005)
+    const stampDuty = (type === 'BUY' || type === 'SIP') ? amount * 0.00005 : 0;
+
+    return {
+        stampDuty: Number(stampDuty.toFixed(2)),
+        total: Number(stampDuty.toFixed(2))
+    };
+};
+
+export const calculateBondCharges = (
+    type: 'BUY' | 'SELL',
+    quantity: number,
+    price: number,
+    settings: AppSettings
+) => {
+    const turnover = quantity * price;
+
+    // Brokerage
+    const brokerage = settings.brokerageType === 'flat'
+        ? settings.brokerageValue
+        : (turnover * settings.brokerageValue) / 100;
+
+    // Stamp Duty for bonds is 0.0001% (0.000001)
+    const stampDuty = type === 'BUY' ? turnover * 0.000001 : 0;
+
+    // GST on brokerage (usually 18%)
+    const gst = brokerage * (settings.gstRate / 100);
+
+    const total = brokerage + stampDuty + gst;
+
+    return {
+        brokerage: Number(brokerage.toFixed(2)),
+        stampDuty: Number(stampDuty.toFixed(2)),
+        gst: Number(gst.toFixed(2)),
+        total: Number(total.toFixed(2))
     };
 };
 

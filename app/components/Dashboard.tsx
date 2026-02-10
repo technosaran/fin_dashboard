@@ -36,7 +36,8 @@ export default function Dashboard() {
         stockTransactions,
         mutualFundTransactions,
         bondTransactions,
-        loading
+        loading,
+        settings
     } = useFinance();
 
     const greeting = useMemo(() => getGreeting(), []);
@@ -49,7 +50,12 @@ export default function Dashboard() {
 
         const stocksValue = stocks.reduce((sum, s) => sum + s.currentValue, 0);
         const mfValue = mutualFunds.reduce((sum, m) => sum + m.currentValue, 0);
-        const bondsValue = bonds.reduce((sum, b) => sum + b.currentValue, 0);
+
+        // Zero out bond value if disabled in settings
+        const bondsValue = settings.bondsEnabled
+            ? bonds.reduce((sum, b) => sum + b.currentValue, 0)
+            : 0;
+
         const totalNetWorth = liquidityINR + stocksValue + mfValue + bondsValue;
 
         const stockBuys = stockTransactions
@@ -77,15 +83,19 @@ export default function Dashboard() {
 
         const mfLifetime = (mfSells + mfValue) - mfBuys;
 
-        const bondBuys = bondTransactions
-            .filter(t => t.transactionType === 'BUY')
-            .reduce((sum, t) => sum + t.totalAmount, 0);
+        // Zero out bond lifetime if disabled
+        let bondLifetime = 0;
+        if (settings.bondsEnabled) {
+            const bondBuys = bondTransactions
+                .filter(t => t.transactionType === 'BUY')
+                .reduce((sum, t) => sum + t.totalAmount, 0);
 
-        const bondReturns = bondTransactions
-            .filter(t => t.transactionType === 'SELL' || t.transactionType === 'MATURITY' || t.transactionType === 'INTEREST')
-            .reduce((sum, t) => sum + t.totalAmount, 0);
+            const bondReturns = bondTransactions
+                .filter(t => t.transactionType === 'SELL' || t.transactionType === 'MATURITY' || t.transactionType === 'INTEREST')
+                .reduce((sum, t) => sum + t.totalAmount, 0);
 
-        const bondLifetime = (bondReturns + bondsValue) - bondBuys;
+            bondLifetime = (bondReturns + bondsValue) - bondBuys;
+        }
 
         const globalLifetimeWealth = stockLifetime + mfLifetime + bondLifetime;
 
@@ -97,7 +107,7 @@ export default function Dashboard() {
             totalNetWorth,
             globalLifetimeWealth,
         };
-    }, [accounts, stocks, mutualFunds, bonds, stockTransactions, mutualFundTransactions, bondTransactions]);
+    }, [accounts, stocks, mutualFunds, bonds, stockTransactions, mutualFundTransactions, bondTransactions, settings.bondsEnabled]);
 
     const allocationData = useMemo(() => {
         return [
