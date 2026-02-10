@@ -121,12 +121,13 @@ export default function Dashboard() {
             return acc;
         }, {} as Record<string, number>);
         
-        const topCategoryName = Object.entries(topCategory).sort((a, b) => b[1] - a[1])[0];
+        const topCategoryEntries = Object.entries(topCategory).sort((a, b) => b[1] - a[1]);
+        const topCategoryName = topCategoryEntries.length > 0 ? topCategoryEntries[0][0] : 'None';
         
         return {
             totalExpenses,
             count: thisMonthExpenses.length,
-            topCategory: topCategoryName ? topCategoryName[0] : 'None'
+            topCategory: topCategoryName
         };
     }, [transactions]);
 

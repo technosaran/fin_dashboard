@@ -42,6 +42,21 @@ export default function ExpensesClient() {
 
     const categories = Object.entries(categoriesMap).sort((a, b) => b[1].total - a[1].total);
     const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
+    
+    // Calculate average monthly spending
+    const avgMonthlySpending = (() => {
+        if (activeTab === 'This Year') {
+            return totalExpenses / Math.max(new Date().getMonth() + 1, 1);
+        } else if (expenseItems.length > 0) {
+            // For all time, calculate based on date range
+            const dates = expenseItems.map(e => new Date(e.date).getTime());
+            const earliest = Math.min(...dates);
+            const latest = Math.max(...dates);
+            const monthsDiff = Math.max(1, Math.ceil((latest - earliest) / (1000 * 60 * 60 * 24 * 30)));
+            return totalExpenses / monthsDiff;
+        }
+        return 0;
+    })();
 
     // Form State
     const [amount, setAmount] = useState('');
@@ -146,7 +161,7 @@ export default function ExpensesClient() {
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))', gap: '32px', marginBottom: '48px' }}>
                     {[
                         { label: activeTab === 'This Year' ? 'Total Expenses (Year)' : 'Total Expenses (All Time)', value: `₹${totalExpenses.toLocaleString()}`, icon: <TrendingDown size={22} />, color: '#ef4444', sub: 'Money spent', gradient: 'linear-gradient(135deg, #ef444420 0%, #dc262610 100%)' },
-                        { label: 'Average per Month', value: `₹${(totalExpenses / (activeTab === 'This Year' ? new Date().getMonth() + 1 : Math.max(expenseItems.length, 1))).toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: <Calendar size={22} />, color: '#f59e0b', sub: 'Monthly spending', gradient: 'linear-gradient(135deg, #f59e0b20 0%, #d9770610 100%)' },
+                        { label: 'Average per Month', value: `₹${avgMonthlySpending.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: <Calendar size={22} />, color: '#f59e0b', sub: 'Monthly spending', gradient: 'linear-gradient(135deg, #f59e0b20 0%, #d9770610 100%)' },
                         { label: 'Expense Categories', value: categories.length, icon: <ShoppingBag size={22} />, color: '#6366f1', sub: 'Tracked categories', gradient: 'linear-gradient(135deg, #6366f120 0%, #4f46e510 100%)' }
                     ].map((stat, i) => (
                         <div key={i} style={{
