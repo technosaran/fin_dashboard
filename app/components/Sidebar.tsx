@@ -12,7 +12,6 @@ import {
     Users,
     Target,
     Zap,
-    ArrowDownRight,
     Settings,
     LogOut,
     Command,
