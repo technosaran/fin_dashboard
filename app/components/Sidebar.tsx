@@ -38,7 +38,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={20} /> },
         { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={20} /> },
         { label: 'FnO', href: '/fno', icon: <Zap size={20} /> },
-        { label: 'Expenses', href: '/expenses', icon: <ArrowDownRight size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Income', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
