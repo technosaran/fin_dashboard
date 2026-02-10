@@ -1,6 +1,4 @@
-import { NextResponse } from 'next/server';
 import {
-    createErrorResponse,
     createSuccessResponse,
     applyRateLimit,
 } from '@/lib/services/api';

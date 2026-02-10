@@ -24,7 +24,6 @@ import {
     Trash2,
     ArrowRight,
     Eye,
-    Info,
     PieChart as PieChartIcon
 } from 'lucide-react';
 
@@ -40,7 +39,8 @@ export default function StocksClient() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalType, setModalType] = useState<'stock' | 'transaction'>('stock');
     const [editId, setEditId] = useState<number | null>(null);
-    const [viewingCharges, setViewingCharges] = useState<{ type: 'stock' | 'mf' | 'bond', data: any } | null>(null);
+    type ChargeViewData = Pick<Stock, 'symbol' | 'quantity' | 'currentPrice'>;
+    const [viewingCharges, setViewingCharges] = useState<{ type: 'stock' | 'mf' | 'bond'; data: ChargeViewData } | null>(null);
 
     // Search States
     const [searchQuery, setSearchQuery] = useState('');

@@ -10,6 +10,27 @@ import {
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
+interface MFNavPoint {
+    nav: string;
+    date: string;
+}
+
+interface MFAPIResponse {
+    meta?: {
+        scheme_code?: string;
+        scheme_name?: string;
+    };
+    data?: MFNavPoint[];
+}
+
+interface MFQuoteData {
+    schemeCode: string;
+    schemeName: string;
+    currentNav: number;
+    previousNav: number;
+    date: string;
+}
+
 /**
  * Batch Mutual Fund quote API endpoint
  * Aggregates multiple MFAPI calls into one response for the UI
@@ -33,17 +54,17 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
     }
 
     const cacheKey = `mf_batch_${codes.sort().join(',')}`;
-    const cached = getCache<Record<string, any>>(cacheKey);
+    const cached = getCache<Record<string, MFQuoteData>>(cacheKey);
     if (cached) return createSuccessResponse(cached);
 
     try {
-        const results: Record<string, any> = {};
+        const results: Record<string, MFQuoteData> = {};
 
         // We'll process them in parallel but on the server side
         await Promise.all(codes.map(async (code) => {
             // Check individual cache first
             const individualCacheKey = `mf_quote_${code}`;
-            const individualCached = getCache<any>(individualCacheKey);
+            const individualCached = getCache<MFQuoteData>(individualCacheKey);
 
             if (individualCached) {
                 results[code] = individualCached;
@@ -53,13 +74,13 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
             try {
                 const response = await fetchWithTimeout(`https://api.mfapi.in/mf/${code}`, {}, 5000);
                 if (response.ok) {
-                    const data = await response.json();
+                    const data = (await response.json()) as MFAPIResponse;
                     if (data && data.meta && data.data && data.data.length > 0) {
                         const latestNav = data.data[0];
                         const previousNav = data.data.length > 1 ? data.data[1] : latestNav;
                         const mfData = {
-                            schemeCode: data.meta.scheme_code,
-                            schemeName: data.meta.scheme_name,
+                            schemeCode: data.meta.scheme_code || code,
+                            schemeName: data.meta.scheme_name || code,
                             currentNav: parseFloat(latestNav.nav) || 0,
                             previousNav: parseFloat(previousNav.nav) || 0,
                             date: latestNav.date,

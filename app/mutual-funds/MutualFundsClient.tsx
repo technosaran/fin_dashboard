@@ -22,7 +22,7 @@ import {
     Eye,
     PieChart as PieChartIcon
 } from 'lucide-react';
-import { useFinance, MutualFund, MutualFundTransaction, calculateMfCharges } from '../components/FinanceContext';
+import { useFinance, MutualFund, MutualFundTransaction } from '../components/FinanceContext';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
@@ -780,7 +780,6 @@ export default function MutualFundsClient() {
                 )
             }
             {viewingCharges && (() => {
-                const charges = calculateMfCharges('SELL', viewingCharges.currentValue);
                 return (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
                         <div style={{ background: '#0f172a', padding: '32px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '400px' }}>

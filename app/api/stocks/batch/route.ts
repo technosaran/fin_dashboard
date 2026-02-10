@@ -10,6 +10,31 @@ import {
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
+interface YahooBatchQuote {
+    symbol?: string;
+    regularMarketPrice?: number;
+    regularMarketPreviousClose?: number;
+    currency?: string;
+    fullExchangeName?: string;
+    shortName?: string;
+    longName?: string;
+}
+
+interface YahooBatchResponse {
+    quoteResponse?: {
+        result?: YahooBatchQuote[];
+    };
+}
+
+interface StockBatchQuote {
+    symbol: string;
+    currentPrice: number;
+    previousClose: number;
+    currency: string;
+    exchange: string;
+    displayName: string;
+}
+
 /**
  * Batch stock quote API endpoint
  */
@@ -36,7 +61,7 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
     }
 
     const cacheKey = `batch_stocks_${symbols.sort().join(',')}`;
-    const cached = getCache<Record<string, any>>(cacheKey);
+    const cached = getCache<Record<string, StockBatchQuote>>(cacheKey);
     if (cached) return createSuccessResponse(cached);
 
     try {
@@ -57,11 +82,12 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
             8000
         );
 
-        const data = await response.json();
-        const result: Record<string, any> = {};
+        const data = (await response.json()) as YahooBatchResponse;
+        const result: Record<string, StockBatchQuote> = {};
 
         if (data.quoteResponse?.result) {
-            data.quoteResponse.result.forEach((quote: any) => {
+            data.quoteResponse.result.forEach((quote) => {
+                if (!quote.symbol) return;
                 const baseSymbol = quote.symbol.split('.')[0];
                 // If we already have a price (maybe from NSE), don't overwrite with BSE unless NSE was null
                 if (!result[baseSymbol] || (result[baseSymbol].currentPrice === 0 && quote.regularMarketPrice)) {

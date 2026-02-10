@@ -11,6 +11,20 @@ import {
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
+interface MFNavPoint {
+  nav: string;
+  date: string;
+}
+
+interface MFAPIResponse {
+  meta?: {
+    scheme_code?: string;
+    scheme_name?: string;
+    scheme_category?: string;
+  };
+  data?: MFNavPoint[];
+}
+
 /**
  * Mutual Fund quote API endpoint with security enhancements
  */
@@ -33,7 +47,7 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
   }
 
   const cacheKey = `mf_quote_${code.trim()}`;
-  const cached = getCache<any>(cacheKey);
+  const cached = getCache<{ schemeCode: string; schemeName: string; category: string; currentNav: number; previousNav: number; date: string }>(cacheKey);
   if (cached) return createSuccessResponse(cached);
 
   try {
@@ -49,14 +63,14 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
       throw new Error('Failed to fetch mutual fund details');
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as MFAPIResponse;
 
     if (data && data.meta && data.data && data.data.length > 0) {
       const latestNav = data.data[0];
       const previousNav = data.data.length > 1 ? data.data[1] : latestNav;
       const quoteData = {
-        schemeCode: data.meta.scheme_code,
-        schemeName: data.meta.scheme_name,
+        schemeCode: data.meta.scheme_code || sanitizedCode,
+        schemeName: data.meta.scheme_name || sanitizedCode,
         category: data.meta.scheme_category || 'N/A',
         currentNav: parseFloat(latestNav.nav) || 0,
         previousNav: parseFloat(previousNav.nav) || 0,
