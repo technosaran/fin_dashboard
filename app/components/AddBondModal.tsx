@@ -7,7 +7,6 @@ import {
     Landmark,
     Calendar,
     Percent,
-    CreditCard,
     ShieldCheck,
     Check
 } from 'lucide-react';
@@ -440,7 +439,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                         <div style={{ textAlign: 'center', padding: '48px 0' }}>
                             <Search size={48} style={{ color: '#1e293b', marginBottom: '16px', margin: '0 auto' }} />
                             <h3 style={{ fontSize: '1.1rem', fontWeight: '800', margin: '0 0 8px 0' }}>No Bonds Found</h3>
-                            <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>We couldn't find any bonds matching "{searchQuery}"</p>
+                            <p style={{ color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>We couldn&apos;t find any bonds matching &quot;{searchQuery}&quot;</p>
                         </div>
                     )}
                 </div>

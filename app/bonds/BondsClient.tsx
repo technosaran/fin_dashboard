@@ -10,7 +10,6 @@ import {
     Calendar,
     ArrowUpRight,
     ArrowDownRight,
-    Info,
     Percent,
     Wallet,
     Trash2,
@@ -26,7 +25,7 @@ export default function BondsClient() {
     const { showNotification, confirm } = useNotifications();
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [viewingCharges, setViewingCharges] = useState<any>(null);
+    const [viewingCharges, setViewingCharges] = useState<Bond | null>(null);
 
     // Filter bonds based on search
     const filteredBonds = useMemo(() => {

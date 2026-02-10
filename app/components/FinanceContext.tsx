@@ -1900,24 +1900,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const addForexTransaction = async (transactionData: Omit<ForexTransaction, 'id'>) => {
-        // If accountId is provided, update account balance
-        if (transactionData.accountId) {
+        // Balance validation for WITHDRAWAL and LOSS
+        if (transactionData.accountId && (transactionData.transactionType === 'WITHDRAWAL' || transactionData.transactionType === 'LOSS')) {
             const account = accounts.find(acc => acc.id === transactionData.accountId);
-            if (account) {
-                // For DEPOSIT, add to account
-                // For WITHDRAWAL, subtract from account
-                // For PROFIT, add to account
-                // For LOSS, subtract from account
-                let balanceChange = 0;
-                if (transactionData.transactionType === 'DEPOSIT' || transactionData.transactionType === 'PROFIT') {
-                    balanceChange = transactionData.amount;
-                } else if (transactionData.transactionType === 'WITHDRAWAL' || transactionData.transactionType === 'LOSS') {
-                    balanceChange = -transactionData.amount;
-                    // Check for sufficient funds
-                    if (account.balance < transactionData.amount) {
-                        throw new Error(`Insufficient funds in ${account.name} (Balance: ₹${account.balance.toLocaleString()})`);
-                    }
-                }
+            if (account && account.balance < transactionData.amount) {
+                throw new Error(`Insufficient funds in ${account.name} (Balance: ₹${account.balance.toLocaleString()})`);
             }
         }
 
