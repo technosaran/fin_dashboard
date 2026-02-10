@@ -116,9 +116,14 @@ a.secondary {
   }
 
   .intro h1 {
-    font-size: 32px;
-    line-height: 40px;
-    letter-spacing: -1.92px;
+    font-size: 28px;
+    line-height: 36px;
+    letter-spacing: -1.68px;
+  }
+  
+  .intro p {
+    font-size: 16px;
+    line-height: 28px;
   }
 }
 
@@ -129,10 +134,10 @@ a.secondary {
 
   .page {
     --background: #000;
-    --foreground: #000;
+    --foreground: #0a0a0a;
 
     --text-primary: #ededed;
-    --text-secondary: #999;
+    --text-secondary: #a3a3a3;
 
     --button-primary-hover: #ccc;
     --button-secondary-hover: #1a1a1a;

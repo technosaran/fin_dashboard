@@ -99,44 +99,18 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                             <Link
                                 key={item.href}
                                 href={item.href}
-                                style={{ textDecoration: 'none' }}
+                                className={`nav-item ${isActive ? 'nav-item-active' : ''}`}
                                 aria-current={isActive ? 'page' : undefined}
                                 onClick={onClose}
                             >
-                                <div style={{
-                                    padding: '8px 12px',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '10px',
-                                    background: isActive ? 'rgba(99, 102, 241, 0.1)' : 'transparent',
-                                    color: isActive ? '#fff' : '#94a3b8',
-                                    transition: 'all 0.2s',
-                                    position: 'relative',
-                                    cursor: 'pointer'
-                                }}
-                                    onMouseEnter={e => {
-                                        if (!isActive) {
-                                            e.currentTarget.style.background = 'rgba(255,255,255,0.03)';
-                                            e.currentTarget.style.color = '#cbd5e1';
-                                        }
-                                    }}
-                                    onMouseLeave={e => {
-                                        if (!isActive) {
-                                            e.currentTarget.style.background = 'transparent';
-                                            e.currentTarget.style.color = '#94a3b8';
-                                        }
-                                    }}
-                                >
-                                    <div style={{ color: isActive ? '#818cf8' : 'inherit', transition: 'color 0.2s' }} aria-hidden="true">
-                                        {item.icon}
-                                    </div>
-                                    <span style={{ fontWeight: isActive ? '700' : '600', fontSize: '0.9rem' }}>{item.label}</span>
-
-                                    {isActive && (
-                                        <div style={{ position: 'absolute', right: '12px', width: '6px', height: '6px', borderRadius: '50%', background: '#818cf8', boxShadow: '0 0 10px #818cf8' }} aria-hidden="true" />
-                                    )}
+                                <div className="nav-item-icon" aria-hidden="true">
+                                    {item.icon}
                                 </div>
+                                <span className="nav-item-text">{item.label}</span>
+
+                                {isActive && (
+                                    <div className="nav-item-indicator" aria-hidden="true" />
+                                )}
                             </Link>
                         );
                     })}
