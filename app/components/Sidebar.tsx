@@ -43,6 +43,8 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         { label: 'FnO', href: '/fno', icon: <Zap size={20} /> },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Income', href: '/salary', icon: <Banknote size={20} /> },
+        { label: 'Expenses', href: '/expenses', icon: <ShoppingBag size={20} /> },
+        { label: 'Goals', href: '/goals', icon: <Target size={20} /> },
         { label: 'Family', href: '/family', icon: <Users size={20} /> },
     ].filter(item => item.enabled === undefined || item.enabled === true);
 
