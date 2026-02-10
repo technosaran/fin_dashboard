@@ -137,12 +137,7 @@ export default function Dashboard() {
                         </span>
                     </h1>
                 </div>
-                <div className="fade-in" style={{ animationDelay: '0.1s' }}>
-                    <div className="status-badge">
-                        <div className="status-indicator" />
-                        <span className="status-text">Live System</span>
-                    </div>
-                </div>
+
             </header>
 
             {/* Main Wealth Card: Unified Net Worth & Allocation */}
@@ -153,7 +148,7 @@ export default function Dashboard() {
 
                     <div className="wealth-card-inner">
 
-                {/* Left: Net Worth Summary */}
+                        {/* Left: Net Worth Summary */}
                         <div className="wealth-section">
                             <div className="badge-wrapper">
                                 <div className="icon-badge">
@@ -355,34 +350,7 @@ export default function Dashboard() {
                         )}
                     </div>
 
-                    {/* Quick Stats / Health */}
-                    <div className="premium-card" style={{ padding: '24px', background: 'rgba(16, 185, 129, 0.03)', border: '1px dashed rgba(16, 185, 129, 0.2)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '12px', borderRadius: '14px', color: '#10b981' }}>
-                                <Award size={24} />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <div className="stat-label" style={{ color: '#10b981', marginBottom: '4px' }}>Portfolio Health</div>
-                                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                                    <span style={{ fontSize: '1.5rem', fontWeight: '950', color: '#fff' }}>Excellent</span>
-                                    <span style={{ fontSize: '0.8rem', fontWeight: '800', color: '#10b981' }}>+12.4% YoY</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
 
-                    {/* Market Status (Mocked/Visual) */}
-                    <div className="premium-card" style={{ padding: '24px', background: 'rgba(99, 102, 241, 0.03)', border: '1px solid rgba(99, 102, 241, 0.1)' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '12px', borderRadius: '14px', color: '#818cf8' }}>
-                                <TrendingUp size={24} />
-                            </div>
-                            <div style={{ flex: 1 }}>
-                                <div className="stat-label" style={{ color: '#818cf8', marginBottom: '4px' }}>Investment Strategy</div>
-                                <div style={{ fontSize: '1.25rem', fontWeight: '950', color: '#fff' }}>Aggressive Grow</div>
-                            </div>
-                        </div>
-                    </div>
 
                 </div>
             </div>

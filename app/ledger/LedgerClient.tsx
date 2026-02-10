@@ -10,7 +10,7 @@ import {
     Book,
     Plus,
     X,
-    Search,
+
     Calendar as CalendarIcon,
     ArrowUpRight,
     ArrowDownRight,
@@ -25,7 +25,7 @@ export default function LedgerClient() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
     const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-    const [searchQuery, setSearchQuery] = useState('');
+
 
     // Form State
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -78,10 +78,7 @@ export default function LedgerClient() {
     };
 
     const filteredTransactions = transactions.filter(t => {
-        const matchesDate = t.date === selectedDate.toISOString().split('T')[0];
-        const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            t.category.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesDate && matchesSearch;
+        return t.date === selectedDate.toISOString().split('T')[0];
     });
 
     const dayTotalIncome = filteredTransactions.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0);
@@ -108,12 +105,12 @@ export default function LedgerClient() {
                         <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Iterative audit trail of all movements</p>
                     </div>
                     <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                        <button 
+                        <button
                             onClick={() => {
                                 exportTransactionsToCSV(transactions);
                                 showNotification('success', 'Transactions exported successfully!');
                             }}
-                            aria-label="Export transactions to CSV" 
+                            aria-label="Export transactions to CSV"
                             style={{
                                 padding: '12px 20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', transition: '0.2s'
                             }}
@@ -223,19 +220,7 @@ export default function LedgerClient() {
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
-                        {/* Interactive Toolbar */}
-                        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                            <div style={{ position: 'relative', flex: 1 }}>
-                                <Search size={18} color="#64748b" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} aria-hidden="true" />
-                                <input
-                                    placeholder="Search records by description or category..."
-                                    value={searchQuery}
-                                    onChange={e => setSearchQuery(e.target.value)}
-                                    aria-label="Search transactions"
-                                    style={{ width: '100%', background: '#0f172a', border: '1px solid #1e293b', padding: '14px 16px 14px 48px', borderRadius: '16px', color: '#fff', outline: 'none', fontSize: '0.9rem' }}
-                                />
-                            </div>
-                        </div>
+
 
                         {/* Timeline Wrapper */}
                         <div style={{ background: 'rgba(15, 23, 42, 0.3)', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px', flex: 1 }}>

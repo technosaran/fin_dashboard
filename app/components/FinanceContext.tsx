@@ -699,8 +699,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }, 60000);
 
         return () => clearInterval(interval);
-    // refreshPortfolio and settings are intentionally excluded to prevent infinite loops
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // refreshPortfolio and settings are intentionally excluded to prevent infinite loops
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user, authLoading]);
 
     const refreshPortfolio = async () => {
@@ -1460,8 +1460,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         if (tradeData.accountId) {
             const account = accounts.find(acc => acc.id === tradeData.accountId);
             if (account && account.balance < investment) {
-                alert(`Insufficient funds in ${account.name} to enter this position.`);
-                return;
+                throw new Error(`Insufficient funds in ${account.name} (Balance: ₹${account.balance.toLocaleString()})`);
             }
         }
 
@@ -1489,7 +1488,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error('Error adding FnO trade:', error);
-            return;
+            throw new Error(error.message);
         }
 
         const newTrade = dbFnoTradeToFnoTrade(data);

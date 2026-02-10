@@ -8,7 +8,6 @@ import {
     X,
     Search,
     TrendingDown,
-    ArrowDownRight,
     PieChart as PieIcon,
     BarChart3,
     Edit3,
@@ -20,7 +19,11 @@ import {
     Utensils,
     Heart,
     Zap,
-    Briefcase
+    Briefcase,
+    Calendar,
+    Wallet,
+    CreditCard,
+    ArrowRight
 } from 'lucide-react';
 import {
     PieChart,
@@ -30,7 +33,8 @@ import {
     Tooltip,
     BarChart,
     Bar,
-    XAxis
+    XAxis,
+    YAxis
 } from 'recharts';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#06b6d4', '#f43f5e', '#14b8a6'];
@@ -75,6 +79,12 @@ export default function ExpensesClient() {
             .filter(e => new Date(e.date) >= startOfMonth)
             .reduce((sum, e) => sum + e.amount, 0);
     }, [expenses]);
+
+    const dailyAverage = useMemo(() => {
+        const now = new Date();
+        const elapsedDays = now.getDate();
+        return totalMonthlyExpense / elapsedDays;
+    }, [totalMonthlyExpense]);
 
     const categoryBreakdown = useMemo(() => {
         const breakdown: Record<string, number> = {};
@@ -133,10 +143,10 @@ export default function ExpensesClient() {
 
         if (editId) {
             await updateTransaction({ ...expenseData, id: editId });
-            showNotification('success', 'Expense updated');
+            showNotification('success', 'Expense updated successfully');
         } else {
             await addTransaction(expenseData);
-            showNotification('success', 'Expense recorded');
+            showNotification('success', 'Expense recorded successfully');
         }
 
         resetForm();
@@ -165,21 +175,22 @@ export default function ExpensesClient() {
     const handleDelete = async (id: number) => {
         const isConfirmed = await customConfirm({
             title: 'Delete Expense?',
-            message: 'This will remove the expense from your records.',
+            message: 'This will remove the expense from your permanent records.',
             type: 'error',
             confirmLabel: 'Delete'
         });
         if (isConfirmed) {
             await deleteTransaction(id);
-            showNotification('success', 'Expense deleted');
+            showNotification('success', 'Expense record deleted');
         }
     };
 
     if (loading) {
         return (
-            <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: '#020617' }}>
+            <div className="main-content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', background: 'var(--background)' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.2rem', color: '#818cf8', fontWeight: '800' }}>Analyzing your spending habits...</div>
+                    <div className="animate-sparkle" style={{ fontSize: '2rem', marginBottom: '16px' }}>✨</div>
+                    <div style={{ fontSize: '1.2rem', color: 'var(--text-secondary)', fontWeight: '800' }}>Re-imagining your cashflow...</div>
                 </div>
             </div>
         );
@@ -187,237 +198,352 @@ export default function ExpensesClient() {
 
     return (
         <div className="page-container">
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+            <div className="bg-mesh" />
+
+            {/* Premium Header */}
+            <header className="dashboard-header fade-in">
                 <div>
-                    <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '950', margin: 0, letterSpacing: '-2px', color: '#fff' }}>Expenses Hub</h1>
-                    <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', fontWeight: '600' }}>Master your cashflow and optimize spending</p>
+                    <h1 className="dashboard-title">
+                        Expense <span className="title-accent text-glow">Analytics
+                            <span className="title-underline" />
+                        </span>
+                    </h1>
+                    <p style={{ color: 'var(--text-tertiary)', fontSize: '1rem', marginTop: '8px', fontWeight: '600' }}>Precision tracking for your financial evolution</p>
                 </div>
                 <button
                     onClick={() => setIsModalOpen(true)}
-                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', padding: '16px 28px', borderRadius: '18px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 12px 24px rgba(99, 102, 241, 0.3)', transition: 'all 0.3s' }}
-                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.4)'; }}
-                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.3)'; }}
+                    className="glass-button glow-primary"
+                    style={{ padding: '16px 32px', borderRadius: '20px', display: 'flex', alignItems: 'center', gap: '12px', fontSize: '1rem', background: 'linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%)', border: 'none' }}
                 >
-                    <Plus size={20} strokeWidth={3} /> Record Expense
+                    <Plus size={22} strokeWidth={3} /> <span style={{ fontWeight: '900' }}>Record Movement</span>
                 </button>
+            </header>
+
+            {/* Hero Stats Row */}
+            <div className="dashboard-grid mb-xl fade-in" style={{ animationDelay: '0.1s' }}>
+                <div className="premium-card p-2xl" style={{ gridColumn: 'span 12', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '32px' }}>
+                    <div style={{ flex: 1, minWidth: '280px' }}>
+                        <div className="badge-wrapper">
+                            <div className="icon-badge" style={{ background: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', boxShadow: '0 8px 16px rgba(244, 63, 94, 0.2)' }}>
+                                <TrendingDown size={24} />
+                            </div>
+                            <span className="stat-label" style={{ color: '#f43f5e' }}>Monthly Outflow</span>
+                        </div>
+                        <div className="stat-value" style={{ fontSize: 'clamp(3rem, 8vw, 5rem)', lineHeight: 1 }}>
+                            ₹{totalMonthlyExpense.toLocaleString()}
+                        </div>
+                        <div style={{ color: 'var(--text-tertiary)', fontWeight: '700', marginTop: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Calendar size={14} /> Total Burn for {new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '40px', flexWrap: 'wrap' }}>
+                        <div style={{ textAlign: 'right' }}>
+                            <div className="stat-label">Daily Average</div>
+                            <div style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--text-primary)' }}>₹{dailyAverage.toFixed(0).toLocaleString()}</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--success)', fontWeight: '800' }}>Within Threshold</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                            <div className="stat-label">Most Used Mode</div>
+                            <div style={{ fontSize: '2rem', fontWeight: '900', color: 'var(--text-primary)' }}>UPI / Cash</div>
+                            <div style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', fontWeight: '800' }}>82% of total</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            {/* Quick Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px', marginBottom: '40px' }}>
-                <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '32px', borderRadius: '28px', border: '1px solid #1e293b', position: 'relative', overflow: 'hidden' }}>
-                    <div style={{ position: 'absolute', top: 0, right: 0, width: '150px', height: '100%', background: 'linear-gradient(to left, rgba(244, 63, 94, 0.05), transparent)' }} />
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#f43f5e', marginBottom: '16px' }}>
-                        <TrendingDown size={24} />
-                        <span style={{ fontWeight: '800', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px' }}>This Month</span>
+            {/* Visualization Grid */}
+            <div className="dashboard-grid mb-xl fade-in" style={{ animationDelay: '0.2s' }}>
+                {/* Category Mix */}
+                <div className="premium-card p-xl chart-mixed">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '32px' }}>
+                        <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '10px', borderRadius: '12px', color: 'var(--accent)' }}>
+                            <PieIcon size={20} />
+                        </div>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>Spending Mix</h3>
                     </div>
-                    <div style={{ fontSize: '3rem', fontWeight: '950', color: '#fff', letterSpacing: '-2px' }}>₹{totalMonthlyExpense.toLocaleString()}</div>
-                    <div style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: '600', marginTop: '8px' }}>Spent since {new Date().toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</div>
-                </div>
 
-                <div style={{ background: '#0f172a', padding: '32px', borderRadius: '28px', border: '1px solid #1e293b' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#818cf8', marginBottom: '24px' }}>
-                        <PieIcon size={24} />
-                        <span style={{ fontWeight: '800', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px' }}>Category Burn</span>
-                    </div>
-                    <div style={{ height: '220px' }}>
+                    <div style={{ height: '300px', position: 'relative' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie
-                                    data={categoryBreakdown.slice(0, 5)}
-                                    innerRadius={60}
-                                    outerRadius={85}
-                                    paddingAngle={8}
+                                    data={categoryBreakdown}
+                                    innerRadius={80}
+                                    outerRadius={110}
+                                    paddingAngle={10}
                                     dataKey="value"
                                     stroke="none"
-                                    label={({ cx = 0, cy = 0, midAngle = 0, outerRadius = 0, percent = 0 }) => {
-                                        const RADIAN = Math.PI / 180;
-                                        const radius = outerRadius + 20;
-                                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                                        return <text x={x} y={y} fill="#dbe4ed" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central">{`${(percent * 100).toFixed(0)}%`}</text>;
-                                    }}
                                 >
-                                    {categoryBreakdown.map((_, index) => <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />)}
+                                    {categoryBreakdown.map((_, index) => (
+                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} style={{ filter: `drop-shadow(0 0 8px ${COLORS[index % COLORS.length]}44)` }} />
+                                    ))}
                                 </Pie>
-                                <Tooltip contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} itemStyle={{ color: '#ebf1f7' }} />
+                                <Tooltip
+                                    contentStyle={{ background: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px', backdropFilter: 'blur(10px)' }}
+                                    itemStyle={{ color: '#fff', fontWeight: '700' }}
+                                    labelStyle={{ display: 'none' }}
+                                    formatter={(v) => [`₹${(v || 0).toLocaleString()}`, 'Spent']}
+                                />
                             </PieChart>
                         </ResponsiveContainer>
+                        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+                            <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: '800', textTransform: 'uppercase', letterSpacing: '1px' }}>Top Sector</div>
+                            <div style={{ fontSize: '1.2rem', fontWeight: '900', color: 'var(--text-primary)' }}>{categoryBreakdown[0]?.name || 'N/A'}</div>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '24px', justifyContent: 'center' }}>
+                        {categoryBreakdown.slice(0, 4).map((cat, idx) => (
+                            <div key={idx} style={{ background: 'var(--glass)', padding: '6px 12px', borderRadius: '10px', fontSize: '0.75rem', fontWeight: '700', color: 'var(--text-secondary)', border: '1px solid var(--glass-border)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: COLORS[idx % COLORS.length] }} />
+                                {cat.name}
+                            </div>
+                        ))}
                     </div>
                 </div>
 
-                <div style={{ background: '#0f172a', padding: '32px', borderRadius: '28px', border: '1px solid #1e293b' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#10b981', marginBottom: '24px' }}>
-                        <BarChart3 size={24} />
-                        <span style={{ fontWeight: '800', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '2px' }}>6 Month Trend</span>
+                {/* Growth Trend */}
+                <div className="premium-card p-xl chart-trend">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <div style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '10px', borderRadius: '12px', color: 'var(--success)' }}>
+                                <BarChart3 size={20} />
+                            </div>
+                            <h3 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>Velocity Trend</h3>
+                        </div>
+                        <span style={{ fontSize: '0.7rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>Last 6 Periods</span>
                     </div>
-                    <div style={{ height: '220px' }}>
+
+                    <div style={{ height: '300px' }}>
                         <ResponsiveContainer width="100%" height="100%">
                             <BarChart data={monthlyTrend}>
-                                <Bar dataKey="amount" fill="url(#colorBar)" radius={[6, 6, 0, 0]} />
                                 <defs>
-                                    <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#818cf8" stopOpacity={0.8} />
-                                        <stop offset="95%" stopColor="#818cf8" stopOpacity={0.28} />
+                                    <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+                                        <stop offset="0%" stopColor="var(--accent)" stopOpacity={1} />
+                                        <stop offset="100%" stopColor="var(--accent)" stopOpacity={0.2} />
                                     </linearGradient>
                                 </defs>
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#b3c2d1', fontSize: 10 }} dy={10} />
-                                <Tooltip cursor={{ fill: 'rgba(255,255,255,0.03)' }} contentStyle={{ background: '#020617', border: '1px solid #334155', borderRadius: '16px' }} itemStyle={{ color: '#e9eff5' }} />
+                                <XAxis
+                                    dataKey="name"
+                                    axisLine={false}
+                                    tickLine={false}
+                                    tick={{ fill: 'var(--text-tertiary)', fontSize: 11, fontWeight: '700' }}
+                                    dy={10}
+                                />
+                                <YAxis hide />
+                                <Tooltip
+                                    cursor={{ fill: 'rgba(255,255,255,0.02)', radius: 8 }}
+                                    contentStyle={{ background: 'rgba(2, 6, 23, 0.95)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '16px' }}
+                                    itemStyle={{ color: '#fff', fontWeight: '700' }}
+                                />
+                                <Bar
+                                    dataKey="amount"
+                                    fill="url(#barGradient)"
+                                    radius={[10, 10, 10, 10]}
+                                    barSize={40}
+                                />
                             </BarChart>
                         </ResponsiveContainer>
                     </div>
                 </div>
             </div>
 
-            {/* Category Quick Filters */}
-            <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '16px', marginBottom: '32px', scrollbarWidth: 'none' }}>
-                <button
-                    onClick={() => setSelectedCategory('All')}
-                    style={{ padding: '12px 24px', borderRadius: '14px', background: selectedCategory === 'All' ? '#fff' : 'rgba(255,255,255,0.03)', color: selectedCategory === 'All' ? '#020617' : '#94a3b8', border: '1px solid', borderColor: selectedCategory === 'All' ? '#fff' : '#1e293b', fontWeight: '800', cursor: 'pointer', transition: '0.2s', whiteSpace: 'nowrap' }}
-                >
-                    All Expenses
-                </button>
-                {CATEGORIES.map(cat => (
-                    <button
-                        key={cat.name}
-                        onClick={() => setSelectedCategory(cat.name)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '12px 24px', borderRadius: '14px', background: selectedCategory === cat.name ? cat.color : 'rgba(255,255,255,0.03)', color: selectedCategory === cat.name ? '#fff' : '#94a3b8', border: '1px solid', borderColor: selectedCategory === cat.name ? cat.color : '#1e293b', fontWeight: '800', cursor: 'pointer', transition: '0.2s', whiteSpace: 'nowrap' }}
-                    >
-                        {cat.icon} {cat.name}
-                    </button>
-                ))}
-            </div>
+            {/* Transaction Ledger */}
+            <div className="fade-in" style={{ animationDelay: '0.3s' }}>
+                <div className="premium-card p-2xl">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px', flexWrap: 'wrap', gap: '20px' }}>
+                        <h2 style={{ fontSize: '1.75rem', fontWeight: '950', margin: 0, letterSpacing: '-1px' }}>Movement Log</h2>
 
-            {/* Expenses List */}
-            <div style={{ background: '#0f172a', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>Recent Movements</h2>
-                    <div style={{ position: 'relative', width: '300px' }}>
-                        <Search size={18} color="#64748b" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
-                        <input
-                            placeholder="Find records..."
-                            value={searchQuery}
-                            onChange={e => setSearchQuery(e.target.value)}
-                            style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px 16px 12px 48px', borderRadius: '14px', color: '#fff', outline: 'none' }}
-                        />
+                        <div style={{ display: 'flex', gap: '16px', flex: 1, minWidth: '300px', maxWidth: '600px' }}>
+                            <div style={{ position: 'relative', flex: 1 }}>
+                                <Search size={18} color="var(--text-tertiary)" style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)' }} />
+                                <input
+                                    placeholder="Search by vendor or category..."
+                                    value={searchQuery}
+                                    onChange={e => setSearchQuery(e.target.value)}
+                                    style={{ width: '100%', background: 'rgba(0,0,0,0.2)', border: '1px solid var(--glass-border)', padding: '14px 16px 14px 48px', borderRadius: '14px', color: '#fff', outline: 'none', fontWeight: '600' }}
+                                />
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {filteredExpenses.length > 0 ? (
-                        filteredExpenses.map(ex => (
-                            <div key={ex.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '20px 24px', background: 'rgba(255,255,255,0.02)', borderRadius: '20px', border: '1px solid rgba(255,255,255,0.05)', transition: 'all 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.04)'} onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}>
-                                <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
-                                    <div style={{ width: '52px', height: '52px', borderRadius: '16px', background: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                        <ArrowDownRight size={24} />
-                                    </div>
-                                    <div>
-                                        <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff', marginBottom: '4px' }}>{ex.description}</div>
-                                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                                            <span style={{ fontSize: '0.75rem', fontWeight: '900', textTransform: 'uppercase', color: '#818cf8', background: 'rgba(129, 140, 248, 0.1)', padding: '2px 10px', borderRadius: '8px' }}>{ex.category}</span>
-                                            <span style={{ fontSize: '0.8rem', color: '#475569', fontWeight: '700' }}>{new Date(ex.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                    <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '20px', marginBottom: '20px', scrollbarWidth: 'none' }}>
+                        <button
+                            onClick={() => setSelectedCategory('All')}
+                            className="glass-button"
+                            style={{ padding: '10px 24px', borderRadius: '14px', background: selectedCategory === 'All' ? 'var(--accent)' : 'var(--glass)', borderColor: selectedCategory === 'All' ? 'var(--accent)' : 'var(--glass-border)', color: '#fff', fontSize: '0.85rem' }}
+                        >
+                            All
+                        </button>
+                        {CATEGORIES.map(cat => (
+                            <button
+                                key={cat.name}
+                                onClick={() => setSelectedCategory(cat.name)}
+                                className="glass-button"
+                                style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '10px 20px', borderRadius: '14px', background: selectedCategory === cat.name ? cat.color : 'var(--glass)', borderColor: selectedCategory === cat.name ? cat.color : 'var(--glass-border)', color: '#fff', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
+                            >
+                                {cat.name}
+                            </button>
+                        ))}
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                        {filteredExpenses.length > 0 ? (
+                            filteredExpenses.map((ex, idx) => {
+                                const catInfo = CATEGORIES.find(c => c.name === ex.category);
+                                return (
+                                    <div key={ex.id} style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        padding: '16px 24px',
+                                        background: 'rgba(255,255,255,0.015)',
+                                        borderRadius: '24px',
+                                        border: '1px solid rgba(255,255,255,0.03)',
+                                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                                        animation: `fadeIn 0.5s ease-out ${idx * 0.05}s forwards`,
+                                        opacity: 0
+                                    }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; e.currentTarget.style.transform = 'scale(1.005)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.015)'; e.currentTarget.style.transform = 'scale(1)'; }}>
+                                        <div style={{ display: 'flex', gap: '24px', alignItems: 'center', flex: 1 }}>
+                                            <div style={{ width: '56px', height: '56px', borderRadius: '18px', background: `${catInfo?.color || '#334155'}15`, color: catInfo?.color || '#94a3b8', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: `inset 0 0 12px ${catInfo?.color || '#334155'}10` }}>
+                                                {catInfo?.icon || <CreditCard size={24} />}
+                                            </div>
+                                            <div style={{ flex: 1, minWidth: 0 }}>
+                                                <div style={{ fontSize: '1.2rem', fontWeight: '900', color: '#fff', marginBottom: '4px' }}>{ex.description}</div>
+                                                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                                                    <span style={{ fontSize: '0.75rem', fontWeight: '800', color: 'var(--text-tertiary)', textTransform: 'uppercase' }}>{ex.category}</span>
+                                                    <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: 'rgba(255,255,255,0.1)' }} />
+                                                    <span style={{ fontSize: '0.8rem', color: 'var(--text-tertiary)', fontWeight: '600' }}>{new Date(ex.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '40px' }}>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontSize: '1.75rem', fontWeight: '950', color: '#fff', letterSpacing: '-1px' }}>₹{ex.amount.toLocaleString()}</div>
+                                                <div style={{ fontSize: '0.7rem', color: 'var(--text-tertiary)', fontWeight: '800' }}>OUTFLOW</div>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button onClick={() => handleEdit(ex)} className="glass-button" style={{ padding: '10px', borderRadius: '12px', color: 'var(--text-secondary)' }}><Edit3 size={18} /></button>
+                                                <button onClick={() => handleDelete(ex.id)} className="glass-button" style={{ padding: '10px', borderRadius: '12px', color: '#f43f5e', background: 'rgba(244, 63, 94, 0.05)', borderColor: 'rgba(244, 63, 94, 0.1)' }}><Trash2 size={18} /></button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '32px' }}>
-                                    <div style={{ fontSize: '1.5rem', fontWeight: '950', color: '#fff' }}>₹{ex.amount.toLocaleString()}</div>
-                                    <div style={{ display: 'flex', gap: '12px' }}>
-                                        <button onClick={() => handleEdit(ex)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Edit3 size={18} /></button>
-                                        <button onClick={() => handleDelete(ex.id)} style={{ background: 'rgba(244, 63, 94, 0.05)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px' }}><Trash2 size={18} /></button>
-                                    </div>
-                                </div>
+                                );
+                            })
+                        ) : (
+                            <div className="premium-card" style={{ padding: '100px', textAlign: 'center', background: 'transparent' }}>
+                                <div style={{ color: 'var(--text-tertiary)', marginBottom: '24px', opacity: 0.2 }}><Wallet size={80} /></div>
+                                <div style={{ fontSize: '1.5rem', fontWeight: '900', color: 'var(--text-secondary)' }}>Log clear for these parameters</div>
+                                <p style={{ color: 'var(--text-tertiary)', marginTop: '8px' }}>Adjust filters or record a new movement above.</p>
                             </div>
-                        ))
-                    ) : (
-                        <div style={{ textAlign: 'center', padding: '80px', color: '#475569' }}>
-                            <TrendingDown size={64} style={{ marginBottom: '24px', opacity: 0.1 }} />
-                            <div style={{ fontSize: '1.25rem', fontWeight: '800', color: '#94a3b8' }}>No expenses matching your criteria</div>
-                        </div>
-                    )}
+                        )}
+                    </div>
                 </div>
             </div>
 
-            {/* Modal */}
+            {/* Premium Modal */}
             {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
-                    <div style={{ background: '#0f172a', width: '100%', maxWidth: '540px', borderRadius: '40px', border: '1px solid #334155', padding: '48px', position: 'relative' }}>
-                        <button onClick={() => { setIsModalOpen(false); resetForm(); }} style={{ position: 'absolute', top: '32px', right: '32px', background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', width: '48px', height: '48px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={24} /></button>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(16px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
+                    <div className="modal-content premium-card shadow-2xl" style={{ width: '100%', maxWidth: '600px', padding: '0', overflow: 'hidden' }}>
+                        <div style={{ background: 'linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%)', padding: '40px', position: 'relative' }}>
+                            <button onClick={() => { setIsModalOpen(false); resetForm(); }} style={{ position: 'absolute', top: '24px', right: '24px', background: 'rgba(0,0,0,0.2)', border: 'none', color: '#fff', width: '44px', height: '44px', borderRadius: '50%', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={22} /></button>
+                            <h2 style={{ fontSize: '2.5rem', fontWeight: '950', margin: 0, color: '#fff', letterSpacing: '-2px' }}>{editId ? 'Refine Entry' : 'Manual Entry'}</h2>
+                            <p style={{ color: 'rgba(255,255,255,0.7)', fontWeight: '600', marginTop: '8px' }}>Update your fiscal ledger with precision</p>
+                        </div>
 
-                        <h2 style={{ fontSize: '2rem', fontWeight: '950', margin: '0 0 40px 0', letterSpacing: '-1px' }}>{editId ? 'Edit Record' : 'Log Expense'}</h2>
-
-                        <form onSubmit={handleAction} style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>What was the expense for?</label>
+                        <form onSubmit={handleAction} style={{ padding: '40px', display: 'flex', flexDirection: 'column', gap: '24px', background: 'var(--background)' }}>
+                            <div className="flex flex-col gap-xs">
+                                <label className="stat-label">Description / Vendor</label>
                                 <input
                                     value={description}
                                     onChange={e => setDescription(e.target.value)}
-                                    placeholder="Grocery shopping, Rent, etc."
+                                    placeholder="e.g. Amazon Fresh, Office Rent"
                                     required
-                                    style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px 24px', borderRadius: '20px', color: '#fff', fontSize: '1.1rem', outline: 'none' }}
+                                    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '18px 24px', borderRadius: '16px', color: '#fff', fontSize: '1.1rem', outline: 'none' }}
                                 />
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '20px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Category</label>
+                            <div className="dashboard-grid" style={{ gap: '20px' }}>
+                                <div style={{ gridColumn: 'span 6' }} className="flex flex-col gap-xs">
+                                    <label className="stat-label">Category</label>
                                     <select
                                         value={category}
                                         onChange={e => setCategory(e.target.value)}
                                         required
-                                        style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px 24px', borderRadius: '20px', color: '#fff', fontSize: '1.1rem', outline: 'none', appearance: 'none' }}
+                                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '18px 24px', borderRadius: '16px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}
                                     >
-                                        <option value="">Select Category</option>
-                                        {CATEGORIES.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-                                        <option value="Other">Other</option>
+                                        <option value="" style={{ background: '#020617' }}>Select</option>
+                                        {CATEGORIES.map(c => <option key={c.name} value={c.name} style={{ background: '#020617' }}>{c.name}</option>)}
+                                        <option value="Other" style={{ background: '#020617' }}>Other</option>
                                     </select>
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Amount (₹)</label>
+                                <div style={{ gridColumn: 'span 6' }} className="flex flex-col gap-xs">
+                                    <label className="stat-label">Amount (₹)</label>
                                     <input
                                         type="number"
                                         value={amount}
                                         onChange={e => setAmount(e.target.value)}
                                         placeholder="0.00"
                                         required
-                                        style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px 24px', borderRadius: '20px', color: '#fff', fontSize: '1.1rem', outline: 'none' }}
+                                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '18px 24px', borderRadius: '16px', color: '#fff', fontSize: '1.1rem', outline: 'none' }}
                                     />
                                 </div>
                             </div>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))', gap: '20px' }}>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Date</label>
+                            <div className="dashboard-grid" style={{ gap: '20px' }}>
+                                <div style={{ gridColumn: 'span 6' }} className="flex flex-col gap-xs">
+                                    <label className="stat-label">Date</label>
                                     <input
                                         type="date"
                                         value={date}
                                         onChange={e => setDate(e.target.value)}
                                         required
-                                        style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px 24px', borderRadius: '20px', color: '#fff', fontSize: '1.1rem', outline: 'none' }}
+                                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '18px 24px', borderRadius: '16px', color: '#fff', fontSize: '1.1rem', outline: 'none' }}
                                     />
                                 </div>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.8rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Payment Mode</label>
+                                <div style={{ gridColumn: 'span 6' }} className="flex flex-col gap-xs">
+                                    <label className="stat-label">Linked Account</label>
                                     <select
                                         value={accountId}
                                         onChange={e => setAccountId(e.target.value)}
-                                        style={{ background: '#020617', border: '1px solid #1e293b', padding: '18px 24px', borderRadius: '20px', color: '#fff', fontSize: '1.1rem', outline: 'none', appearance: 'none' }}
+                                        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid var(--glass-border)', padding: '18px 24px', borderRadius: '16px', color: '#fff', fontSize: '1.1rem', outline: 'none', cursor: 'pointer' }}
                                     >
-                                        <option value="">Balance Only (No Account)</option>
-                                        {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
+                                        <option value="" style={{ background: '#020617' }}>No Account Link</option>
+                                        {accounts.map(acc => <option key={acc.id} value={acc.id} style={{ background: '#020617' }}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
                                     </select>
                                 </div>
                             </div>
 
                             <button
                                 type="submit"
-                                style={{ marginTop: '20px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', padding: '22px', borderRadius: '24px', border: 'none', fontWeight: '950', fontSize: '1.1rem', cursor: 'pointer', boxShadow: '0 15px 30px rgba(99, 102, 241, 0.4)' }}
+                                className="glow-primary"
+                                style={{ marginTop: '16px', background: 'linear-gradient(135deg, var(--accent) 0%, #4338ca 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '900', fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px' }}
                             >
-                                {editId ? 'Confirm Changes' : 'Record Transaction'}
+                                {editId ? 'Update Record' : 'Commit Movement'} <ArrowRight size={20} />
                             </button>
                         </form>
                     </div>
                 </div>
             )}
+
+            <style jsx>{`
+                .glass-button:hover {
+                    box-shadow: 0 8px 32px rgba(99, 102, 241, 0.2);
+                    transform: translateY(-2px);
+                }
+                .dashboard-grid {
+                    display: grid;
+                    grid-template-columns: repeat(12, 1fr);
+                    gap: 24px;
+                }
+                .chart-mixed { grid-column: span 5; }
+                .chart-trend { grid-column: span 7; }
+                @media (max-width: 1024px) {
+                    .dashboard-grid > div {
+                        grid-column: span 12 !important;
+                    }
+                }
+            `}</style>
         </div>
     );
 }

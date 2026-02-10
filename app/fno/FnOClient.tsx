@@ -4,6 +4,7 @@ import { useState, useMemo } from 'react';
 import { useFinance, FnoTrade } from '../components/FinanceContext';
 import { useNotifications } from '../components/NotificationContext';
 import {
+    Plus,
     TrendingUp,
     X,
     Edit3,
@@ -98,16 +99,20 @@ export default function FnOClient() {
             accountId: accountId ? parseInt(accountId) : undefined
         };
 
-        if (editId) {
-            await updateFnoTrade({ ...tradeData, id: editId });
-            showNotification('success', 'Trade record updated');
-        } else {
-            await addFnoTrade(tradeData);
-            showNotification('success', 'Trade logged successfully');
+        try {
+            if (editId) {
+                await updateFnoTrade({ ...tradeData, id: editId });
+                showNotification('success', 'Trade record updated');
+            } else {
+                await addFnoTrade(tradeData);
+                showNotification('success', 'Trade logged successfully');
+            }
+            resetForm();
+            setIsModalOpen(false);
+        } catch (error: unknown) {
+            const errorMessage = error instanceof Error ? error.message : 'Failed to record trade. Please check your data.';
+            showNotification('error', errorMessage);
         }
-
-        resetForm();
-        setIsModalOpen(false);
     };
 
     const resetForm = () => {
@@ -170,11 +175,19 @@ export default function FnOClient() {
     return (
         <div className="page-container">
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '40px' }}>
                 <div>
                     <h1 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: '950', margin: 0, letterSpacing: '-2.5px', color: '#fff' }}>FnO Terminal</h1>
                     <p style={{ color: '#64748b', fontSize: '1rem', marginTop: '8px', fontWeight: '600' }}>Derivatives tracking & lifetime analytics</p>
                 </div>
+                <button
+                    onClick={() => setIsModalOpen(true)}
+                    style={{ background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', padding: '16px 28px', borderRadius: '18px', fontWeight: '900', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', boxShadow: '0 12px 24px rgba(99, 102, 241, 0.3)', transition: 'all 0.3s' }}
+                    onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.4)'; }}
+                    onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.3)'; }}
+                >
+                    <Plus size={20} strokeWidth={3} /> Record Trade
+                </button>
             </div>
 
             {/* Quick Stats Banner */}
