@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import Sidebar from './Sidebar';
 import { AuthProvider, useAuth } from './AuthContext';
 import { FinanceProvider, useFinance } from './FinanceContext';
 import { NotificationProvider } from './NotificationContext';
-import AddTransactionModal from './AddTransactionModal';
+
+const AddTransactionModal = dynamic(() => import('./AddTransactionModal'), {
+    ssr: false,
+});
 
 import { Menu, X, Command } from 'lucide-react';
 

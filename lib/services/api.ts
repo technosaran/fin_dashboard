@@ -77,11 +77,11 @@ export function withErrorHandling(
       return await handler(request);
     } catch (error) {
       logError('API handler error', error);
-      
+
       if (error instanceof Error) {
         return createErrorResponse(error.message, 500);
       }
-      
+
       return createErrorResponse('An unexpected error occurred', 500);
     }
   };
@@ -127,15 +127,15 @@ export function rateLimit(
 export function getClientIP(request: Request): string {
   const forwarded = request.headers.get('x-forwarded-for');
   const realIP = request.headers.get('x-real-ip');
-  
+
   if (forwarded) {
     return forwarded.split(',')[0].trim();
   }
-  
+
   if (realIP) {
     return realIP;
   }
-  
+
   return '127.0.0.1';
 }
 
@@ -149,7 +149,7 @@ export function applyRateLimit(request: Request): NextResponse | null {
   if (!success) {
     return NextResponse.json(
       { error: 'Too many requests. Please try again later.' },
-      { 
+      {
         status: 429,
         headers: {
           'X-RateLimit-Remaining': '0',
@@ -160,4 +160,23 @@ export function applyRateLimit(request: Request): NextResponse | null {
   }
 
   return null;
+}
+/**
+ * Simple in-memory cache for API responses
+ */
+const apiCache = new Map<string, { data: any; expire: number }>();
+
+export function getCache<T>(key: string): T | null {
+  const record = apiCache.get(key);
+  if (record && Date.now() < record.expire) {
+    return record.data as T;
+  }
+  if (record) {
+    apiCache.delete(key);
+  }
+  return null;
+}
+
+export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void {
+  apiCache.set(key, { data, expire: Date.now() + ttlMs });
 }

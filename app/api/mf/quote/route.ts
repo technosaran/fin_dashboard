@@ -6,6 +6,8 @@ import {
   fetchWithTimeout,
   withErrorHandling,
   applyRateLimit,
+  getCache,
+  setCache,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
@@ -30,6 +32,10 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
     return createErrorResponse(validation.error || 'Invalid scheme code', 400);
   }
 
+  const cacheKey = `mf_quote_${code.trim()}`;
+  const cached = getCache<any>(cacheKey);
+  if (cached) return createSuccessResponse(cached);
+
   try {
     const sanitizedCode = code.trim();
 
@@ -48,14 +54,18 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
     if (data && data.meta && data.data && data.data.length > 0) {
       const latestNav = data.data[0];
       const previousNav = data.data.length > 1 ? data.data[1] : latestNav;
-      return createSuccessResponse({
+      const quoteData = {
         schemeCode: data.meta.scheme_code,
         schemeName: data.meta.scheme_name,
         category: data.meta.scheme_category || 'N/A',
         currentNav: parseFloat(latestNav.nav) || 0,
         previousNav: parseFloat(previousNav.nav) || 0,
         date: latestNav.date,
-      });
+      };
+
+      // Cache MF for 1 hour as MF prices usually update only once a day
+      setCache(cacheKey, quoteData, 3600000);
+      return createSuccessResponse(quoteData);
     }
 
     return createErrorResponse('Mutual fund not found', 404);

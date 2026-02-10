@@ -6,6 +6,8 @@ import {
   fetchWithTimeout,
   withErrorHandling,
   applyRateLimit,
+  getCache,
+  setCache,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
@@ -30,9 +32,13 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
     return createErrorResponse(validation.error || 'Invalid symbol', 400);
   }
 
+  const cacheKey = `stock_quote_${symbol.trim().toUpperCase()}`;
+  const cached = getCache<any>(cacheKey);
+  if (cached) return createSuccessResponse(cached);
+
   try {
     const sanitizedSymbol = symbol.trim().toUpperCase();
-    
+
     // Try NSE first
     let response = await fetchWithTimeout(
       `https://query1.finance.yahoo.com/v8/finance/chart/${sanitizedSymbol}.NS?interval=1d&range=1d`,
@@ -43,7 +49,7 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
       },
       5000
     );
-    
+
     let data = await response.json();
 
     // If not found in NSE, try BSE
@@ -62,26 +68,28 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
 
     if (data.chart?.result) {
       const meta = data.chart.result[0].meta;
-      return createSuccessResponse({
+      const quoteData = {
         symbol: meta.symbol.split('.')[0],
         currentPrice: meta.regularMarketPrice || 0,
         previousClose: meta.previousClose || 0,
         currency: meta.currency || 'INR',
         exchange: meta.exchangeName || 'NSE',
-      });
+      };
+      setCache(cacheKey, quoteData, 60000);
+      return createSuccessResponse(quoteData);
     }
 
     return createErrorResponse('Symbol not found', 404);
   } catch (error) {
     logError('Stock quote fetch failed', error, { symbol });
-    
+
     if (error instanceof Error) {
       if (error.message.includes('timeout')) {
         return createErrorResponse('Request timeout. Please try again.', 504);
       }
       return createErrorResponse('Failed to fetch stock quote. Please try again later.', 500);
     }
-    
+
     return createErrorResponse('An unexpected error occurred', 500);
   }
 }

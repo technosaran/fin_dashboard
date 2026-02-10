@@ -883,85 +883,97 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const refreshPortfolio = async () => {
         if (!user || (stocks.length === 0 && mutualFunds.length === 0 && bonds.length === 0)) return;
 
-        // Refresh Stocks
-        const updatedStocks = await Promise.all(stocks.map(async (stock) => {
+        // Refresh Stocks (Batch)
+        let updatedStocks = stocks;
+        if (stocks.length > 0) {
             try {
-                const res = await fetch(`/api/stocks/quote?symbol=${stock.symbol}`);
-                const data = await res.json();
-                if (data.currentPrice) {
-                    const newPrice = data.currentPrice;
-                    const prevPrice = data.previousClose || stock.previousPrice || newPrice;
-                    const newValue = stock.quantity * newPrice;
-                    const newPnL = newValue - stock.investmentAmount;
+                const symbols = stocks.map(s => s.symbol).join(',');
+                const res = await fetch(`/api/stocks/batch?symbols=${symbols}`);
+                const batchData = await res.json();
 
-                    const updated = {
-                        ...stock,
-                        currentPrice: newPrice,
-                        previousPrice: prevPrice,
-                        currentValue: newValue,
-                        pnl: newPnL,
-                        pnlPercentage: stock.investmentAmount > 0 ? (newPnL / stock.investmentAmount) * 100 : 0
-                    };
-
-                    // Update DB in background
-                    supabase.from('stocks').update({
-                        current_price: newPrice,
-                        previous_price: prevPrice,
-                        current_value: newValue,
-                        pnl: newPnL,
-                        pnl_percentage: updated.pnlPercentage
-                    }).eq('id', stock.id).then(({ error }) => {
-                        if (error) console.error(`Sync error for ${stock.symbol}:`, error);
-                    });
-
-                    return updated;
-                }
-            } catch (e) {
-                console.error(`Failed to refresh ${stock.symbol}:`, e);
-            }
-            return stock;
-        }));
-
-        // Refresh Mutual Funds
-        const updatedMFs = await Promise.all(mutualFunds.map(async (mf) => {
-            try {
-                if (mf.schemeCode) {
-                    const res = await fetch(`/api/mf/quote?code=${mf.schemeCode}`);
-                    const data = await res.json();
-                    if (data.currentNav) {
-                        const newNav = data.currentNav;
-                        const prevNav = data.previousNav || mf.previousNav || newNav;
-                        const newValue = mf.units * newNav;
-                        const newPnL = newValue - mf.investmentAmount;
+                updatedStocks = stocks.map(stock => {
+                    const latest = batchData[stock.symbol];
+                    if (latest && latest.currentPrice) {
+                        const newPrice = latest.currentPrice;
+                        const prevPrice = latest.previousClose || stock.previousPrice || newPrice;
+                        const newValue = stock.quantity * newPrice;
+                        const newPnL = newValue - stock.investmentAmount;
 
                         const updated = {
-                            ...mf,
-                            currentNav: newNav,
-                            previousNav: prevNav,
+                            ...stock,
+                            currentPrice: newPrice,
+                            previousPrice: prevPrice,
                             currentValue: newValue,
                             pnl: newPnL,
-                            pnlPercentage: mf.investmentAmount > 0 ? (newPnL / mf.investmentAmount) * 100 : 0
+                            pnlPercentage: stock.investmentAmount > 0 ? (newPnL / stock.investmentAmount) * 100 : 0
                         };
 
                         // Update DB in background
-                        supabase.from('mutual_funds').update({
-                            current_nav: newNav,
-                            previous_nav: prevNav,
+                        supabase.from('stocks').update({
+                            current_price: newPrice,
+                            previous_price: prevPrice,
                             current_value: newValue,
                             pnl: newPnL,
                             pnl_percentage: updated.pnlPercentage
-                        }).eq('id', mf.id).then(({ error }) => {
-                            if (error) console.error(`Sync error for ${mf.name}:`, error);
+                        }).eq('id', stock.id).then(({ error }) => {
+                            if (error) console.error(`Sync error for ${stock.symbol}:`, error);
                         });
 
                         return updated;
                     }
+                    return stock;
+                });
+            } catch (e) {
+                console.error("Failed to batch refresh stocks:", e);
+            }
+        }
+
+        // Refresh Mutual Funds (Batch)
+        let updatedMFs = mutualFunds;
+        if (mutualFunds.length > 0) {
+            try {
+                const codes = mutualFunds.filter(mf => mf.schemeCode).map(mf => mf.schemeCode).join(',');
+                if (codes) {
+                    const res = await fetch(`/api/mf/batch?codes=${codes}`);
+                    const batchData = await res.json();
+
+                    updatedMFs = mutualFunds.map(mf => {
+                        const latest = mf.schemeCode ? batchData[mf.schemeCode] : null;
+                        if (latest && latest.currentNav) {
+                            const newNav = latest.currentNav;
+                            const prevNav = latest.previousNav || mf.previousNav || newNav;
+                            const newValue = mf.units * newNav;
+                            const newPnL = newValue - mf.investmentAmount;
+
+                            const updated = {
+                                ...mf,
+                                currentNav: newNav,
+                                previousNav: prevNav,
+                                currentValue: newValue,
+                                pnl: newPnL,
+                                pnlPercentage: mf.investmentAmount > 0 ? (newPnL / mf.investmentAmount) * 100 : 0
+                            };
+
+                            // Update DB in background
+                            supabase.from('mutual_funds').update({
+                                current_nav: newNav,
+                                previous_nav: prevNav,
+                                current_value: newValue,
+                                pnl: newPnL,
+                                pnl_percentage: updated.pnlPercentage
+                            }).eq('id', mf.id).then(({ error }) => {
+                                if (error) console.error(`Sync error for ${mf.name}:`, error);
+                            });
+
+                            return updated;
+                        }
+                        return mf;
+                    });
                 }
             } catch (e) {
-                console.error(`Failed to refresh ${mf.name}:`, e);
+                console.error("Failed to batch refresh mutual funds:", e);
             }
-            return mf;
-        }));
+        }
 
         // Refresh Bonds
         const updatedBonds = await Promise.all(bonds.map(async (bond) => {
@@ -1132,6 +1144,15 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const addTransaction = async (transactionData: Omit<Transaction, 'id'>) => {
+        // Optimistic UI Update
+        const tempId = Math.floor(Math.random() * -1000000); // Negative temp ID
+        const optimisticTransaction: Transaction = {
+            ...transactionData,
+            id: tempId
+        };
+
+        setTransactions(prev => [optimisticTransaction, ...prev]);
+
         const { data, error } = await supabase
             .from('transactions')
             .insert({
@@ -1147,11 +1168,14 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error('Error adding transaction:', error);
+            // Rollback optimistic update
+            setTransactions(prev => prev.filter(t => t.id !== tempId));
             return;
         }
 
         const newTransaction = dbTransactionToTransaction(data);
-        setTransactions(prev => [newTransaction, ...prev]);
+        // Replace temp transaction with real one
+        setTransactions(prev => prev.map(t => t.id === tempId ? newTransaction : t));
 
         // Refresh accounts to get updated balance from trigger
         setTimeout(() => refreshAccounts(), 500);
@@ -1165,6 +1189,10 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     };
 
     const updateTransaction = async (updatedTransaction: Transaction) => {
+        // Optimistic UI Update
+        const oldTransaction = transactions.find(t => t.id === updatedTransaction.id);
+        setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
+
         const { error } = await supabase
             .from('transactions')
             .update({
@@ -1179,13 +1207,22 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error('Error updating transaction:', error);
+            // Rollback optimistic update
+            if (oldTransaction) {
+                setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? oldTransaction : t));
+            }
             return;
         }
 
-        setTransactions(prev => prev.map(t => t.id === updatedTransaction.id ? updatedTransaction : t));
+        // Refresh accounts to get updated balance
+        setTimeout(() => refreshAccounts(), 500);
     };
 
     const deleteTransaction = async (id: number) => {
+        // Optimistic UI Update
+        const oldTransaction = transactions.find(t => t.id === id);
+        setTransactions(prev => prev.filter(t => t.id !== id));
+
         const { error } = await supabase
             .from('transactions')
             .delete()
@@ -1193,10 +1230,15 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
         if (error) {
             console.error('Error deleting transaction:', error);
+            // Rollback optimistic update
+            if (oldTransaction) {
+                setTransactions(prev => [oldTransaction, ...prev]);
+            }
             return;
         }
 
-        setTransactions(prev => prev.filter(t => t.id !== id));
+        // Refresh accounts to get updated balance
+        setTimeout(() => refreshAccounts(), 500);
     };
 
     const addFunds = async (accountId: number, amount: number) => {
