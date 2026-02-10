@@ -27,6 +27,7 @@ type AppSettingsRow = {
     dp_charges: number;
     auto_calculate_charges: boolean;
     bonds_enabled: boolean;
+    forex_enabled: boolean;
     default_stock_account_id?: number | null;
     default_mf_account_id?: number | null;
     default_salary_account_id?: number | null;
@@ -190,6 +191,16 @@ type BondTransactionRow = {
     [key: string]: unknown;
 };
 
+type ForexTransactionRow = {
+    id: number;
+    transaction_type: string;
+    amount: number;
+    transaction_date: string;
+    notes?: string | null;
+    account_id?: number | null;
+    [key: string]: unknown;
+};
+
 export interface AppSettings {
     brokerageType: 'flat' | 'percentage';
     brokerageValue: number;
@@ -201,6 +212,7 @@ export interface AppSettings {
     dpCharges: number;
     autoCalculateCharges: boolean;
     bondsEnabled: boolean;
+    forexEnabled: boolean;
     defaultStockAccountId?: number;
     defaultMfAccountId?: number;
     defaultSalaryAccountId?: number;
@@ -364,6 +376,15 @@ export interface BondTransaction {
     accountId?: number;
 }
 
+export interface ForexTransaction {
+    id: number;
+    transactionType: 'DEPOSIT' | 'PROFIT' | 'LOSS' | 'WITHDRAWAL';
+    amount: number;
+    transactionDate: string;
+    notes?: string;
+    accountId?: number;
+}
+
 interface FinanceContextType {
     accounts: Account[];
     transactions: Transaction[];
@@ -377,6 +398,7 @@ interface FinanceContextType {
     fnoTrades: FnoTrade[];
     bonds: Bond[];
     bondTransactions: BondTransaction[];
+    forexTransactions: ForexTransaction[];
     settings: AppSettings;
     updateSettings: (newSettings: AppSettings) => Promise<void>;
     loading: boolean;
@@ -413,6 +435,9 @@ interface FinanceContextType {
     addFnoTrade: (trade: Omit<FnoTrade, 'id'>) => Promise<void>;
     updateFnoTrade: (trade: FnoTrade) => Promise<void>;
     deleteFnoTrade: (id: number) => Promise<void>;
+    addForexTransaction: (transaction: Omit<ForexTransaction, 'id'>) => Promise<void>;
+    updateForexTransaction: (transaction: ForexTransaction) => Promise<void>;
+    deleteForexTransaction: (id: number) => Promise<void>;
     isTransactionModalOpen: boolean;
     setIsTransactionModalOpen: (isOpen: boolean) => void;
     refreshPortfolio: () => Promise<void>;
@@ -514,6 +539,7 @@ type ExtendedSupabaseClient = SupabaseClient & {
     from(table: 'fno_trades'): ReturnType<SupabaseClient['from']>;
     from(table: 'bonds'): ReturnType<SupabaseClient['from']>;
     from(table: 'bond_transactions'): ReturnType<SupabaseClient['from']>;
+    from(table: 'forex_transactions'): ReturnType<SupabaseClient['from']>;
     from(table: 'app_settings'): ReturnType<SupabaseClient['from']>;
 };
 
@@ -529,6 +555,7 @@ const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings => ({
     dpCharges: Number(dbSettings.dp_charges),
     autoCalculateCharges: dbSettings.auto_calculate_charges,
     bondsEnabled: dbSettings.bonds_enabled ?? true,
+    forexEnabled: dbSettings.forex_enabled ?? false,
     defaultStockAccountId: dbSettings.default_stock_account_id ? Number(dbSettings.default_stock_account_id) : undefined,
     defaultMfAccountId: dbSettings.default_mf_account_id ? Number(dbSettings.default_mf_account_id) : undefined,
     defaultSalaryAccountId: dbSettings.default_salary_account_id ? Number(dbSettings.default_salary_account_id) : undefined
@@ -692,6 +719,15 @@ const dbBondTransactionToBondTransaction = (dbTx: BondTransactionRow): BondTrans
     accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
 });
 
+const dbForexTransactionToForexTransaction = (dbTx: ForexTransactionRow): ForexTransaction => ({
+    id: Number(dbTx.id),
+    transactionType: dbTx.transaction_type as 'DEPOSIT' | 'PROFIT' | 'LOSS' | 'WITHDRAWAL',
+    amount: Number(dbTx.amount),
+    transactionDate: dbTx.transaction_date,
+    notes: dbTx.notes || undefined,
+    accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined
+});
+
 export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const [accounts, setAccounts] = useState<Account[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -705,6 +741,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     const [fnoTrades, setFnoTrades] = useState<FnoTrade[]>([]);
     const [bonds, setBonds] = useState<Bond[]>([]);
     const [bondTransactions, setBondTransactions] = useState<BondTransaction[]>([]);
+    const [forexTransactions, setForexTransactions] = useState<ForexTransaction[]>([]);
     const [settings, setSettings] = useState<AppSettings>({
         brokerageType: 'percentage',
         brokerageValue: 0,
@@ -715,7 +752,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         gstRate: 18,
         dpCharges: 15.93, // 13.5 + 18% GST
         autoCalculateCharges: true,
-        bondsEnabled: true
+        bondsEnabled: true,
+        forexEnabled: false
     });
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -750,6 +788,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     { data: fnoTradesData, error: fnoTradesError },
                     { data: bondsData, error: bondsError },
                     { data: bondTransactionsData, error: bondTransactionsError },
+                    { data: forexTransactionsData, error: forexTransactionsError },
                     { data: settingsData, error: settingsError }
                 ] = await Promise.all([
                     supabase.from('accounts').select('*').order('created_at', { ascending: false }),
@@ -764,6 +803,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     (supabase as ExtendedSupabaseClient).from('fno_trades').select('*').order('entry_date', { ascending: false }),
                     (supabase as ExtendedSupabaseClient).from('bonds').select('*').order('name', { ascending: true }),
                     (supabase as ExtendedSupabaseClient).from('bond_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('forex_transactions').select('*').order('transaction_date', { ascending: false }),
                     (supabase as ExtendedSupabaseClient).from('app_settings').select('*').eq('user_id', user.id).maybeSingle()
                 ]);
 
@@ -831,6 +871,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 if (bondTransactionsError) console.error('Error loading bond transactions:', bondTransactionsError);
                 else setBondTransactions(bondTransactionsData.map(dbBondTransactionToBondTransaction));
 
+                if (forexTransactionsError) console.error('Error loading forex transactions:', forexTransactionsError);
+                else setForexTransactions(forexTransactionsData.map(dbForexTransactionToForexTransaction));
+
                 if (!settingsError && settingsData) {
                     setSettings(dbSettingsToSettings(settingsData));
                 } else if (!settingsData) {
@@ -849,6 +892,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             dp_charges: currentSettings.dpCharges,
                             auto_calculate_charges: currentSettings.autoCalculateCharges,
                             bonds_enabled: currentSettings.bondsEnabled,
+                            forex_enabled: currentSettings.forexEnabled || false,
                             default_stock_account_id: currentSettings.defaultStockAccountId || null,
                             default_mf_account_id: currentSettings.defaultMfAccountId || null,
                             default_salary_account_id: currentSettings.defaultSalaryAccountId || null
@@ -1046,6 +1090,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 default_mf_account_id: newSettings.defaultMfAccountId || null,
                 default_salary_account_id: newSettings.defaultSalaryAccountId || null,
                 bonds_enabled: newSettings.bondsEnabled,
+                forex_enabled: newSettings.forexEnabled,
                 updated_at: new Date().toISOString()
             })
             .eq('user_id', user.id);
@@ -1854,6 +1899,85 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setBondTransactions(prev => prev.filter(t => t.id !== id));
     };
 
+    const addForexTransaction = async (transactionData: Omit<ForexTransaction, 'id'>) => {
+        // Balance validation for WITHDRAWAL and LOSS
+        if (transactionData.accountId && (transactionData.transactionType === 'WITHDRAWAL' || transactionData.transactionType === 'LOSS')) {
+            const account = accounts.find(acc => acc.id === transactionData.accountId);
+            if (account && account.balance < transactionData.amount) {
+                throw new Error(`Insufficient funds in ${account.name} (Balance: ₹${account.balance.toLocaleString()})`);
+            }
+        }
+
+        const { data, error } = await (supabase as ExtendedSupabaseClient)
+            .from('forex_transactions')
+            .insert({
+                transaction_type: transactionData.transactionType,
+                amount: transactionData.amount,
+                transaction_date: transactionData.transactionDate,
+                notes: transactionData.notes || null,
+                account_id: transactionData.accountId || null
+            })
+            .select()
+            .single();
+
+        if (error) {
+            console.error('Error adding forex transaction:', error);
+            throw new Error(error.message);
+        }
+
+        const newTransaction = dbForexTransactionToForexTransaction(data);
+        setForexTransactions(prev => [newTransaction, ...prev]);
+
+        // Refresh accounts
+        setTimeout(() => {
+            refreshAccounts();
+        }, 800);
+    };
+
+    const updateForexTransaction = async (transaction: ForexTransaction) => {
+        const { error } = await (supabase as ExtendedSupabaseClient)
+            .from('forex_transactions')
+            .update({
+                transaction_type: transaction.transactionType,
+                amount: transaction.amount,
+                transaction_date: transaction.transactionDate,
+                notes: transaction.notes || null,
+                account_id: transaction.accountId || null
+            })
+            .eq('id', transaction.id);
+
+        if (error) {
+            console.error('Error updating forex transaction:', error);
+            throw new Error(error.message);
+        }
+
+        setForexTransactions(prev => prev.map(t => t.id === transaction.id ? transaction : t));
+
+        // Refresh accounts
+        setTimeout(() => {
+            refreshAccounts();
+        }, 800);
+    };
+
+    const deleteForexTransaction = async (id: number) => {
+        const { error } = await (supabase as ExtendedSupabaseClient)
+            .from('forex_transactions')
+            .delete()
+            .eq('id', id);
+
+        if (error) {
+            console.error('Error deleting forex transaction:', error);
+            return;
+        }
+
+        setForexTransactions(prev => prev.filter(t => t.id !== id));
+
+        // Refresh accounts
+        setTimeout(() => {
+            refreshAccounts();
+        }, 800);
+    };
+
     const addFnoTrade = async (tradeData: Omit<FnoTrade, 'id'>) => {
         const investment = tradeData.avgPrice * tradeData.quantity;
 
@@ -1971,6 +2095,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             fnoTrades,
             bonds,
             bondTransactions,
+            forexTransactions,
             settings,
             updateSettings,
             loading,
@@ -2004,6 +2129,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             deleteBond,
             addBondTransaction,
             deleteBondTransaction,
+            addForexTransaction,
+            updateForexTransaction,
+            deleteForexTransaction,
             addFnoTrade,
             updateFnoTrade,
             deleteFnoTrade,

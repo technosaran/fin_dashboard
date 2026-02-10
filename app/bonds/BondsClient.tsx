@@ -10,13 +10,12 @@ import {
     Calendar,
     ArrowUpRight,
     ArrowDownRight,
-    Info,
     Percent,
     Wallet,
     Trash2,
     Eye,
 } from 'lucide-react';
-import { useFinance, calculateBondCharges } from '../components/FinanceContext';
+import { useFinance, calculateBondCharges, Bond } from '../components/FinanceContext';
 import { SkeletonCard } from '../components/SkeletonLoader';
 import { useNotifications } from '../components/NotificationContext';
 import AddBondModal from '../components/AddBondModal';
@@ -26,7 +25,7 @@ export default function BondsClient() {
     const { showNotification, confirm } = useNotifications();
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-    const [viewingCharges, setViewingCharges] = useState<any>(null);
+    const [viewingCharges, setViewingCharges] = useState<Bond | null>(null);
 
     // Filter bonds based on search
     const filteredBonds = useMemo(() => {
@@ -282,48 +281,40 @@ export default function BondsClient() {
                 const charges = calculateBondCharges('SELL', viewingCharges.quantity, viewingCharges.currentPrice, settings);
                 return (
                     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
-                        <div style={{ background: '#0f172a', padding: '32px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '400px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                    <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: 'rgba(56, 189, 248, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
-                                        <Eye size={20} />
-                                    </div>
-                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>Bond Exit Charges</h2>
-                                </div>
-                                <button onClick={() => setViewingCharges(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '36px', height: '36px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Plus size={18} style={{ transform: 'rotate(45deg)' }} />
+                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '20px', border: '1px solid #334155', width: '100%', maxWidth: '380px' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                                <h2 style={{ fontSize: '1.1rem', fontWeight: '900', margin: 0 }}>Exit Charges</h2>
+                                <button onClick={() => setViewingCharges(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                    <Plus size={16} style={{ transform: 'rotate(45deg)' }} />
                                 </button>
                             </div>
 
-                            <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px' }}>
-                                <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: '700' }}>{viewingCharges.isin}</div>
-                                <div style={{ fontSize: '1rem', fontWeight: '900', color: '#fff' }}>{viewingCharges.name}</div>
+                            <div style={{ padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '16px' }}>
+                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', fontWeight: '700' }}>{viewingCharges.isin}</div>
+                                <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#fff' }}>{viewingCharges.name}</div>
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Brokerage</span>
-                                    <span style={{ color: '#fff', fontWeight: '700' }}>₹{charges.brokerage.toFixed(2)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Stamp Duty</span>
-                                        <span style={{ color: '#475569', fontSize: '0.7rem' }}>0.0001% for Bonds</span>
-                                    </div>
-                                    <span style={{ color: '#fff', fontWeight: '700' }}>₹{charges.stampDuty.toFixed(2)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                    <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>GST (18% on Brokerage)</span>
-                                    <span style={{ color: '#fff', fontWeight: '700' }}>₹{charges.gst.toFixed(2)}</span>
-                                </div>
-                                <div style={{ height: '1px', background: '#1e293b', margin: '8px 0' }} />
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ color: '#fff', fontWeight: '800' }}>Total Estimated Charges</span>
-                                    <span style={{ color: '#38bdf8', fontSize: '1.25rem', fontWeight: '950' }}>₹{charges.total.toFixed(2)}</span>
+                                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Brokerage</span>
+                                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.9rem' }}>₹{charges.brokerage.toFixed(2)}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Stamp Duty</span>
+                                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.9rem' }}>₹{charges.stampDuty.toFixed(2)}</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>GST</span>
+                                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.9rem' }}>₹{charges.gst.toFixed(2)}</span>
+                                </div>
+                                <div style={{ height: '1px', background: '#1e293b', margin: '4px 0' }} />
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                    <span style={{ color: '#fff', fontWeight: '800', fontSize: '0.95rem' }}>Total</span>
+                                    <span style={{ color: '#38bdf8', fontSize: '1.15rem', fontWeight: '900' }}>₹{charges.total.toFixed(2)}</span>
                                 </div>
                             </div>
 
-                            <button onClick={() => setViewingCharges(null)} style={{ width: '100%', background: '#38bdf8', color: '#000', padding: '14px', borderRadius: '16px', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '32px' }}>
+                            <button onClick={() => setViewingCharges(null)} style={{ width: '100%', background: '#38bdf8', color: '#000', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '20px', fontSize: '0.9rem' }}>
                                 Close
                             </button>
                         </div>

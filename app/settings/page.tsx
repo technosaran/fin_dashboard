@@ -44,7 +44,8 @@ export default function SettingsPage() {
                 gstRate: 18,
                 dpCharges: 15.93,
                 autoCalculateCharges: true,
-                bondsEnabled: true
+                bondsEnabled: true,
+                forexEnabled: false
             };
             setLocalSettings(defaults);
             await updateSettings(defaults);
@@ -365,6 +366,20 @@ export default function SettingsPage() {
                                         style={{ width: '50px', height: '26px', background: localSettings.bondsEnabled ? '#10b981' : '#1e293b', borderRadius: '100px', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
                                     >
                                         <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '3px', left: localSettings.bondsEnabled ? '27px' : '3px', transition: 'left 0.3s' }} />
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px' }}>
+                                    <div>
+                                        <div style={{ fontWeight: '700', fontSize: '0.95rem' }}>Enable Forex Trading</div>
+                                        <div style={{ fontSize: '0.75rem', color: '#64748b' }}>Track Forex deposits, trades, and withdrawals</div>
+                                    </div>
+                                    <div
+                                        onClick={() => setLocalSettings({ ...localSettings, forexEnabled: !localSettings.forexEnabled })}
+                                        role="switch"
+                                        aria-checked={localSettings.forexEnabled}
+                                        style={{ width: '50px', height: '26px', background: localSettings.forexEnabled ? '#10b981' : '#1e293b', borderRadius: '100px', cursor: 'pointer', position: 'relative', transition: 'background 0.3s' }}
+                                    >
+                                        <div style={{ width: '20px', height: '20px', background: '#fff', borderRadius: '50%', position: 'absolute', top: '3px', left: localSettings.forexEnabled ? '27px' : '3px', transition: 'left 0.3s' }} />
                                     </div>
                                 </div>
                             </div>

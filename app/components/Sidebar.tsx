@@ -16,7 +16,8 @@ import {
     LogOut,
     Command,
     ShoppingBag,
-    Landmark
+    Landmark,
+    DollarSign
 } from 'lucide-react';
 
 import { useAuth } from './AuthContext';
@@ -41,6 +42,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={20} /> },
         { label: 'Bonds', href: '/bonds', icon: <Landmark size={20} />, enabled: settings.bondsEnabled },
         { label: 'FnO', href: '/fno', icon: <Zap size={20} /> },
+        { label: 'Forex', href: '/forex', icon: <DollarSign size={20} />, enabled: settings.forexEnabled },
         { label: 'Ledger', href: '/ledger', icon: <Book size={20} /> },
         { label: 'Income', href: '/salary', icon: <Banknote size={20} /> },
         { label: 'Expenses', href: '/expenses', icon: <ShoppingBag size={20} /> },
