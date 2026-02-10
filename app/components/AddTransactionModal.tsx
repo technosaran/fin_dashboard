@@ -313,7 +313,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
     return (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 2000, padding: '16px' }}>
-            <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '560px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+            <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #334155', width: '100%', maxWidth: '560px', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
                     <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0, display: 'flex', alignItems: 'center', gap: '12px' }}>
                         <div style={{ padding: '8px', background: 'rgba(99, 102, 241, 0.1)', borderRadius: '12px', color: '#6366f1' }}>
@@ -355,7 +355,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     ))}
                 </div>
 
-                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     {/* Search Field */}
                     <div style={{ position: 'relative' }}>
                         <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px', letterSpacing: '0.5px' }}>
@@ -367,7 +367,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                                 value={searchQuery}
                                 onChange={e => { setSearchQuery(e.target.value); if (selectedItem) setSelectedItem(null); }}
                                 placeholder={type === 'STOCK' ? "e.g. RELIANCE, HDFCBANK" : type === 'MUTUAL_FUND' ? "e.g. Parag Parikh, Quant" : "e.g. NIFTY 22FEB 21500 CE"}
-                                style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px 14px 14px 48px', borderRadius: '14px', color: '#fff' }}
+                                style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px 12px 12px 48px', borderRadius: '14px', color: '#fff' }}
                                 onFocus={() => type !== 'FNO' && setShowResults(true)}
                             />
                             {isSearching && <Loader2 size={18} className="spin-animation" style={{ position: 'absolute', right: '16px', top: '50%', transform: 'translateY(-50%)', color: '#6366f1' }} />}
@@ -404,29 +404,29 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                         </div>
                     )}
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         <div>
-                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Transaction Type</label>
-                            <select value={subType} onChange={e => setSubType(e.target.value as 'BUY' | 'SELL' | 'SIP')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Transaction Type</label>
+                            <select value={subType} onChange={e => setSubType(e.target.value as 'BUY' | 'SELL' | 'SIP')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '14px', color: '#fff' }}>
                                 <option value="BUY">BUY</option>
                                 <option value="SELL">SELL</option>
                                 {type === 'MUTUAL_FUND' && <option value="SIP">SIP</option>}
                             </select>
                         </div>
                         <div>
-                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Date</label>
-                            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }} />
+                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Date</label>
+                            <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '14px', color: '#fff' }} />
                         </div>
                     </div>
 
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                         <div>
-                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>{type === 'MUTUAL_FUND' ? 'Units' : 'Quantity'}</label>
-                            <input type="number" step={type === 'MUTUAL_FUND' ? '0.001' : '1'} value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="0" style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }} />
+                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>{type === 'MUTUAL_FUND' ? 'Units' : 'Quantity'}</label>
+                            <input type="number" step={type === 'MUTUAL_FUND' ? '0.001' : '1'} value={quantity} onChange={e => setQuantity(e.target.value)} placeholder="0" style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '14px', color: '#fff' }} />
                         </div>
                         <div>
-                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>{type === 'MUTUAL_FUND' ? 'NAV' : 'Avg. Price'}</label>
-                            <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }} />
+                            <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>{type === 'MUTUAL_FUND' ? 'NAV' : 'Avg. Price'}</label>
+                            <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} placeholder="0.00" style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '14px', color: '#fff' }} />
                         </div>
                     </div>
 
@@ -464,8 +464,8 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                     )}
 
                     <div>
-                        <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Operating Bank Account</label>
-                        <select value={accountId} onChange={e => setAccountId(e.target.value ? Number(e.target.value) : '')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
+                        <label style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', display: 'block', marginBottom: '6px' }}>Operating Bank Account</label>
+                        <select value={accountId} onChange={e => setAccountId(e.target.value ? Number(e.target.value) : '')} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '14px', color: '#fff' }}>
                             <option value="">No Account (Ledger Only)</option>
                             {accounts.map(acc => (
                                 <option key={acc.id} value={acc.id}>{acc.name} - ₹{acc.balance.toLocaleString()}</option>
@@ -473,7 +473,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                         </select>
                     </div>
 
-                    <button type="submit" disabled={isFetchingQuote || (!selectedItem && type !== 'FNO')} style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', padding: '16px', borderRadius: '16px', border: 'none', fontWeight: '800', fontSize: '1rem', cursor: (isFetchingQuote || (!selectedItem && type !== 'FNO')) ? 'not-allowed' : 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)' }}>
+                    <button type="submit" disabled={isFetchingQuote || (!selectedItem && type !== 'FNO')} style={{ marginTop: '8px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: '#fff', padding: '14px', borderRadius: '16px', border: 'none', fontWeight: '800', fontSize: '1rem', cursor: (isFetchingQuote || (!selectedItem && type !== 'FNO')) ? 'not-allowed' : 'pointer', transition: '0.3s', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)' }}>
                         {isFetchingQuote ? <><Loader2 size={18} className="spin-animation" /> Syncing...</> : 'Confirm Transaction'}
                     </button>
                     {!selectedItem && type !== 'FNO' && (

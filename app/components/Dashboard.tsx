@@ -9,7 +9,8 @@ import {
     Activity,
     ChevronRight,
     Zap,
-    Award
+    Award,
+    ShoppingBag
 } from 'lucide-react';
 import { useFinance } from './FinanceContext';
 import Link from 'next/link';
@@ -101,6 +102,34 @@ export default function Dashboard() {
     }, [financialMetrics]);
 
     const recentTx = useMemo(() => transactions.slice(0, 5), [transactions]);
+
+    // Calculate expense metrics
+    const expenseMetrics = useMemo(() => {
+        const expenseItems = transactions.filter(t => t.type === 'Expense');
+        const thisMonthExpenses = expenseItems.filter(t => {
+            const txDate = new Date(t.date);
+            const now = new Date();
+            return txDate.getMonth() === now.getMonth() && txDate.getFullYear() === now.getFullYear();
+        });
+        
+        const totalExpenses = thisMonthExpenses.reduce((sum, item) => sum + item.amount, 0);
+        
+        const topCategory = thisMonthExpenses.reduce((acc, item) => {
+            const category = item.category || 'Other';
+            if (!acc[category]) acc[category] = 0;
+            acc[category] += item.amount;
+            return acc;
+        }, {} as Record<string, number>);
+        
+        const topCategoryEntries = Object.entries(topCategory).sort((a, b) => b[1] - a[1]);
+        const topCategoryName = topCategoryEntries.length > 0 ? topCategoryEntries[0][0] : 'None';
+        
+        return {
+            totalExpenses,
+            count: thisMonthExpenses.length,
+            topCategory: topCategoryName
+        };
+    }, [transactions]);
 
     if (loading) {
         return (
@@ -348,6 +377,50 @@ export default function Dashboard() {
                                 <div style={{ fontWeight: '700' }}>Establish your first target</div>
                             </div>
                         )}
+                    </div>
+
+                    {/* Expenses Summary Card */}
+                    <div className="premium-card" style={{ padding: '32px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.9) 100%)' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                <div style={{ background: 'rgba(239, 68, 68, 0.1)', padding: '10px', borderRadius: '12px', color: '#f87171' }}>
+                                    <ShoppingBag size={20} />
+                                </div>
+                                <h3 style={{ fontSize: '1.2rem', fontWeight: '900', margin: 0 }}>This Month&apos;s Expenses</h3>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                                <div style={{ background: 'rgba(255,255,255,0.05)', padding: '8px', borderRadius: '10px' }}>
+                                    <ArrowDownRight size={24} color="#ef4444" />
+                                </div>
+                                <div>
+                                    <div style={{ fontSize: '1.15rem', fontWeight: '900', color: '#fff' }}>₹{expenseMetrics.totalExpenses.toLocaleString()}</div>
+                                    <div className="stat-label" style={{ fontSize: '0.65rem' }}>Total Spent</div>
+                                </div>
+                            </div>
+
+                            <div style={{ marginBottom: '24px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                    <span style={{ fontSize: '0.9rem', fontWeight: '800', color: '#fff' }}>{expenseMetrics.count} Transactions</span>
+                                    <span style={{ fontSize: '0.8rem', fontWeight: '700', color: '#64748b' }}>Top: {expenseMetrics.topCategory}</span>
+                                </div>
+                                <div style={{ width: '100%', height: '8px', background: 'rgba(0,0,0,0.3)', borderRadius: '100px', padding: '2px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                    <div style={{
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'linear-gradient(90deg, #ef4444 0%, #f87171 100%)',
+                                        borderRadius: '100px',
+                                        boxShadow: '0 0 10px rgba(239, 68, 68, 0.4)'
+                                    }} />
+                                </div>
+                            </div>
+
+                            <Link href="/expenses" className="glass-button" style={{ display: 'block', textAlign: 'center', padding: '14px', borderRadius: '16px', fontSize: '0.9rem', textDecoration: 'none' }}>
+                                Manage Expenses
+                            </Link>
+                        </div>
                     </div>
 
 
