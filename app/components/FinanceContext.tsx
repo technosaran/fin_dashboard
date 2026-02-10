@@ -555,7 +555,7 @@ const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings => ({
     dpCharges: Number(dbSettings.dp_charges),
     autoCalculateCharges: dbSettings.auto_calculate_charges,
     bondsEnabled: dbSettings.bonds_enabled ?? true,
-    forexEnabled: dbSettings.forex_enabled ?? false,
+    forexEnabled: dbSettings.forex_enabled ?? true,
     defaultStockAccountId: dbSettings.default_stock_account_id ? Number(dbSettings.default_stock_account_id) : undefined,
     defaultMfAccountId: dbSettings.default_mf_account_id ? Number(dbSettings.default_mf_account_id) : undefined,
     defaultSalaryAccountId: dbSettings.default_salary_account_id ? Number(dbSettings.default_salary_account_id) : undefined
@@ -753,7 +753,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         dpCharges: 15.93, // 13.5 + 18% GST
         autoCalculateCharges: true,
         bondsEnabled: true,
-        forexEnabled: false
+        forexEnabled: true
     });
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -891,8 +891,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             gst_rate: currentSettings.gstRate,
                             dp_charges: currentSettings.dpCharges,
                             auto_calculate_charges: currentSettings.autoCalculateCharges,
-                            bonds_enabled: currentSettings.bondsEnabled,
-                            forex_enabled: currentSettings.forexEnabled || false,
+                            bonds_enabled: currentSettings.bondsEnabled ?? true,
+                            forex_enabled: currentSettings.forexEnabled ?? true,
                             default_stock_account_id: currentSettings.defaultStockAccountId || null,
                             default_mf_account_id: currentSettings.defaultMfAccountId || null,
                             default_salary_account_id: currentSettings.defaultSalaryAccountId || null

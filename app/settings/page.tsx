@@ -45,7 +45,7 @@ export default function SettingsPage() {
                 dpCharges: 15.93,
                 autoCalculateCharges: true,
                 bondsEnabled: true,
-                forexEnabled: false
+                forexEnabled: true
             };
             setLocalSettings(defaults);
             await updateSettings(defaults);
