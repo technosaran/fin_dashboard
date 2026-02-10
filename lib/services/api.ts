@@ -164,7 +164,7 @@ export function applyRateLimit(request: Request): NextResponse | null {
 /**
  * Simple in-memory cache for API responses
  */
-const apiCache = new Map<string, { data: any; expire: number }>();
+const apiCache = new Map<string, { data: unknown; expire: number }>();
 
 export function getCache<T>(key: string): T | null {
   const record = apiCache.get(key);

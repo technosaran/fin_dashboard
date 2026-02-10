@@ -4,10 +4,8 @@ import { useMemo } from 'react';
 import {
     TrendingUp,
     Zap,
-    ArrowUpRight,
-    ArrowDownRight
 } from 'lucide-react';
-import { useFinance } from './FinanceContext';
+import { MutualFundTransaction, useFinance } from './FinanceContext';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonCard } from './SkeletonLoader';
 
@@ -72,14 +70,14 @@ export default function Dashboard() {
         const stockLifetime = (stockSells + stocksValue) - (stockBuys + stockCharges);
 
         const mfBuys = mutualFundTransactions
-            .filter((t: any) =>
+            .filter((t: MutualFundTransaction) =>
                 t.transactionType === 'BUY' || t.transactionType === 'SIP'
             )
-            .reduce((sum: number, t: any) => sum + t.totalAmount, 0);
+            .reduce((sum, t) => sum + t.totalAmount, 0);
 
         const mfSells = mutualFundTransactions
-            .filter((t: any) => t.transactionType === 'SELL')
-            .reduce((sum: number, t: any) => sum + t.totalAmount, 0);
+            .filter((t: MutualFundTransaction) => t.transactionType === 'SELL')
+            .reduce((sum, t) => sum + t.totalAmount, 0);
 
         const mfLifetime = (mfSells + mfValue) - mfBuys;
 

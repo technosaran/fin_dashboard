@@ -1048,7 +1048,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             current_value: newValue,
                             pnl: newPnL,
                             pnl_percentage: updated.pnlPercentage
-                        }).eq('id', bond.id).then(({ error }: { error: any }) => {
+                        }).eq('id', bond.id).then(({ error }: { error: Error | null }) => {
                             if (error) console.error(`Sync error for ${bond.name}:`, error);
                         });
 

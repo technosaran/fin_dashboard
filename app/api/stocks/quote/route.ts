@@ -11,6 +11,22 @@ import {
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
+interface YahooChartMeta {
+  symbol?: string;
+  regularMarketPrice?: number;
+  previousClose?: number;
+  currency?: string;
+  exchangeName?: string;
+}
+
+interface YahooChartResponse {
+  chart?: {
+    result?: Array<{
+      meta?: YahooChartMeta;
+    }>;
+  };
+}
+
 /**
  * Stock quote API endpoint with security enhancements
  */
@@ -33,7 +49,7 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
   }
 
   const cacheKey = `stock_quote_${symbol.trim().toUpperCase()}`;
-  const cached = getCache<any>(cacheKey);
+  const cached = getCache<{ symbol: string; currentPrice: number; previousClose: number; currency: string; exchange: string }>(cacheKey);
   if (cached) return createSuccessResponse(cached);
 
   try {
@@ -50,7 +66,7 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
       5000
     );
 
-    let data = await response.json();
+    let data = (await response.json()) as YahooChartResponse;
 
     // If not found in NSE, try BSE
     if (!data.chart?.result) {
@@ -63,11 +79,14 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
         },
         5000
       );
-      data = await response.json();
+      data = (await response.json()) as YahooChartResponse;
     }
 
     if (data.chart?.result) {
       const meta = data.chart.result[0].meta;
+      if (!meta?.symbol) {
+        return createErrorResponse('Invalid quote response', 502);
+      }
       const quoteData = {
         symbol: meta.symbol.split('.')[0],
         currentPrice: meta.regularMarketPrice || 0,
