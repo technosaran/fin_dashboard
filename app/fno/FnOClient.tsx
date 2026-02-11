@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useMemo } from 'react';
-import { useFinance, FnoTrade } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { FnoTrade } from '@/lib/types';
 import { useNotifications } from '../components/NotificationContext';
 import {
     Plus,
@@ -101,7 +102,7 @@ export default function FnOClient() {
 
         try {
             if (editId) {
-                await updateFnoTrade({ ...tradeData, id: editId });
+                await updateFnoTrade(editId, tradeData);
                 showNotification('success', 'Trade record updated');
             } else {
                 await addFnoTrade(tradeData);

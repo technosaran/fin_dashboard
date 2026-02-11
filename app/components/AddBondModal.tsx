@@ -10,7 +10,8 @@ import {
     ShieldCheck,
     Check
 } from 'lucide-react';
-import { useFinance, Bond } from './FinanceContext';
+import { useFinance } from './FinanceContext';
+import { Bond } from '@/lib/types';
 import { useNotifications } from './NotificationContext';
 
 interface AddBondModalProps {

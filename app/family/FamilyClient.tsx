@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { useFinance, FamilyTransfer } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { FamilyTransfer } from '@/lib/types';
 import {
     Users,
     X,
@@ -47,7 +48,7 @@ export default function FamilyClient() {
         };
 
         if (editId) {
-            await updateFamilyTransfer({ ...transferData, id: editId });
+            await updateFamilyTransfer(editId, transferData);
             showNotification('success', 'Transfer record updated');
         } else {
             await addFamilyTransfer(transferData);
@@ -75,7 +76,7 @@ export default function FamilyClient() {
         setRelationship(transfer.relationship);
         setAmount(transfer.amount.toString());
         setDate(transfer.date);
-        setPurpose(transfer.purpose);
+        setPurpose(transfer.purpose || '');
         setNotes(transfer.notes || '');
         setSelectedAccountId(transfer.accountId || '');
         setIsModalOpen(true);

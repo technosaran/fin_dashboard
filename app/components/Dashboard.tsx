@@ -5,7 +5,8 @@ import {
     TrendingUp,
     Zap,
 } from 'lucide-react';
-import { MutualFundTransaction, useFinance } from './FinanceContext';
+import { useFinance } from './FinanceContext';
+import { MutualFundTransaction } from '@/lib/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonCard } from './SkeletonLoader';
 

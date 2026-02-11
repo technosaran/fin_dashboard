@@ -13,7 +13,8 @@ import {
     Trash2,
     Calendar
 } from 'lucide-react';
-import { useFinance, ForexTransaction } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { ForexTransaction } from '@/lib/types';
 import { SkeletonCard } from '../components/SkeletonLoader';
 import { useNotifications } from '../components/NotificationContext';
 
@@ -28,19 +29,19 @@ export default function ForexClient() {
         const deposits = forexTransactions
             .filter(t => t.transactionType === 'DEPOSIT')
             .reduce((sum, t) => sum + t.amount, 0);
-        
+
         const withdrawals = forexTransactions
             .filter(t => t.transactionType === 'WITHDRAWAL')
             .reduce((sum, t) => sum + t.amount, 0);
-        
+
         const profits = forexTransactions
             .filter(t => t.transactionType === 'PROFIT')
             .reduce((sum, t) => sum + t.amount, 0);
-        
+
         const losses = forexTransactions
             .filter(t => t.transactionType === 'LOSS')
             .reduce((sum, t) => sum + t.amount, 0);
-        
+
         const netPnL = profits - losses;
         const currentBalance = deposits + profits - losses - withdrawals;
 
@@ -149,13 +150,13 @@ export default function ForexClient() {
             {/* Transactions List */}
             <div className="premium-card p-lg fade-in" style={{ padding: '24px' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>Transaction History</h2>
-                
+
                 {forexTransactions.length > 0 ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {forexTransactions.map((transaction) => {
                             const account = accounts.find(a => a.id === transaction.accountId);
                             const isPositive = transaction.transactionType === 'DEPOSIT' || transaction.transactionType === 'PROFIT';
-                            
+
                             return (
                                 <div
                                     key={transaction.id}
@@ -188,7 +189,7 @@ export default function ForexClient() {
                                                 {transaction.transactionType}
                                             </div>
                                             <div style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
-                                                <Calendar size={12} /> {new Date(transaction.transactionDate).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+                                                <Calendar size={12} /> {new Date(transaction.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
                                                 {account && <span>• {account.name}</span>}
                                             </div>
                                         </div>
@@ -269,7 +270,7 @@ export default function ForexClient() {
                     onSave={async (data) => {
                         try {
                             if (editingTransaction) {
-                                await updateForexTransaction({ ...data, id: editingTransaction.id });
+                                await updateForexTransaction(editingTransaction.id, data);
                                 showNotification('success', 'Transaction updated successfully');
                             } else {
                                 await addForexTransaction(data);
@@ -298,7 +299,7 @@ interface ForexTransactionModalProps {
 function ForexTransactionModal({ transaction, onClose, onSave, accounts }: ForexTransactionModalProps) {
     const [transactionType, setTransactionType] = useState<ForexTransaction['transactionType']>(transaction?.transactionType || 'DEPOSIT');
     const [amount, setAmount] = useState(transaction?.amount.toString() || '');
-    const [transactionDate, setTransactionDate] = useState(transaction?.transactionDate || new Date().toISOString().split('T')[0]);
+    const [date, setDate] = useState(transaction?.date || new Date().toISOString().split('T')[0]);
     const [notes, setNotes] = useState(transaction?.notes || '');
     const [accountId, setAccountId] = useState<number>(transaction?.accountId || 0);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -314,7 +315,7 @@ function ForexTransactionModal({ transaction, onClose, onSave, accounts }: Forex
             await onSave({
                 transactionType,
                 amount: parseFloat(amount),
-                transactionDate,
+                date,
                 notes: notes || undefined,
                 accountId: accountId || undefined
             });
@@ -326,7 +327,7 @@ function ForexTransactionModal({ transaction, onClose, onSave, accounts }: Forex
     return (
         <div style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)' }} onClick={onClose} />
-            
+
             <div className="premium-card fade-in" style={{
                 width: '100%',
                 maxWidth: '500px',
@@ -379,8 +380,8 @@ function ForexTransactionModal({ transaction, onClose, onSave, accounts }: Forex
                         <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Date</label>
                         <input
                             type="date"
-                            value={transactionDate}
-                            onChange={e => setTransactionDate(e.target.value)}
+                            value={date}
+                            onChange={e => setDate(e.target.value)}
                             style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff', outline: 'none' }}
                             required
                         />

@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import { useFinance, Transaction } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Transaction } from '@/lib/types';
 import { exportTransactionsToCSV } from '../../lib/exportUtils';
 import {
     Book,
@@ -47,7 +48,7 @@ export default function LedgerClient() {
         };
 
         if (editId) {
-            await updateTransaction({ ...transactionData, id: editId });
+            await updateTransaction(editId, transactionData);
             showNotification('success', 'Transaction updated successfully');
         } else {
             await addTransaction(transactionData);

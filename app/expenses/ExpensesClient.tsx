@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { useFinance, Transaction } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Transaction } from '@/lib/types';
 import {
     TrendingDown,
     Calendar,
@@ -42,7 +43,7 @@ export default function ExpensesClient() {
 
     const categories = Object.entries(categoriesMap).sort((a, b) => b[1].total - a[1].total);
     const totalExpenses = expenseItems.reduce((sum, item) => sum + item.amount, 0);
-    
+
     // Calculate average monthly spending
     const avgMonthlySpending = (() => {
         if (activeTab === 'This Year') {
@@ -78,7 +79,7 @@ export default function ExpensesClient() {
         };
 
         if (editId) {
-            await updateTransaction({ ...txData, id: editId });
+            await updateTransaction(editId, txData);
             showNotification('success', 'Expense record updated');
         } else {
             await addTransaction(txData);

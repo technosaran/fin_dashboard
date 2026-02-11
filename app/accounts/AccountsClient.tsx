@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Area, AreaChart } from 'recharts';
-import { useFinance, Account } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Account, AccountType } from '@/lib/types';
 import { exportAccountsToCSV } from '../../lib/exportUtils';
 import {
     Wallet,
@@ -34,7 +35,7 @@ export default function AccountsClient() {
     // Form State
     const [accountName, setAccountName] = useState('');
     const [bankName, setBankName] = useState('');
-    const [accountType, setAccountType] = useState('Checking');
+    const [accountType, setAccountType] = useState<AccountType>('Savings');
     const [balance, setBalance] = useState('');
     const [currency, setCurrency] = useState<'USD' | 'INR'>('INR');
 
@@ -57,8 +58,7 @@ export default function AccountsClient() {
         if (editId !== null) {
             const existingAccount = accounts.find(acc => acc.id === editId);
             if (existingAccount) {
-                await updateAccount({
-                    ...existingAccount,
+                await updateAccount(editId, {
                     name: accountName,
                     bankName,
                     type: accountType,
@@ -116,8 +116,8 @@ export default function AccountsClient() {
         const sourceAccount = accounts.find(acc => acc.id === Number(sourceAccountId));
         const targetAccount = accounts.find(acc => acc.id === Number(targetAccountId));
         if (sourceAccount && targetAccount) {
-            await updateAccount({ ...sourceAccount, balance: sourceAccount.balance - amount });
-            await updateAccount({ ...targetAccount, balance: targetAccount.balance + amount });
+            await updateAccount(sourceAccount.id, { balance: sourceAccount.balance - amount });
+            await updateAccount(targetAccount.id, { balance: targetAccount.balance + amount });
         }
         setIsTransferModalOpen(false);
     };
@@ -762,7 +762,7 @@ export default function AccountsClient() {
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                     <label htmlFor="type-select" style={{ fontSize: 'clamp(0.7rem, 1.5vw, 0.75rem)', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Type</label>
-                                    <select id="type-select" value={accountType} onChange={e => setAccountType(e.target.value)} disabled={accountName.toLowerCase() === 'physical cash'} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: accountName.toLowerCase() === 'physical cash' ? '#64748b' : '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: accountName.toLowerCase() === 'physical cash' ? 'default' : 'pointer' }} aria-label="Select account type">
+                                    <select id="type-select" value={accountType} onChange={e => setAccountType(e.target.value as AccountType)} disabled={accountName.toLowerCase() === 'physical cash'} style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: accountName.toLowerCase() === 'physical cash' ? '#64748b' : '#fff', fontSize: 'clamp(0.9rem, 2vw, 1rem)', outline: 'none', cursor: accountName.toLowerCase() === 'physical cash' ? 'default' : 'pointer' }} aria-label="Select account type">
                                         <option value="Checking">Checking</option>
                                         <option value="Savings">Savings</option>
                                         <option value="Credit Card">Credit Card</option>

@@ -8,7 +8,7 @@
 // ============================================================================
 
 export type Currency = 'USD' | 'INR';
-export type AccountType = 'Savings' | 'Current' | 'Wallet' | 'Investment' | 'Credit Card' | 'Other';
+export type AccountType = 'Savings' | 'Checking' | 'Current' | 'Wallet' | 'Investment' | 'Credit Card' | 'Cash' | 'Other';
 
 export interface Account {
   id: number;
@@ -95,11 +95,29 @@ export type RelationshipType =
 
 export interface FamilyTransfer {
   id: number;
-  date: string;
   recipient: string;
   relationship: RelationshipType | string;
   amount: number;
-  purpose: string;
+  date: string;
+  purpose?: string;
+  notes?: string;
+  accountId?: number;
+  userId?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+// ============================================================================
+// Forex Types
+// ============================================================================
+
+export type ForexTransactionType = 'DEPOSIT' | 'WITHDRAWAL' | 'PROFIT' | 'LOSS';
+
+export interface ForexTransaction {
+  id: number;
+  transactionType: ForexTransactionType;
+  amount: number;
+  date: string;
   notes?: string;
   accountId?: number;
   userId?: string;
@@ -127,6 +145,7 @@ export interface Stock {
   currentValue: number;
   pnl: number;
   pnlPercentage: number;
+  previousPrice?: number;
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -143,6 +162,7 @@ export interface StockTransaction {
   taxes?: number;
   transactionDate: string;
   notes?: string;
+  accountId?: number;
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -188,6 +208,9 @@ export interface MutualFund {
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
+  isin?: string;
+  folioNumber?: string;
+  previousNav?: number;
 }
 
 export interface MutualFundTransaction {
@@ -199,6 +222,7 @@ export interface MutualFundTransaction {
   totalAmount: number;
   transactionDate: string;
   notes?: string;
+  accountId?: number;
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -208,26 +232,25 @@ export interface MutualFundTransaction {
 // F&O Types
 // ============================================================================
 
-export type FnoType = 'Future' | 'Call Option' | 'Put Option';
-export type FnoStatus = 'Open' | 'Closed';
-export type FnoAction = 'Buy' | 'Sell';
+export type FnoType = 'FUTURE' | 'CALL' | 'PUT';
+export type FnoStatus = 'OPEN' | 'CLOSED';
+export type FnoAction = 'BUY' | 'SELL';
+export type FnoProduct = 'NRML' | 'MIS';
 
 export interface FnoTrade {
   id: number;
-  symbol: string;
-  type: FnoType;
-  action: FnoAction;
+  instrument: string;
+  tradeType: FnoAction;
+  product: FnoProduct;
   quantity: number;
-  strikePrice?: number;
-  entryPrice: number;
+  avgPrice: number;
   exitPrice?: number;
-  expiryDate: string;
   entryDate: string;
   exitDate?: string;
   status: FnoStatus;
-  pnl?: number;
-  lotSize: number;
-  margin?: number;
+  pnl: number;
+  notes?: string;
+  accountId?: number;
   userId?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -258,6 +281,7 @@ export interface Bond {
   yieldToMaturity?: number;
   interestFrequency: InterestFrequency | string;
   nextInterestDate?: string;
+  previousPrice?: number;
   status: 'ACTIVE' | 'MATURED' | 'SOLD';
   userId?: string;
   createdAt?: string;
@@ -295,6 +319,7 @@ export interface AppSettings {
   dpCharges: number;
   autoCalculateCharges: boolean;
   bondsEnabled: boolean;
+  forexEnabled: boolean;
   defaultStockAccountId?: number;
   defaultMfAccountId?: number;
   defaultSalaryAccountId?: number;
@@ -341,6 +366,7 @@ export interface FinanceContextState {
   addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
   updateAccount: (id: number, account: Partial<Account>) => Promise<void>;
   deleteAccount: (id: number) => Promise<void>;
+  addFunds: (accountId: number, amount: number, description?: string, category?: string) => Promise<void>;
 
   // Transactions
   transactions: Transaction[];
@@ -356,26 +382,60 @@ export interface FinanceContextState {
 
   // Stocks
   stocks: Stock[];
+  addStock: (stock: Omit<Stock, 'id'>) => Promise<void>;
+  updateStock: (id: number, stock: Partial<Stock>) => Promise<void>;
+  deleteStock: (id: number) => Promise<void>;
   stockTransactions: StockTransaction[];
+  addStockTransaction: (tx: Omit<StockTransaction, 'id'>) => Promise<void>;
+  deleteStockTransaction: (id: number) => Promise<void>;
   watchlist: Watchlist[];
 
   // Mutual Funds
   mutualFunds: MutualFund[];
+  addMutualFund: (mf: Omit<MutualFund, 'id'>) => Promise<void>;
+  updateMutualFund: (id: number, mf: Partial<MutualFund>) => Promise<void>;
+  deleteMutualFund: (id: number) => Promise<void>;
   mutualFundTransactions: MutualFundTransaction[];
+  addMutualFundTransaction: (tx: Omit<MutualFundTransaction, 'id'>) => Promise<void>;
+  deleteMutualFundTransaction: (id: number) => Promise<void>;
 
   // Bonds
   bonds: Bond[];
+  addBond: (bond: Omit<Bond, 'id'>) => Promise<void>;
+  updateBond: (id: number, bond: Partial<Bond>) => Promise<void>;
+  deleteBond: (id: number) => Promise<void>;
   bondTransactions: BondTransaction[];
+  addBondTransaction: (tx: Omit<BondTransaction, 'id'>) => Promise<void>;
+  deleteBondTransaction: (id: number) => Promise<void>;
 
   // F&O
   fnoTrades: FnoTrade[];
+  addFnoTrade: (trade: Omit<FnoTrade, 'id'>) => Promise<void>;
+  updateFnoTrade: (id: number, trade: Partial<FnoTrade>) => Promise<void>;
+  deleteFnoTrade: (id: number) => Promise<void>;
+
+  // Forex
+  forexTransactions: ForexTransaction[];
+  addForexTransaction: (tx: Omit<ForexTransaction, 'id'>) => Promise<void>;
+  updateForexTransaction: (id: number, tx: Partial<ForexTransaction>) => Promise<void>;
+  deleteForexTransaction: (id: number) => Promise<void>;
 
   // Family Transfers
   familyTransfers: FamilyTransfer[];
+  addFamilyTransfer: (transfer: Omit<FamilyTransfer, 'id'>) => Promise<void>;
+  updateFamilyTransfer: (id: number, transfer: Partial<FamilyTransfer>) => Promise<void>;
+  deleteFamilyTransfer: (id: number) => Promise<void>;
 
   // Settings
   settings: AppSettings;
   updateSettings: (settings: Partial<AppSettings>) => void;
+
+  // Refresh
+  refreshPortfolio: () => Promise<void>;
+
+  // Combined Modal State
+  isTransactionModalOpen: boolean;
+  setIsTransactionModalOpen: (open: boolean) => void;
 
   // Loading state
   loading: boolean;

@@ -3,7 +3,9 @@
 import { useState, useEffect } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import { useFinance, Stock, calculateStockCharges } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Stock } from '@/lib/types';
+import { calculateStockCharges } from '@/lib/utils/charges';
 import {
     TrendingUp,
     TrendingDown,
@@ -145,7 +147,7 @@ export default function StocksClient() {
         };
 
         if (editId !== null) {
-            await updateStock({ ...stockData, id: editId });
+            await updateStock(editId, stockData);
             showNotification('success', `${symbol} updated successfully`);
         } else {
             await addStock(stockData);

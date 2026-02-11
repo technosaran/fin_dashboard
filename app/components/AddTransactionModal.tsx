@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Info } from 'lucide-react';
 import { useFinance } from './FinanceContext';
 import { useNotifications } from './NotificationContext';
-import { calculateStockCharges } from './FinanceContext';
+import { calculateStockCharges } from '@/lib/utils/charges';
 
 interface AddTransactionModalProps {
     isOpen: boolean;
@@ -92,8 +92,8 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         if (!isOpen) {
             resetForm();
         }
-    // resetForm is intentionally excluded to prevent infinite re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // resetForm is intentionally excluded to prevent infinite re-renders
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [isOpen]);
 
     const resetForm = () => {
@@ -131,8 +131,8 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             }
         }, 500);
         return () => clearTimeout(timer);
-    // handleSearch and selectedItem are intentionally excluded to prevent re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+        // handleSearch and selectedItem are intentionally excluded to prevent re-renders
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [searchQuery, type]);
 
     const selectItem = async (item: SearchResult) => {
@@ -245,7 +245,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
         if (!existingMf) {
             await addMutualFund({
-                name: selectedItem.schemeName,
+                schemeName: selectedItem.schemeName,
                 schemeCode: selectedItem.schemeCode,
                 category: selectedItem.category,
                 units: qty,

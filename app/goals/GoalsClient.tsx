@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { useFinance, Goal } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Goal } from '@/lib/types';
 import { exportGoalsToCSV } from '../../lib/exportUtils';
 import {
     Target,
@@ -46,7 +47,7 @@ export default function GoalsClient() {
         };
 
         if (editId) {
-            await updateGoal({ ...goalData, id: editId }, selectedAccountId ? Number(selectedAccountId) : undefined);
+            await updateGoal(editId, goalData);
             showNotification('success', 'Directive updated successfully');
         } else {
             await addGoal(goalData);
@@ -136,23 +137,23 @@ export default function GoalsClient() {
                                 padding: '10px 20px',
                                 borderRadius: '14px',
                                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                            color: 'white',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontWeight: '800',
-                            fontSize: '0.85rem',
-                            boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            transition: 'all 0.2s',
-                            whiteSpace: 'nowrap'
-                        }}
-                        onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
-                        onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
-                    >
-                        <Plus size={16} strokeWidth={3} /> New Directive
-                    </button>
+                                color: 'white',
+                                border: 'none',
+                                cursor: 'pointer',
+                                fontWeight: '800',
+                                fontSize: '0.85rem',
+                                boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                transition: 'all 0.2s',
+                                whiteSpace: 'nowrap'
+                            }}
+                            onMouseEnter={(e) => e.currentTarget.style.transform = 'translateY(-2px)'}
+                            onMouseLeave={(e) => e.currentTarget.style.transform = 'translateY(0)'}
+                        >
+                            <Plus size={16} strokeWidth={3} /> New Directive
+                        </button>
                     </div>
                 </div>
 

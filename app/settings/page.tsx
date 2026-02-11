@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { useFinance, AppSettings } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { AppSettings } from '@/lib/types';
 import {
     Save,
     Undo,

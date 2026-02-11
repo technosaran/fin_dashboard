@@ -2,7 +2,8 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import { useFinance, Transaction } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Transaction } from '@/lib/types';
 import {
     TrendingUp,
     Calendar,
@@ -60,7 +61,7 @@ export default function IncomeClient() {
         };
 
         if (editId) {
-            await updateTransaction({ ...txData, id: editId });
+            await updateTransaction(editId, txData);
             showNotification('success', 'Income record updated');
         } else {
             await addTransaction(txData);

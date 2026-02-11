@@ -15,7 +15,9 @@ import {
     Trash2,
     Eye,
 } from 'lucide-react';
-import { useFinance, calculateBondCharges, Bond } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { Bond } from '@/lib/types';
+import { calculateBondCharges } from '@/lib/utils/charges';
 import { SkeletonCard } from '../components/SkeletonLoader';
 import { useNotifications } from '../components/NotificationContext';
 import AddBondModal from '../components/AddBondModal';

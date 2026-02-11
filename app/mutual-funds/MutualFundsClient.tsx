@@ -22,7 +22,8 @@ import {
     Eye,
     PieChart as PieChartIcon
 } from 'lucide-react';
-import { useFinance, MutualFund, MutualFundTransaction } from '../components/FinanceContext';
+import { useFinance } from '../components/FinanceContext';
+import { MutualFund, MutualFundTransaction } from '@/lib/types';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
@@ -159,7 +160,7 @@ export default function MutualFundsClient() {
         const currentValue = unitsVal * curNavVal;
 
         const fundData = {
-            name: fundName,
+            schemeName: fundName,
             schemeCode,
             category: category || 'Mutual Fund',
             units: unitsVal,
@@ -175,7 +176,7 @@ export default function MutualFundsClient() {
         };
 
         if (editId) {
-            await updateMutualFund({ ...fundData, id: editId });
+            await updateMutualFund(editId, fundData);
             showNotification('success', 'Fund details updated');
         } else {
             await addMutualFund(fundData);
@@ -188,7 +189,7 @@ export default function MutualFundsClient() {
     const handleEditFund = (mf: MutualFund) => {
         setModalType('fund');
         setEditId(mf.id);
-        setFundName(mf.name || '');
+        setFundName(mf.schemeName || '');
         setSchemeCode(mf.schemeCode || '');
         setCategory(mf.category || '');
         setUnits(mf.units.toString());
@@ -376,7 +377,7 @@ export default function MutualFundsClient() {
                                     {mutualFunds.length > 0 ? mutualFunds.map(mf => (
                                         <tr key={mf.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.02)', transition: 'background 0.2s' }} onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.01)'} onMouseLeave={e => e.currentTarget.style.background = 'transparent'}>
                                             <td style={{ padding: '16px 24px' }}>
-                                                <div style={{ fontWeight: '800', color: '#fff' }}>{mf.name}</div>
+                                                <div style={{ fontWeight: '800', color: '#fff' }}>{mf.schemeName}</div>
                                                 <div style={{ fontSize: '0.75rem', color: '#64748b' }}>{mf.category}</div>
                                             </td>
                                             <td style={{ padding: '16px 24px', textAlign: 'right', fontWeight: '700', color: '#94a3b8' }}>{mf.units.toFixed(3)}</td>
@@ -411,7 +412,7 @@ export default function MutualFundsClient() {
                                                         <Edit3 size={16} />
                                                     </button>
                                                     <button onClick={async () => {
-                                                        const isConfirmed = await customConfirm({ title: 'Delete Fund', message: `Remove ${mf.name}?`, type: 'error', confirmLabel: 'Remove' });
+                                                        const isConfirmed = await customConfirm({ title: 'Delete Fund', message: `Remove ${mf.schemeName}?`, type: 'error', confirmLabel: 'Remove' });
                                                         if (isConfirmed) await deleteMutualFund(mf.id);
                                                     }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }} title="Delete">
                                                         <Trash2 size={16} />
@@ -534,7 +535,7 @@ export default function MutualFundsClient() {
                                     {mutualFunds.sort((a, b) => b.currentValue - a.currentValue).slice(0, 5).map(mf => (
                                         <div key={mf.id}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
-                                                <span style={{ fontWeight: '800', fontSize: '0.95rem' }}>{mf.name}</span>
+                                                <span style={{ fontWeight: '800', fontSize: '0.95rem' }}>{mf.schemeName}</span>
                                                 <span style={{ fontSize: '0.95rem', fontWeight: '900', color: '#818cf8' }}>{((mf.currentValue / totalCurrentValue) * 100).toFixed(1)}%</span>
                                             </div>
                                             <div style={{ width: '100%', height: '10px', background: '#020617', borderRadius: '100px', overflow: 'hidden', border: '1px solid #1e293b' }}>
@@ -571,7 +572,7 @@ export default function MutualFundsClient() {
                                             {t.transactionType === 'SELL' ? <ArrowUpRight size={20} /> : <TrendingUp size={20} />}
                                         </div>
                                         <div>
-                                            <div style={{ fontWeight: '800' }}>{fund?.name} • {t.transactionType}</div>
+                                            <div style={{ fontWeight: '800' }}>{fund?.schemeName} • {t.transactionType}</div>
                                             <div style={{ fontSize: '0.8rem', color: '#64748b' }}>{t.units.toFixed(3)} units @ ₹{t.nav.toFixed(4)}</div>
                                             <div style={{ fontSize: '0.7rem', color: '#475569', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                                 <Calendar size={12} /> {new Date(t.transactionDate).toLocaleDateString()}
@@ -637,7 +638,7 @@ export default function MutualFundsClient() {
                                 <ResponsiveContainer width="100%" height="100%">
                                     <BarChart data={mutualFunds.slice(0, 6)}>
                                         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.13)" />
-                                        <XAxis dataKey="name" hide />
+                                        <XAxis dataKey="schemeName" hide />
                                         <YAxis hide />
                                         <RechartsTooltip cursor={{ fill: 'rgba(255,255,255,0.05)' }} contentStyle={{ background: '#020617', border: '1px solid #1e293b' }} itemStyle={{ color: '#e8eef4' }} />
                                         <Bar dataKey="pnl" radius={[4, 4, 0, 0]}>
@@ -733,7 +734,7 @@ export default function MutualFundsClient() {
                                         <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Select Fund</label>
                                         <select value={selectedFundId} onChange={e => setSelectedFundId(Number(e.target.value))} style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff' }}>
                                             <option value="" disabled>Choose Scheme</option>
-                                            {mutualFunds.map(mf => <option key={mf.id} value={mf.id}>{mf.name}</option>)}
+                                            {mutualFunds.map(mf => <option key={mf.id} value={mf.id}>{mf.schemeName}</option>)}
                                         </select>
                                     </div>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
@@ -797,7 +798,7 @@ export default function MutualFundsClient() {
 
                             <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '20px' }}>
                                 <div style={{ fontSize: '0.8rem', color: '#64748b', marginBottom: '4px', fontWeight: '700' }}>{viewingCharges.category}</div>
-                                <div style={{ fontSize: '1rem', fontWeight: '900', color: '#fff' }}>{viewingCharges.name}</div>
+                                <div style={{ fontSize: '1rem', fontWeight: '900', color: '#fff' }}>{viewingCharges.schemeName}</div>
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

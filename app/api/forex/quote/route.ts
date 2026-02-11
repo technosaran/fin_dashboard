@@ -1,5 +1,4 @@
 import {
-    createErrorResponse,
     createSuccessResponse,
     applyRateLimit,
 } from '@/lib/services/api';
