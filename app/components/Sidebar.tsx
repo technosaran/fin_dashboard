@@ -44,6 +44,7 @@ interface NavItem {
     enabled?: boolean;
     badge?: string;
     color?: string;
+    settingsKey?: string;
 }
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
@@ -67,6 +68,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         return () => clearInterval(interval);
     }, []);
 
+    const isVisible = (key?: string) => {
+        if (!key) return true;
+        const value = settings[key as keyof typeof settings];
+        return value !== false;
+    };
+
     const navSections: NavSection[] = [
         {
             title: 'OVERVIEW',
@@ -78,29 +85,32 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         {
             title: 'INVESTMENTS',
             items: [
-                { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={18} />, badge: stocks.length > 0 ? `${stocks.length}` : undefined, color: '#10b981' },
-                { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={18} />, badge: mutualFunds.length > 0 ? `${mutualFunds.length}` : undefined, color: '#f59e0b' },
-                { label: 'Bonds', href: '/bonds', icon: <Landmark size={18} />, enabled: settings.bondsEnabled, color: '#ec4899' },
-                { label: 'FnO', href: '/fno', icon: <Zap size={18} />, color: '#a78bfa' },
-                { label: 'Forex', href: '/forex', icon: <DollarSign size={18} />, enabled: settings.forexEnabled, color: '#2dd4bf' },
-            ].filter(item => item.enabled === undefined || item.enabled === true)
+                { label: 'Stocks', href: '/stocks', icon: <TrendingUp size={18} />, badge: stocks.length > 0 ? `${stocks.length}` : undefined, color: '#10b981', settingsKey: 'stocksVisible' },
+                { label: 'Mutual Funds', href: '/mutual-funds', icon: <Activity size={18} />, badge: mutualFunds.length > 0 ? `${mutualFunds.length}` : undefined, color: '#f59e0b', settingsKey: 'mutualFundsVisible' },
+                { label: 'Bonds', href: '/bonds', icon: <Landmark size={18} />, enabled: settings.bondsEnabled, color: '#ec4899', settingsKey: 'bondsEnabled' },
+                { label: 'FnO', href: '/fno', icon: <Zap size={18} />, color: '#a78bfa', settingsKey: 'fnoVisible' },
+                { label: 'Forex', href: '/forex', icon: <DollarSign size={18} />, enabled: settings.forexEnabled, color: '#2dd4bf', settingsKey: 'forexEnabled' },
+            ].filter(item => {
+                if (item.enabled === false) return false;
+                return isVisible(item.settingsKey);
+            })
         },
         {
             title: 'TRACKING',
             items: [
-                { label: 'Ledger', href: '/ledger', icon: <Book size={18} />, color: '#60a5fa' },
-                { label: 'Income', href: '/salary', icon: <Banknote size={18} />, color: '#34d399' },
-                { label: 'Expenses', href: '/expenses', icon: <ShoppingBag size={18} />, color: '#fb923c' },
-            ]
+                { label: 'Ledger', href: '/ledger', icon: <Book size={18} />, color: '#60a5fa', settingsKey: 'ledgerVisible' },
+                { label: 'Income', href: '/salary', icon: <Banknote size={18} />, color: '#34d399', settingsKey: 'incomeVisible' },
+                { label: 'Expenses', href: '/expenses', icon: <ShoppingBag size={18} />, color: '#fb923c', settingsKey: 'expensesVisible' },
+            ].filter(item => isVisible(item.settingsKey))
         },
         {
             title: 'PLANNING',
             items: [
-                { label: 'Goals', href: '/goals', icon: <Target size={18} />, color: '#f472b6' },
-                { label: 'Family', href: '/family', icon: <Users size={18} />, color: '#c084fc' },
-            ]
+                { label: 'Goals', href: '/goals', icon: <Target size={18} />, color: '#f472b6', settingsKey: 'goalsVisible' },
+                { label: 'Family', href: '/family', icon: <Users size={18} />, color: '#c084fc', settingsKey: 'familyVisible' },
+            ].filter(item => isVisible(item.settingsKey))
         }
-    ];
+    ].filter(section => section.items.length > 0);
 
     return (
         <>

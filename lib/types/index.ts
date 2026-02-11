@@ -323,6 +323,15 @@ export interface AppSettings {
   defaultStockAccountId?: number;
   defaultMfAccountId?: number;
   defaultSalaryAccountId?: number;
+  // Sidebar visibility toggles (all default to true)
+  stocksVisible?: boolean;
+  mutualFundsVisible?: boolean;
+  fnoVisible?: boolean;
+  ledgerVisible?: boolean;
+  incomeVisible?: boolean;
+  expensesVisible?: boolean;
+  goalsVisible?: boolean;
+  familyVisible?: boolean;
 }
 
 // ============================================================================
