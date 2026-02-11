@@ -301,7 +301,7 @@ function ForexTransactionModal({ transaction, onClose, onSave, accounts }: Forex
     const [amount, setAmount] = useState(transaction?.amount.toString() || '');
     const [date, setDate] = useState(transaction?.date || new Date().toISOString().split('T')[0]);
     const [notes, setNotes] = useState(transaction?.notes || '');
-    const [accountId, setAccountId] = useState<number>(transaction?.accountId || 0);
+    const [accountId, setAccountId] = useState<number | undefined>(transaction?.accountId);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -317,7 +317,7 @@ function ForexTransactionModal({ transaction, onClose, onSave, accounts }: Forex
                 amount: parseFloat(amount),
                 date,
                 notes: notes || undefined,
-                accountId: accountId || undefined
+                accountId: accountId
             });
         } finally {
             setIsSubmitting(false);
@@ -390,11 +390,11 @@ function ForexTransactionModal({ transaction, onClose, onSave, accounts }: Forex
                     <div>
                         <label style={{ fontSize: '0.8rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase', display: 'block', marginBottom: '8px' }}>Link to Account (Optional)</label>
                         <select
-                            value={accountId}
-                            onChange={e => setAccountId(Number(e.target.value))}
+                            value={accountId || ''}
+                            onChange={e => setAccountId(e.target.value ? Number(e.target.value) : undefined)}
                             style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '14px', color: '#fff', outline: 'none', cursor: 'pointer' }}
                         >
-                            <option value={0}>None</option>
+                            <option value="">None</option>
                             {accounts.map(acc => (
                                 <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>
                             ))}
