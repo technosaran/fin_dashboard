@@ -180,6 +180,7 @@ export default function IncomeClient() {
                             fontWeight: '900', 
                             margin: 0, 
                             letterSpacing: '-0.03em',
+                            color: '#10b981',
                             background: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)',
                             WebkitBackgroundClip: 'text',
                             WebkitTextFillColor: 'transparent',
