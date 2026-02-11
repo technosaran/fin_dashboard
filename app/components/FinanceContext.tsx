@@ -77,7 +77,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         dpCharges: 15.93,
         autoCalculateCharges: true,
         bondsEnabled: true,
-        forexEnabled: true
+        forexEnabled: true,
+        stocksVisible: true,
+        mutualFundsVisible: true,
+        fnoVisible: true,
+        ledgerVisible: true,
+        incomeVisible: true,
+        expensesVisible: true,
+        goalsVisible: true,
+        familyVisible: true
     });
     const { user, loading: authLoading } = useAuth();
     const [loading, setLoading] = useState(true);
@@ -251,7 +259,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     forex_enabled: updatedSettings.forexEnabled,
                     default_stock_account_id: updatedSettings.defaultStockAccountId,
                     default_mf_account_id: updatedSettings.defaultMfAccountId,
-                    default_salary_account_id: updatedSettings.defaultSalaryAccountId
+                    default_salary_account_id: updatedSettings.defaultSalaryAccountId,
+                    stocks_visible: updatedSettings.stocksVisible,
+                    mutual_funds_visible: updatedSettings.mutualFundsVisible,
+                    fno_visible: updatedSettings.fnoVisible,
+                    ledger_visible: updatedSettings.ledgerVisible,
+                    income_visible: updatedSettings.incomeVisible,
+                    expenses_visible: updatedSettings.expensesVisible,
+                    goals_visible: updatedSettings.goalsVisible,
+                    family_visible: updatedSettings.familyVisible
                 })
                 .eq('user_id', user.id);
 

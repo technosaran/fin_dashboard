@@ -29,7 +29,32 @@ export type FnoTradeRow = { id: number; instrument: string; trade_type: string; 
 export type BondRow = { id: number; name: string; company_name?: string | null; isin?: string | null; face_value: number; coupon_rate: number; maturity_date: string; quantity: number; avg_price: number; current_price: number; investment_amount: number; current_value: number; pnl: number; pnl_percentage: number; yield_to_maturity?: number | null; interest_frequency: string; next_interest_date?: string | null; status: string; previous_price?: number | null;[key: string]: unknown };
 export type BondTransactionRow = { id: number; bond_id?: number | null; transaction_type: string; quantity: number; price: number; total_amount: number; transaction_date: string; notes?: string | null; account_id?: number | null;[key: string]: unknown };
 export type ForexTransactionRow = { id: number; transaction_type: string; amount: number; date: string; notes?: string | null; account_id?: number | null;[key: string]: unknown };
-export type AppSettingsRow = { user_id: string; brokerage_type: string; brokerage_value: number; stt_rate: number; transaction_charge_rate: number; sebi_charge_rate: number; stamp_duty_rate: number; gst_rate: number; dp_charges: number; auto_calculate_charges: boolean; bonds_enabled: boolean; forex_enabled: boolean; default_stock_account_id?: number | null; default_mf_account_id?: number | null; default_salary_account_id?: number | null;[key: string]: unknown };
+export type AppSettingsRow = {
+    user_id: string;
+    brokerage_type: string;
+    brokerage_value: number;
+    stt_rate: number;
+    transaction_charge_rate: number;
+    sebi_charge_rate: number;
+    stamp_duty_rate: number;
+    gst_rate: number;
+    dp_charges: number;
+    auto_calculate_charges: boolean;
+    bonds_enabled: boolean;
+    forex_enabled: boolean;
+    default_stock_account_id?: number | null;
+    default_mf_account_id?: number | null;
+    default_salary_account_id?: number | null;
+    stocks_visible?: boolean | null;
+    mutual_funds_visible?: boolean | null;
+    fno_visible?: boolean | null;
+    ledger_visible?: boolean | null;
+    income_visible?: boolean | null;
+    expenses_visible?: boolean | null;
+    goals_visible?: boolean | null;
+    family_visible?: boolean | null;
+    [key: string]: unknown
+};
 
 export const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings => ({
     brokerageType: dbSettings.brokerage_type as 'flat' | 'percentage',
@@ -45,7 +70,15 @@ export const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings =>
     forexEnabled: dbSettings.forex_enabled ?? true,
     defaultStockAccountId: dbSettings.default_stock_account_id ? Number(dbSettings.default_stock_account_id) : undefined,
     defaultMfAccountId: dbSettings.default_mf_account_id ? Number(dbSettings.default_mf_account_id) : undefined,
-    defaultSalaryAccountId: dbSettings.default_salary_account_id ? Number(dbSettings.default_salary_account_id) : undefined
+    defaultSalaryAccountId: dbSettings.default_salary_account_id ? Number(dbSettings.default_salary_account_id) : undefined,
+    stocksVisible: dbSettings.stocks_visible ?? true,
+    mutualFundsVisible: dbSettings.mutual_funds_visible ?? true,
+    fnoVisible: dbSettings.fno_visible ?? true,
+    ledgerVisible: dbSettings.ledger_visible ?? true,
+    incomeVisible: dbSettings.income_visible ?? true,
+    expensesVisible: dbSettings.expenses_visible ?? true,
+    goalsVisible: dbSettings.goals_visible ?? true,
+    familyVisible: dbSettings.family_visible ?? true
 });
 
 export const dbAccountToAccount = (dbAccount: AccountRow): Account => ({
