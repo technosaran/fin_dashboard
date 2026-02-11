@@ -775,40 +775,25 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     currentSettings = JSON.parse(savedLocalSettings);
                 }
 
+                // PHASE 1: Load essential data for Dashboard and Layout
                 const [
                     { data: accountsData, error: accountsError },
-                    { data: transactionsData, error: transactionsError },
-                    { data: goalsData, error: goalsError },
-                    { data: familyTransfersData, error: familyTransfersError },
                     { data: stocksData, error: stocksError },
-                    { data: stockTransactionsData, error: stockTransactionsError },
-                    { data: watchlistData, error: watchlistError },
                     { data: mutualFundsData, error: mutualFundsError },
-                    { data: mutualFundTransactionsData, error: mutualFundTransactionsError },
-                    { data: fnoTradesData, error: fnoTradesError },
                     { data: bondsData, error: bondsError },
-                    { data: bondTransactionsData, error: bondTransactionsError },
-                    { data: forexTransactionsData, error: forexTransactionsError },
-                    { data: settingsData, error: settingsError }
+                    { data: settingsData, error: settingsError },
+                    { data: transactionsData, error: transactionsError }
                 ] = await Promise.all([
                     supabase.from('accounts').select('*').order('created_at', { ascending: false }),
-                    supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100),
-                    supabase.from('goals').select('*').order('deadline', { ascending: true }),
-                    supabase.from('family_transfers').select('*').order('date', { ascending: false }),
                     supabase.from('stocks').select('*').order('symbol', { ascending: true }),
-                    supabase.from('stock_transactions').select('*').order('transaction_date', { ascending: false }),
-                    supabase.from('watchlist').select('*').order('symbol', { ascending: true }),
                     supabase.from('mutual_funds').select('*').order('name', { ascending: true }),
-                    supabase.from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
-                    (supabase as ExtendedSupabaseClient).from('fno_trades').select('*').order('entry_date', { ascending: false }),
                     (supabase as ExtendedSupabaseClient).from('bonds').select('*').order('name', { ascending: true }),
-                    (supabase as ExtendedSupabaseClient).from('bond_transactions').select('*').order('transaction_date', { ascending: false }),
-                    (supabase as ExtendedSupabaseClient).from('forex_transactions').select('*').order('transaction_date', { ascending: false }),
-                    (supabase as ExtendedSupabaseClient).from('app_settings').select('*').eq('user_id', user.id).maybeSingle()
+                    (supabase as ExtendedSupabaseClient).from('app_settings').select('*').eq('user_id', user.id).maybeSingle(),
+                    supabase.from('transactions').select('*').order('date', { ascending: false }).limit(50)
                 ]);
 
-                if (accountsError) console.error('Error loading accounts:', accountsError);
-                else {
+                // Process Phase 1 immediately to unblock UI
+                if (!accountsError && accountsData) {
                     const loadedAccounts = accountsData.map(dbAccountToAccount);
                     setAccounts(loadedAccounts);
 
@@ -830,49 +815,16 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                             .select()
                             .single();
 
-                        if (insertError) {
-                            console.error('Error creating Physical Cash account:', insertError);
-                        } else if (newAccount) {
+                        if (!insertError && newAccount) {
                             setAccounts(prev => [...prev, dbAccountToAccount(newAccount)]);
                         }
                     }
                 }
 
-                if (transactionsError) console.error('Error loading transactions:', transactionsError);
-                else setTransactions(transactionsData.map(dbTransactionToTransaction));
-
-                if (goalsError) console.error('Error loading goals:', goalsError);
-                else setGoals(goalsData.map(dbGoalToGoal));
-
-                if (familyTransfersError) console.error('Error loading family transfers:', familyTransfersError);
-                else setFamilyTransfers(familyTransfersData.map(dbFamilyTransferToFamilyTransfer));
-
-                if (stocksError) console.error('Error loading stocks:', stocksError);
-                else setStocks(stocksData.map(dbStockToStock));
-
-                if (stockTransactionsError) console.error('Error loading stock transactions:', stockTransactionsError);
-                else setStockTransactions(stockTransactionsData.map(dbStockTransactionToStockTransaction));
-
-                if (watchlistError) console.error('Error loading watchlist:', watchlistError);
-                else setWatchlist(watchlistData.map(dbWatchlistToWatchlistItem));
-
-                if (mutualFundsError) console.error('Error loading mutual funds:', mutualFundsError);
-                else setMutualFunds(mutualFundsData.map(dbMutualFundToMutualFund));
-
-                if (mutualFundTransactionsError) console.error('Error loading mutual fund transactions:', mutualFundTransactionsError);
-                else setMutualFundTransactions(mutualFundTransactionsData.map(dbMutualFundTransactionToMutualFundTransaction));
-
-                if (fnoTradesError) console.error('Error loading FnO trades:', fnoTradesError);
-                else setFnoTrades(fnoTradesData.map(dbFnoTradeToFnoTrade));
-
-                if (bondsError) console.error('Error loading bonds:', bondsError);
-                else setBonds(bondsData.map(dbBondToBond));
-
-                if (bondTransactionsError) console.error('Error loading bond transactions:', bondTransactionsError);
-                else setBondTransactions(bondTransactionsData.map(dbBondTransactionToBondTransaction));
-
-                if (forexTransactionsError) console.error('Error loading forex transactions:', forexTransactionsError);
-                else setForexTransactions(forexTransactionsData.map(dbForexTransactionToForexTransaction));
+                if (!stocksError && stocksData) setStocks(stocksData.map(dbStockToStock));
+                if (!mutualFundsError && mutualFundsData) setMutualFunds(mutualFundsData.map(dbMutualFundToMutualFund));
+                if (!bondsError && bondsData) setBonds(bondsData.map(dbBondToBond));
+                if (!transactionsError && transactionsData) setTransactions(transactionsData.map(dbTransactionToTransaction));
 
                 if (!settingsError && settingsData) {
                     setSettings(dbSettingsToSettings(settingsData));
@@ -905,10 +857,41 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     }
                 }
 
+                // Optimization: Set loading to false early after Phase 1
+                setLoading(false);
+
+                // PHASE 2: Load secondary data in background
+                Promise.all([
+                    supabase.from('goals').select('*').order('deadline', { ascending: true }),
+                    supabase.from('family_transfers').select('*').order('date', { ascending: false }),
+                    supabase.from('stock_transactions').select('*').order('transaction_date', { ascending: false }),
+                    supabase.from('watchlist').select('*').order('symbol', { ascending: true }),
+                    supabase.from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('fno_trades').select('*').order('entry_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('bond_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('forex_transactions').select('*').order('transaction_date', { ascending: false })
+                ]).then(([
+                    goalsRes,
+                    familyRes,
+                    stockTxRes,
+                    watchlistRes,
+                    mfTxRes,
+                    fnoRes,
+                    bondTxRes,
+                    forexRes
+                ]) => {
+                    if (goalsRes.data) setGoals(goalsRes.data.map(dbGoalToGoal));
+                    if (familyRes.data) setFamilyTransfers(familyRes.data.map(dbFamilyTransferToFamilyTransfer));
+                    if (stockTxRes.data) setStockTransactions(stockTxRes.data.map(dbStockTransactionToStockTransaction));
+                    if (watchlistRes.data) setWatchlist(watchlistRes.data.map(dbWatchlistToWatchlistItem));
+                    if (mfTxRes.data) setMutualFundTransactions(mfTxRes.data.map(dbMutualFundTransactionToMutualFundTransaction));
+                    if (fnoRes.data) setFnoTrades(fnoRes.data.map(dbFnoTradeToFnoTrade));
+                    if (bondTxRes.data) setBondTransactions(bondTxRes.data.map(dbBondTransactionToBondTransaction));
+                    if (forexRes.data) setForexTransactions(forexRes.data.map(dbForexTransactionToForexTransaction));
+                }).catch(err => console.error('Error loading Phase 2 data:', err));
 
             } catch (error) {
                 console.error('Error loading data:', error);
-            } finally {
                 setLoading(false);
             }
         };
@@ -1019,47 +1002,52 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             }
         }
 
-        // Refresh Bonds
-        const updatedBonds = await Promise.all(bonds.map(async (bond) => {
+        // Refresh Bonds (Batch)
+        let updatedBonds = bonds;
+        if (bonds.length > 0) {
             try {
-                if (bond.isin) {
-                    const res = await fetch(`/api/bonds/quote?isin=${bond.isin}`);
-                    const data = await res.json();
-                    if (data.status === 200 && data.data) {
-                        // For bonds, we usually apply a multiplier to the face value based on market price
-                        const currentPrice = bond.faceValue * data.data.currentPriceMultiplier;
-                        const prevPrice = bond.previousPrice || currentPrice;
-                        const newValue = bond.quantity * currentPrice;
-                        const newPnL = newValue - bond.investmentAmount;
+                const isins = bonds.filter(b => b.isin).map(b => b.isin).join(',');
+                if (isins) {
+                    const res = await fetch(`/api/bonds/batch?isins=${isins}`);
+                    const batchData = await res.json();
 
-                        const updated = {
-                            ...bond,
-                            currentPrice: currentPrice,
-                            previousPrice: prevPrice,
-                            currentValue: newValue,
-                            pnl: newPnL,
-                            pnlPercentage: bond.investmentAmount > 0 ? (newPnL / bond.investmentAmount) * 100 : 0
-                        };
+                    updatedBonds = bonds.map(bond => {
+                        const latest = bond.isin ? batchData[bond.isin] : null;
+                        if (latest && latest.currentPriceMultiplier) {
+                            const currentPrice = bond.faceValue * latest.currentPriceMultiplier;
+                            const prevPrice = bond.previousPrice || currentPrice;
+                            const newValue = bond.quantity * currentPrice;
+                            const newPnL = newValue - bond.investmentAmount;
 
-                        // Update DB in background
-                        (supabase as ExtendedSupabaseClient).from('bonds').update({
-                            current_price: currentPrice,
-                            previous_price: prevPrice,
-                            current_value: newValue,
-                            pnl: newPnL,
-                            pnl_percentage: updated.pnlPercentage
-                        }).eq('id', bond.id).then(({ error }: { error: Error | null }) => {
-                            if (error) console.error(`Sync error for ${bond.name}:`, error);
-                        });
+                            const updated = {
+                                ...bond,
+                                currentPrice: currentPrice,
+                                previousPrice: prevPrice,
+                                currentValue: newValue,
+                                pnl: newPnL,
+                                pnlPercentage: bond.investmentAmount > 0 ? (newPnL / bond.investmentAmount) * 100 : 0
+                            };
 
-                        return updated;
-                    }
+                            // Update DB in background
+                            (supabase as ExtendedSupabaseClient).from('bonds').update({
+                                current_price: currentPrice,
+                                previous_price: prevPrice,
+                                current_value: newValue,
+                                pnl: newPnL,
+                                pnl_percentage: updated.pnlPercentage
+                            }).eq('id', bond.id).then(({ error }: { error: Error | null }) => {
+                                if (error) console.error(`Sync error for ${bond.name}:`, error);
+                            });
+
+                            return updated;
+                        }
+                        return bond;
+                    });
                 }
             } catch (e) {
-                console.error(`Failed to refresh bond ${bond.name}:`, e);
+                console.error("Failed to batch refresh bonds:", e);
             }
-            return bond;
-        }));
+        }
 
         setStocks(updatedStocks);
         setMutualFunds(updatedMFs);
