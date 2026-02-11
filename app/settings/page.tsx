@@ -1,17 +1,14 @@
 "use client";
 
-import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { useFinance } from '../components/FinanceContext';
 import { AppSettings } from '@/lib/types';
 import {
-    Save,
     Undo,
     Layers,
     Info,
     LayoutPanelLeft,
-    Eye,
-    EyeOff
+    Eye
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -323,7 +320,7 @@ export default function SettingsPage() {
                             <Info size={22} color="#818cf8" style={{ marginTop: '2px', flexShrink: 0 }} />
                             <div>
                                 <p style={{ margin: 0, fontSize: '0.875rem', color: '#cbd5e1', lineHeight: '1.6' }}>
-                                    Your settings are stored in your browser's local storage. When transitioning to cloud sync, your preferences will be automatically backed up.
+                                    Your settings are stored in your browser&apos;s local storage. When transitioning to cloud sync, your preferences will be automatically backed up.
                                 </p>
                             </div>
                         </div>

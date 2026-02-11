@@ -48,9 +48,9 @@ interface NavItem {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     const pathname = usePathname();
-    const { signOut, user } = useAuth();
+    const { signOut } = useAuth();
     const { confirm: customConfirm } = useNotifications();
-    const { settings, stocks, mutualFunds } = useFinance();
+    const { settings } = useFinance();
     const [hoveredItem, setHoveredItem] = useState<string | null>(null);
 
     const isVisible = (key?: string) => {

@@ -13,7 +13,6 @@ import {
     DollarSign,
     Edit3,
     Trash2,
-    ChevronRight,
     TrendingDown,
     BarChart3,
     PieChart
@@ -862,7 +861,7 @@ export default function IncomeClient() {
                                     onFocus={e => e.currentTarget.style.borderColor = '#10b981'}
                                     onBlur={e => e.currentTarget.style.borderColor = '#1e293b'}
                                 >
-                                    <option value="">Just record, don't add to account</option>
+                                    <option value="">Just record, don&apos;t add to account</option>
                                     {accounts.map(acc => (
                                         <option key={acc.id} value={acc.id}>
                                             {acc.name} - ₹{acc.balance.toLocaleString()}
