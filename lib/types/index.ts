@@ -441,6 +441,7 @@ export interface FinanceContextState {
 
   // Refresh
   refreshPortfolio: () => Promise<void>;
+  refreshLivePrices: () => Promise<void>;
 
   // Combined Modal State
   isTransactionModalOpen: boolean;

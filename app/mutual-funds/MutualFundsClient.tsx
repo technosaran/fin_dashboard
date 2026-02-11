@@ -39,7 +39,8 @@ export default function MutualFundsClient() {
         deleteMutualFundTransaction,
         settings,
         loading,
-        refreshPortfolio
+        refreshPortfolio,
+        refreshLivePrices
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
@@ -94,9 +95,9 @@ export default function MutualFundsClient() {
 
     const handleManualRefresh = async () => {
         setIsRefreshing(true);
-        await refreshPortfolio();
+        await refreshLivePrices();
         setIsRefreshing(false);
-        showNotification('success', 'Mutual fund Navs refreshed');
+        showNotification('success', 'Mutual fund NAVs refreshed');
     };
 
     // Category allocation

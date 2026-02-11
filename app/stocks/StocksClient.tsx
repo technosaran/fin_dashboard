@@ -34,7 +34,7 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
 export default function StocksClient() {
     const {
         accounts, stocks, stockTransactions, addStock, updateStock, deleteStock,
-        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio
+        addStockTransaction, deleteStockTransaction, settings, loading, refreshPortfolio, refreshLivePrices
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
     const [activeTab, setActiveTab] = useState<'portfolio' | 'history' | 'lifetime' | 'allocation'>('portfolio');
@@ -265,9 +265,9 @@ export default function StocksClient() {
 
     const handleManualRefresh = async () => {
         setIsRefreshing(true);
-        await refreshPortfolio();
+        await refreshLivePrices();
         setIsRefreshing(false);
-        showNotification('success', 'Portfolio prices refreshed');
+        showNotification('success', 'Market prices refreshed');
     };
 
     // Sector-wise distribution

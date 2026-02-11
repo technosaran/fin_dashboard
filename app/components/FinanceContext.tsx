@@ -986,7 +986,114 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         forexTransactions, addForexTransaction, updateForexTransaction, deleteForexTransaction,
         familyTransfers, addFamilyTransfer, updateFamilyTransfer, deleteFamilyTransfer,
         settings, updateSettings, loading, error, refreshPortfolio,
-        isTransactionModalOpen, setIsTransactionModalOpen
+        isTransactionModalOpen, setIsTransactionModalOpen,
+        refreshLivePrices: async () => {
+            setLoading(true);
+
+            // 1. Stocks
+            try {
+                const stockSymbols = [...new Set(stocks.map(s => s.symbol))];
+                if (stockSymbols.length > 0) {
+                    const res = await fetch(`/api/stocks/batch?symbols=${stockSymbols.join(',')}`);
+                    const data = await res.json();
+                    if (data.success && data.data) {
+                        const updates = data.data;
+                        const updatedStocks = stocks.map(stock => {
+                            const update = updates[stock.symbol];
+                            if (update) {
+                                const currentPrice = update.currentPrice;
+                                const currentValue = stock.quantity * currentPrice;
+                                const pnl = currentValue - stock.investmentAmount;
+                                const pnlPercentage = (pnl / stock.investmentAmount) * 100;
+
+                                // Persist to DB (fire and forget)
+                                (supabase as ExtendedSupabaseClient).from('stocks').update({
+                                    current_price: currentPrice,
+                                    previous_price: update.previousClose,
+                                    current_value: currentValue,
+                                    pnl: pnl,
+                                    pnl_percentage: pnlPercentage
+                                }).eq('id', stock.id).then(({ error }) => {
+                                    if (error) console.error('Failed to persist stock price', error);
+                                });
+
+                                return {
+                                    ...stock,
+                                    currentPrice,
+                                    previousPrice: update.previousClose,
+                                    currentValue,
+                                    pnl,
+                                    pnlPercentage
+                                };
+                            }
+                            return stock;
+                        });
+                        setStocks(updatedStocks);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to refresh stock prices:', err);
+                // Don't stop execution, continue to MFs
+            }
+
+            // 2. Mutual Funds
+            try {
+                const mfCodes = [...new Set(mutualFunds.map(m => m.schemeCode))];
+                if (mfCodes.length > 0) {
+                    const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}`);
+                    const data = await res.json();
+                    if (data.success && data.data) {
+                        const updates = data.data;
+                        const updatedMFs = mutualFunds.map(mf => {
+                            const update = updates[mf.schemeCode];
+                            if (update) {
+                                const currentNav = update.currentNav;
+                                const currentValue = mf.units * currentNav;
+                                const pnl = currentValue - mf.investmentAmount;
+                                const pnlPercentage = (pnl / mf.investmentAmount) * 100;
+
+                                // Persist to DB
+                                (supabase as ExtendedSupabaseClient).from('mutual_funds').update({
+                                    current_nav: currentNav,
+                                    previous_nav: update.previousNav,
+                                    current_value: currentValue,
+                                    pnl: pnl,
+                                    pnl_percentage: pnlPercentage
+                                }).eq('id', mf.id).then(({ error }) => {
+                                    if (error) console.error('Failed to persist MF NAV', error);
+                                });
+
+                                return {
+                                    ...mf,
+                                    currentNav,
+                                    previousNav: update.previousNav,
+                                    currentValue,
+                                    pnl,
+                                    pnlPercentage
+                                };
+                            }
+                            return mf;
+                        });
+                        setMutualFunds(updatedMFs);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to refresh MF NAVs:', err);
+            }
+
+            // 3. Bonds - Sync with DB
+            try {
+                const { data: latestBondData } = await (supabase as ExtendedSupabaseClient).from('bonds').select('*');
+                if (latestBondData) {
+                    setBonds(latestBondData.map(dbBondToBond));
+                }
+            } catch (err) {
+                console.error('Failed to refresh bonds:', err);
+            }
+
+            setLoading(false);
+            logInfo('Live prices refresh completed');
+        }
     }), [
         accounts, addAccount, updateAccount, deleteAccount, addFunds,
         transactions, addTransaction, updateTransaction, deleteTransaction,

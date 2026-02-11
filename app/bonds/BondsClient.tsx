@@ -14,6 +14,7 @@ import {
     Wallet,
     Trash2,
     Eye,
+    RefreshCw
 } from 'lucide-react';
 import { useFinance } from '../components/FinanceContext';
 import { Bond } from '@/lib/types';
@@ -23,11 +24,19 @@ import { useNotifications } from '../components/NotificationContext';
 import AddBondModal from '../components/AddBondModal';
 
 export default function BondsClient() {
-    const { bonds, loading, deleteBond, settings } = useFinance();
+    const { bonds, loading, deleteBond, settings, refreshLivePrices } = useFinance();
     const { showNotification, confirm } = useNotifications();
     const [searchQuery, setSearchQuery] = useState('');
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
     const [viewingCharges, setViewingCharges] = useState<Bond | null>(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        await refreshLivePrices();
+        setIsRefreshing(false);
+        showNotification('success', 'Prices refreshed');
+    };
 
     // Filter bonds based on search
     const filteredBonds = useMemo(() => {
@@ -99,6 +108,14 @@ export default function BondsClient() {
 
                 <div className="flex gap-sm">
                     <button
+                        onClick={handleRefresh}
+                        className="glass-button"
+                        style={{ padding: '12px', display: 'flex', alignItems: 'center', gap: '8px', borderRadius: '14px' }}
+                        title="Refresh Prices"
+                    >
+                        <RefreshCw size={18} className={isRefreshing ? 'spin' : ''} />
+                    </button>
+                    <button
                         onClick={() => setIsAddModalOpen(true)}
                         className="glass-button glow-primary"
                         style={{ padding: '12px 24px', display: 'flex', alignItems: 'center', gap: '8px', background: 'var(--accent)', borderColor: 'transparent' }}
@@ -110,7 +127,7 @@ export default function BondsClient() {
 
             {/* Stats Overview */}
             <div className="grid-responsive-4 mb-xl fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px', marginBottom: '32px' }}>
-                <div className="premium-card p-lg" style={{ padding: '24px' }}>
+                <div className="premium-card p-lg" style={{ padding: '24px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))' }}>
                     <div className="flex justify-between items-start mb-sm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                         <div className="stat-label" style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Total Investment</div>
                         <Wallet size={16} style={{ color: '#6366f1' }} />
@@ -118,7 +135,7 @@ export default function BondsClient() {
                     <div className="stat-value" style={{ fontSize: '1.75rem', fontWeight: '900' }}>₹{stats.totalInvested.toLocaleString()}</div>
                 </div>
 
-                <div className="premium-card p-lg" style={{ padding: '24px' }}>
+                <div className="premium-card p-lg" style={{ padding: '24px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))' }}>
                     <div className="flex justify-between items-start mb-sm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                         <div className="stat-label" style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Current Value</div>
                         <TrendingUp size={16} style={{ color: '#10b981' }} />
@@ -126,7 +143,7 @@ export default function BondsClient() {
                     <div className="stat-value" style={{ fontSize: '1.75rem', fontWeight: '900' }}>₹{stats.currentValue.toLocaleString()}</div>
                 </div>
 
-                <div className="premium-card p-lg" style={{ padding: '24px' }}>
+                <div className="premium-card p-lg" style={{ padding: '24px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))' }}>
                     <div className="flex justify-between items-start mb-sm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                         <div className="stat-label" style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Net Gain/Loss</div>
                         <div style={{ color: stats.totalPnL >= 0 ? '#10b981' : '#ef4444' }}>
@@ -138,7 +155,7 @@ export default function BondsClient() {
                     </div>
                 </div>
 
-                <div className="premium-card p-lg" style={{ padding: '24px' }}>
+                <div className="premium-card p-lg" style={{ padding: '24px', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6))' }}>
                     <div className="flex justify-between items-start mb-sm" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
                         <div className="stat-label" style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: '800', textTransform: 'uppercase' }}>Avg. Coupon Rate</div>
                         <Percent size={16} style={{ color: '#f59e0b' }} />
@@ -175,34 +192,36 @@ export default function BondsClient() {
                     filteredBonds.map((bond, idx) => (
                         <div
                             key={bond.id}
-                            className="premium-card p-lg mb-md"
+                            className="premium-card p-lg mb-md hover-card-premium"
                             style={{
-                                animationDelay: `${idx * 0.1}s`,
-                                background: 'linear-gradient(145deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.4) 100%)',
-                                padding: '24px'
+                                animationDelay: `${idx * 0.05}s`,
+                                background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.4) 0%, rgba(15, 23, 42, 0.6) 100%)',
+                                padding: '24px',
+                                border: '1px solid rgba(148, 163, 184, 0.1)'
                             }}
                         >
                             <div className="flex flex-wrap items-center gap-lg" style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '24px' }}>
                                 {/* Bond Name & Info */}
                                 <div style={{ flex: '1 1 300px' }}>
-                                    <div className="flex items-center gap-sm mb-xs" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '4px' }}>
+                                    <div className="flex items-center gap-sm mb-xs" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
                                         <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: '900' }}>{bond.name}</h3>
                                         <div style={{
-                                            padding: '2px 8px',
+                                            padding: '4px 8px',
                                             borderRadius: '6px',
                                             background: 'rgba(99, 102, 241, 0.1)',
-                                            color: 'var(--accent-hover)',
-                                            fontSize: '0.65rem',
+                                            color: '#818cf8',
+                                            fontSize: '0.7rem',
                                             fontWeight: '800',
-                                            textTransform: 'uppercase'
+                                            textTransform: 'uppercase',
+                                            border: '1px solid rgba(99, 102, 241, 0.2)'
                                         }}>
                                             {bond.isin}
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-sm" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-tertiary)', fontSize: '0.85rem', fontWeight: '600' }}>
-                                        <ShieldCheck size={14} /> {bond.companyName}
+                                    <div className="flex items-center gap-sm" style={{ display: 'flex', alignItems: 'center', gap: '16px', color: 'var(--text-tertiary)', fontSize: '0.85rem', fontWeight: '600' }}>
+                                        <span className="flex items-center gap-1"><ShieldCheck size={14} /> {bond.companyName}</span>
                                         <span style={{ width: '4px', height: '4px', borderRadius: '50%', background: '#334155' }} />
-                                        <Calendar size={14} /> Matures {new Date(bond.maturityDate).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}
+                                        <span className="flex items-center gap-1"><Calendar size={14} /> Matures {new Date(bond.maturityDate).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</span>
                                     </div>
                                 </div>
 
@@ -216,7 +235,7 @@ export default function BondsClient() {
                                 {/* Investment Value */}
                                 <div style={{ flex: '0 0 180px', textAlign: 'right' }}>
                                     <div className="stat-label mb-xs" style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem', fontWeight: '800', textTransform: 'uppercase', marginBottom: '4px' }}>Current Value</div>
-                                    <div style={{ fontSize: '1.25rem', fontWeight: '950' }}>₹{bond.currentValue.toLocaleString()}</div>
+                                    <div style={{ fontSize: '1.25rem', fontWeight: '950', color: '#fff' }}>₹{bond.currentValue.toLocaleString()}</div>
                                     <div className="flex items-center justify-end gap-xs" style={{
                                         display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '4px',
                                         fontSize: '0.8rem',
@@ -232,7 +251,7 @@ export default function BondsClient() {
                                     <button
                                         onClick={() => setViewingCharges(bond)}
                                         className="glass-button p-sm"
-                                        style={{ color: 'var(--accent-hover)', padding: '8px', borderRadius: '8px' }}
+                                        style={{ color: '#94a3b8', padding: '10px', borderRadius: '10px', background: 'rgba(255,255,255,0.03)' }}
                                         title="Estimated Sell Charges"
                                     >
                                         <Eye size={18} />
@@ -250,7 +269,7 @@ export default function BondsClient() {
                                             }
                                         }}
                                         className="glass-button p-sm"
-                                        style={{ color: '#f87171', padding: '8px', borderRadius: '8px' }}
+                                        style={{ color: '#f87171', padding: '10px', borderRadius: '10px', background: 'rgba(239, 68, 68, 0.1)', borderColor: 'rgba(239, 68, 68, 0.2)' }}
                                         title="Delete"
                                     >
                                         <Trash2 size={18} />
@@ -260,19 +279,21 @@ export default function BondsClient() {
                         </div>
                     ))
                 ) : (
-                    <div className="premium-card p-2xl text-center" style={{ padding: '64px', textAlign: 'center' }}>
-                        <div style={{ opacity: 0.2, marginBottom: '16px' }}><Landmark size={64} style={{ margin: '0 auto' }} /></div>
-                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '8px' }}>No Bonds Found</h3>
-                        <p style={{ color: 'var(--text-tertiary)', marginBottom: '24px' }}>
-                            {searchQuery ? 'Try adjusting your search query.' : 'Start tracking your fixed-income portfolio by adding your first bond.'}
+                    <div className="premium-card p-2xl text-center" style={{ padding: '64px', textAlign: 'center', background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.2), rgba(15, 23, 42, 0.4))' }}>
+                        <div style={{ opacity: 0.2, marginBottom: '24px' }}>
+                            <div className="flex justify-center"><Landmark size={64} /></div>
+                        </div>
+                        <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '8px' }}>No Bonds Found</h3>
+                        <p style={{ color: 'var(--text-tertiary)', marginBottom: '32px', maxWidth: '400px', margin: '0 auto 32px auto' }}>
+                            {searchQuery ? 'Try adjusting your search filters to find what you are looking for.' : 'Start tracking your fixed-income portfolio by adding your first bond.'}
                         </p>
                         {!searchQuery && (
                             <button
                                 onClick={() => setIsAddModalOpen(true)}
                                 className="glass-button glow-primary"
-                                style={{ padding: '12px 24px', background: 'var(--accent)', borderColor: 'transparent', display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+                                style={{ padding: '16px 32px', background: 'var(--accent)', borderColor: 'transparent', display: 'inline-flex', alignItems: 'center', gap: '10px', borderRadius: '14px', fontSize: '1rem', fontWeight: '800' }}
                             >
-                                <Plus size={18} /> Add Premium Bonds
+                                <Plus size={20} /> Add Premium Bonds
                             </button>
                         )}
                     </div>
@@ -282,43 +303,52 @@ export default function BondsClient() {
             {viewingCharges && (() => {
                 const charges = calculateBondCharges('SELL', viewingCharges.quantity, viewingCharges.currentPrice, settings);
                 return (
-                    <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1100 }}>
-                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '20px', border: '1px solid #334155', width: '100%', maxWidth: '380px' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                                <h2 style={{ fontSize: '1.1rem', fontWeight: '900', margin: 0 }}>Exit Charges</h2>
-                                <button onClick={() => setViewingCharges(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                                    <Plus size={16} style={{ transform: 'rotate(45deg)' }} />
+                    <div style={{ position: 'fixed', inset: 0, zIndex: 1200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)' }} onClick={() => setViewingCharges(null)} />
+
+                        <div className="premium-card fade-in" style={{ position: 'relative', width: '90%', maxWidth: '400px', background: '#0f172a', border: '1px solid #334155', borderRadius: '24px', padding: '0', overflow: 'hidden', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}>
+                            <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
+                                <div className="flex justify-between items-center">
+                                    <h2 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>Exit Simulator</h2>
+                                    <button onClick={() => setViewingCharges(null)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '12px', padding: '8px', cursor: 'pointer' }}>
+                                        <Plus size={20} style={{ transform: 'rotate(45deg)' }} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '24px' }}>
+                                <div style={{ padding: '16px', borderRadius: '16px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '24px' }}>
+                                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '4px', fontWeight: '800', textTransform: 'uppercase' }}>Instrument</div>
+                                    <div style={{ fontSize: '1rem', fontWeight: '800', color: '#fff' }}>{viewingCharges.name}</div>
+                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>{viewingCharges.isin}</div>
+                                </div>
+
+                                <div className="space-y-3" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    <div className="flex justify-between items-center">
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Brokerage</span>
+                                        <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.95rem' }}>₹{charges.brokerage.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Stamp Duty</span>
+                                        <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.95rem' }}>₹{charges.stampDuty.toFixed(2)}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center">
+                                        <span style={{ color: '#94a3b8', fontSize: '0.9rem' }}>GST</span>
+                                        <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.95rem' }}>₹{charges.gst.toFixed(2)}</span>
+                                    </div>
+                                    <div style={{ height: '1px', background: '#334155', margin: '8px 0' }} />
+                                    <div className="flex justify-between items-center">
+                                        <span style={{ color: '#fff', fontWeight: '900', fontSize: '1rem' }}>Total Charges</span>
+                                        <span style={{ color: '#f59e0b', fontSize: '1.25rem', fontWeight: '900' }}>₹{charges.total.toFixed(2)}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ padding: '24px', background: 'rgba(0,0,0,0.2)', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                                <button onClick={() => setViewingCharges(null)} className="glass-button glow-primary" style={{ width: '100%', padding: '16px', borderRadius: '16px', border: 'none', fontWeight: '800', fontSize: '1rem', background: 'var(--surface-light)' }}>
+                                    Close Simulator
                                 </button>
                             </div>
-
-                            <div style={{ padding: '12px', borderRadius: '12px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', marginBottom: '16px' }}>
-                                <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px', fontWeight: '700' }}>{viewingCharges.isin}</div>
-                                <div style={{ fontSize: '0.9rem', fontWeight: '800', color: '#fff' }}>{viewingCharges.name}</div>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Brokerage</span>
-                                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.9rem' }}>₹{charges.brokerage.toFixed(2)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>Stamp Duty</span>
-                                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.9rem' }}>₹{charges.stampDuty.toFixed(2)}</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>GST</span>
-                                    <span style={{ color: '#fff', fontWeight: '700', fontSize: '0.9rem' }}>₹{charges.gst.toFixed(2)}</span>
-                                </div>
-                                <div style={{ height: '1px', background: '#1e293b', margin: '4px 0' }} />
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <span style={{ color: '#fff', fontWeight: '800', fontSize: '0.95rem' }}>Total</span>
-                                    <span style={{ color: '#38bdf8', fontSize: '1.15rem', fontWeight: '900' }}>₹{charges.total.toFixed(2)}</span>
-                                </div>
-                            </div>
-
-                            <button onClick={() => setViewingCharges(null)} style={{ width: '100%', background: '#38bdf8', color: '#000', padding: '12px', borderRadius: '12px', border: 'none', fontWeight: '800', cursor: 'pointer', marginTop: '20px', fontSize: '0.9rem' }}>
-                                Close
-                            </button>
                         </div>
                     </div>
                 );
