@@ -28,7 +28,6 @@ import {
     dbFamilyTransferToFamilyTransfer,
     dbStockToStock,
     dbStockTransactionToStockTransaction,
-    dbWatchlistToWatchlistItem,
     dbMutualFundToMutualFund,
     dbMutualFundTransactionToMutualFundTransaction,
     dbFnoTradeToFnoTrade,
@@ -39,10 +38,8 @@ import {
     AppSettingsRow
 } from '../../lib/utils/db-converters';
 
-// Extended type for Supabase client with custom tables
-type ExtendedSupabaseClient = typeof supabase & {
-    from: (table: string) => any;
-};
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Extended type for tables not in generated DB types (bonds, fno_trades, forex_transactions, etc.)
+type ExtendedSupabaseClient = typeof supabase & { from: (table: string) => any };
 
 const FinanceContext = createContext<FinanceContextState | undefined>(undefined);
 
@@ -59,7 +56,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [familyTransfers, setFamilyTransfers] = useState<FamilyTransfer[]>([]);
     const [stocks, setStocks] = useState<Stock[]>([]);
     const [stockTransactions, setStockTransactions] = useState<StockTransaction[]>([]);
-    const [watchlist, setWatchlist] = useState<Watchlist[]>([]);
+    const [watchlist, _setWatchlist] = useState<Watchlist[]>([]);
     const [mutualFunds, setMutualFunds] = useState<MutualFund[]>([]);
     const [mutualFundTransactions, setMutualFundTransactions] = useState<MutualFundTransaction[]>([]);
     const [fnoTrades, setFnoTrades] = useState<FnoTrade[]>([]);
@@ -1151,7 +1148,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                                     current_value: currentValue,
                                     pnl: pnl,
                                     pnl_percentage: pnlPercentage
-                                }).eq('id', bond.id).then(({ error: dbError }: { error: any }) => {
+                                }).eq('id', bond.id).then(({ error: dbError }: { error: Error | null }) => {
                                     if (dbError) console.error('Failed to persist bond price', dbError);
                                 });
 
@@ -1193,15 +1190,17 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     ]);
 
     // Automatic Live Price Refresh (every 5 minutes)
+    const dataLoaded = !loading;
     useEffect(() => {
         // Initial refresh after data loads - use silent mode to avoid flickering
-        if (!loading && (stocks.length > 0 || mutualFunds.length > 0 || (settings.bondsEnabled && bonds.length > 0))) {
+        if (dataLoaded && (stocks.length > 0 || mutualFunds.length > 0 || (settings.bondsEnabled && bonds.length > 0))) {
             const timeout = setTimeout(() => {
                 value.refreshLivePrices(true);
             }, 1000);
             return () => clearTimeout(timeout);
         }
-    }, [loading === false]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dataLoaded]);
 
     // Periodic refresh - silent background update
     useEffect(() => {

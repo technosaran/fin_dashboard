@@ -9,8 +9,6 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     BarChart3,
-    Landmark,
-    DollarSign,
     Target,
     Calendar,
     Sparkles,

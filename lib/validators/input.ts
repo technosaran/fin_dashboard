@@ -155,7 +155,7 @@ export function validateString(
  * Validate integer
  */
 export function validateInteger(value: number | string, fieldName: string): ValidationResult {
-  const num = typeof value === 'string' ? parseInt(value) : value;
+  const num = typeof value === 'string' ? Number(value) : value;
 
   if (isNaN(num) || !Number.isInteger(num)) {
     return { isValid: false, error: `${fieldName} must be a valid integer` };

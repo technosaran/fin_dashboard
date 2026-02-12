@@ -118,7 +118,7 @@ export const calculateFnoCharges = (
     entryPrice: number,
     exitPrice: number,
     instrument: string,
-    settings: AppSettings
+    _settings: AppSettings
 ) => {
     const isOpt = isOption(instrument);
     const entryTurnover = quantity * entryPrice;

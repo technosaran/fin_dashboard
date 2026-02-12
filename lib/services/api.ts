@@ -91,6 +91,7 @@ export function withErrorHandling(
  * Rate limiting storage (in-memory - for production use Redis)
  */
 const rateLimitStore = new Map<string, { count: number; resetTime: number }>();
+const RATE_LIMIT_CLEANUP_THRESHOLD = 1000;
 
 /**
  * Simple in-memory rate limiter
@@ -103,6 +104,19 @@ export function rateLimit(
 ): { success: boolean; remaining: number } {
   const now = Date.now();
   const record = rateLimitStore.get(identifier);
+
+  // Clean up expired entries when store grows large to prevent memory leaks
+  if (rateLimitStore.size > RATE_LIMIT_CLEANUP_THRESHOLD) {
+    const keysToDelete: string[] = [];
+    for (const [key, val] of rateLimitStore) {
+      if (now > val.resetTime) {
+        keysToDelete.push(key);
+      }
+    }
+    for (const key of keysToDelete) {
+      rateLimitStore.delete(key);
+    }
+  }
 
   if (!record || now > record.resetTime) {
     // Create new record or reset expired one
