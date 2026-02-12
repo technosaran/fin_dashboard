@@ -1044,25 +1044,28 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                             const update = updates[stock.symbol];
                             if (update) {
                                 const currentPrice = update.currentPrice;
+                                const previousPrice = update.previousClose > 0 ? update.previousClose : stock.previousPrice;
                                 const currentValue = stock.quantity * currentPrice;
                                 const pnl = currentValue - stock.investmentAmount;
                                 const pnlPercentage = (pnl / stock.investmentAmount) * 100;
 
                                 // Persist to DB (fire and forget)
-                                (supabase as ExtendedSupabaseClient).from('stocks').update({
-                                    current_price: currentPrice,
-                                    previous_price: update.previousClose,
-                                    current_value: currentValue,
-                                    pnl: pnl,
-                                    pnl_percentage: pnlPercentage
-                                }).eq('id', stock.id).then(({ error }) => {
-                                    if (error) console.error('Failed to persist stock price', error);
-                                });
+                                if (currentPrice > 0) {
+                                    (supabase as ExtendedSupabaseClient).from('stocks').update({
+                                        current_price: currentPrice,
+                                        previous_price: previousPrice,
+                                        current_value: currentValue,
+                                        pnl: pnl,
+                                        pnl_percentage: pnlPercentage
+                                    }).eq('id', stock.id).then(({ error }) => {
+                                        if (error) console.error('Failed to persist stock price', error);
+                                    });
+                                }
 
                                 return {
                                     ...stock,
-                                    currentPrice,
-                                    previousPrice: update.previousClose,
+                                    currentPrice: currentPrice > 0 ? currentPrice : stock.currentPrice,
+                                    previousPrice: previousPrice,
                                     currentValue,
                                     pnl,
                                     pnlPercentage

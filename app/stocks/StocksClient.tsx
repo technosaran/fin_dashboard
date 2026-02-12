@@ -150,8 +150,29 @@ export default function StocksClient() {
             await updateStock(editId, stockData);
             showNotification('success', `${symbol} updated successfully`);
         } else {
-            await addStock(stockData);
-            showNotification('success', `${symbol} added to portfolio`);
+            // Check for existing stock with same symbol to merge (Cost Averaging)
+            const existingStock = stocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
+            if (existingStock) {
+                const totalQty = existingStock.quantity + qty;
+                const totalInvestment = (existingStock.quantity * existingStock.avgPrice) + (qty * avg);
+                const newAvg = totalInvestment / totalQty;
+
+                // Merge into existing stock
+                await updateStock(existingStock.id, {
+                    quantity: totalQty,
+                    avgPrice: newAvg,
+                    investmentAmount: totalInvestment,
+                    currentPrice: current, // Use latest price from form
+                    currentValue: totalQty * current,
+                    pnl: (totalQty * current) - totalInvestment,
+                    pnlPercentage: (((totalQty * current) - totalInvestment) / totalInvestment) * 100,
+                    previousPrice: previousPrice || existingStock.previousPrice // Keep existing if new one is missing
+                });
+                showNotification('success', `Merged with existing ${symbol} holding. New Average: ₹${newAvg.toFixed(2)}`);
+            } else {
+                await addStock(stockData);
+                showNotification('success', `${symbol} added to portfolio`);
+            }
         }
         resetStockForm();
         setIsModalOpen(false);

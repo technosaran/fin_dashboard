@@ -54,18 +54,23 @@ export async function fetchGoogleFinancePrice(symbol: string, exchange: string =
 
 /**
  * Batch fetch using parallel scraping - use sparingly
+ * Wrapped in try/catch for each symbol to ensure partial successes
  */
 export async function batchFetchGoogleFinance(symbols: string[]): Promise<Record<string, { price: number, previousClose: number }>> {
     const results: Record<string, { price: number, previousClose: number }> = {};
 
     await Promise.all(symbols.map(async (symbol) => {
-        // Try NSE first
-        let data = await fetchGoogleFinancePrice(symbol, 'NSE');
-        // If not found, try BSE
-        if (!data) data = await fetchGoogleFinancePrice(symbol, 'BSE');
+        try {
+            // Try NSE first
+            let data = await fetchGoogleFinancePrice(symbol, 'NSE');
+            // If not found, try BSE
+            if (!data) data = await fetchGoogleFinancePrice(symbol, 'BSE');
 
-        if (data) {
-            results[symbol] = data;
+            if (data && data.price > 0) {
+                results[symbol] = data;
+            }
+        } catch (err) {
+            console.error(`Batch item failed for ${symbol}:`, err);
         }
     }));
 
