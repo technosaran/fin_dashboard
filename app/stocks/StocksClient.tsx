@@ -8,6 +8,8 @@ import { Stock } from '@/lib/types';
 import { calculateStockCharges } from '@/lib/utils/charges';
 import { logError } from '@/lib/utils/logger';
 import {
+    TrendingUp,
+    TrendingDown,
     Plus,
     X,
     Search,
@@ -198,22 +200,26 @@ export default function StocksClient() {
             finalTaxes = calculatedCharges.taxes;
         }
 
-        await addStockTransaction({
-            stockId: Number(selectedStockId),
-            transactionType,
-            quantity: qty,
-            price,
-            totalAmount,
-            brokerage: finalBrokerage,
-            taxes: finalTaxes,
-            transactionDate,
-            notes: notes || undefined,
-            accountId: selectedAccountId ? Number(selectedAccountId) : undefined
-        });
+        try {
+            await addStockTransaction({
+                stockId: Number(selectedStockId),
+                transactionType,
+                quantity: qty,
+                price,
+                totalAmount,
+                brokerage: finalBrokerage,
+                taxes: finalTaxes,
+                transactionDate,
+                notes: notes || undefined,
+                accountId: selectedAccountId ? Number(selectedAccountId) : undefined
+            });
 
-        showNotification('success', `Transaction recorded: ${transactionType} ${qty} shares`);
-        resetTransactionForm();
-        setIsModalOpen(false);
+            showNotification('success', `Transaction recorded: ${transactionType} ${qty} shares`);
+            resetTransactionForm();
+            setIsModalOpen(false);
+        } catch {
+            showNotification('error', 'Failed to record transaction. Please try again.');
+        }
     };
 
     const resetStockForm = () => {

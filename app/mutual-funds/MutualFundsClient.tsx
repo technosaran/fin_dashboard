@@ -181,15 +181,19 @@ export default function MutualFundsClient() {
             folioNumber
         };
 
-        if (editId) {
-            await updateMutualFund(editId, fundData);
-            showNotification('success', 'Fund details updated');
-        } else {
-            await addMutualFund(fundData);
-            showNotification('success', 'New fund added to portfolio');
+        try {
+            if (editId) {
+                await updateMutualFund(editId, fundData);
+                showNotification('success', 'Fund details updated');
+            } else {
+                await addMutualFund(fundData);
+                showNotification('success', 'New fund added to portfolio');
+            }
+            setIsModalOpen(false);
+            resetFundForm();
+        } catch {
+            showNotification('error', 'Failed to save fund. Please try again.');
         }
-        setIsModalOpen(false);
-        resetFundForm();
     };
 
     const handleEditFund = (mf: MutualFund) => {
@@ -224,20 +228,24 @@ export default function MutualFundsClient() {
         const navVal = parseFloat(txNav);
         const total = unitsVal * navVal;
 
-        await addMutualFundTransaction({
-            mutualFundId: Number(selectedFundId),
-            transactionType: transactionType,
-            units: unitsVal,
-            nav: navVal,
-            totalAmount: total,
-            transactionDate: txDate,
-            accountId: selectedAccountId ? Number(selectedAccountId) : undefined
-        });
+        try {
+            await addMutualFundTransaction({
+                mutualFundId: Number(selectedFundId),
+                transactionType: transactionType,
+                units: unitsVal,
+                nav: navVal,
+                totalAmount: total,
+                transactionDate: txDate,
+                accountId: selectedAccountId ? Number(selectedAccountId) : undefined
+            });
 
-        showNotification('success', `Investment of ₹${total.toLocaleString()} recorded`);
+            showNotification('success', `Investment of ₹${total.toLocaleString()} recorded`);
 
-        setIsModalOpen(false);
-        resetTransactionForm();
+            setIsModalOpen(false);
+            resetTransactionForm();
+        } catch {
+            showNotification('error', 'Failed to record transaction. Please try again.');
+        }
     };
 
     const resetTransactionForm = () => {
