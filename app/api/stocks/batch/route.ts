@@ -90,7 +90,7 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
                 if (!quote.symbol) return;
                 const baseSymbol = quote.symbol.split('.')[0];
                 // If we already have a price (maybe from NSE), don't overwrite with BSE unless NSE was null
-                if (!result[baseSymbol] || (result[baseSymbol].currentPrice === 0 && quote.regularMarketPrice)) {
+                if (quote.regularMarketPrice && (!result[baseSymbol] || result[baseSymbol].currentPrice === 0)) {
                     result[baseSymbol] = {
                         symbol: baseSymbol,
                         currentPrice: quote.regularMarketPrice || 0,
@@ -98,6 +98,28 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
                         currency: quote.currency || 'INR',
                         exchange: quote.fullExchangeName || 'NSE',
                         displayName: quote.shortName || quote.longName || baseSymbol
+                    };
+                }
+            });
+        }
+
+        // --- SECONDARY FALLBACK: Google Finance ---
+        // Identify symbols that still have 0 price or are completely missing
+        const failedSymbols = symbols.filter(s => !result[s] || result[s].currentPrice === 0);
+
+        if (failedSymbols.length > 0) {
+            const { batchFetchGoogleFinance } = await import('@/lib/services/google-finance');
+            const googleData = await batchFetchGoogleFinance(failedSymbols);
+
+            Object.entries(googleData).forEach(([sym, data]) => {
+                if (data.price > 0) {
+                    result[sym] = {
+                        symbol: sym,
+                        currentPrice: data.price,
+                        previousClose: data.previousClose,
+                        currency: 'INR',
+                        exchange: 'NSE/BSE (Google)',
+                        displayName: sym
                     };
                 }
             });

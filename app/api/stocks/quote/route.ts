@@ -82,17 +82,31 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
       data = (await response.json()) as YahooChartResponse;
     }
 
-    if (data.chart?.result) {
+    if (data.chart?.result && data.chart.result[0].meta?.regularMarketPrice) {
       const meta = data.chart.result[0].meta;
-      if (!meta?.symbol) {
-        return createErrorResponse('Invalid quote response', 502);
-      }
       const quoteData = {
-        symbol: meta.symbol.split('.')[0],
+        symbol: (meta.symbol || sanitizedSymbol).split('.')[0],
         currentPrice: meta.regularMarketPrice || 0,
         previousClose: meta.previousClose || 0,
         currency: meta.currency || 'INR',
         exchange: meta.exchangeName || 'NSE',
+      };
+      setCache(cacheKey, quoteData, 60000);
+      return createSuccessResponse(quoteData);
+    }
+
+    // --- SECONDARY FALLBACK: Google Finance ---
+    const { fetchGoogleFinancePrice } = await import('@/lib/services/google-finance');
+    let googleData = await fetchGoogleFinancePrice(sanitizedSymbol, 'NSE');
+    if (!googleData) googleData = await fetchGoogleFinancePrice(sanitizedSymbol, 'BSE');
+
+    if (googleData && googleData.price > 0) {
+      const quoteData = {
+        symbol: sanitizedSymbol,
+        currentPrice: googleData.price,
+        previousClose: googleData.previousClose,
+        currency: 'INR',
+        exchange: 'NSE/BSE (Google)',
       };
       setCache(cacheKey, quoteData, 60000);
       return createSuccessResponse(quoteData);
