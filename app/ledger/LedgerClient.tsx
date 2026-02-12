@@ -17,8 +17,6 @@ import {
     Download,
     Edit3,
     Trash2,
-    Search,
-    Filter,
     ArrowRight,
     Wallet,
     Tag,
@@ -48,7 +46,7 @@ export default function LedgerClient() {
     const [filterCategory, setFilterCategory] = useState<string>('All');
     const [filterAccount, setFilterAccount] = useState<number | 'All'>('All');
     const [filterType, setFilterType] = useState<'All' | 'Income' | 'Expense'>('All');
-    const [viewMode, setViewMode] = useState<'timeline' | 'calendar'>('timeline');
+    const [_viewMode, _setViewMode] = useState<'timeline' | 'calendar'>('timeline');
 
     // Form State
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -81,7 +79,7 @@ export default function LedgerClient() {
             }
             resetForm();
             setIsModalOpen(false);
-        } catch (err) {
+        } catch (_err) {
             showNotification('error', 'Failed to save transaction');
         }
     };
@@ -113,7 +111,7 @@ export default function LedgerClient() {
         return account ? account.name : null;
     };
 
-    const categories = ['All', ...new Set(transactions.map(t => t.category))].sort() as string[];
+    const _categories = ['All', ...new Set(transactions.map(t => t.category))].sort() as string[];
 
     const filteredTransactions = useMemo(() => {
         return transactions.filter(t => {

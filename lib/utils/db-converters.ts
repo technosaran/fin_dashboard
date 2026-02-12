@@ -1,5 +1,6 @@
 import {
     Account,
+    AccountType,
     Transaction,
     Goal,
     FamilyTransfer,
@@ -11,7 +12,9 @@ import {
     FnoTrade,
     Bond,
     BondTransaction,
+    BondTransactionType,
     ForexTransaction,
+    ForexTransactionType,
     AppSettings
 } from '../types';
 
@@ -85,7 +88,7 @@ export const dbAccountToAccount = (dbAccount: AccountRow): Account => ({
     id: Number(dbAccount.id),
     name: dbAccount.name,
     bankName: dbAccount.bank_name,
-    type: dbAccount.type as any,
+    type: dbAccount.type as AccountType,
     balance: Number(dbAccount.balance),
     currency: dbAccount.currency as 'USD' | 'INR'
 });
@@ -221,14 +224,14 @@ export const dbBondToBond = (dbBond: BondRow): Bond => ({
     yieldToMaturity: dbBond.yield_to_maturity ? Number(dbBond.yield_to_maturity) : undefined,
     interestFrequency: dbBond.interest_frequency,
     nextInterestDate: dbBond.next_interest_date || undefined,
-    status: dbBond.status as any,
+    status: dbBond.status as Bond['status'],
     previousPrice: dbBond.previous_price ? Number(dbBond.previous_price) : undefined
 });
 
 export const dbBondTransactionToBondTransaction = (dbTx: BondTransactionRow): BondTransaction => ({
     id: Number(dbTx.id),
     bondId: Number(dbTx.bond_id),
-    transactionType: dbTx.transaction_type as any,
+    transactionType: dbTx.transaction_type as BondTransactionType,
     quantity: Number(dbTx.quantity),
     price: Number(dbTx.price),
     totalAmount: Number(dbTx.total_amount),
@@ -239,7 +242,7 @@ export const dbBondTransactionToBondTransaction = (dbTx: BondTransactionRow): Bo
 
 export const dbForexTransactionToForexTransaction = (dbTx: ForexTransactionRow): ForexTransaction => ({
     id: Number(dbTx.id),
-    transactionType: dbTx.transaction_type as any,
+    transactionType: dbTx.transaction_type as ForexTransactionType,
     amount: Number(dbTx.amount),
     date: dbTx.date,
     notes: dbTx.notes || undefined,

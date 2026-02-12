@@ -39,7 +39,6 @@ export default function MutualFundsClient() {
         deleteMutualFundTransaction,
         settings,
         loading,
-        refreshPortfolio,
         refreshLivePrices
     } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
