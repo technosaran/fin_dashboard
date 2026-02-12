@@ -150,6 +150,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button
+                type="button"
                 onClick={this.handleReset}
                 style={{
                   padding: '12px 24px',
@@ -177,6 +178,7 @@ export class ErrorBoundary extends Component<Props, State> {
               </button>
 
               <button
+                type="button"
                 onClick={() => window.location.href = '/'}
                 style={{
                   padding: '12px 24px',

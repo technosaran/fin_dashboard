@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance } from '../components/FinanceContext';
 import { Stock } from '@/lib/types';
 import { calculateStockCharges } from '@/lib/utils/charges';
+import { logError } from '@/lib/utils/logger';
 import {
     TrendingUp,
     TrendingDown,
@@ -93,7 +94,7 @@ export default function StocksClient() {
             setSearchResults(data);
             setShowResults(true);
         } catch (error) {
-            console.error('Search failed:', error);
+            logError('Search failed:', error);
         } finally {
             setIsSearching(false);
         }
@@ -115,7 +116,7 @@ export default function StocksClient() {
                 setExchange(data.exchange.includes('BSE') ? 'BSE' : 'NSE');
             }
         } catch (error) {
-            console.error('Quote fetch failed:', error);
+            logError('Quote fetch failed:', error);
         }
     };
 
@@ -146,36 +147,40 @@ export default function StocksClient() {
             pnlPercentage
         };
 
-        if (editId !== null) {
-            await updateStock(editId, stockData);
-            showNotification('success', `${symbol} updated successfully`);
-        } else {
-            // Check for existing stock with same symbol to merge (Cost Averaging)
-            const existingStock = stocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
-            if (existingStock) {
-                const totalQty = existingStock.quantity + qty;
-                const totalInvestment = (existingStock.quantity * existingStock.avgPrice) + (qty * avg);
-                const newAvg = totalInvestment / totalQty;
-
-                // Merge into existing stock
-                await updateStock(existingStock.id, {
-                    quantity: totalQty,
-                    avgPrice: newAvg,
-                    investmentAmount: totalInvestment,
-                    currentPrice: current, // Use latest price from form
-                    currentValue: totalQty * current,
-                    pnl: (totalQty * current) - totalInvestment,
-                    pnlPercentage: (((totalQty * current) - totalInvestment) / totalInvestment) * 100,
-                    previousPrice: previousPrice || existingStock.previousPrice // Keep existing if new one is missing
-                });
-                showNotification('success', `Merged with existing ${symbol} holding. New Average: ₹${newAvg.toFixed(2)}`);
+        try {
+            if (editId !== null) {
+                await updateStock(editId, stockData);
+                showNotification('success', `${symbol} updated successfully`);
             } else {
-                await addStock(stockData);
-                showNotification('success', `${symbol} added to portfolio`);
+                // Check for existing stock with same symbol to merge (Cost Averaging)
+                const existingStock = stocks.find(s => s.symbol.toUpperCase() === symbol.toUpperCase());
+                if (existingStock) {
+                    const totalQty = existingStock.quantity + qty;
+                    const totalInvestment = (existingStock.quantity * existingStock.avgPrice) + (qty * avg);
+                    const newAvg = totalInvestment / totalQty;
+
+                    // Merge into existing stock
+                    await updateStock(existingStock.id, {
+                        quantity: totalQty,
+                        avgPrice: newAvg,
+                        investmentAmount: totalInvestment,
+                        currentPrice: current, // Use latest price from form
+                        currentValue: totalQty * current,
+                        pnl: (totalQty * current) - totalInvestment,
+                        pnlPercentage: (((totalQty * current) - totalInvestment) / totalInvestment) * 100,
+                        previousPrice: previousPrice || existingStock.previousPrice // Keep existing if new one is missing
+                    });
+                    showNotification('success', `Merged with existing ${symbol} holding. New Average: ₹${newAvg.toFixed(2)}`);
+                } else {
+                    await addStock(stockData);
+                    showNotification('success', `${symbol} added to portfolio`);
+                }
             }
+            resetStockForm();
+            setIsModalOpen(false);
+        } catch {
+            showNotification('error', 'Failed to save stock. Please try again.');
         }
-        resetStockForm();
-        setIsModalOpen(false);
     };
 
     const handleTransactionSubmit = async (e: React.FormEvent) => {
@@ -195,22 +200,26 @@ export default function StocksClient() {
             finalTaxes = calculatedCharges.taxes;
         }
 
-        await addStockTransaction({
-            stockId: Number(selectedStockId),
-            transactionType,
-            quantity: qty,
-            price,
-            totalAmount,
-            brokerage: finalBrokerage,
-            taxes: finalTaxes,
-            transactionDate,
-            notes: notes || undefined,
-            accountId: selectedAccountId ? Number(selectedAccountId) : undefined
-        });
+        try {
+            await addStockTransaction({
+                stockId: Number(selectedStockId),
+                transactionType,
+                quantity: qty,
+                price,
+                totalAmount,
+                brokerage: finalBrokerage,
+                taxes: finalTaxes,
+                transactionDate,
+                notes: notes || undefined,
+                accountId: selectedAccountId ? Number(selectedAccountId) : undefined
+            });
 
-        showNotification('success', `Transaction recorded: ${transactionType} ${qty} shares`);
-        resetTransactionForm();
-        setIsModalOpen(false);
+            showNotification('success', `Transaction recorded: ${transactionType} ${qty} shares`);
+            resetTransactionForm();
+            setIsModalOpen(false);
+        } catch {
+            showNotification('error', 'Failed to record transaction. Please try again.');
+        }
     };
 
     const resetStockForm = () => {

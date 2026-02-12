@@ -55,30 +55,34 @@ export default function AccountsClient() {
         e.preventDefault();
         if (!accountName || !balance || !bankName) return;
 
-        if (editId !== null) {
-            const existingAccount = accounts.find(acc => acc.id === editId);
-            if (existingAccount) {
-                await updateAccount(editId, {
+        try {
+            if (editId !== null) {
+                const existingAccount = accounts.find(acc => acc.id === editId);
+                if (existingAccount) {
+                    await updateAccount(editId, {
+                        name: accountName,
+                        bankName,
+                        type: accountType,
+                        balance: parseFloat(balance),
+                        currency
+                    });
+                    showNotification('success', 'Account updated successfully');
+                }
+            } else {
+                await addAccount({
                     name: accountName,
                     bankName,
                     type: accountType,
                     balance: parseFloat(balance),
-                    currency
+                    currency,
                 });
-                showNotification('success', 'Account updated successfully');
+                showNotification('success', 'New account created successfully');
             }
-        } else {
-            await addAccount({
-                name: accountName,
-                bankName,
-                type: accountType,
-                balance: parseFloat(balance),
-                currency,
-            });
-            showNotification('success', 'New account created successfully');
+            resetAccountForm();
+            setIsModalOpen(false);
+        } catch {
+            showNotification('error', 'Failed to save account. Please try again.');
         }
-        resetAccountForm();
-        setIsModalOpen(false);
     };
 
     const resetAccountForm = () => {
@@ -103,23 +107,31 @@ export default function AccountsClient() {
     const handleAddFundsSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (selectedAccountId === null || !addFundsAmount) return;
-        await addFunds(selectedAccountId, parseFloat(addFundsAmount), addFundsDescription, addFundsCategory);
-        setIsAddFundsModalOpen(false);
-        setAddFundsAmount('');
-        setAddFundsDescription('');
+        try {
+            await addFunds(selectedAccountId, parseFloat(addFundsAmount), addFundsDescription, addFundsCategory);
+            setIsAddFundsModalOpen(false);
+            setAddFundsAmount('');
+            setAddFundsDescription('');
+        } catch {
+            showNotification('error', 'Failed to add funds. Please try again.');
+        }
     };
 
     const handleTransfer = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!sourceAccountId || !targetAccountId || !transferAmount) return;
-        const amount = parseFloat(transferAmount);
-        const sourceAccount = accounts.find(acc => acc.id === Number(sourceAccountId));
-        const targetAccount = accounts.find(acc => acc.id === Number(targetAccountId));
-        if (sourceAccount && targetAccount) {
-            await updateAccount(sourceAccount.id, { balance: sourceAccount.balance - amount });
-            await updateAccount(targetAccount.id, { balance: targetAccount.balance + amount });
+        try {
+            const amount = parseFloat(transferAmount);
+            const sourceAccount = accounts.find(acc => acc.id === Number(sourceAccountId));
+            const targetAccount = accounts.find(acc => acc.id === Number(targetAccountId));
+            if (sourceAccount && targetAccount) {
+                await updateAccount(sourceAccount.id, { balance: sourceAccount.balance - amount });
+                await updateAccount(targetAccount.id, { balance: targetAccount.balance + amount });
+            }
+            setIsTransferModalOpen(false);
+        } catch {
+            showNotification('error', 'Transfer failed. Please try again.');
         }
-        setIsTransferModalOpen(false);
     };
 
     const getAccountIcon = (type: string) => {

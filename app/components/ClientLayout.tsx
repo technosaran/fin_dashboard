@@ -7,6 +7,7 @@ import Sidebar from './Sidebar';
 import { AuthProvider, useAuth } from './AuthContext';
 import { FinanceProvider, useFinance } from './FinanceContext';
 import { NotificationProvider } from './NotificationContext';
+import { ErrorBoundary } from './error-boundaries/ErrorBoundary';
 
 const AddTransactionModal = dynamic(() => import('./AddTransactionModal'), {
     ssr: false,
@@ -19,13 +20,15 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
     const isAuthPage = pathname === '/login' || pathname === '/signup';
 
     return (
-        <AuthProvider>
-            <NotificationProvider>
-                <AuthConsumer isAuthPage={isAuthPage}>
-                    {children}
-                </AuthConsumer>
-            </NotificationProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+            <AuthProvider>
+                <NotificationProvider>
+                    <AuthConsumer isAuthPage={isAuthPage}>
+                        {children}
+                    </AuthConsumer>
+                </NotificationProvider>
+            </AuthProvider>
+        </ErrorBoundary>
     );
 }
 
@@ -85,8 +88,10 @@ function AuthConsumer({ children, isAuthPage }: { children: React.ReactNode, isA
                             <span style={{ fontWeight: '900', color: '#fff', fontSize: '1.1rem' }}>FINCORE</span>
                         </div>
                         <button
+                            type="button"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}
+                            aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
                         >
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>

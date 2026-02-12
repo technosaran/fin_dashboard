@@ -5,6 +5,7 @@ import { X, Search, Loader2, TrendingUp, Activity, Zap, Banknote, Info } from 'l
 import { useFinance } from './FinanceContext';
 import { useNotifications } from './NotificationContext';
 import { calculateStockCharges } from '@/lib/utils/charges';
+import { logError } from '@/lib/utils/logger';
 
 interface AddTransactionModalProps {
     isOpen: boolean;
@@ -118,7 +119,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             setSearchResults(data);
             setShowResults(true);
         } catch (error) {
-            console.error('Search failed:', error);
+            logError('Search failed:', error);
         } finally {
             setIsSearching(false);
         }
@@ -155,7 +156,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                 setPreviousPrice(data.previousNav || data.currentNav);
             }
         } catch (error) {
-            console.error('Quote fetch failed:', error);
+            logError('Quote fetch failed:', error);
         } finally {
             setIsFetchingQuote(false);
         }

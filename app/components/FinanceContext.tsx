@@ -38,7 +38,9 @@ import {
     AppSettingsRow
 } from '../../lib/utils/db-converters';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Extended type for tables not in generated DB types (bonds, fno_trades, forex_transactions, etc.)
+// Extended client type for tables not yet in auto-generated DB types (bonds, fno_trades, forex_transactions, etc.)
+// To remove this workaround, regenerate types with `supabase gen types typescript`
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase query builder for unmapped tables requires dynamic return type
 type ExtendedSupabaseClient = typeof supabase & { from: (table: string) => any };
 
 const FinanceContext = createContext<FinanceContextState | undefined>(undefined);
@@ -1055,7 +1057,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                                         pnl: pnl,
                                         pnl_percentage: pnlPercentage
                                     }).eq('id', stock.id).then(({ error }) => {
-                                        if (error) console.error('Failed to persist stock price', error);
+                                        if (error) logError('Failed to persist stock price', error);
                                     });
                                 }
 
@@ -1074,7 +1076,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     }
                 }
             } catch (err) {
-                console.error('Failed to refresh stock prices:', err);
+                logError('Failed to refresh stock prices:', err);
                 // Don't stop execution, continue to MFs
             }
 
@@ -1102,7 +1104,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                                     pnl: pnl,
                                     pnl_percentage: pnlPercentage
                                 }).eq('id', mf.id).then(({ error }) => {
-                                    if (error) console.error('Failed to persist MF NAV', error);
+                                    if (error) logError('Failed to persist MF NAV', error);
                                 });
 
                                 return {
@@ -1120,7 +1122,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     }
                 }
             } catch (err) {
-                console.error('Failed to refresh MF NAVs:', err);
+                logError('Failed to refresh MF NAVs:', err);
             }
 
             // 3. Bonds - Live Fetching
@@ -1149,7 +1151,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                                     pnl: pnl,
                                     pnl_percentage: pnlPercentage
                                 }).eq('id', bond.id).then(({ error: dbError }: { error: Error | null }) => {
-                                    if (dbError) console.error('Failed to persist bond price', dbError);
+                                    if (dbError) logError('Failed to persist bond price', dbError);
                                 });
 
                                 return {
@@ -1166,7 +1168,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     }
                 }
             } catch (err) {
-                console.error('Failed to refresh bond prices:', err);
+                logError('Failed to refresh bond prices:', err);
             }
 
             if (!silent) setLoading(false);

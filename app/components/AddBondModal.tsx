@@ -10,6 +10,7 @@ import {
 import { useFinance } from './FinanceContext';
 import { Bond } from '@/lib/types';
 import { useNotifications } from './NotificationContext';
+import { logError } from '@/lib/utils/logger';
 
 interface AddBondModalProps {
     isOpen: boolean;
@@ -91,7 +92,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                     setSearchResults(data.data);
                 }
             } catch (error) {
-                console.error('Search failed:', error);
+                logError('Search failed:', error);
             } finally {
                 setIsSearching(false);
             }
@@ -151,7 +152,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
             showNotification('success', 'Bond added to your portfolio');
             onClose();
         } catch (error) {
-            console.error('Failed to add bond:', error);
+            logError('Failed to add bond:', error);
             showNotification('error', 'Failed to add bond');
         } finally {
             setIsSubmitting(false);

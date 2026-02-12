@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useFinance } from '../components/FinanceContext';
 import { MutualFund, MutualFundTransaction } from '@/lib/types';
+import { logError } from '@/lib/utils/logger';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
@@ -131,7 +132,7 @@ export default function MutualFundsClient() {
             setSearchResults(data);
             setShowResults(true);
         } catch (error) {
-            console.error('MF Search failed:', error);
+            logError('MF Search failed:', error);
         } finally {
             setIsSearching(false);
         }
@@ -152,7 +153,7 @@ export default function MutualFundsClient() {
                 setCategory(data.category);
             }
         } catch (error) {
-            console.error('MF Quote fetch failed:', error);
+            logError('MF Quote fetch failed:', error);
         }
     };
 
@@ -180,15 +181,19 @@ export default function MutualFundsClient() {
             folioNumber
         };
 
-        if (editId) {
-            await updateMutualFund(editId, fundData);
-            showNotification('success', 'Fund details updated');
-        } else {
-            await addMutualFund(fundData);
-            showNotification('success', 'New fund added to portfolio');
+        try {
+            if (editId) {
+                await updateMutualFund(editId, fundData);
+                showNotification('success', 'Fund details updated');
+            } else {
+                await addMutualFund(fundData);
+                showNotification('success', 'New fund added to portfolio');
+            }
+            setIsModalOpen(false);
+            resetFundForm();
+        } catch {
+            showNotification('error', 'Failed to save fund. Please try again.');
         }
-        setIsModalOpen(false);
-        resetFundForm();
     };
 
     const handleEditFund = (mf: MutualFund) => {
@@ -223,20 +228,24 @@ export default function MutualFundsClient() {
         const navVal = parseFloat(txNav);
         const total = unitsVal * navVal;
 
-        await addMutualFundTransaction({
-            mutualFundId: Number(selectedFundId),
-            transactionType: transactionType,
-            units: unitsVal,
-            nav: navVal,
-            totalAmount: total,
-            transactionDate: txDate,
-            accountId: selectedAccountId ? Number(selectedAccountId) : undefined
-        });
+        try {
+            await addMutualFundTransaction({
+                mutualFundId: Number(selectedFundId),
+                transactionType: transactionType,
+                units: unitsVal,
+                nav: navVal,
+                totalAmount: total,
+                transactionDate: txDate,
+                accountId: selectedAccountId ? Number(selectedAccountId) : undefined
+            });
 
-        showNotification('success', `Investment of ₹${total.toLocaleString()} recorded`);
+            showNotification('success', `Investment of ₹${total.toLocaleString()} recorded`);
 
-        setIsModalOpen(false);
-        resetTransactionForm();
+            setIsModalOpen(false);
+            resetTransactionForm();
+        } catch {
+            showNotification('error', 'Failed to record transaction. Please try again.');
+        }
     };
 
     const resetTransactionForm = () => {

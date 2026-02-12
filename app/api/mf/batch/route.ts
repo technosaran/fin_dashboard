@@ -90,7 +90,7 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
                     }
                 }
             } catch (err) {
-                console.error(`Failed to fetch MF ${code}:`, err);
+                logError(`Failed to fetch MF ${code}:`, err);
             }
         }));
 

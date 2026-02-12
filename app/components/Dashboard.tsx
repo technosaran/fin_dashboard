@@ -12,6 +12,7 @@ import {
     Target,
     Calendar,
     Sparkles,
+    AlertTriangle,
 } from 'lucide-react';
 import { useFinance } from './FinanceContext';
 import { MutualFundTransaction } from '@/lib/types';
@@ -47,6 +48,7 @@ export default function Dashboard() {
         fnoTrades,
         transactions,
         loading,
+        error,
         settings
     } = useFinance();
 
@@ -198,6 +200,58 @@ export default function Dashboard() {
                 </div>
                 <div style={{ marginBottom: '32px' }}>
                     <SkeletonCard />
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="page-container">
+                <div className="bg-mesh" />
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '48px 24px',
+                    textAlign: 'center',
+                    gap: '16px'
+                }}>
+                    <div style={{
+                        width: '64px',
+                        height: '64px',
+                        background: 'rgba(239, 68, 68, 0.1)',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}>
+                        <AlertTriangle size={32} color="#ef4444" />
+                    </div>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: '700', color: '#fff', margin: 0 }}>
+                        Unable to Load Dashboard
+                    </h2>
+                    <p style={{ fontSize: '0.9rem', color: '#94a3b8', maxWidth: '400px', lineHeight: '1.6' }}>
+                        {error}
+                    </p>
+                    <button
+                        type="button"
+                        onClick={() => window.location.reload()}
+                        style={{
+                            padding: '10px 24px',
+                            background: '#6366f1',
+                            color: '#fff',
+                            border: 'none',
+                            borderRadius: '12px',
+                            fontSize: '0.875rem',
+                            fontWeight: '700',
+                            cursor: 'pointer',
+                            marginTop: '8px'
+                        }}
+                    >
+                        Retry
+                    </button>
                 </div>
             </div>
         );

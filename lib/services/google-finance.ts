@@ -1,4 +1,5 @@
 import { fetchWithTimeout } from './api';
+import { logError } from '../utils/logger';
 
 /**
  * Scrapes Google Finance for a stock price
@@ -47,7 +48,7 @@ export async function fetchGoogleFinancePrice(symbol: string, exchange: string =
 
         return null;
     } catch (error) {
-        console.error(`Google Finance fetch failed for ${ticker}:`, error);
+        logError(`Google Finance fetch failed for ${ticker}:`, error);
         return null;
     }
 }
@@ -70,7 +71,7 @@ export async function batchFetchGoogleFinance(symbols: string[]): Promise<Record
                 results[symbol] = data;
             }
         } catch (err) {
-            console.error(`Batch item failed for ${symbol}:`, err);
+            logError(`Batch item failed for ${symbol}:`, err);
         }
     }));
 
