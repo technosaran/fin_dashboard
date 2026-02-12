@@ -4,6 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Session, User } from '@supabase/supabase-js';
 import { useRouter, usePathname } from 'next/navigation';
+import { logError } from '../../lib/utils/logger';
 
 interface AuthContextType {
     session: Session | null;
@@ -38,6 +39,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             if (!session && !isAuthPage) {
                 router.push('/login');
             }
+        }).catch((err: unknown) => {
+            logError('Failed to get auth session:', err);
+            setLoading(false);
         });
 
         // Listen for changes on auth state (logged in, signed out, etc.)
@@ -59,8 +63,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }, [pathname, router]);
 
     const signOut = async () => {
-        await supabase.auth.signOut();
-        router.push('/login');
+        try {
+            await supabase.auth.signOut();
+            router.push('/login');
+        } catch (err: unknown) {
+            logError('Failed to sign out:', err);
+        }
     };
 
     return (

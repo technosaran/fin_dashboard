@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { useFinance } from '../components/FinanceContext';
 import { MutualFund, MutualFundTransaction } from '@/lib/types';
+import { logError } from '@/lib/utils/logger';
 
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'];
 
@@ -131,7 +132,7 @@ export default function MutualFundsClient() {
             setSearchResults(data);
             setShowResults(true);
         } catch (error) {
-            console.error('MF Search failed:', error);
+            logError('MF Search failed:', error);
         } finally {
             setIsSearching(false);
         }
@@ -152,7 +153,7 @@ export default function MutualFundsClient() {
                 setCategory(data.category);
             }
         } catch (error) {
-            console.error('MF Quote fetch failed:', error);
+            logError('MF Quote fetch failed:', error);
         }
     };
 

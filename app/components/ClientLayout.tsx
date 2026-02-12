@@ -85,8 +85,10 @@ function AuthConsumer({ children, isAuthPage }: { children: React.ReactNode, isA
                             <span style={{ fontWeight: '900', color: '#fff', fontSize: '1.1rem' }}>FINCORE</span>
                         </div>
                         <button
+                            type="button"
                             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}
+                            aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
                         >
                             {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
                         </button>

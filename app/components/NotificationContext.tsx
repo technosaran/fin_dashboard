@@ -120,8 +120,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                         {getIcon(n.type)}
                         <div style={{ flex: 1, fontSize: '0.9rem', fontWeight: '600' }}>{n.message}</div>
                         <button
+                            type="button"
                             onClick={() => setNotifications((prev) => prev.filter((item) => item.id !== n.id))}
                             style={{ background: 'transparent', border: 'none', color: '#64748b', cursor: 'pointer', padding: '4px' }}
+                            aria-label="Dismiss notification"
                         >
                             <X size={16} />
                         </button>
@@ -163,6 +165,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                         </p>
                         <div style={{ display: 'flex', gap: '12px' }}>
                             <button
+                                type="button"
                                 onClick={() => handleConfirm(false)}
                                 style={{
                                     flex: 1,
@@ -178,6 +181,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                                 {confirmDialog.options.cancelLabel}
                             </button>
                             <button
+                                type="button"
                                 onClick={() => handleConfirm(true)}
                                 style={{
                                     flex: 1,
