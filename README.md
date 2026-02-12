@@ -1,34 +1,119 @@
-# Financial Dashboard
+# FINCORE | Digital Wealth Hub
 
-A modern financial dashboard built with Next.js and Supabase.
+An enterprise-grade financial tracking and portfolio management dashboard built with Next.js, React, TypeScript, and Supabase.
+
+<!-- ![Dashboard Screenshot](./public/screenshot.png) -->
 
 ## Features
 
-- **Account Management**: Track multiple bank accounts, wallets, and investment accounts
-- **Transaction Tracking**: Log income and expenses with detailed categorization
-- **Goal Setting**: Set and track financial goals with progress monitoring
-- **Stocks & Mutual Funds**: Real-time market data integration with Yahoo Finance and MFAPI
-- **Bonds & F&O**: Fixed income tracking and futures/options trading logs
-- **Automatic Refresh**: Live price updates every 5 minutes for investment portfolios
-- **Real-time Data**: All data is stored in Supabase and synced in real-time
-- **Modern UI**: Clean, professional interface with dark theme
-
-## Documentation
-
-For a detailed deep-dive into the project architecture, features, and API integrations, please refer to:
-👉 **[DOCUMENTATION.md](./DOCUMENTATION.md)**
+- **Account Management** — Track multiple bank accounts, wallets, and investment accounts with real-time balances
+- **Transaction Ledger** — Log income and expenses with categorization, filtering, search, and CSV export
+- **Investment Portfolio** — Stocks, Mutual Funds, Bonds, F&O, and Forex tracking with live market data
+- **Goal Tracking** — Set and monitor financial goals with progress visualization
+- **Family Transfers** — Track money sent to and received from family members
+- **Live Price Updates** — Automatic portfolio refresh every 5 minutes via Yahoo Finance and MFAPI
+- **Charge Calculator** — Accurate brokerage, STT, GST, stamp duty calculations (Zerodha rates)
+- **Dark Theme UI** — Clean, responsive interface optimized for desktop and mobile
+- **Supabase Auth** — Secure authentication with Row Level Security
 
 ## Tech Stack
 
-- **Frontend**: Next.js (App Router), React, TypeScript
-- **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **Styling**: Vanilla CSS (Premium Aesthetics)
-- **Charts**: Recharts
-- **Market APIs**: Yahoo Finance, MFAPI.in
+| Layer        | Technology                                |
+| ------------ | ----------------------------------------- |
+| Framework    | Next.js 16 (App Router, Turbopack)        |
+| Language     | TypeScript (strict mode)                  |
+| UI Library   | React 19                                  |
+| Database     | Supabase (PostgreSQL + Auth)              |
+| Charts       | Recharts                                  |
+| Icons        | Lucide React                              |
+| Styling      | Vanilla CSS with CSS variables            |
+| Market APIs  | Yahoo Finance, MFAPI.in, Google Finance   |
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm 9+
+- A [Supabase](https://supabase.com) project
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/technosaran/fin_dashboard.git
+   cd fin_dashboard
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Set up environment variables:
+   ```bash
+   cp .env.example .env.local
+   ```
+   Fill in your Supabase credentials in `.env.local`.
+
+4. Run the development server:
+   ```bash
+   npm run dev
+   ```
+
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Environment Variables
+
+| Variable                              | Required | Description                     |
+| ------------------------------------- | -------- | ------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`            | Yes      | Supabase project URL            |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`| Yes      | Supabase anonymous/public key   |
+| `NEXT_PUBLIC_APP_URL`                 | No       | Application URL (default: `http://localhost:3000`) |
+
+## Project Architecture
+
+```
+app/                          # Next.js App Router
+├── components/               # Shared React components
+│   ├── AuthContext.tsx        # Authentication provider
+│   ├── FinanceContext.tsx     # Core financial data context
+│   ├── NotificationContext.tsx# Toast notification system
+│   ├── ClientLayout.tsx      # Authenticated layout wrapper
+│   ├── Dashboard.tsx         # Main dashboard view
+│   └── Sidebar.tsx           # Navigation sidebar
+├── api/                      # API route handlers
+│   ├── stocks/               # Stock quote/search/batch endpoints
+│   ├── mf/                   # Mutual fund endpoints
+│   ├── bonds/                # Bond endpoints
+│   ├── forex/                # Forex rate endpoints
+│   └── fno/                  # F&O batch endpoint
+├── [feature]/                # Feature pages (accounts, stocks, etc.)
+│
+lib/                          # Shared libraries
+├── config/                   # Environment validation
+├── hooks/                    # Custom React hooks (useFetch, useDebounce, useLocalStorage)
+├── services/                 # API utilities and external integrations
+├── types/                    # TypeScript type definitions
+├── utils/                    # Utility functions (date, number, string, charges, logger)
+└── validators/               # Input validation functions
+```
+
+## Available Scripts
+
+| Command           | Description                        |
+| ----------------- | ---------------------------------- |
+| `npm run dev`     | Start development server           |
+| `npm run build`   | Create production build            |
+| `npm run start`   | Start production server            |
+| `npm run lint`    | Run ESLint checks                  |
+| `npm test`        | Run test suite                     |
+| `npm run format`  | Format code with Prettier          |
 
 ## Database Schema
 
-The application uses the following main tables:
+The application uses the following Supabase tables:
+
 - `accounts`, `transactions`, `goals`, `family_transfers`
 - `stocks`, `stock_transactions`, `watchlist`
 - `mutual_funds`, `mutual_fund_transactions`
@@ -36,60 +121,23 @@ The application uses the following main tables:
 - `fno_trades`, `forex_transactions`
 - `app_settings`
 
-## Getting Started
+## Deployment
 
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
+### Vercel (Recommended)
 
-2. Set up environment variables in `.env.local`:
-   ```
-   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your_supabase_anon_key
-   ```
+1. Push your repository to GitHub
+2. Import the project on [Vercel](https://vercel.com)
+3. Add environment variables in the Vercel dashboard
+4. Deploy
 
-3. Run the development server:
-   ```bash
-   npm run dev
-   ```
+### Cloudflare Pages
 
-4. Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-## Supabase Setup
-
-The project is already configured with Supabase. The database schema includes:
-- Proper indexing for performance
-- Row Level Security (RLS) ready
-- Automatic timestamps with triggers
-- Type-safe TypeScript definitions
-
-## Project Structure
-
-```
-app/
-├── components/
-│   ├── Dashboard.tsx          # Main dashboard
-│   ├── SupabaseFinanceContext.tsx  # Data context with Supabase
-│   └── Sidebar.tsx           # Navigation sidebar
-├── accounts/                 # Account management page
-├── goals/                    # Goals tracking page
-├── ledger/                   # Transaction history page
-├── salary/                   # Income tracking page
-└── layout.tsx               # Root layout
-
-lib/
-├── supabase.ts              # Supabase client configuration
-└── database.types.ts        # Generated TypeScript types
-
-supabase/
-└── migrations/              # Database migration files
-```
+A `wrangler.toml` configuration is included for Cloudflare deployment.
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for development guidelines and contribution workflow.
+
+## License
+
+This project is private. All rights reserved.
