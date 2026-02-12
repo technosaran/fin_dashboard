@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
@@ -11,22 +11,44 @@ import {
     Book,
     Plus,
     X,
-
     Calendar as CalendarIcon,
     ArrowUpRight,
     ArrowDownRight,
     Download,
     Edit3,
-    Trash2
+    Trash2,
+    Search,
+    Filter,
+    ArrowRight,
+    Wallet,
+    Tag,
+    History,
+    TrendingUp,
+    TrendingDown,
+    Layers,
+    Clock
 } from 'lucide-react';
 
 export default function LedgerClient() {
-    const { transactions, addTransaction, updateTransaction, deleteTransaction, loading } = useFinance();
+    const {
+        transactions,
+        accounts,
+        addTransaction,
+        updateTransaction,
+        deleteTransaction,
+        loading
+    } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
+
+    // UI State
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editId, setEditId] = useState<number | null>(null);
-    const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-
+    const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterCategory, setFilterCategory] = useState<string>('All');
+    const [filterAccount, setFilterAccount] = useState<number | 'All'>('All');
+    const [filterType, setFilterType] = useState<'All' | 'Income' | 'Expense'>('All');
+    const [viewMode, setViewMode] = useState<'timeline' | 'calendar'>('timeline');
 
     // Form State
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -34,6 +56,7 @@ export default function LedgerClient() {
     const [category, setCategory] = useState('');
     const [amount, setAmount] = useState('');
     const [type, setType] = useState<'Income' | 'Expense'>('Expense');
+    const [accountId, setAccountId] = useState<string>('');
 
     const handleAddTransaction = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -45,18 +68,22 @@ export default function LedgerClient() {
             category,
             type,
             amount: parseFloat(amount),
+            accountId: accountId ? parseInt(accountId) : undefined
         };
 
-        if (editId) {
-            await updateTransaction(editId, transactionData);
-            showNotification('success', 'Transaction updated successfully');
-        } else {
-            await addTransaction(transactionData);
-            showNotification('success', 'Transaction recorded successfully');
+        try {
+            if (editId) {
+                await updateTransaction(editId, transactionData);
+                showNotification('success', 'Transaction updated successfully');
+            } else {
+                await addTransaction(transactionData);
+                showNotification('success', 'Transaction recorded successfully');
+            }
+            resetForm();
+            setIsModalOpen(false);
+        } catch (err) {
+            showNotification('error', 'Failed to save transaction');
         }
-
-        resetForm();
-        setIsModalOpen(false);
     };
 
     const resetForm = () => {
@@ -65,292 +92,465 @@ export default function LedgerClient() {
         setAmount('');
         setType('Expense');
         setDate(new Date().toISOString().split('T')[0]);
+        setAccountId('');
         setEditId(null);
     };
 
     const handleEdit = (tx: Transaction) => {
         setEditId(tx.id);
         setDescription(tx.description);
-        setCategory(tx.category);
+        setCategory(tx.category as string);
         setAmount(tx.amount.toString());
         setType(tx.type);
         setDate(tx.date);
+        setAccountId(tx.accountId ? tx.accountId.toString() : '');
         setIsModalOpen(true);
     };
 
-    const filteredTransactions = transactions.filter(t => {
-        return t.date === selectedDate.toISOString().split('T')[0];
-    });
+    const getAccountName = (id?: number) => {
+        if (!id) return null;
+        const account = accounts.find(a => a.id === id);
+        return account ? account.name : null;
+    };
 
-    const dayTotalIncome = filteredTransactions.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0);
-    const dayTotalExpense = filteredTransactions.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0);
+    const categories = ['All', ...new Set(transactions.map(t => t.category))].sort() as string[];
+
+    const filteredTransactions = useMemo(() => {
+        return transactions.filter(t => {
+            const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                (typeof t.category === 'string' && t.category.toLowerCase().includes(searchQuery.toLowerCase()));
+            const matchesCategory = filterCategory === 'All' || t.category === filterCategory;
+            const matchesAccount = filterAccount === 'All' || t.accountId === filterAccount;
+            const matchesType = filterType === 'All' || t.type === filterType;
+            const matchesDate = !selectedDate || t.date === selectedDate.toISOString().split('T')[0];
+
+            return matchesSearch && matchesCategory && matchesAccount && matchesType && matchesDate;
+        });
+    }, [transactions, searchQuery, filterCategory, filterAccount, filterType, selectedDate]);
+
+    // Grouping by date
+    const groupedTransactions = useMemo(() => {
+        const groups: { [key: string]: Transaction[] } = {};
+        filteredTransactions.forEach(t => {
+            if (!groups[t.date]) groups[t.date] = [];
+            groups[t.date].push(t);
+        });
+        return Object.entries(groups).sort((a, b) => b[0].localeCompare(a[0]));
+    }, [filteredTransactions]);
+
+    const stats = useMemo(() => {
+        const income = filteredTransactions.filter(t => t.type === 'Income').reduce((s, t) => s + t.amount, 0);
+        const expense = filteredTransactions.filter(t => t.type === 'Expense').reduce((s, t) => s + t.amount, 0);
+        return { income, expense, balance: income - expense };
+    }, [filteredTransactions]);
 
     if (loading) {
         return (
             <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                    <div style={{ fontSize: 'clamp(1rem, 2vw, 1.2rem)', color: '#94a3b8' }}>Loading your transactions...</div>
+                    <div className="loader" style={{ width: '40px', height: '40px', border: '3px solid rgba(99, 102, 241, 0.1)', borderTopColor: '#6366f1', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 20px' }}></div>
+                    <div style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: '500' }}>Decrypting ledger entries...</div>
                 </div>
+                <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
             </div>
         );
     }
 
     return (
-        <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}>
-            <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+        <div className="main-content" style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', padding: '24px' }}>
+            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
 
-                {/* Header Area */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '48px', flexWrap: 'wrap', gap: '16px' }}>
+                {/* Header Section */}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '40px', flexWrap: 'wrap', gap: '24px' }}>
                     <div>
-                        <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}>Financial Ledger</h1>
-                        <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>Iterative audit trail of all movements</p>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                            <div style={{ background: 'rgba(99, 102, 241, 0.1)', padding: '10px', borderRadius: '12px', color: '#6366f1' }}>
+                                <Book size={24} strokeWidth={2.5} />
+                            </div>
+                            <h1 style={{ fontSize: 'clamp(1.75rem, 4vw, 2.5rem)', fontWeight: '900', margin: 0, letterSpacing: '-0.03em', background: 'linear-gradient(to bottom, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Vault Ledger</h1>
+                        </div>
+                        <p style={{ color: '#64748b', fontSize: '1rem', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <History size={16} /> Imperishable trail of all financial movements
+                        </p>
                     </div>
-                    <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+
+                    <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                         <button
                             onClick={() => {
                                 exportTransactionsToCSV(transactions);
-                                showNotification('success', 'Transactions exported successfully!');
+                                showNotification('success', 'Ledger exported to CSV');
                             }}
-                            aria-label="Export transactions to CSV"
                             style={{
-                                padding: '12px 20px', borderRadius: '14px', background: 'rgba(255,255,255,0.03)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', transition: '0.2s'
+                                padding: '12px 20px', borderRadius: '16px', background: 'rgba(15, 23, 42, 0.6)', color: '#94a3b8', border: '1px solid #1e293b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontWeight: '700', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)', backdropFilter: 'blur(8px)'
                             }}
-                            onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)'; e.currentTarget.style.color = '#10b981'; }}
-                            onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; e.currentTarget.style.color = '#94a3b8'; }}
+                            onMouseEnter={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.color = '#fff'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e293b'; e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.transform = 'translateY(0)'; }}
                         >
-                            <Download size={18} /> <span style={{ whiteSpace: 'nowrap' }}>Export CSV</span>
+                            <Download size={18} /> Export
                         </button>
-                        <button onClick={() => setIsModalOpen(true)} aria-label="Add new transaction record" style={{
-                            padding: '12px 24px', borderRadius: '14px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)'
-                        }}>
-                            <Plus size={18} strokeWidth={3} /> <span style={{ whiteSpace: 'nowrap' }}>Add Record</span>
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            style={{
+                                padding: '12px 24px', borderRadius: '16px', background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', color: 'white', border: 'none', cursor: 'pointer', fontWeight: '800', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)', transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)'
+                            }}
+                            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'; e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(99, 102, 241, 0.5)'; }}
+                            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(99, 102, 241, 0.4)'; }}
+                        >
+                            <Plus size={20} strokeWidth={3} /> Record Entry
                         </button>
                     </div>
                 </div>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-
-                    {/* Top Section: Calendar and Summary Stats */}
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))', gap: '24px', marginBottom: '16px' }}>
-                        {/* Small Square Minimalist Calendar */}
-                        <div style={{ background: '#0f172a', padding: '16px', borderRadius: '12px', border: '1px solid #1e293b', width: 'fit-content' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', color: '#818cf8' }}>
-                                <CalendarIcon size={14} strokeWidth={3} />
-                                <span style={{ fontWeight: '900', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1.5px' }}>Date Filter</span>
-                            </div>
-                            <style>{`
-                                .compact-calendar {
-                                    width: 240px !important;
-                                    background: transparent !important;
-                                    border: none !important;
-                                    color: #cbd5e1 !important;
-                                    font-family: inherit !important;
-                                }
-                                .compact-calendar .react-calendar__tile { 
-                                    color: #94a3b8 !important; 
-                                    padding: 10px 0 !important; 
-                                    aspect-ratio: 1 / 1 !important;
-                                    display: flex !important;
-                                    align-items: center !important;
-                                    justify-content: center !important;
-                                    border-radius: 4px !important; 
-                                    font-size: 0.75rem !important;
-                                    font-weight: 600 !important;
-                                }
-                                .compact-calendar .react-calendar__tile--now { 
-                                    background: rgba(99, 102, 241, 0.05) !important; 
-                                    color: #818cf8 !important; 
-                                    border: 1px solid rgba(99, 102, 241, 0.2) !important;
-                                }
-                                .compact-calendar .react-calendar__tile--active { 
-                                    background: #6366f1 !important; 
-                                    color: white !important; 
-                                    font-weight: 900 !important; 
-                                    border: none !important;
-                                }
-                                .compact-calendar .react-calendar__navigation {
-                                    margin-bottom: 10px !important;
-                                    height: auto !important;
-                                }
-                                .compact-calendar .react-calendar__navigation button { 
-                                    color: #f8fafc !important; 
-                                    font-weight: 900 !important; 
-                                    font-size: 0.85rem !important;
-                                    min-width: 30px !important;
-                                    background: transparent !important;
-                                }
-                                .compact-calendar .react-calendar__month-view__weekdays { 
-                                    font-size: 0.6rem !important; 
-                                    text-transform: uppercase !important; 
-                                    color: #475569 !important; 
-                                    font-weight: 900 !important;
-                                    text-decoration: none !important;
-                                }
-                                .compact-calendar .react-calendar__month-view__weekdays__weekday abbr {
-                                    text-decoration: none !important;
-                                }
-                                .compact-calendar .react-calendar__month-view__days__day--neighboringMonth {
-                                    color: #1e293b !important;
-                                }
-                                .compact-calendar button:enabled:hover {
-                                    background-color: rgba(255,255,255,0.05) !important;
-                                }
-                            `}</style>
-                            <Calendar
-                                onChange={(value) => setSelectedDate(value as Date)}
-                                value={selectedDate}
-                                className="compact-calendar"
-                            />
+                {/* Stats Grid */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '20px', marginBottom: '32px' }}>
+                    <div style={{ background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%)', padding: '24px', borderRadius: '24px', border: '1px solid rgba(16, 185, 129, 0.2)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', right: '-20px', top: '-20px', color: 'rgba(16, 185, 129, 0.05)' }}><TrendingUp size={120} /></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                            <div style={{ background: '#10b981', padding: '6px', borderRadius: '8px', color: '#fff' }}><ArrowUpRight size={16} strokeWidth={3} /></div>
+                            <span style={{ color: '#34d399', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Inflow</span>
                         </div>
-
-                        {/* Summary Stats */}
-                        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#34d399' }}>
-                                <ArrowUpRight size={18} aria-hidden="true" />
-                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Inflow</span>
-                            </div>
-                            <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#34d399' }}>₹{dayTotalIncome.toLocaleString()}</div>
-                        </div>
-                        <div style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', padding: '24px', borderRadius: '20px', border: '1px solid #1e293b' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px', color: '#f87171' }}>
-                                <ArrowDownRight size={18} aria-hidden="true" />
-                                <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>Daily Outflow</span>
-                            </div>
-                            <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#f87171' }}>₹{dayTotalExpense.toLocaleString()}</div>
-                        </div>
+                        <div style={{ fontSize: '2rem', fontWeight: '950', color: '#fff' }}>₹{stats.income.toLocaleString()}</div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
 
+                    <div style={{ background: 'linear-gradient(135deg, rgba(244, 63, 94, 0.1) 0%, rgba(244, 63, 94, 0.02) 100%)', padding: '24px', borderRadius: '24px', border: '1px solid rgba(244, 63, 94, 0.2)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', right: '-20px', top: '-20px', color: 'rgba(244, 63, 94, 0.05)' }}><TrendingDown size={120} /></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                            <div style={{ background: '#f43f5e', padding: '6px', borderRadius: '8px', color: '#fff' }}><ArrowDownRight size={16} strokeWidth={3} /></div>
+                            <span style={{ color: '#f87171', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Outflow</span>
+                        </div>
+                        <div style={{ fontSize: '2rem', fontWeight: '950', color: '#fff' }}>₹{stats.expense.toLocaleString()}</div>
+                    </div>
 
+                    <div style={{ background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(30, 41, 59, 0.4) 100%)', padding: '24px', borderRadius: '24px', border: '1px solid rgba(99, 102, 241, 0.2)', position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ position: 'absolute', right: '-20px', top: '-10px', color: 'rgba(99, 102, 241, 0.05)' }}><Wallet size={120} /></div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+                            <div style={{ background: '#6366f1', padding: '6px', borderRadius: '8px', color: '#fff' }}><Layers size={16} /></div>
+                            <span style={{ color: '#a5b4fc', fontWeight: '800', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Net Movement</span>
+                        </div>
+                        <div style={{ fontSize: '2rem', fontWeight: '950', color: '#fff' }}>₹{stats.balance.toLocaleString()}</div>
+                    </div>
+                </div>
 
-                        {/* Timeline Wrapper */}
-                        <div style={{ background: 'rgba(15, 23, 42, 0.3)', borderRadius: '32px', border: '1px solid #1e293b', padding: '32px', flex: 1 }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px', flexWrap: 'wrap', gap: '12px' }}>
-                                <h3 style={{ fontSize: 'clamp(1rem, 2vw, 1.1rem)', fontWeight: '800', margin: 0 }}>{selectedDate.toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' })}</h3>
-                                <span style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: '700' }}>{filteredTransactions.length} RECORD(S) FOUND</span>
+                {/* Main Content Area */}
+                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '32px', alignItems: 'start' }}>
+
+                    {/* Left Sidebar: Filters & Calendar */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'sticky', top: '24px' }}>
+
+                        {/* Search & Basic Filters */}
+                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#6366f1' }}>
+                                <Filter size={18} strokeWidth={2.5} />
+                                <span style={{ fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control Panel</span>
                             </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                                {filteredTransactions.length > 0 ? filteredTransactions.map((tx, idx) => (
-                                    <div key={tx.id} style={{ display: 'flex', gap: '24px', position: 'relative' }}>
-                                        {/* Vertical Timeline Line */}
-                                        <div style={{ width: '2px', background: 'rgba(99, 102, 241, 0.1)', position: 'relative', display: 'flex', justifyContent: 'center' }}>
-                                            <div style={{ width: '12px', height: '12px', borderRadius: '50%', background: tx.type === 'Income' ? '#10b981' : '#f43f5e', position: 'absolute', top: '24px', border: '4px solid #020617', zIndex: 1 }} />
-                                            {idx === filteredTransactions.length - 1 && <div style={{ position: 'absolute', bottom: 0, top: '24px', width: '2px', background: '#020617' }} />}
-                                        </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                <div>
+                                    <div style={{ position: 'relative' }}>
+                                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
+                                        <input
+                                            placeholder="Search ledger..."
+                                            value={searchQuery}
+                                            onChange={e => setSearchQuery(e.target.value)}
+                                            style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px 12px 12px 40px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none', transition: '0.2s' }}
+                                            onFocus={e => e.target.style.borderColor = '#6366f1'}
+                                            onBlur={e => e.target.style.borderColor = '#1e293b'}
+                                        />
+                                    </div>
+                                </div>
 
-                                        {/* Content Card */}
-                                        <div style={{ flex: 1, paddingBottom: '32px', paddingTop: '8px' }}>
-                                            <div style={{
-                                                background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                                                padding: '20px 24px',
-                                                borderRadius: '20px',
-                                                border: '1px solid #1e293b',
-                                                display: 'flex',
-                                                justifyContent: 'space-between',
-                                                alignItems: 'center',
-                                                transition: 'all 0.2s',
-                                                cursor: 'pointer'
-                                            }}
-                                                onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.background = '#1e293b'; }}
-                                                onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.background = 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)'; }}
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Category</label>
+                                    <select
+                                        value={filterCategory}
+                                        onChange={e => setFilterCategory(e.target.value)}
+                                        style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+                                    >
+                                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Account</label>
+                                    <select
+                                        value={filterAccount}
+                                        onChange={e => setFilterAccount(e.target.value === 'All' ? 'All' : parseInt(e.target.value))}
+                                        style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
+                                    >
+                                        <option value="All">All Accounts</option>
+                                        {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Type</label>
+                                    <div style={{ display: 'flex', gap: '4px', padding: '4px', background: '#020617', borderRadius: '12px', border: '1px solid #1e293b' }}>
+                                        {['All', 'Income', 'Expense'].map(type => (
+                                            <button
+                                                key={type}
+                                                onClick={() => setFilterType(type as any)}
+                                                style={{
+                                                    flex: 1, padding: '8px', border: 'none', borderRadius: '8px', fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer', transition: '0.2s',
+                                                    background: filterType === type ? '#6366f1' : 'transparent',
+                                                    color: filterType === type ? '#fff' : '#475569'
+                                                }}
                                             >
-                                                <div>
-                                                    <div style={{ fontWeight: '800', fontSize: '1rem', color: '#fff', marginBottom: '4px' }}>{tx.description}</div>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                                                        <span style={{ fontSize: '0.7rem', fontWeight: '800', textTransform: 'uppercase', color: '#6366f1', background: 'rgba(99, 102, 241, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>{tx.category}</span>
-                                                        <span style={{ fontSize: '0.75rem', color: '#475569', fontWeight: '600' }}>Logged at {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                                                    </div>
-                                                </div>
-                                                <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                                                    <div style={{ fontSize: '1.25rem', fontWeight: '950', color: tx.type === 'Income' ? '#34d399' : '#f87171' }}>
-                                                        {tx.type === 'Income' ? '+' : '-'}₹{tx.amount.toLocaleString()}
-                                                    </div>
-                                                    <div style={{ display: 'flex', gap: '8px' }}>
-                                                        <button
-                                                            onClick={(e) => { e.stopPropagation(); handleEdit(tx); }}
-                                                            style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#64748b', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                            aria-label="Edit transaction"
-                                                        >
-                                                            <Edit3 size={14} />
-                                                        </button>
-                                                        <button
-                                                            onClick={async (e) => {
-                                                                e.stopPropagation();
-                                                                const isConfirmed = await customConfirm({
-                                                                    title: 'Delete Record',
-                                                                    message: 'Are you sure you want to delete this transaction? This cannot be undone.',
-                                                                    type: 'error',
-                                                                    confirmLabel: 'Delete'
-                                                                });
-                                                                if (isConfirmed) {
-                                                                    await deleteTransaction(tx.id);
-                                                                    showNotification('success', 'Transaction deleted');
-                                                                }
-                                                            }}
-                                                            style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '6px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                                                            aria-label="Delete transaction"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                                {type.toUpperCase()}
+                                            </button>
+                                        ))}
                                     </div>
-                                )) : (
-                                    <div style={{ padding: '80px 40px', textAlign: 'center', color: '#475569' }}>
-                                        <div style={{ background: 'rgba(255,255,255,0.02)', width: '64px', height: '64px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px' }}>
-                                            <Book size={32} opacity={0.2} />
-                                        </div>
-                                        <h4 style={{ color: '#f8fafc', margin: '0 0 8px 0' }}>No Audit Records</h4>
-                                        <p style={{ fontSize: '0.9rem', margin: 0 }}>This timeline is clean. Select another date or add a new record.</p>
-                                    </div>
+                                </div>
+
+                                {selectedDate && (
+                                    <button
+                                        onClick={() => setSelectedDate(null)}
+                                        style={{ width: '100%', background: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', border: '1px dashed rgba(244, 63, 94, 0.3)', padding: '12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                    >
+                                        <X size={14} /> CLEAR DATE FILTER
+                                    </button>
                                 )}
                             </div>
                         </div>
+
+                        {/* Calendar Component */}
+                        <div style={{ background: '#0f172a', padding: '20px', borderRadius: '24px', border: '1px solid #1e293b', width: '100%' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#818cf8' }}>
+                                <CalendarIcon size={16} strokeWidth={2.5} />
+                                <span style={{ fontWeight: '900', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Temporal Matrix</span>
+                            </div>
+                            <style>{`
+                                .custom-calendar {
+                                    width: 100% !important;
+                                    background: transparent !important;
+                                    border: none !important;
+                                    color: #cbd5e1 !important;
+                                }
+                                .custom-calendar .react-calendar__tile { 
+                                    padding: 12px 0 !important; 
+                                    font-size: 0.75rem !important;
+                                    font-weight: 700 !important;
+                                    border-radius: 8px !important;
+                                }
+                                .custom-calendar .react-calendar__tile--now { 
+                                    background: rgba(99, 102, 241, 0.1) !important; 
+                                    color: #818cf8 !important; 
+                                }
+                                .custom-calendar .react-calendar__tile--active { 
+                                    background: #6366f1 !important; 
+                                    color: white !important; 
+                                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+                                }
+                                .custom-calendar .react-calendar__navigation button { 
+                                    color: #f8fafc !important; 
+                                    font-weight: 800 !important;
+                                    border-radius: 8px;
+                                }
+                                .custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
+                                    text-decoration: none !important;
+                                    color: #475569 !important;
+                                    font-weight: 950 !important;
+                                    font-size: 0.65rem;
+                                }
+                            `}</style>
+                            <Calendar
+                                onChange={(val) => setSelectedDate(val as Date)}
+                                value={selectedDate}
+                                className="custom-calendar"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Right Side: Timeline of Transactions */}
+                    <div style={{ minWidth: 0 }}>
+                        {groupedTransactions.length > 0 ? (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
+                                {groupedTransactions.map(([dateString, group]) => {
+                                    const dateObj = new Date(dateString);
+                                    const isToday = new Date().toISOString().split('T')[0] === dateString;
+
+                                    return (
+                                        <div key={dateString}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '20px', position: 'sticky', top: '0', zIndex: 10, background: 'rgba(2, 6, 23, 0.8)', backdropFilter: 'blur(12px)', padding: '10px 0' }}>
+                                                <div style={{ background: isToday ? '#6366f1' : '#1e293b', color: '#fff', padding: '6px 16px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: '900', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                                    {isToday ? 'Today' : dateObj.toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}
+                                                </div>
+                                                <div style={{ height: '1px', flex: 1, background: 'linear-gradient(to right, #1e293b, transparent)' }}></div>
+                                                <div style={{ fontSize: '0.75rem', fontWeight: '800', color: '#475569' }}>
+                                                    {group.length} {group.length === 1 ? 'RECORD' : 'RECORDS'}
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                                {group.map((tx) => (
+                                                    <div
+                                                        key={tx.id}
+                                                        onClick={() => handleEdit(tx)}
+                                                        style={{
+                                                            background: '#0f172a',
+                                                            padding: '20px 24px',
+                                                            borderRadius: '20px',
+                                                            border: '1px solid #1e293b',
+                                                            display: 'flex',
+                                                            justifyContent: 'space-between',
+                                                            alignItems: 'center',
+                                                            cursor: 'pointer',
+                                                            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                                                            position: 'relative',
+                                                            overflow: 'hidden'
+                                                        }}
+                                                        onMouseEnter={e => { e.currentTarget.style.borderColor = '#334155'; e.currentTarget.style.transform = 'translateX(4px)'; e.currentTarget.style.background = '#131c31'; }}
+                                                        onMouseLeave={e => { e.currentTarget.style.borderColor = '#1e293b'; e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.background = '#0f172a'; }}
+                                                    >
+                                                        {/* Color side indicator */}
+                                                        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: '4px', background: tx.type === 'Income' ? '#10b981' : '#f43f5e' }}></div>
+
+                                                        <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+                                                            <div style={{
+                                                                width: '48px', height: '48px', borderRadius: '14px', background: tx.type === 'Income' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(244, 63, 94, 0.1)',
+                                                                display: 'flex', alignItems: 'center', justifyContent: 'center', color: tx.type === 'Income' ? '#10b981' : '#f43f5e'
+                                                            }}>
+                                                                {tx.type === 'Income' ? <ArrowUpRight size={20} strokeWidth={2.5} /> : <ArrowDownRight size={20} strokeWidth={2.5} />}
+                                                            </div>
+                                                            <div>
+                                                                <div style={{ fontWeight: '800', fontSize: '1.05rem', color: '#fff', marginBottom: '4px' }}>{tx.description}</div>
+                                                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                                                    <span style={{ fontSize: '0.65rem', fontWeight: '900', textTransform: 'uppercase', color: '#6366f1', background: 'rgba(99, 102, 241, 0.1)', padding: '2px 8px', borderRadius: '6px', letterSpacing: '0.5px' }}>
+                                                                        <Tag size={10} style={{ marginRight: '4px', verticalAlign: 'middle' }} /> {tx.category}
+                                                                    </span>
+                                                                    {getAccountName(tx.accountId) && (
+                                                                        <span style={{ fontSize: '0.75rem', color: '#475569', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                                            <Wallet size={12} /> {getAccountName(tx.accountId)}
+                                                                        </span>
+                                                                    )}
+                                                                    {/* Detect Source (Automated entries usually have keywords) */}
+                                                                    {['Stock', 'MF:', 'FnO', 'Bond:', 'Forex'].some(key => tx.description.includes(key)) && (
+                                                                        <span style={{ fontSize: '0.65rem', fontWeight: '900', color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', padding: '2px 8px', borderRadius: '6px' }}>SYSTEM LOG</span>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '24px' }}>
+                                                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end' }}>
+                                                                <div style={{ fontSize: '1.25rem', fontWeight: '950', color: tx.type === 'Income' ? '#10b981' : '#f43f5e' }}>
+                                                                    {tx.type === 'Income' ? '+' : '-'}₹{tx.amount.toLocaleString()}
+                                                                </div>
+                                                                <div style={{ fontSize: '0.7rem', color: '#475569', fontWeight: '600', textTransform: 'uppercase', marginTop: '2px' }}>
+                                                                    <Clock size={10} style={{ marginRight: '4px', verticalAlign: 'baseline' }} /> Verified
+                                                                </div>
+                                                            </div>
+                                                            <div style={{ display: 'flex', gap: '8px' }}>
+                                                                <button
+                                                                    onClick={(e) => { e.stopPropagation(); handleEdit(tx); }}
+                                                                    style={{ background: 'rgba(51, 65, 85, 0.4)', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '10px', borderRadius: '12px', display: 'flex', transition: '0.2s' }}
+                                                                    onMouseEnter={e => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = '#334155'; }}
+                                                                    onMouseLeave={e => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.background = 'rgba(51, 65, 85, 0.4)'; }}
+                                                                >
+                                                                    <Edit3 size={16} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={async (e) => {
+                                                                        e.stopPropagation();
+                                                                        const isConfirmed = await customConfirm({
+                                                                            title: 'Purge Record?',
+                                                                            message: 'This ledger entry will be permanently erased. Proceed with caution.',
+                                                                            type: 'error',
+                                                                            confirmLabel: 'Erase'
+                                                                        });
+                                                                        if (isConfirmed) {
+                                                                            await deleteTransaction(tx.id);
+                                                                            showNotification('success', 'Entry purged from ledger');
+                                                                        }
+                                                                    }}
+                                                                    style={{ background: 'rgba(244, 63, 94, 0.1)', border: 'none', color: '#f43f5e', cursor: 'pointer', padding: '10px', borderRadius: '12px', display: 'flex', transition: '0.2s' }}
+                                                                    onMouseEnter={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)'; }}
+                                                                    onMouseLeave={e => { e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)'; }}
+                                                                >
+                                                                    <Trash2 size={16} />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div style={{ padding: '100px 40px', textAlign: 'center', background: 'rgba(15, 23, 42, 0.3)', borderRadius: '32px', border: '1px dashed #1e293b' }}>
+                                <div style={{ background: 'rgba(99, 102, 241, 0.05)', width: '80px', height: '80px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 24px', color: '#475569' }}>
+                                    <Layers size={40} opacity={0.3} />
+                                </div>
+                                <h3 style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff', margin: '0 0 12px 0' }}>Zero Movements Detected</h3>
+                                <p style={{ color: '#64748b', maxWidth: '300px', margin: '0 auto 24px', lineHeight: '1.6' }}>No records match your current filter parameters. Try adjusting your search or matrix view.</p>
+                                <button
+                                    onClick={() => { setSearchQuery(''); setFilterCategory('All'); setFilterAccount('All'); setFilterType('All'); setSelectedDate(null); }}
+                                    style={{ background: '#1e293b', border: 'none', color: '#fff', padding: '12px 24px', borderRadius: '12px', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', margin: '0 auto' }}
+                                >
+                                    Reset Filters <ArrowRight size={16} />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
-
             </div>
 
-            {/* Modal - Unified Design */}
+            {/* Entry Modal */}
             {isModalOpen && (
-                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(10px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
-                    <div style={{ background: '#0f172a', padding: 'clamp(24px, 5vw, 40px)', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '500px', maxHeight: '90vh', overflowY: 'auto' }}>
+                <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(12px)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '20px' }}>
+                    <div style={{ background: '#0f172a', padding: '40px', borderRadius: '32px', border: '1px solid #334155', width: '100%', maxWidth: '540px', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '32px' }}>
-                            <h2 style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', margin: 0 }}>{editId ? 'Modify Record' : 'Manual Entry'}</h2>
-                            <button onClick={() => setIsModalOpen(false)} aria-label="Close modal" style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={20} /></button>
+                            <h2 style={{ fontSize: '1.75rem', fontWeight: '950', margin: 0, letterSpacing: '-0.02em' }}>{editId ? 'Edit Entry' : 'New Ledger Record'}</h2>
+                            <button onClick={() => setIsModalOpen(false)} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', color: '#94a3b8', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><X size={24} /></button>
                         </div>
-                        <form onSubmit={handleAddTransaction} aria-label="Add transaction form" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '16px' }}>
+
+                        <form onSubmit={handleAddTransaction} style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Entry Type</label>
-                                    <div style={{ display: 'flex', gap: '8px', background: '#020617', padding: '4px', borderRadius: '12px', border: '1px solid #1e293b' }}>
-                                        <button type="button" onClick={() => setType('Expense')} aria-pressed={type === 'Expense'} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Expense' ? '#f43f5e' : 'transparent', color: type === 'Expense' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>EXPENSE</button>
-                                        <button type="button" onClick={() => setType('Income')} aria-pressed={type === 'Income'} style={{ flex: 1, padding: '10px', borderRadius: '10px', border: 'none', background: type === 'Income' ? '#10b981' : 'transparent', color: type === 'Income' ? '#fff' : '#64748b', fontWeight: '800', fontSize: '0.75rem', cursor: 'pointer', transition: '0.2s' }}>INCOME</button>
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Operation Type</label>
+                                    <div style={{ display: 'flex', gap: '4px', background: '#020617', padding: '4px', borderRadius: '12px', border: '1px solid #1e293b' }}>
+                                        <button type="button" onClick={() => setType('Expense')} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: type === 'Expense' ? '#f43f5e' : 'transparent', color: type === 'Expense' ? '#fff' : '#475569', fontWeight: '950', fontSize: '0.7rem', cursor: 'pointer' }}>EXPENSE</button>
+                                        <button type="button" onClick={() => setType('Income')} style={{ flex: 1, padding: '12px', borderRadius: '10px', border: 'none', background: type === 'Income' ? '#10b981' : 'transparent', color: type === 'Income' ? '#fff' : '#475569', fontWeight: '950', fontSize: '0.7rem', cursor: 'pointer' }}>INCOME</button>
                                     </div>
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Date</label>
-                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} aria-label="Transaction date" style={{ background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Date</label>
+                                    <input type="date" value={date} onChange={e => setDate(e.target.value)} style={{ background: '#020617', border: '1px solid #1e293b', padding: '14px', borderRadius: '12px', color: '#fff', fontSize: '0.95rem', outline: 'none' }} />
                                 </div>
                             </div>
+
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Description</label>
-                                <input value={description} onChange={e => setDescription(e.target.value)} placeholder="What was this for?" aria-label="Transaction description" required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                <label style={{ fontSize: '0.7rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Description</label>
+                                <input placeholder="e.g. Monthly Rent Payment" value={description} onChange={e => setDescription(e.target.value)} required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', width: '100%' }} />
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 150px), 1fr))', gap: '16px' }}>
+
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Category</label>
-                                    <input value={category} onChange={e => setCategory(e.target.value)} placeholder="e.g. Food" aria-label="Transaction category" required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Category</label>
+                                    <input placeholder="Food, Rent, etc." value={category} onChange={e => setCategory(e.target.value)} required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
                                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                                    <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#94a3b8', textTransform: 'uppercase' }}>Amount (₹)</label>
-                                    <input type="number" value={amount} onChange={e => setAmount(e.target.value)} placeholder="0.00" aria-label="Transaction amount" required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
+                                    <label style={{ fontSize: '0.7rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Amount (₹)</label>
+                                    <input type="number" placeholder="0.00" value={amount} onChange={e => setAmount(e.target.value)} required style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none' }} />
                                 </div>
                             </div>
-                            <button type="submit" aria-label="Submit transaction" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '18px', borderRadius: '18px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1rem' }}>{editId ? 'Update Record' : 'Commit Transaction'}</button>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                <label style={{ fontSize: '0.7rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Source Account</label>
+                                <select
+                                    value={accountId}
+                                    onChange={e => setAccountId(e.target.value)}
+                                    style={{ background: '#020617', border: '1px solid #1e293b', padding: '16px', borderRadius: '16px', color: '#fff', fontSize: '1rem', outline: 'none', cursor: 'pointer' }}
+                                >
+                                    <option value="">No Account Linked</option>
+                                    {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
+                                </select>
+                            </div>
+
+                            <button type="submit" style={{ marginTop: '12px', background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)', color: '#fff', padding: '20px', borderRadius: '20px', border: 'none', fontWeight: '900', cursor: 'pointer', fontSize: '1.1rem', boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)', transition: '0.2s' }} onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-2px)'} onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}>
+                                {editId ? 'Commit Changes' : 'Record Transaction'}
+                            </button>
                         </form>
                     </div>
                 </div>
