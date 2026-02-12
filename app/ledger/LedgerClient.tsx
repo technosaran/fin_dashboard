@@ -232,91 +232,16 @@ export default function LedgerClient() {
                 </div>
 
                 {/* Main Content Area */}
-                <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: '32px', alignItems: 'start' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 320px) 1fr', gap: '32px', alignItems: 'start' }}>
 
-                    {/* Left Sidebar: Filters & Calendar */}
+                    {/* Left Sidebar: Calendar */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', position: 'sticky', top: '24px' }}>
 
-                        {/* Search & Basic Filters */}
-                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#6366f1' }}>
-                                <Filter size={18} strokeWidth={2.5} />
-                                <span style={{ fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Control Panel</span>
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                <div>
-                                    <div style={{ position: 'relative' }}>
-                                        <Search size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#475569' }} />
-                                        <input
-                                            placeholder="Search ledger..."
-                                            value={searchQuery}
-                                            onChange={e => setSearchQuery(e.target.value)}
-                                            style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px 12px 12px 40px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none', transition: '0.2s' }}
-                                            onFocus={e => e.target.style.borderColor = '#6366f1'}
-                                            onBlur={e => e.target.style.borderColor = '#1e293b'}
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Category</label>
-                                    <select
-                                        value={filterCategory}
-                                        onChange={e => setFilterCategory(e.target.value)}
-                                        style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
-                                    >
-                                        {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Account</label>
-                                    <select
-                                        value={filterAccount}
-                                        onChange={e => setFilterAccount(e.target.value === 'All' ? 'All' : parseInt(e.target.value))}
-                                        style={{ width: '100%', background: '#020617', border: '1px solid #1e293b', padding: '12px', borderRadius: '12px', color: '#fff', fontSize: '0.9rem', outline: 'none', cursor: 'pointer' }}
-                                    >
-                                        <option value="All">All Accounts</option>
-                                        {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name}</option>)}
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label style={{ display: 'block', fontSize: '0.65rem', fontWeight: '900', color: '#475569', textTransform: 'uppercase', marginBottom: '8px', letterSpacing: '1px' }}>Type</label>
-                                    <div style={{ display: 'flex', gap: '4px', padding: '4px', background: '#020617', borderRadius: '12px', border: '1px solid #1e293b' }}>
-                                        {['All', 'Income', 'Expense'].map(type => (
-                                            <button
-                                                key={type}
-                                                onClick={() => setFilterType(type as any)}
-                                                style={{
-                                                    flex: 1, padding: '8px', border: 'none', borderRadius: '8px', fontSize: '0.7rem', fontWeight: '800', cursor: 'pointer', transition: '0.2s',
-                                                    background: filterType === type ? '#6366f1' : 'transparent',
-                                                    color: filterType === type ? '#fff' : '#475569'
-                                                }}
-                                            >
-                                                {type.toUpperCase()}
-                                            </button>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {selectedDate && (
-                                    <button
-                                        onClick={() => setSelectedDate(null)}
-                                        style={{ width: '100%', background: 'rgba(244, 63, 94, 0.1)', color: '#f43f5e', border: '1px dashed rgba(244, 63, 94, 0.3)', padding: '12px', borderRadius: '12px', fontSize: '0.75rem', fontWeight: '800', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                                    >
-                                        <X size={14} /> CLEAR DATE FILTER
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-
                         {/* Calendar Component */}
-                        <div style={{ background: '#0f172a', padding: '20px', borderRadius: '24px', border: '1px solid #1e293b', width: '100%' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px', color: '#818cf8' }}>
-                                <CalendarIcon size={16} strokeWidth={2.5} />
-                                <span style={{ fontWeight: '900', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Temporal Matrix</span>
+                        <div style={{ background: '#0f172a', padding: '24px', borderRadius: '24px', border: '1px solid #1e293b', width: '100%' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '20px', color: '#818cf8' }}>
+                                <CalendarIcon size={18} strokeWidth={2.5} />
+                                <span style={{ fontWeight: '900', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Temporal Matrix</span>
                             </div>
                             <style>{`
                                 .custom-calendar {
@@ -324,32 +249,48 @@ export default function LedgerClient() {
                                     background: transparent !important;
                                     border: none !important;
                                     color: #cbd5e1 !important;
+                                    font-family: inherit !important;
                                 }
                                 .custom-calendar .react-calendar__tile { 
                                     padding: 12px 0 !important; 
-                                    font-size: 0.75rem !important;
+                                    font-size: 0.85rem !important;
                                     font-weight: 700 !important;
-                                    border-radius: 8px !important;
+                                    border-radius: 12px !important;
+                                    color: #cbd5e1 !important;
+                                    transition: all 0.2s;
+                                }
+                                .custom-calendar .react-calendar__tile:hover {
+                                    background: rgba(255, 255, 255, 0.05) !important;
+                                }
+                                /* Remove red color for weekends */
+                                .custom-calendar .react-calendar__month-view__days__day--weekend {
+                                    color: #cbd5e1 !important;
                                 }
                                 .custom-calendar .react-calendar__tile--now { 
                                     background: rgba(99, 102, 241, 0.1) !important; 
                                     color: #818cf8 !important; 
+                                    font-weight: 900 !important;
                                 }
                                 .custom-calendar .react-calendar__tile--active { 
                                     background: #6366f1 !important; 
                                     color: white !important; 
-                                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+                                    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
                                 }
                                 .custom-calendar .react-calendar__navigation button { 
                                     color: #f8fafc !important; 
                                     font-weight: 800 !important;
-                                    border-radius: 8px;
+                                    border-radius: 10px;
+                                    font-size: 1rem;
+                                }
+                                .custom-calendar .react-calendar__navigation button:hover {
+                                    background: rgba(255, 255, 255, 0.05) !important;
                                 }
                                 .custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
                                     text-decoration: none !important;
                                     color: #475569 !important;
                                     font-weight: 950 !important;
-                                    font-size: 0.65rem;
+                                    font-size: 0.7rem;
+                                    text-transform: uppercase;
                                 }
                             `}</style>
                             <Calendar
@@ -357,6 +298,32 @@ export default function LedgerClient() {
                                 value={selectedDate}
                                 className="custom-calendar"
                             />
+                            {selectedDate && (
+                                <button
+                                    onClick={() => setSelectedDate(null)}
+                                    style={{
+                                        width: '100%',
+                                        marginTop: '20px',
+                                        background: 'rgba(244, 63, 94, 0.1)',
+                                        color: '#f43f5e',
+                                        border: '1px solid rgba(244, 63, 94, 0.2)',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        fontSize: '0.75rem',
+                                        fontWeight: '800',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        transition: '0.2s'
+                                    }}
+                                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(244, 63, 94, 0.15)'}
+                                    onMouseLeave={e => e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)'}
+                                >
+                                    <X size={14} /> RESET DATE VIEW
+                                </button>
+                            )}
                         </div>
                     </div>
 
