@@ -1123,14 +1123,50 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 console.error('Failed to refresh MF NAVs:', err);
             }
 
-            // 3. Bonds - Sync with DB
+            // 3. Bonds - Live Fetching
             try {
-                const { data: latestBondData } = await (supabase as ExtendedSupabaseClient).from('bonds').select('*');
-                if (latestBondData) {
-                    setBonds(latestBondData.map(dbBondToBond));
+                const bondIsins = [...new Set(bonds.map(b => b.isin))].filter((isin): isin is string => !!isin);
+                if (bondIsins.length > 0) {
+                    const res = await fetch(`/api/bonds/batch?isins=${bondIsins.join(',')}`);
+                    const data = await res.json();
+                    if (data.success && data.data) {
+                        const updates = data.data;
+                        const updatedBonds = bonds.map(bond => {
+                            if (!bond.isin) return bond;
+                            const update = updates[bond.isin];
+                            if (update) {
+                                // For bonds, we update currentPrice which might be a multiplier of face value
+                                // or the actual trading price. The batch API returns currentPriceMultiplier.
+                                const currentPrice = bond.faceValue * update.currentPriceMultiplier;
+                                const currentValue = bond.quantity * currentPrice;
+                                const pnl = currentValue - bond.investmentAmount;
+                                const pnlPercentage = (pnl / bond.investmentAmount) * 100;
+
+                                // Persist to DB
+                                (supabase as ExtendedSupabaseClient).from('bonds').update({
+                                    current_price: currentPrice,
+                                    current_value: currentValue,
+                                    pnl: pnl,
+                                    pnl_percentage: pnlPercentage
+                                }).eq('id', bond.id).then(({ error: dbError }: { error: any }) => {
+                                    if (dbError) console.error('Failed to persist bond price', dbError);
+                                });
+
+                                return {
+                                    ...bond,
+                                    currentPrice,
+                                    currentValue,
+                                    pnl,
+                                    pnlPercentage
+                                };
+                            }
+                            return bond;
+                        });
+                        setBonds(updatedBonds);
+                    }
                 }
             } catch (err) {
-                console.error('Failed to refresh bonds:', err);
+                console.error('Failed to refresh bond prices:', err);
             }
 
             setLoading(false);
@@ -1152,6 +1188,26 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         settings, updateSettings, loading, error, refreshPortfolio,
         isTransactionModalOpen, setIsTransactionModalOpen
     ]);
+
+    // Automatic Live Price Refresh (every 5 minutes)
+    useEffect(() => {
+        // Initial refresh after data loads
+        if (!loading && (stocks.length > 0 || mutualFunds.length > 0 || (settings.bondsEnabled && bonds.length > 0))) {
+            const timeout = setTimeout(() => {
+                value.refreshLivePrices();
+            }, 1000); // 1s delay to let everything settle
+            return () => clearTimeout(timeout);
+        }
+    }, [loading === false]); // Only trigger once after loading finishes
+
+    // Periodic refresh
+    useEffect(() => {
+        const intervalId = setInterval(() => {
+            if (user) value.refreshLivePrices();
+        }, 300000); // 5 minutes
+
+        return () => clearInterval(intervalId);
+    }, [user, value]);
 
     return (
         <FinanceContext.Provider value={value}>

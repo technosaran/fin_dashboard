@@ -7,23 +7,34 @@ A modern financial dashboard built with Next.js and Supabase.
 - **Account Management**: Track multiple bank accounts, wallets, and investment accounts
 - **Transaction Tracking**: Log income and expenses with detailed categorization
 - **Goal Setting**: Set and track financial goals with progress monitoring
+- **Stocks & Mutual Funds**: Real-time market data integration with Yahoo Finance and MFAPI
+- **Bonds & F&O**: Fixed income tracking and futures/options trading logs
+- **Automatic Refresh**: Live price updates every 5 minutes for investment portfolios
 - **Real-time Data**: All data is stored in Supabase and synced in real-time
 - **Modern UI**: Clean, professional interface with dark theme
 
+## Documentation
+
+For a detailed deep-dive into the project architecture, features, and API integrations, please refer to:
+👉 **[DOCUMENTATION.md](./DOCUMENTATION.md)**
+
 ## Tech Stack
 
-- **Frontend**: Next.js 16, React 19, TypeScript
-- **Backend**: Supabase (PostgreSQL database, authentication, real-time subscriptions)
-- **Styling**: Custom CSS with modern design patterns
-- **Charts**: Recharts for data visualization
+- **Frontend**: Next.js (App Router), React, TypeScript
+- **Backend**: Supabase (PostgreSQL, Auth, Storage)
+- **Styling**: Vanilla CSS (Premium Aesthetics)
+- **Charts**: Recharts
+- **Market APIs**: Yahoo Finance, MFAPI.in
 
 ## Database Schema
 
 The application uses the following main tables:
-- `accounts` - Bank accounts, wallets, and financial entities
-- `transactions` - Income and expense records
-- `goals` - Financial goals and targets
-- `family_transfers` - Family money transfers
+- `accounts`, `transactions`, `goals`, `family_transfers`
+- `stocks`, `stock_transactions`, `watchlist`
+- `mutual_funds`, `mutual_fund_transactions`
+- `bonds`, `bond_transactions`
+- `fno_trades`, `forex_transactions`
+- `app_settings`
 
 ## Getting Started
 
