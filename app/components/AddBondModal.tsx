@@ -322,7 +322,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                                 onClick={() => {
                                     if (manualForm.name && manualForm.coupon) {
                                         // Transition to confirmation state basically
-                                        handleSubmit(new Event('submit') as React.FormEvent);
+                                        handleSubmit(new Event('submit') as unknown as React.FormEvent);
                                     } else {
                                         showNotification('error', 'Please fill required fields');
                                     }

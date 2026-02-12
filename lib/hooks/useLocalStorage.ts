@@ -27,7 +27,7 @@ export function useLocalStorage<T>(
     (value: T | ((val: T) => T)) => {
       try {
         // Allow value to be a function so we have same API as useState
-        const valueToStore = value instanceof Function ? value(storedValue) : value;
+        const valueToStore = typeof value === 'function' ? (value as (val: T) => T)(storedValue) : value;
         
         setStoredValue(valueToStore);
         
