@@ -67,10 +67,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const [bondTransactions, setBondTransactions] = useState<BondTransaction[]>([]);
     const [forexTransactions, setForexTransactions] = useState<ForexTransaction[]>([]);
     const [settings, setSettings] = useState<AppSettings>({
-        brokerageType: 'percentage',
+        brokerageType: 'flat',
         brokerageValue: 0,
         sttRate: 0.1,
-        transactionChargeRate: 0.00345,
+        transactionChargeRate: 0.00297,
         sebiChargeRate: 0.0001,
         stampDutyRate: 0.015,
         gstRate: 18,
@@ -96,6 +96,42 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const { data, error } = await supabase.from('accounts').select('*');
         if (error) logError('Error refreshing accounts:', error);
         else setAccounts(data.map(dbAccountToAccount));
+    }, []);
+
+    // Refresh transactions (ledger) - called after investment ops since DB triggers create ledger entries
+    const refreshTransactions = useCallback(async () => {
+        const { data, error } = await supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100);
+        if (error) logError('Error refreshing transactions:', error);
+        else setTransactions(data.map(dbTransactionToTransaction));
+    }, []);
+
+    const refreshPortfolio = useCallback(async () => {
+        setLoading(true);
+        try {
+            // Reload all portfolio data from Supabase
+            const [
+                { data: stockData },
+                { data: mfData },
+                { data: bondData },
+                { data: fnoData }
+            ] = await Promise.all([
+                supabase.from('stocks').select('*'),
+                supabase.from('mutual_funds').select('*'),
+                (supabase as ExtendedSupabaseClient).from('bonds').select('*'),
+                (supabase as ExtendedSupabaseClient).from('fno_trades').select('*')
+            ]);
+
+            if (stockData) setStocks(stockData.map(dbStockToStock));
+            if (mfData) setMutualFunds(mfData.map(dbMutualFundToMutualFund));
+            if (bondData) setBonds(bondData.map(dbBondToBond));
+            if (fnoData) setFnoTrades(fnoData.map(dbFnoTradeToFnoTrade));
+
+            logInfo('Portfolio refreshed successfully');
+        } catch (err) {
+            logError('Error refreshing portfolio:', err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
     const addTransaction = useCallback(async (transactionData: Omit<Transaction, 'id'>) => {
@@ -370,7 +406,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         setStockTransactions(prev => [dbStockTransactionToStockTransaction(data), ...prev]);
-    }, []);
+        // DB trigger creates ledger entry + updates account balance + updates stock holdings
+        refreshAccounts();
+        refreshTransactions();
+        refreshPortfolio();
+    }, [refreshAccounts, refreshTransactions, refreshPortfolio]);
 
     const deleteStockTransaction = useCallback(async (id: number) => {
         const { error } = await (supabase as ExtendedSupabaseClient)
@@ -481,7 +521,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         setMutualFundTransactions(prev => [dbMutualFundTransactionToMutualFundTransaction(data), ...prev]);
-    }, []);
+        // DB trigger creates ledger entry + updates account balance + updates mf holdings
+        refreshAccounts();
+        refreshTransactions();
+        refreshPortfolio();
+    }, [refreshAccounts, refreshTransactions, refreshPortfolio]);
 
     const deleteMutualFundTransaction = useCallback(async (id: number) => {
         const { error } = await (supabase as ExtendedSupabaseClient)
@@ -525,7 +569,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         setFnoTrades(prev => [dbFnoTradeToFnoTrade(data), ...prev]);
-    }, []);
+        // DB trigger creates ledger entry + updates account balance
+        refreshAccounts();
+        refreshTransactions();
+        refreshPortfolio();
+    }, [refreshAccounts, refreshTransactions, refreshPortfolio]);
 
     const updateFnoTrade = useCallback(async (id: number, trade: Partial<FnoTrade>) => {
         const { error } = await (supabase as ExtendedSupabaseClient)
@@ -552,7 +600,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         setFnoTrades(prev => prev.map(t => t.id === id ? { ...t, ...trade } : t));
-    }, []);
+        // DB trigger fires on OPEN→CLOSED status change: creates ledger entry + updates balance
+        if (trade.status === 'CLOSED') {
+            refreshAccounts();
+            refreshTransactions();
+            refreshPortfolio();
+        }
+    }, [refreshAccounts, refreshTransactions, refreshPortfolio]);
 
     const deleteFnoTrade = useCallback(async (id: number) => {
         const { error } = await (supabase as ExtendedSupabaseClient)
@@ -667,7 +721,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         }
 
         setBondTransactions(prev => [dbBondTransactionToBondTransaction(data), ...prev]);
-    }, []);
+        // Refresh accounts for balance sync (bond transactions may have account_id)
+        refreshAccounts();
+        refreshTransactions();
+        refreshPortfolio();
+    }, [refreshAccounts, refreshTransactions, refreshPortfolio]);
 
     const deleteBondTransaction = useCallback(async (id: number) => {
         const { error } = await (supabase as ExtendedSupabaseClient)
@@ -865,34 +923,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // --- REFRESH ---
 
-    const refreshPortfolio = useCallback(async () => {
-        setLoading(true);
-        try {
-            // Reload all portfolio data from Supabase
-            const [
-                { data: stockData },
-                { data: mfData },
-                { data: bondData },
-                { data: fnoData }
-            ] = await Promise.all([
-                supabase.from('stocks').select('*'),
-                supabase.from('mutual_funds').select('*'),
-                (supabase as ExtendedSupabaseClient).from('bonds').select('*'),
-                (supabase as ExtendedSupabaseClient).from('fno_trades').select('*')
-            ]);
-
-            if (stockData) setStocks(stockData.map(dbStockToStock));
-            if (mfData) setMutualFunds(mfData.map(dbMutualFundToMutualFund));
-            if (bondData) setBonds(bondData.map(dbBondToBond));
-            if (fnoData) setFnoTrades(fnoData.map(dbFnoTradeToFnoTrade));
-
-            logInfo('Portfolio refreshed successfully');
-        } catch (err) {
-            logError('Error refreshing portfolio:', err);
-        } finally {
-            setLoading(false);
-        }
-    }, []);
 
     // Initial Load
     useEffect(() => {
@@ -912,7 +942,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     { data: bondData },
                     { data: goalData },
                     { data: familyData },
-                    { data: fnoData }
+                    { data: fnoData },
+                    { data: stockTxData },
+                    { data: mfTxData },
+                    { data: bondTxData },
+                    { data: forexTxData }
                 ] = await Promise.all([
                     supabase.from('accounts').select('*').order('name'),
                     supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100),
@@ -922,7 +956,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     (supabase as ExtendedSupabaseClient).from('bonds').select('*'),
                     supabase.from('goals').select('*'),
                     supabase.from('family_transfers').select('*'),
-                    (supabase as ExtendedSupabaseClient).from('fno_trades').select('*')
+                    (supabase as ExtendedSupabaseClient).from('fno_trades').select('*'),
+                    (supabase as ExtendedSupabaseClient).from('stock_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('mutual_fund_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('bond_transactions').select('*').order('transaction_date', { ascending: false }),
+                    (supabase as ExtendedSupabaseClient).from('forex_transactions').select('*').order('date', { ascending: false })
                 ]);
 
                 if (accData) setAccounts(accData.map(dbAccountToAccount));
@@ -934,6 +972,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 if (goalData) setGoals(goalData.map(dbGoalToGoal));
                 if (familyData) setFamilyTransfers(familyData.map(dbFamilyTransferToFamilyTransfer));
                 if (fnoData) setFnoTrades(fnoData.map(dbFnoTradeToFnoTrade));
+                if (stockTxData) setStockTransactions(stockTxData.map(dbStockTransactionToStockTransaction));
+                if (mfTxData) setMutualFundTransactions(mfTxData.map(dbMutualFundTransactionToMutualFundTransaction));
+                if (bondTxData) setBondTransactions(bondTxData.map(dbBondTransactionToBondTransaction));
+                if (forexTxData) setForexTransactions(forexTxData.map(dbForexTransactionToForexTransaction));
 
                 setLoading(false);
             } catch (err) {

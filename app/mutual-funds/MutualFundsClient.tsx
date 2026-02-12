@@ -89,8 +89,13 @@ export default function MutualFundsClient() {
     const totalBuys = mutualFundTransactions.filter((t: MutualFundTransaction) => t.transactionType === 'BUY' || t.transactionType === 'SIP').reduce((sum: number, t: MutualFundTransaction) => sum + t.totalAmount, 0);
     const totalSells = mutualFundTransactions.filter((t: MutualFundTransaction) => t.transactionType === 'SELL').reduce((sum: number, t: MutualFundTransaction) => sum + t.totalAmount, 0);
 
-    // Lifetime Earned = (Total Sells + Current Value) - Total Buys
-    const lifetimeEarned = (totalSells + totalCurrentValue) - totalBuys;
+    // MF stamp duty: 0.005% on purchase/SIP amounts
+    const totalMfCharges = mutualFundTransactions
+        .filter((t: MutualFundTransaction) => t.transactionType === 'BUY' || t.transactionType === 'SIP')
+        .reduce((sum: number, t: MutualFundTransaction) => sum + (t.totalAmount * 0.00005), 0);
+
+    // Lifetime Earned = (Total Sells + Current Value) - (Total Buys + Charges)
+    const lifetimeEarned = (totalSells + totalCurrentValue) - (totalBuys + totalMfCharges);
     const lifetimeReturnPercentage = totalBuys > 0 ? (lifetimeEarned / totalBuys) * 100 : 0;
 
     const handleManualRefresh = async () => {

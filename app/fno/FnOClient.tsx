@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { useFinance } from '../components/FinanceContext';
 import { FnoTrade } from '@/lib/types';
+import { calculateFnoCharges } from '@/lib/utils/charges';
 import { useNotifications } from '../components/NotificationContext';
 import {
     Plus,
@@ -28,7 +29,7 @@ import {
 } from 'recharts';
 
 export default function FnOClient() {
-    const { fnoTrades, addFnoTrade, updateFnoTrade, deleteFnoTrade, loading, accounts } = useFinance();
+    const { fnoTrades, addFnoTrade, updateFnoTrade, deleteFnoTrade, loading, accounts, settings } = useFinance();
     const { showNotification, confirm: customConfirm } = useNotifications();
 
     const [activeTab, setActiveTab] = useState<'positions' | 'history' | 'lifetime'>('positions');
@@ -81,8 +82,16 @@ export default function FnOClient() {
 
         // Simple P&L: (Exit - Entry) * Qty for BUY, (Entry - Exit) * Qty for SELL
         let pnl = 0;
+        let totalCharges = 0;
         if (status === 'CLOSED') {
             pnl = tradeType === 'BUY' ? (exitP - entryP) * qty : (entryP - exitP) * qty;
+
+            // Deduct Zerodha F&O charges from PnL if auto-calculate is on
+            if (settings.autoCalculateCharges && exitP > 0) {
+                const charges = calculateFnoCharges(tradeType, qty, entryP, exitP, instrument, settings);
+                totalCharges = charges.total;
+                pnl = pnl - totalCharges;
+            }
         }
 
         const tradeData = {
@@ -438,6 +447,37 @@ export default function FnOClient() {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Charge Preview for closed trades */}
+                            {status === 'CLOSED' && settings.autoCalculateCharges && exitPrice && avgPrice && quantity && (() => {
+                                const qty = parseFloat(quantity);
+                                const entryP = parseFloat(avgPrice);
+                                const exitP = parseFloat(exitPrice);
+                                if (!qty || !entryP || !exitP) return null;
+                                const grossPnl = tradeType === 'BUY' ? (exitP - entryP) * qty : (entryP - exitP) * qty;
+                                const charges = calculateFnoCharges(tradeType, qty, entryP, exitP, instrument, settings);
+                                const netPnl = grossPnl - charges.total;
+                                return (
+                                    <div style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.15)', borderRadius: '20px', padding: '20px', animation: 'fadeIn 0.3s ease' }}>
+                                        <div style={{ fontSize: '0.7rem', fontWeight: '900', color: '#818cf8', textTransform: 'uppercase', letterSpacing: '1.5px', marginBottom: '16px' }}>Zerodha Charge Estimate</div>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '0.8rem' }}>
+                                            <span style={{ color: '#64748b' }}>Gross P&L</span>
+                                            <span style={{ textAlign: 'right', fontWeight: '800', color: grossPnl >= 0 ? '#10b981' : '#f43f5e' }}>{grossPnl >= 0 ? '+' : ''}₹{grossPnl.toFixed(2)}</span>
+                                            <span style={{ color: '#64748b' }}>Brokerage</span>
+                                            <span style={{ textAlign: 'right', color: '#f59e0b' }}>-₹{charges.brokerage}</span>
+                                            <span style={{ color: '#64748b' }}>STT</span>
+                                            <span style={{ textAlign: 'right', color: '#f59e0b' }}>-₹{charges.stt}</span>
+                                            <span style={{ color: '#64748b' }}>Transaction + SEBI</span>
+                                            <span style={{ textAlign: 'right', color: '#f59e0b' }}>-₹{(charges.transactionCharges + charges.sebiCharges).toFixed(2)}</span>
+                                            <span style={{ color: '#64748b' }}>Stamp + GST</span>
+                                            <span style={{ textAlign: 'right', color: '#f59e0b' }}>-₹{(charges.stampDuty + charges.gst).toFixed(2)}</span>
+                                            <div style={{ gridColumn: 'span 2', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '4px 0' }} />
+                                            <span style={{ fontWeight: '900', color: '#fff' }}>Net P&L</span>
+                                            <span style={{ textAlign: 'right', fontWeight: '950', fontSize: '1rem', color: netPnl >= 0 ? '#10b981' : '#f43f5e' }}>{netPnl >= 0 ? '+' : ''}₹{netPnl.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                );
+                            })()}
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <label style={{ fontSize: '0.75rem', fontWeight: '900', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>Operating Bank Account</label>

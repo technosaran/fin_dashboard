@@ -46,6 +46,7 @@ export default function Dashboard() {
         stockTransactions,
         mutualFundTransactions,
         bondTransactions,
+        fnoTrades,
         transactions,
         loading,
         settings
@@ -96,7 +97,12 @@ export default function Dashboard() {
             .filter((t: MutualFundTransaction) => t.transactionType === 'SELL')
             .reduce((sum, t) => sum + t.totalAmount, 0);
 
-        const mfLifetime = (mfSells + mfValue) - mfBuys;
+        // MF stamp duty: 0.005% on purchase/SIP amounts
+        const mfCharges = mutualFundTransactions
+            .filter((t: MutualFundTransaction) => t.transactionType === 'BUY' || t.transactionType === 'SIP')
+            .reduce((sum, t) => sum + (t.totalAmount * 0.00005), 0);
+
+        const mfLifetime = (mfSells + mfValue) - (mfBuys + mfCharges);
 
         // Zero out bond lifetime if disabled
         let bondLifetime = 0;
@@ -112,18 +118,30 @@ export default function Dashboard() {
             bondLifetime = (bondReturns + bondsValue) - bondBuys;
         }
 
-        const globalLifetimeWealth = stockLifetime + mfLifetime + bondLifetime;
+        // F&O Realized PnL (charges already deducted in FnOClient when autoCalculateCharges is on)
+        const fnoLifetime = fnoTrades
+            .filter(t => t.status === 'CLOSED')
+            .reduce((sum, t) => sum + t.pnl, 0);
+
+        const globalLifetimeWealth = stockLifetime + mfLifetime + bondLifetime + fnoLifetime;
 
         // Unrealized P&L
         const stockPnl = stocks.reduce((sum, s) => sum + s.pnl, 0);
         const mfPnl = mfValue - mfInvestment;
         const totalUnrealizedPnl = stockPnl + mfPnl;
 
-        // Day change
+        // Day change (stocks + mutual funds)
         const stockDayChange = stocks.reduce((sum, stock) => {
             const dayChange = (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
             return sum + dayChange;
         }, 0);
+
+        const mfDayChange = mutualFunds.reduce((sum, mf) => {
+            const dayChange = (mf.currentNav - (mf.previousNav || mf.currentNav)) * mf.units;
+            return sum + dayChange;
+        }, 0);
+
+        const totalDayChange = stockDayChange + mfDayChange;
 
         return {
             liquidityINR,
@@ -134,9 +152,10 @@ export default function Dashboard() {
             totalInvestment,
             globalLifetimeWealth,
             totalUnrealizedPnl,
-            stockDayChange,
+            stockDayChange: totalDayChange,
+            fnoLifetime,
         };
-    }, [accounts, stocks, mutualFunds, bonds, stockTransactions, mutualFundTransactions, bondTransactions, settings.bondsEnabled]);
+    }, [accounts, stocks, mutualFunds, bonds, stockTransactions, mutualFundTransactions, bondTransactions, fnoTrades, settings.bondsEnabled]);
 
     const allocationData = useMemo(() => {
         return [
