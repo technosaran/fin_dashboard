@@ -1029,8 +1029,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         familyTransfers, addFamilyTransfer, updateFamilyTransfer, deleteFamilyTransfer,
         settings, updateSettings, loading, error, refreshPortfolio,
         isTransactionModalOpen, setIsTransactionModalOpen,
-        refreshLivePrices: async () => {
-            setLoading(true);
+        refreshLivePrices: async (silent: boolean = false) => {
+            if (!silent) setLoading(true);
 
             // 1. Stocks
             try {
@@ -1169,7 +1169,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 console.error('Failed to refresh bond prices:', err);
             }
 
-            setLoading(false);
+            if (!silent) setLoading(false);
             logInfo('Live prices refresh completed');
         }
     }), [
@@ -1191,19 +1191,19 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     // Automatic Live Price Refresh (every 5 minutes)
     useEffect(() => {
-        // Initial refresh after data loads
+        // Initial refresh after data loads - use silent mode to avoid flickering
         if (!loading && (stocks.length > 0 || mutualFunds.length > 0 || (settings.bondsEnabled && bonds.length > 0))) {
             const timeout = setTimeout(() => {
-                value.refreshLivePrices();
-            }, 1000); // 1s delay to let everything settle
+                value.refreshLivePrices(true);
+            }, 1000);
             return () => clearTimeout(timeout);
         }
-    }, [loading === false]); // Only trigger once after loading finishes
+    }, [loading === false]);
 
-    // Periodic refresh
+    // Periodic refresh - silent background update
     useEffect(() => {
         const intervalId = setInterval(() => {
-            if (user) value.refreshLivePrices();
+            if (user) value.refreshLivePrices(true);
         }, 300000); // 5 minutes
 
         return () => clearInterval(intervalId);
