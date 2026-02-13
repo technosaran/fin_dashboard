@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# lint artifacts
+lint_results.txt
+
+# backup files
+*.ts_bk

@@ -117,8 +117,18 @@ export function validateDate(date: string): ValidationResult {
     return { isValid: false, error: 'Invalid date format (use YYYY-MM-DD)' };
   }
 
-  const parsedDate = new Date(date);
+  const parsedDate = new Date(date + 'T00:00:00');
   if (isNaN(parsedDate.getTime())) {
+    return { isValid: false, error: 'Invalid date' };
+  }
+
+  // Verify the parsed date matches the input to catch rollover dates (e.g. Feb 30 → Mar 1)
+  const [year, month, day] = date.split('-').map(Number);
+  if (
+    parsedDate.getFullYear() !== year ||
+    parsedDate.getMonth() + 1 !== month ||
+    parsedDate.getDate() !== day
+  ) {
     return { isValid: false, error: 'Invalid date' };
   }
 

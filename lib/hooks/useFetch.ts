@@ -80,6 +80,13 @@ export function useFetch<T = unknown>(
           loading: false,
           error,
         });
+      } else {
+        logError('useFetch unknown error', undefined, { url });
+        setState({
+          data: null,
+          loading: false,
+          error: new Error('An unknown error occurred'),
+        });
       }
     }
   };

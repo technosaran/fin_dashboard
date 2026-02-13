@@ -41,8 +41,8 @@ function validateEnv(): EnvironmentConfig {
   // TypeScript now knows these are defined due to the checks above
   return {
     supabase: {
-      url: supabaseUrl!,
-      anonKey: supabaseAnonKey!,
+      url: supabaseUrl as string,
+      anonKey: supabaseAnonKey as string,
     },
     app: {
       url: appUrl,
