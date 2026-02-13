@@ -58,7 +58,7 @@ async function handleForexBatchQuote(request: Request): Promise<NextResponse> {
             }
 
             const baseRate = baseRates[pair] || 83.45;
-            const fluctuation = (hash % 100) / 1000 - 0.05;
+            const fluctuation = (Math.abs(hash) % 101) / 1000 - 0.05;
             const rate = baseRate + fluctuation;
 
             results[pair] = {

@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     for (let i = 0; i < seed.length; i++) {
         hash = seed.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const fluctuation = (hash % 100) / 1000 - 0.05; // +/- 0.05
+    const fluctuation = (Math.abs(hash) % 101) / 1000 - 0.05; // +/- 0.05
     const rate = baseRate + fluctuation;
 
     return createSuccessResponse({

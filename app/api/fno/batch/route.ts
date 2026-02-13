@@ -55,8 +55,8 @@ async function handleFnoBatchQuote(request: Request): Promise<NextResponse> {
             const numMatch = inst.match(/\d+/);
             const basePrice = numMatch ? parseInt(numMatch[0]) / 100 : 100;
 
-            const fluctuation = (hash % 200) / 100 - 1; // +/- 1
-            const change = (hash % 100) / 50 - 1; // +/- 1%
+            const fluctuation = (Math.abs(hash) % 201) / 100 - 1; // +/- 1
+            const change = (Math.abs(hash) % 101) / 50 - 1; // +/- 1%
 
             results[inst] = {
                 instrument: inst,

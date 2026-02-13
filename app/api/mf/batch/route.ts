@@ -47,7 +47,7 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
         return createErrorResponse('Codes parameter is required', 400);
     }
 
-    const codes = codesParam.split(',').map(s => s.trim());
+    const codes = codesParam.split(',').map(s => s.trim()).filter(Boolean);
 
     if (codes.length === 0) {
         return createErrorResponse('No valid codes provided', 400);
