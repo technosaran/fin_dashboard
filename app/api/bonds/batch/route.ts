@@ -37,6 +37,10 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
         return createErrorResponse('No valid ISINs provided', 400);
     }
 
+    if (isins.length > 50) {
+        return createErrorResponse('Maximum 50 ISINs allowed per batch', 400);
+    }
+
     const cacheKey = `bonds_batch_${isins.sort().join(',')}`;
     const cached = getCache<Record<string, BondQuoteData>>(cacheKey);
     if (cached) return createSuccessResponse(cached);

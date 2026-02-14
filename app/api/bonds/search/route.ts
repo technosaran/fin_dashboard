@@ -1,19 +1,32 @@
 import {
     createSuccessResponse,
+    createErrorResponse,
     applyRateLimit,
+    withErrorHandling,
 } from '@/lib/services/api';
+import { validateStockQuery } from '@/lib/validators/input';
 
 /**
  * Bond search API endpoint
- * Simulates fetching bond data (Featured Bonds from Wint Wealth style)
+ * Simulates fetching bond data (Featured Bonds from Wint Wealth style) with improved validation
  */
-export async function GET(request: Request) {
+async function handleBondSearch(request: Request) {
     // Apply rate limiting
     const rateLimitResponse = applyRateLimit(request);
     if (rateLimitResponse) return rateLimitResponse;
 
     const { searchParams } = new URL(request.url);
     const query = searchParams.get('q')?.toLowerCase() || '';
+
+    // Validate query if provided
+    if (query && query.length > 0) {
+        const validation = validateStockQuery(query);
+        if (!validation.isValid) {
+            return createErrorResponse(validation.error || 'Invalid search query', 400);
+        }
+    }
+
+    const sanitizedQuery = query.trim().toLowerCase();
 
     // Mock bond data (Typical high-yield bonds found on Wint Wealth/GoldenPi)
     const bonds = [
@@ -235,10 +248,12 @@ export async function GET(request: Request) {
 
     const filteredBonds = bonds.filter(
         (b) =>
-            b.name.toLowerCase().includes(query) ||
-            b.company_name.toLowerCase().includes(query) ||
-            b.isin.toLowerCase().includes(query)
+            b.name.toLowerCase().includes(sanitizedQuery) ||
+            b.company_name.toLowerCase().includes(sanitizedQuery) ||
+            b.isin.toLowerCase().includes(sanitizedQuery)
     );
 
     return createSuccessResponse(filteredBonds);
 }
+
+export const GET = withErrorHandling(handleBondSearch);

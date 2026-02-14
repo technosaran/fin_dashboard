@@ -53,6 +53,10 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
         return createErrorResponse('No valid codes provided', 400);
     }
 
+    if (codes.length > 50) {
+        return createErrorResponse('Maximum 50 codes allowed per batch', 400);
+    }
+
     const cacheKey = `mf_batch_${codes.sort().join(',')}`;
     const cached = getCache<Record<string, MFQuoteData>>(cacheKey);
     if (cached) return createSuccessResponse(cached);
