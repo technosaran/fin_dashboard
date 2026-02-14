@@ -481,7 +481,7 @@ p {
 input,
 textarea,
 select {
-  font-size: 16px; /* Prevent zoom on iOS */
+  font-size: 16px; /* Prevent automatic zoom on focus in iOS */
   padding: 0.75rem;
   border-radius: var(--radius-md);
 }
@@ -731,7 +731,7 @@ select:focus {
   }
 }
 
-/* Auto-fit responsive grid */
+/* Auto-fit responsive grid - for layouts that need consistent wider cards */
 .grid-auto-fit {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
@@ -744,7 +744,7 @@ select:focus {
   }
 }
 
-/* Auto-fill responsive grid */
+/* Auto-fill responsive grid - for layouts that can have narrower cards */
 .grid-auto-fill {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
@@ -1298,7 +1298,7 @@ select:focus {
   padding: 0;
   margin: -1px;
   overflow: hidden;
-  clip: rect(0, 0, 0, 0);
+  clip-path: inset(50%);
   white-space: nowrap;
   border-width: 0;
 }
