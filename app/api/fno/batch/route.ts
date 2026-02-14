@@ -36,6 +36,10 @@ async function handleFnoBatchQuote(request: Request): Promise<NextResponse> {
         return createErrorResponse('No valid instruments provided', 400);
     }
 
+    if (instruments.length > 50) {
+        return createErrorResponse('Maximum 50 instruments allowed per batch', 400);
+    }
+
     const cacheKey = `fno_batch_${instruments.sort().join(',')}`;
     const cached = getCache<Record<string, FnoPositionData>>(cacheKey);
     if (cached) return createSuccessResponse(cached);

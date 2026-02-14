@@ -13,6 +13,21 @@ export interface ApiError {
 }
 
 /**
+ * Handle CORS preflight requests (OPTIONS method)
+ */
+export function handleCorsPreflightRequest(): NextResponse {
+  return new NextResponse(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || '*',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Max-Age': '86400',
+    },
+  });
+}
+
+/**
  * Create a standardized error response
  */
 export function createErrorResponse(message: string, status: number = 500): NextResponse {
@@ -179,7 +194,30 @@ export function applyRateLimit(request: Request): NextResponse | null {
  * Simple in-memory cache for API responses
  */
 const apiCache = new Map<string, { data: unknown; expire: number }>();
+const API_CACHE_CLEANUP_THRESHOLD = 500;
+const API_CACHE_MAX_SIZE = 1000;
 
+/**
+ * Clean up expired cache entries to prevent memory leaks
+ */
+function cleanupExpiredCache(): void {
+  const now = Date.now();
+  const keysToDelete: string[] = [];
+  
+  for (const [key, val] of apiCache) {
+    if (now >= val.expire) {
+      keysToDelete.push(key);
+    }
+  }
+  
+  for (const key of keysToDelete) {
+    apiCache.delete(key);
+  }
+}
+
+/**
+ * Get cached data if available and not expired
+ */
 export function getCache<T>(key: string): T | null {
   const record = apiCache.get(key);
   if (record && Date.now() < record.expire) {
@@ -191,6 +229,30 @@ export function getCache<T>(key: string): T | null {
   return null;
 }
 
+/**
+ * Set cache with TTL and automatic cleanup
+ */
 export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void {
+  // Periodic cleanup when cache grows large
+  if (apiCache.size > API_CACHE_CLEANUP_THRESHOLD) {
+    cleanupExpiredCache();
+  }
+  
+  // Hard limit to prevent unbounded growth
+  if (apiCache.size >= API_CACHE_MAX_SIZE) {
+    // Remove oldest entries (simple FIFO)
+    const keysToDelete = Array.from(apiCache.keys()).slice(0, 100);
+    for (const key of keysToDelete) {
+      apiCache.delete(key);
+    }
+  }
+  
   apiCache.set(key, { data, expire: Date.now() + ttlMs });
+}
+
+/**
+ * Clear all cached data (useful for testing or manual refresh)
+ */
+export function clearCache(): void {
+  apiCache.clear();
 }
