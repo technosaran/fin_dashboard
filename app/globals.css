@@ -30,7 +30,7 @@
   --warning: #f59e0b;
   --error: #ef4444;
 
-  /* Spacing */
+  /* Spacing - Responsive */
   --spacing-xs: 8px;
   --spacing-sm: 12px;
   --spacing-md: 16px;
@@ -48,6 +48,14 @@
   --scrollbar-track: #020617;
   --scrollbar-thumb: #1e293b;
   --scrollbar-thumb-hover: #334155;
+
+  /* Breakpoints - For reference in JS */
+  --breakpoint-xs: 480px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 }
 
 /* Custom scrollbar for a premium feel */
@@ -77,6 +85,48 @@ body {
   padding: 0;
   min-height: 100vh;
   overflow-x: hidden;
+  /* Improve text rendering on all devices */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  /* Better touch scrolling on mobile */
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Ensure all images are responsive by default */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Responsive Typography Base */
+h1, h2, h3, h4, h5, h6 {
+  line-height: 1.2;
+  font-weight: 700;
+  margin: 0;
+  word-wrap: break-word;
+}
+
+h1 {
+  font-size: clamp(1.75rem, 5vw + 1rem, 3rem);
+}
+
+h2 {
+  font-size: clamp(1.5rem, 4vw + 0.5rem, 2.5rem);
+}
+
+h3 {
+  font-size: clamp(1.25rem, 3vw + 0.5rem, 2rem);
+}
+
+h4 {
+  font-size: clamp(1.1rem, 2vw + 0.5rem, 1.5rem);
+}
+
+p {
+  line-height: 1.6;
+  margin: 0;
 }
 
 /* Standardized Layout Classes */
@@ -168,6 +218,29 @@ body {
   position: relative;
 }
 
+/* Responsive card padding */
+.premium-card {
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .premium-card {
+    padding: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .premium-card {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .premium-card {
+    padding: 2rem;
+  }
+}
+
 .premium-card::before {
   content: '';
   position: absolute;
@@ -178,11 +251,14 @@ body {
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
 }
 
-.premium-card:hover {
-  transform: translateY(-4px);
-  background: rgba(15, 23, 42, 0.8);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.1);
+/* Only apply hover effects on devices with hover capability */
+@media (hover: hover) and (pointer: fine) {
+  .premium-card:hover {
+    transform: translateY(-4px);
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.1);
+  }
 }
 
 /* Square Card Variant */
@@ -389,11 +465,34 @@ body {
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s;
+  /* Responsive sizing */
+  padding: 0.75rem 1.5rem;
+  font-size: clamp(0.875rem, 2vw, 1rem);
 }
 
-.glass-button:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.2);
+@media (hover: hover) and (pointer: fine) {
+  .glass-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.2);
+  }
+}
+
+/* Form elements responsive */
+input,
+textarea,
+select {
+  font-size: 16px; /* Prevent zoom on iOS */
+  padding: 0.75rem;
+  border-radius: var(--radius-md);
+}
+
+@media (min-width: 768px) {
+  input,
+  textarea,
+  select {
+    font-size: 1rem;
+    padding: 0.875rem;
+  }
 }
 
 /* Responsive Grid Helpers */
@@ -436,9 +535,42 @@ select:focus {
 }
 
 /* Responsive utilities */
+@media (max-width: 479px) {
+  .hide-xs {
+    display: none !important;
+  }
+}
+
+@media (max-width: 639px) {
+  .hide-sm {
+    display: none !important;
+  }
+}
+
 @media (max-width: 767px) {
   .hide-mobile {
     display: none !important;
+  }
+  .hide-md {
+    display: none !important;
+  }
+}
+
+@media (max-width: 1023px) {
+  .hide-lg {
+    display: none !important;
+  }
+}
+
+@media (min-width: 480px) {
+  .show-xs {
+    display: block !important;
+  }
+}
+
+@media (min-width: 640px) {
+  .show-sm {
+    display: block !important;
   }
 }
 
@@ -446,9 +578,25 @@ select:focus {
   .hide-desktop {
     display: none !important;
   }
+  
+  .show-md {
+    display: block !important;
+  }
 
   .sidebar-overlay {
     display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .show-lg {
+    display: block !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .show-xl {
+    display: block !important;
   }
 }
 
@@ -468,6 +616,52 @@ select:focus {
     display: block;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+  }
+
+  .responsive-table table {
+    min-width: 600px;
+  }
+  
+  /* Stack table on very small screens */
+  .table-stack {
+    display: block;
+  }
+  
+  .table-stack thead {
+    display: none;
+  }
+  
+  .table-stack tbody,
+  .table-stack tr,
+  .table-stack td {
+    display: block;
+    width: 100%;
+  }
+  
+  .table-stack tr {
+    margin-bottom: 1rem;
+    border: 1px solid var(--surface-border);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+  }
+  
+  .table-stack td {
+    text-align: right;
+    padding: 0.5rem;
+    position: relative;
+    padding-left: 50%;
+  }
+  
+  .table-stack td:before {
+    content: attr(data-label);
+    position: absolute;
+    left: 0.75rem;
+    width: 45%;
+    padding-right: 0.5rem;
+    white-space: nowrap;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
   }
 }
 
@@ -537,6 +731,32 @@ select:focus {
   }
 }
 
+/* Auto-fit responsive grid */
+.grid-auto-fit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid-auto-fit {
+    gap: 1.5rem;
+  }
+}
+
+/* Auto-fill responsive grid */
+.grid-auto-fill {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .grid-auto-fill {
+    gap: 1.5rem;
+  }
+}
+
 /* Responsive flex utilities */
 .flex-wrap-mobile {
   display: flex;
@@ -550,6 +770,66 @@ select:focus {
   }
 }
 
+/* Flex direction responsive utilities */
+.flex-col-mobile {
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .flex-col-mobile {
+    flex-direction: row;
+  }
+}
+
+.flex-row-mobile {
+  display: flex;
+  flex-direction: row;
+}
+
+@media (max-width: 767px) {
+  .flex-row-mobile {
+    flex-direction: column;
+  }
+}
+
+/* Container width utilities */
+.container-fluid {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container-fluid {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container-fluid {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+.container-narrow {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.container-wide {
+  max-width: 1400px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
 /* Stocks lifetime report card - spans all columns on desktop */
 @media (min-width: 1024px) {
   .lifetime-report-card {
@@ -559,12 +839,19 @@ select:focus {
 
 /* Dashboard Header Utilities */
 .dashboard-header {
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: var(--spacing-lg);
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  gap: var(--spacing-md);
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .dashboard-header {
+    margin-bottom: var(--spacing-xl);
+    gap: var(--spacing-md);
+  }
 }
 
 .dashboard-title {
@@ -575,7 +862,14 @@ select:focus {
   color: var(--text-primary);
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: var(--spacing-xs);
+  flex-wrap: wrap;
+}
+
+@media (min-width: 640px) {
+  .dashboard-title {
+    gap: var(--spacing-sm);
+  }
 }
 
 .title-accent {
@@ -623,21 +917,40 @@ select:focus {
 }
 
 .wealth-card-content {
-  padding: var(--spacing-2xl);
+  padding: var(--spacing-lg);
   background: linear-gradient(145deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.6) 100%);
   position: relative;
   overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .wealth-card-content {
+    padding: var(--spacing-xl);
+  }
+}
+
+@media (min-width: 1024px) {
+  .wealth-card-content {
+    padding: var(--spacing-2xl);
+  }
 }
 
 .wealth-card-glow {
   position: absolute;
   top: -10%;
   right: -5%;
-  width: 300px;
-  height: 300px;
+  width: 200px;
+  height: 200px;
   background: radial-gradient(circle, var(--accent-light) 0%, transparent 70%);
   filter: blur(50px);
   z-index: 0;
+}
+
+@media (min-width: 768px) {
+  .wealth-card-glow {
+    width: 300px;
+    height: 300px;
+  }
 }
 
 .wealth-card-inner {
@@ -645,14 +958,34 @@ select:focus {
   justify-content: space-between;
   align-items: flex-start;
   flex-wrap: wrap;
-  gap: var(--spacing-2xl);
+  gap: var(--spacing-lg);
   position: relative;
   z-index: 1;
 }
 
+@media (min-width: 768px) {
+  .wealth-card-inner {
+    gap: var(--spacing-2xl);
+  }
+}
+
 .wealth-section {
-  flex: 1 1 300px;
-  min-width: 280px;
+  flex: 1 1 100%;
+  min-width: 250px;
+}
+
+@media (min-width: 640px) {
+  .wealth-section {
+    flex: 1 1 280px;
+    min-width: 280px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .wealth-section {
+    flex: 1 1 300px;
+    min-width: 280px;
+  }
 }
 
 .icon-badge {
@@ -887,4 +1220,85 @@ select:focus {
 
 .justify-center {
   justify-content: center;
+}
+
+/* Responsive spacing utilities */
+.gap-responsive {
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .gap-responsive {
+    gap: 1rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gap-responsive {
+    gap: 1.5rem;
+  }
+}
+
+.p-responsive {
+  padding: 1rem;
+}
+
+@media (min-width: 640px) {
+  .p-responsive {
+    padding: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .p-responsive {
+    padding: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .p-responsive {
+    padding: 2rem;
+  }
+}
+
+/* Text alignment utilities */
+.text-center-mobile {
+  text-align: center;
+}
+
+@media (min-width: 768px) {
+  .text-center-mobile {
+    text-align: left;
+  }
+}
+
+/* Width utilities */
+.w-full {
+  width: 100%;
+}
+
+.max-w-full {
+  max-width: 100%;
+}
+
+/* Aspect ratio utilities for responsive media */
+.aspect-video {
+  aspect-ratio: 16 / 9;
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* Screen reader only (accessibility) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
