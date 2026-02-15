@@ -20,14 +20,17 @@ function validateEnv(): EnvironmentConfig {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const nodeEnv = process.env.NODE_ENV || 'development';
 
-  // Validate required environment variables
+  // Skip validation in test environment if using test values
+  const isTest = nodeEnv === 'test';
+  
+  // Validate required environment variables (skip in test with test values)
   const missingVars: string[] = [];
 
-  if (!supabaseUrl) {
+  if (!supabaseUrl && !isTest) {
     missingVars.push('NEXT_PUBLIC_SUPABASE_URL');
   }
 
-  if (!supabaseAnonKey) {
+  if (!supabaseAnonKey && !isTest) {
     missingVars.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
   }
 
@@ -39,10 +42,11 @@ function validateEnv(): EnvironmentConfig {
   }
 
   // TypeScript now knows these are defined due to the checks above
+  // In test environment, provide defaults if missing
   return {
     supabase: {
-      url: supabaseUrl as string,
-      anonKey: supabaseAnonKey as string,
+      url: isTest && !supabaseUrl ? 'https://test.supabase.co' : supabaseUrl as string,
+      anonKey: isTest && !supabaseAnonKey ? 'test-key-1234567890' : supabaseAnonKey as string,
     },
     app: {
       url: appUrl,
