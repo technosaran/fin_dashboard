@@ -21,7 +21,7 @@ function validateEnv(): EnvironmentConfig {
   const nodeEnv = process.env.NODE_ENV || 'development';
 
   // Skip validation in test environment if using test values
-  const isTest = process.env.NODE_ENV === 'test';
+  const isTest = nodeEnv === 'test';
   
   // Validate required environment variables (skip in test with test values)
   const missingVars: string[] = [];
@@ -45,8 +45,8 @@ function validateEnv(): EnvironmentConfig {
   // In test environment, provide defaults if missing
   return {
     supabase: {
-      url: supabaseUrl || 'https://test.supabase.co',
-      anonKey: supabaseAnonKey || 'test-key-1234567890',
+      url: isTest && !supabaseUrl ? 'https://test.supabase.co' : supabaseUrl as string,
+      anonKey: isTest && !supabaseAnonKey ? 'test-key-1234567890' : supabaseAnonKey as string,
     },
     app: {
       url: appUrl,
