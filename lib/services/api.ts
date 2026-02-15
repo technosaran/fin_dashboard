@@ -84,9 +84,7 @@ export async function safeJsonParse<T>(response: Response): Promise<T> {
 /**
  * Wrapper for API handlers with consistent error handling
  */
-export function withErrorHandling(
-  handler: (request: Request) => Promise<NextResponse>
-) {
+export function withErrorHandling(handler: (request: Request) => Promise<NextResponse>) {
   return async (request: Request): Promise<NextResponse> => {
     try {
       return await handler(request);
@@ -203,13 +201,13 @@ const API_CACHE_MAX_SIZE = 1000;
 function cleanupExpiredCache(): void {
   const now = Date.now();
   const keysToDelete: string[] = [];
-  
+
   for (const [key, val] of apiCache) {
     if (now >= val.expire) {
       keysToDelete.push(key);
     }
   }
-  
+
   for (const key of keysToDelete) {
     apiCache.delete(key);
   }
@@ -237,7 +235,7 @@ export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void 
   if (apiCache.size > API_CACHE_CLEANUP_THRESHOLD) {
     cleanupExpiredCache();
   }
-  
+
   // Hard limit to prevent unbounded growth
   if (apiCache.size >= API_CACHE_MAX_SIZE) {
     // Remove oldest entries (simple FIFO)
@@ -246,7 +244,7 @@ export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void 
       apiCache.delete(key);
     }
   }
-  
+
   apiCache.set(key, { data, expire: Date.now() + ttlMs });
 }
 

@@ -45,10 +45,10 @@ describe('API Security Utilities', () => {
       // Use very short window
       rateLimit(identifier, 2, 100);
       rateLimit(identifier, 2, 100);
-      
+
       // Wait for window to expire
-      await new Promise(resolve => setTimeout(resolve, 150));
-      
+      await new Promise((resolve) => setTimeout(resolve, 150));
+
       // Should allow new requests
       const result = rateLimit(identifier, 2, 100);
       expect(result.success).toBe(true);
@@ -60,14 +60,14 @@ describe('Input Validation', () => {
   describe('Forex Pair Validation', () => {
     it('should accept valid forex pairs', () => {
       const validPairs = ['USDINR', 'EURINR', 'GBPINR', 'JPYINR'];
-      validPairs.forEach(pair => {
+      validPairs.forEach((pair) => {
         expect(/^[A-Z]{6,7}$/.test(pair)).toBe(true);
       });
     });
 
     it('should reject invalid forex pairs', () => {
       const invalidPairs = ['USD', 'USDINR123', 'usd-inr', 'US$INR'];
-      invalidPairs.forEach(pair => {
+      invalidPairs.forEach((pair) => {
         expect(/^[A-Z]{6,7}$/.test(pair)).toBe(false);
       });
     });
@@ -76,14 +76,14 @@ describe('Input Validation', () => {
   describe('ISIN Validation', () => {
     it('should accept valid ISIN format', () => {
       const validIsins = ['INE018E07BU2', 'US0378331005', 'GB0002374006'];
-      validIsins.forEach(isin => {
+      validIsins.forEach((isin) => {
         expect(/^[A-Z]{2}[A-Z0-9]{10}$/i.test(isin)).toBe(true);
       });
     });
 
     it('should reject invalid ISIN format', () => {
       const invalidIsins = ['INVALID', 'INE018E', '1234567890AB', 'IN-E018E07BU2'];
-      invalidIsins.forEach(isin => {
+      invalidIsins.forEach((isin) => {
         expect(/^[A-Z]{2}[A-Z0-9]{10}$/i.test(isin)).toBe(false);
       });
     });
@@ -93,14 +93,14 @@ describe('Input Validation', () => {
     it('should enforce maximum batch size', () => {
       const maxSize = 50;
       const tooManyItems = Array(51).fill('item');
-      
+
       expect(tooManyItems.length).toBeGreaterThan(maxSize);
     });
 
     it('should accept valid batch sizes', () => {
       const maxSize = 50;
       const validBatch = Array(30).fill('item');
-      
+
       expect(validBatch.length).toBeLessThanOrEqual(maxSize);
     });
   });

@@ -22,7 +22,7 @@ function validateEnv(): EnvironmentConfig {
 
   // Skip validation in test environment if using test values
   const isTest = nodeEnv === 'test';
-  
+
   // Validate required environment variables (skip in test with test values)
   const missingVars: string[] = [];
 
@@ -37,7 +37,7 @@ function validateEnv(): EnvironmentConfig {
   if (missingVars.length > 0) {
     throw new Error(
       `Missing required environment variables: ${missingVars.join(', ')}. ` +
-      'Please check your .env.local file.'
+        'Please check your .env.local file.'
     );
   }
 
@@ -45,8 +45,8 @@ function validateEnv(): EnvironmentConfig {
   // In test environment, provide defaults if missing
   return {
     supabase: {
-      url: isTest && !supabaseUrl ? 'https://test.supabase.co' : supabaseUrl as string,
-      anonKey: isTest && !supabaseAnonKey ? 'test-key-1234567890' : supabaseAnonKey as string,
+      url: isTest && !supabaseUrl ? 'https://test.supabase.co' : (supabaseUrl as string),
+      anonKey: isTest && !supabaseAnonKey ? 'test-key-1234567890' : (supabaseAnonKey as string),
     },
     app: {
       url: appUrl,

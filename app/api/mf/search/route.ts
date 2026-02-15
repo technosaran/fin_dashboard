@@ -61,14 +61,14 @@ async function handleMFSearch(request: Request): Promise<NextResponse> {
     return createSuccessResponse(results);
   } catch (error) {
     logError('MF search failed', error, { query });
-    
+
     if (error instanceof Error) {
       if (error.message.includes('timeout')) {
         return createErrorResponse('Request timeout. Please try again.', 504);
       }
       return createErrorResponse('Failed to search mutual funds. Please try again later.', 500);
     }
-    
+
     return createErrorResponse('An unexpected error occurred', 500);
   }
 }

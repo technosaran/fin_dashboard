@@ -41,7 +41,7 @@ export function useFetch<T = unknown>(
 
     abortControllerRef.current = new AbortController();
 
-    setState(prev => ({ ...prev, loading: true, error: null }));
+    setState((prev) => ({ ...prev, loading: true, error: null }));
 
     try {
       // Set up timeout
@@ -73,7 +73,7 @@ export function useFetch<T = unknown>(
           // Request was cancelled, don't update state
           return;
         }
-        
+
         logError('useFetch error', error, { url });
         setState({
           data: null,

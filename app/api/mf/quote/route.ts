@@ -47,17 +47,20 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
   }
 
   const cacheKey = `mf_quote_${code.trim()}`;
-  const cached = getCache<{ schemeCode: string; schemeName: string; category: string; currentNav: number; previousNav: number; date: string }>(cacheKey);
+  const cached = getCache<{
+    schemeCode: string;
+    schemeName: string;
+    category: string;
+    currentNav: number;
+    previousNav: number;
+    date: string;
+  }>(cacheKey);
   if (cached) return createSuccessResponse(cached);
 
   try {
     const sanitizedCode = code.trim();
 
-    const response = await fetchWithTimeout(
-      `https://api.mfapi.in/mf/${sanitizedCode}`,
-      {},
-      5000
-    );
+    const response = await fetchWithTimeout(`https://api.mfapi.in/mf/${sanitizedCode}`, {}, 5000);
 
     if (!response.ok) {
       throw new Error('Failed to fetch mutual fund details');
@@ -90,7 +93,10 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
       if (error.message.includes('timeout')) {
         return createErrorResponse('Request timeout. Please try again.', 504);
       }
-      return createErrorResponse('Failed to fetch mutual fund details. Please try again later.', 500);
+      return createErrorResponse(
+        'Failed to fetch mutual fund details. Please try again later.',
+        500
+      );
     }
 
     return createErrorResponse('An unexpected error occurred', 500);
