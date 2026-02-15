@@ -3,9 +3,12 @@
 An enterprise-grade financial tracking and portfolio management dashboard built with Next.js, React, TypeScript, and Supabase.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](./LICENSE)
+[![CI](https://github.com/technosaran/fin_dashboard/actions/workflows/ci.yml/badge.svg)](https://github.com/technosaran/fin_dashboard/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/technosaran/fin_dashboard/actions/workflows/codeql.yml/badge.svg)](https://github.com/technosaran/fin_dashboard/actions/workflows/codeql.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-blue)](https://react.dev/)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
 
 <!-- ![Dashboard Screenshot](./public/screenshot.png) -->
 
@@ -14,6 +17,7 @@ An enterprise-grade financial tracking and portfolio management dashboard built 
 ## ✨ Features
 
 ### 💰 Core Financial Management
+
 - **Account Management** — Track multiple bank accounts, wallets, and investment accounts with real-time balances
 - **Transaction Ledger** — Log income and expenses with categorization, filtering, search, and CSV export
 - **Net Worth Tracking** — Real-time calculation of total wealth across all asset classes
@@ -21,6 +25,7 @@ An enterprise-grade financial tracking and portfolio management dashboard built 
 - **Family Transfers** — Track money sent to and received from family members
 
 ### 📈 Investment Portfolio
+
 - **Stocks** — Real-time price tracking from Yahoo Finance with buy/sell transaction history and P&L analysis
 - **Mutual Funds** — NAV integration from MFAPI with SIP tracking and performance metrics
 - **Bonds** — Valuation tracking, yield monitoring, and ISIN-based search
@@ -29,6 +34,7 @@ An enterprise-grade financial tracking and portfolio management dashboard built 
 - **Watchlist** — Monitor instruments without owning them
 
 ### 🚀 Advanced Features
+
 - **Live Price Updates** — Automatic portfolio refresh every 5 minutes
 - **Charge Calculator** — Accurate brokerage, STT, GST, stamp duty calculations (Zerodha rates)
 - **Batch API Calls** — Efficient data fetching for multiple assets
@@ -38,16 +44,16 @@ An enterprise-grade financial tracking and portfolio management dashboard built 
 
 ## Tech Stack
 
-| Layer        | Technology                                |
-| ------------ | ----------------------------------------- |
-| Framework    | Next.js 16 (App Router, Turbopack)        |
-| Language     | TypeScript (strict mode)                  |
-| UI Library   | React 19                                  |
-| Database     | Supabase (PostgreSQL + Auth)              |
-| Charts       | Recharts                                  |
-| Icons        | Lucide React                              |
-| Styling      | Vanilla CSS with CSS variables            |
-| Market APIs  | Yahoo Finance, MFAPI.in, Google Finance   |
+| Layer       | Technology                              |
+| ----------- | --------------------------------------- |
+| Framework   | Next.js 16 (App Router, Turbopack)      |
+| Language    | TypeScript (strict mode)                |
+| UI Library  | React 19                                |
+| Database    | Supabase (PostgreSQL + Auth)            |
+| Charts      | Recharts                                |
+| Icons       | Lucide React                            |
+| Styling     | Vanilla CSS with CSS variables          |
+| Market APIs | Yahoo Finance, MFAPI.in, Google Finance |
 
 ## Getting Started
 
@@ -60,23 +66,28 @@ An enterprise-grade financial tracking and portfolio management dashboard built 
 ### Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/technosaran/fin_dashboard.git
    cd fin_dashboard
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Set up environment variables:
+
    ```bash
    cp .env.example .env.local
    ```
+
    Fill in your Supabase credentials in `.env.local`.
 
 4. Run the development server:
+
    ```bash
    npm run dev
    ```
@@ -85,11 +96,11 @@ An enterprise-grade financial tracking and portfolio management dashboard built 
 
 ## Environment Variables
 
-| Variable                              | Required | Description                     |
-| ------------------------------------- | -------- | ------------------------------- |
-| `NEXT_PUBLIC_SUPABASE_URL`            | Yes      | Supabase project URL            |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`| Yes      | Supabase anonymous/public key   |
-| `NEXT_PUBLIC_APP_URL`                 | No       | Application URL (default: `http://localhost:3000`) |
+| Variable                               | Required | Description                                        |
+| -------------------------------------- | -------- | -------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Yes      | Supabase project URL                               |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes      | Supabase anonymous/public key                      |
+| `NEXT_PUBLIC_APP_URL`                  | No       | Application URL (default: `http://localhost:3000`) |
 
 ## Project Architecture
 
@@ -121,26 +132,26 @@ lib/                          # Shared libraries
 
 ## Available Scripts
 
-| Command           | Description                        |
-| ----------------- | ---------------------------------- |
-| `npm run dev`     | Start development server           |
-| `npm run build`   | Create production build            |
-| `npm run start`   | Start production server            |
-| `npm run lint`    | Run ESLint checks                  |
-| `npm test`        | Run test suite                     |
-| `npm run format`  | Format code with Prettier          |
+| Command          | Description               |
+| ---------------- | ------------------------- |
+| `npm run dev`    | Start development server  |
+| `npm run build`  | Create production build   |
+| `npm run start`  | Start production server   |
+| `npm run lint`   | Run ESLint checks         |
+| `npm test`       | Run test suite            |
+| `npm run format` | Format code with Prettier |
 
 ## 📊 Database Schema
 
 The application uses the following Supabase tables:
 
-| Category | Tables |
-|----------|--------|
-| **Core** | `accounts`, `transactions`, `goals`, `family_transfers`, `app_settings` |
-| **Stocks** | `stocks`, `stock_transactions`, `watchlist` |
-| **Mutual Funds** | `mutual_funds`, `mutual_fund_transactions` |
-| **Bonds** | `bonds`, `bond_transactions` |
-| **Trading** | `fno_trades`, `forex_transactions` |
+| Category         | Tables                                                                  |
+| ---------------- | ----------------------------------------------------------------------- |
+| **Core**         | `accounts`, `transactions`, `goals`, `family_transfers`, `app_settings` |
+| **Stocks**       | `stocks`, `stock_transactions`, `watchlist`                             |
+| **Mutual Funds** | `mutual_funds`, `mutual_fund_transactions`                              |
+| **Bonds**        | `bonds`, `bond_transactions`                                            |
+| **Trading**      | `fno_trades`, `forex_transactions`                                      |
 
 For detailed schema documentation, see [DATABASE.md](./DATABASE.md).
 
@@ -167,11 +178,45 @@ Comprehensive documentation is available:
 - **[Developer Guide](./DEVELOPER_GUIDE.md)** — Common development tasks and code examples
 - **[Testing](./TESTING.md)** — Testing strategy, examples, and best practices
 - **[Contributing](./CONTRIBUTING.md)** — Contribution guidelines and workflow
+- **[Security](./SECURITY.md)** — Security policy and vulnerability reporting
 - **[Changelog](./CHANGELOG.md)** — Version history and release notes
+
+## 🔒 Security & Quality
+
+This project follows industry-standard security and quality practices:
+
+### Security Measures
+
+- **Authentication**: Supabase Auth with Row Level Security (RLS)
+- **Automated Security Scanning**: CodeQL analysis on every push
+- **Dependency Monitoring**: Dependabot for automated dependency updates
+- **Vulnerability Reporting**: See [SECURITY.md](./SECURITY.md) for responsible disclosure
+
+### Code Quality Standards
+
+- **Type Safety**: TypeScript strict mode enabled
+- **Linting**: ESLint with Next.js recommended rules
+- **Formatting**: Prettier for consistent code style
+- **Testing**: Jest with 75+ unit tests and growing
+- **Pre-commit Hooks**: Automated quality checks before commits
+- **Commit Standards**: Conventional Commits specification
+- **Continuous Integration**: Automated testing, linting, and building
+- **Code Coverage**: Test coverage reporting via Codecov
+
+### Development Workflow
+
+All code changes must:
+
+- Pass ESLint checks
+- Pass Prettier formatting checks
+- Pass all unit tests
+- Build successfully
+- Follow conventional commit message format
 
 ## 🤝 Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details on:
+
 - Setting up your development environment
 - Code standards and best practices
 - Commit message conventions
@@ -183,6 +228,7 @@ Before contributing, please read our [Code of Conduct](./CODE_OF_CONDUCT.md).
 ## 🐛 Reporting Issues
 
 Found a bug or have a feature request? Please:
+
 1. Check if the issue already exists in [GitHub Issues](https://github.com/technosaran/fin_dashboard/issues)
 2. If not, create a new issue with a clear description
 3. Include steps to reproduce for bugs

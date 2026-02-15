@@ -1,8 +1,4 @@
-import {
-  isToday,
-  getCurrentFY,
-  formatDateForInput,
-} from '@/lib/utils/date';
+import { isToday, getCurrentFY, formatDateForInput } from '@/lib/utils/date';
 
 describe('isToday', () => {
   it('returns true for today', () => {

@@ -67,9 +67,7 @@ async function handleStockSearch(request: Request): Promise<NextResponse> {
     }
 
     const results = (data.quotes || [])
-      .filter((quote: YahooQuote) => 
-        quote.symbol.endsWith('.NS') || quote.symbol.endsWith('.BO')
-      )
+      .filter((quote: YahooQuote) => quote.symbol.endsWith('.NS') || quote.symbol.endsWith('.BO'))
       .map((quote: YahooQuote) => ({
         symbol: quote.symbol.split('.')[0],
         fullSymbol: quote.symbol,
@@ -82,14 +80,14 @@ async function handleStockSearch(request: Request): Promise<NextResponse> {
     return createSuccessResponse(results);
   } catch (error) {
     logError('Stock search failed', error, { query });
-    
+
     if (error instanceof Error) {
       if (error.message.includes('timeout')) {
         return createErrorResponse('Request timeout. Please try again.', 504);
       }
       return createErrorResponse('Failed to search stocks. Please try again later.', 500);
     }
-    
+
     return createErrorResponse('An unexpected error occurred', 500);
   }
 }

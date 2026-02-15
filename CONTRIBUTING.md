@@ -3,6 +3,7 @@
 Thank you for your interest in contributing to FINCORE! This guide will help you get started and ensure a smooth contribution process.
 
 ## Table of Contents
+
 1. [Getting Started](#getting-started)
 2. [Development Workflow](#development-workflow)
 3. [Code Standards](#code-standards)
@@ -40,16 +41,23 @@ Thank you for your interest in contributing to FINCORE! This guide will help you
    git remote add upstream https://github.com/technosaran/fin_dashboard.git
    ```
 4. **Install** dependencies:
+
    ```bash
    npm install
    ```
+
+   This will also set up Git hooks (via Husky) for automated quality checks.
+
 5. **Set up** environment variables:
+
    ```bash
    cp .env.example .env.local
    ```
+
    Fill in your Supabase credentials in `.env.local`.
 
 6. **Verify installation**:
+
    ```bash
    npm run lint
    npm test
@@ -61,6 +69,26 @@ Thank you for your interest in contributing to FINCORE! This guide will help you
    npm run dev
    ```
    Open http://localhost:3000 to view the app.
+
+### Pre-commit Hooks
+
+This project uses Husky and lint-staged to enforce code quality:
+
+- **Before every commit**: Automatically runs linting and formatting on staged files
+- **Commit message validation**: Ensures commit messages follow Conventional Commits format
+
+If pre-commit hooks fail, fix the issues before committing:
+
+```bash
+# Fix linting issues
+npm run lint:fix
+
+# Format code
+npm run format
+
+# Then try committing again
+git commit -m "feat: your change description"
+```
 
 ---
 
@@ -80,6 +108,7 @@ git checkout -b feature/your-feature-name
 ```
 
 **Branch naming conventions**:
+
 - `feature/` - New features (e.g., `feature/crypto-portfolio`)
 - `fix/` - Bug fixes (e.g., `fix/stock-price-update`)
 - `docs/` - Documentation updates (e.g., `docs/api-examples`)
@@ -273,6 +302,7 @@ documentation.
 ### Scope (Optional)
 
 Add scope for clarity:
+
 - `feat(stocks): add bulk import feature`
 - `fix(api): handle timeout errors`
 - `docs(readme): update installation steps`
@@ -284,6 +314,7 @@ Add scope for clarity:
 ### PR Title
 
 Use the same format as commit messages:
+
 ```
 feat: add cryptocurrency tracking
 fix: resolve stock price refresh issue
@@ -294,20 +325,24 @@ docs: improve developer guide
 
 ```markdown
 ## Description
+
 Brief description of changes
 
 ## Type of Change
+
 - [ ] Bug fix
 - [ ] New feature
 - [ ] Breaking change
 - [ ] Documentation update
 
 ## Testing
+
 - [ ] All tests pass
 - [ ] Added new tests
 - [ ] Manual testing completed
 
 ## Checklist
+
 - [ ] Code follows style guidelines
 - [ ] Self-reviewed code
 - [ ] Commented complex code
@@ -318,6 +353,7 @@ Brief description of changes
 - [ ] Checked for breaking changes
 
 ## Related Issues
+
 Closes #123
 Related to #456
 ```
@@ -352,6 +388,7 @@ Related to #456
 ### Test Coverage
 
 Aim for:
+
 - **Utilities**: 90%+ coverage
 - **Components**: 70%+ coverage
 - **Overall**: 75%+ coverage
@@ -361,6 +398,7 @@ Aim for:
 See [TESTING.md](./TESTING.md) for detailed testing guidelines.
 
 **Example test**:
+
 ```typescript
 // __tests__/utils/number.test.ts
 import { formatCurrency } from '@/lib/utils/number';
@@ -402,6 +440,7 @@ describe('formatCurrency', () => {
 ### Bug Reports
 
 Use the bug report template and include:
+
 - **Description**: Clear description of the bug
 - **Steps to Reproduce**: Numbered steps
 - **Expected Behavior**: What should happen
@@ -415,6 +454,7 @@ Use the bug report template and include:
 ### Feature Requests
 
 Include:
+
 - **Problem**: What problem does this solve?
 - **Solution**: Proposed solution
 - **Alternatives**: Other solutions considered
@@ -429,6 +469,7 @@ Include:
 We follow the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md).
 
 **Summary**:
+
 - Be respectful and inclusive
 - Welcome newcomers
 - Accept constructive criticism
@@ -443,6 +484,7 @@ We follow the [Contributor Covenant Code of Conduct](./CODE_OF_CONDUCT.md).
 ### Recognition
 
 Contributors are recognized in:
+
 - README.md contributors section
 - Release notes
 - CHANGELOG.md
@@ -506,6 +548,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 ## Questions?
 
 Feel free to:
+
 - Open a GitHub Discussion
 - Comment on existing issues
 - Reach out to maintainers

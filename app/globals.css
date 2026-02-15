@@ -80,7 +80,11 @@
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: var(--font-inter, 'Inter'), system-ui, -apple-system, sans-serif;
+  font-family:
+    var(--font-inter, 'Inter'),
+    system-ui,
+    -apple-system,
+    sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -101,7 +105,12 @@ img {
 }
 
 /* Responsive Typography Base */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   line-height: 1.2;
   font-weight: 700;
   margin: 0;
@@ -257,7 +266,9 @@ p {
     transform: translateY(-4px);
     background: rgba(15, 23, 42, 0.8);
     border-color: rgba(99, 102, 241, 0.3);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 102, 241, 0.1);
+    box-shadow:
+      0 20px 40px rgba(0, 0, 0, 0.4),
+      0 0 20px rgba(99, 102, 241, 0.1);
   }
 }
 
@@ -294,7 +305,6 @@ p {
 
 /* Custom Premium Animations */
 @keyframes sparkle {
-
   0%,
   100% {
     transform: scale(1);
@@ -341,7 +351,6 @@ p {
 }
 
 @keyframes pulseGlow {
-
   0%,
   100% {
     box-shadow: 0 0 0 0 rgba(99, 102, 241, 0);
@@ -578,7 +587,7 @@ select:focus {
   .hide-desktop {
     display: none !important;
   }
-  
+
   .show-md {
     display: block !important;
   }
@@ -602,7 +611,6 @@ select:focus {
 
 /* Mobile-friendly touch targets */
 @media (max-width: 767px) {
-
   button,
   a {
     min-height: 44px;
@@ -621,37 +629,37 @@ select:focus {
   .responsive-table table {
     min-width: 600px;
   }
-  
+
   /* Stack table on very small screens */
   .table-stack {
     display: block;
   }
-  
+
   .table-stack thead {
     display: none;
   }
-  
+
   .table-stack tbody,
   .table-stack tr,
   .table-stack td {
     display: block;
     width: 100%;
   }
-  
+
   .table-stack tr {
     margin-bottom: 1rem;
     border: 1px solid var(--surface-border);
     border-radius: var(--radius-md);
     padding: 0.75rem;
   }
-  
+
   .table-stack td {
     text-align: right;
     padding: 0.5rem;
     position: relative;
     padding-left: 50%;
   }
-  
+
   .table-stack td:before {
     content: attr(data-label);
     position: absolute;

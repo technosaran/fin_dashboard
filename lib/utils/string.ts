@@ -8,7 +8,7 @@
  */
 export function sanitizeString(input: string): string {
   if (!input) return '';
-  
+
   // Escape all special HTML characters
   // This prevents any HTML from being interpreted
   const sanitized = input
@@ -18,7 +18,7 @@ export function sanitizeString(input: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#x27;')
     .replace(/\//g, '&#x2F;');
-  
+
   return sanitized.trim();
 }
 
@@ -37,7 +37,7 @@ export function capitalize(str: string): string {
   return str
     .toLowerCase()
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 

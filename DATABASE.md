@@ -38,22 +38,24 @@ Stores user's bank accounts, wallets, and investment accounts.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key (auto-generated) |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `name` | TEXT | No | Account name (e.g., "HDFC Savings") |
-| `type` | TEXT | No | Account type: 'bank', 'wallet', 'broker' |
-| `balance` | NUMERIC | No | Current balance (default: 0) |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
-| `updated_at` | TIMESTAMPTZ | No | Last update timestamp |
+| Column       | Type        | Nullable | Description                              |
+| ------------ | ----------- | -------- | ---------------------------------------- |
+| `id`         | UUID        | No       | Primary key (auto-generated)             |
+| `user_id`    | UUID        | No       | Foreign key to auth.users                |
+| `name`       | TEXT        | No       | Account name (e.g., "HDFC Savings")      |
+| `type`       | TEXT        | No       | Account type: 'bank', 'wallet', 'broker' |
+| `balance`    | NUMERIC     | No       | Current balance (default: 0)             |
+| `created_at` | TIMESTAMPTZ | No       | Creation timestamp                       |
+| `updated_at` | TIMESTAMPTZ | No       | Last update timestamp                    |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id` for filtering
 - Composite index on `(user_id, type)` for type-based queries
 
 **RLS Policies**:
+
 ```sql
 -- SELECT: Users can view their own accounts
 CREATE POLICY "users_select_own_accounts" ON accounts
@@ -73,13 +75,14 @@ FOR DELETE USING (auth.uid() = user_id);
 ```
 
 **Example Data**:
+
 ```json
 {
   "id": "a1b2c3d4-...",
   "user_id": "user-uuid-...",
   "name": "HDFC Bank Savings",
   "type": "bank",
-  "balance": 150000.50,
+  "balance": 150000.5,
   "created_at": "2026-01-15T10:30:00Z",
   "updated_at": "2026-02-14T08:00:00Z"
 }
@@ -93,36 +96,39 @@ Ledger of all income and expenses.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `account_id` | UUID | No | Foreign key to accounts |
-| `amount` | NUMERIC | No | Transaction amount |
-| `type` | TEXT | No | 'income' or 'expense' |
-| `category` | TEXT | No | Category (e.g., 'salary', 'food', 'rent') |
-| `description` | TEXT | Yes | Optional notes |
-| `date` | DATE | No | Transaction date |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column        | Type        | Nullable | Description                               |
+| ------------- | ----------- | -------- | ----------------------------------------- |
+| `id`          | UUID        | No       | Primary key                               |
+| `user_id`     | UUID        | No       | Foreign key to auth.users                 |
+| `account_id`  | UUID        | No       | Foreign key to accounts                   |
+| `amount`      | NUMERIC     | No       | Transaction amount                        |
+| `type`        | TEXT        | No       | 'income' or 'expense'                     |
+| `category`    | TEXT        | No       | Category (e.g., 'salary', 'food', 'rent') |
+| `description` | TEXT        | Yes      | Optional notes                            |
+| `date`        | DATE        | No       | Transaction date                          |
+| `created_at`  | TIMESTAMPTZ | No       | Creation timestamp                        |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `date` for date-range queries
 - Index on `category` for filtering
 
 **Foreign Keys**:
+
 - `account_id` REFERENCES `accounts(id)` ON DELETE CASCADE
 
 **RLS Policies**: Similar to `accounts` (users can only access their own data)
 
 **Example Data**:
+
 ```json
 {
   "id": "txn-uuid-...",
   "user_id": "user-uuid-...",
   "account_id": "account-uuid-...",
-  "amount": 75000.00,
+  "amount": 75000.0,
   "type": "income",
   "category": "salary",
   "description": "February salary",
@@ -139,30 +145,33 @@ User's stock holdings.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `symbol` | TEXT | No | Stock symbol (e.g., "RELIANCE.NS") |
-| `name` | TEXT | No | Company name |
-| `quantity` | INTEGER | No | Number of shares owned |
-| `buy_price` | NUMERIC | No | Average purchase price per share |
-| `current_price` | NUMERIC | No | Latest market price |
-| `last_updated` | TIMESTAMPTZ | Yes | Last price update timestamp |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column          | Type        | Nullable | Description                        |
+| --------------- | ----------- | -------- | ---------------------------------- |
+| `id`            | UUID        | No       | Primary key                        |
+| `user_id`       | UUID        | No       | Foreign key to auth.users          |
+| `symbol`        | TEXT        | No       | Stock symbol (e.g., "RELIANCE.NS") |
+| `name`          | TEXT        | No       | Company name                       |
+| `quantity`      | INTEGER     | No       | Number of shares owned             |
+| `buy_price`     | NUMERIC     | No       | Average purchase price per share   |
+| `current_price` | NUMERIC     | No       | Latest market price                |
+| `last_updated`  | TIMESTAMPTZ | Yes      | Last price update timestamp        |
+| `created_at`    | TIMESTAMPTZ | No       | Creation timestamp                 |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Unique index on `(user_id, symbol)` to prevent duplicates
 
 **Computed Fields** (application-level):
+
 - `current_value = quantity * current_price`
 - `invested_value = quantity * buy_price`
 - `unrealized_pnl = current_value - invested_value`
 - `unrealized_pnl_percent = (unrealized_pnl / invested_value) * 100`
 
 **Example Data**:
+
 ```json
 {
   "id": "stock-uuid-...",
@@ -170,7 +179,7 @@ User's stock holdings.
   "symbol": "RELIANCE.NS",
   "name": "Reliance Industries",
   "quantity": 50,
-  "buy_price": 2400.00,
+  "buy_price": 2400.0,
   "current_price": 2456.75,
   "last_updated": "2026-02-14T08:30:00Z",
   "created_at": "2026-01-10T14:00:00Z"
@@ -185,33 +194,37 @@ History of stock buy/sell transactions.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `stock_id` | UUID | No | Foreign key to stocks |
-| `type` | TEXT | No | 'buy' or 'sell' |
-| `quantity` | INTEGER | No | Number of shares |
-| `price` | NUMERIC | No | Price per share |
-| `charges` | NUMERIC | No | Brokerage + taxes |
-| `date` | DATE | No | Transaction date |
-| `notes` | TEXT | Yes | Optional notes |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column       | Type        | Nullable | Description               |
+| ------------ | ----------- | -------- | ------------------------- |
+| `id`         | UUID        | No       | Primary key               |
+| `user_id`    | UUID        | No       | Foreign key to auth.users |
+| `stock_id`   | UUID        | No       | Foreign key to stocks     |
+| `type`       | TEXT        | No       | 'buy' or 'sell'           |
+| `quantity`   | INTEGER     | No       | Number of shares          |
+| `price`      | NUMERIC     | No       | Price per share           |
+| `charges`    | NUMERIC     | No       | Brokerage + taxes         |
+| `date`       | DATE        | No       | Transaction date          |
+| `notes`      | TEXT        | Yes      | Optional notes            |
+| `created_at` | TIMESTAMPTZ | No       | Creation timestamp        |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `stock_id`
 - Index on `date`
 
 **Foreign Keys**:
+
 - `stock_id` REFERENCES `stocks(id)` ON DELETE CASCADE
 
 **Computed Fields**:
+
 - `total_cost = (quantity * price) + charges` (for buy)
 - `net_proceeds = (quantity * price) - charges` (for sell)
 
 **Example Data**:
+
 ```json
 {
   "id": "stxn-uuid-...",
@@ -219,8 +232,8 @@ History of stock buy/sell transactions.
   "stock_id": "stock-uuid-...",
   "type": "buy",
   "quantity": 25,
-  "price": 2400.00,
-  "charges": 75.50,
+  "price": 2400.0,
+  "charges": 75.5,
   "date": "2026-01-10",
   "notes": "First purchase",
   "created_at": "2026-01-10T14:00:00Z"
@@ -235,29 +248,32 @@ User's mutual fund holdings.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `scheme_code` | TEXT | No | MFAPI scheme code |
-| `scheme_name` | TEXT | No | Mutual fund scheme name |
-| `units` | NUMERIC | No | Number of units owned |
-| `purchase_nav` | NUMERIC | No | Average NAV at purchase |
-| `current_nav` | NUMERIC | No | Latest NAV |
-| `last_updated` | TIMESTAMPTZ | Yes | Last NAV update timestamp |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column         | Type        | Nullable | Description               |
+| -------------- | ----------- | -------- | ------------------------- |
+| `id`           | UUID        | No       | Primary key               |
+| `user_id`      | UUID        | No       | Foreign key to auth.users |
+| `scheme_code`  | TEXT        | No       | MFAPI scheme code         |
+| `scheme_name`  | TEXT        | No       | Mutual fund scheme name   |
+| `units`        | NUMERIC     | No       | Number of units owned     |
+| `purchase_nav` | NUMERIC     | No       | Average NAV at purchase   |
+| `current_nav`  | NUMERIC     | No       | Latest NAV                |
+| `last_updated` | TIMESTAMPTZ | Yes      | Last NAV update timestamp |
+| `created_at`   | TIMESTAMPTZ | No       | Creation timestamp        |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Unique index on `(user_id, scheme_code)`
 
 **Computed Fields**:
+
 - `current_value = units * current_nav`
 - `invested_value = units * purchase_nav`
 - `unrealized_pnl = current_value - invested_value`
 
 **Example Data**:
+
 ```json
 {
   "id": "mf-uuid-...",
@@ -265,7 +281,7 @@ User's mutual fund holdings.
   "scheme_code": "119551",
   "scheme_name": "Axis Bluechip Fund - Direct Plan - Growth",
   "units": 250.45,
-  "purchase_nav": 42.50,
+  "purchase_nav": 42.5,
   "current_nav": 45.67,
   "last_updated": "2026-02-13T18:00:00Z",
   "created_at": "2026-01-05T10:00:00Z"
@@ -280,19 +296,20 @@ History of mutual fund investments and redemptions.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `mf_id` | UUID | No | Foreign key to mutual_funds |
-| `type` | TEXT | No | 'buy' or 'sell' |
-| `units` | NUMERIC | No | Number of units |
-| `nav` | NUMERIC | No | NAV at transaction time |
-| `date` | DATE | No | Transaction date |
-| `notes` | TEXT | Yes | Optional notes |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column       | Type        | Nullable | Description                 |
+| ------------ | ----------- | -------- | --------------------------- |
+| `id`         | UUID        | No       | Primary key                 |
+| `user_id`    | UUID        | No       | Foreign key to auth.users   |
+| `mf_id`      | UUID        | No       | Foreign key to mutual_funds |
+| `type`       | TEXT        | No       | 'buy' or 'sell'             |
+| `units`      | NUMERIC     | No       | Number of units             |
+| `nav`        | NUMERIC     | No       | NAV at transaction time     |
+| `date`       | DATE        | No       | Transaction date            |
+| `notes`      | TEXT        | Yes      | Optional notes              |
+| `created_at` | TIMESTAMPTZ | No       | Creation timestamp          |
 
 **Foreign Keys**:
+
 - `mf_id` REFERENCES `mutual_funds(id)` ON DELETE CASCADE
 
 ---
@@ -303,27 +320,29 @@ User's bond holdings.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `isin` | TEXT | No | Bond ISIN code |
-| `name` | TEXT | No | Bond name/issuer |
-| `quantity` | INTEGER | No | Number of bonds |
-| `face_value` | NUMERIC | No | Face value per bond |
-| `coupon_rate` | NUMERIC | No | Annual interest rate (%) |
-| `purchase_price` | NUMERIC | No | Purchase price per bond |
-| `current_price` | NUMERIC | No | Current market price |
-| `maturity_date` | DATE | No | Maturity date |
-| `last_updated` | TIMESTAMPTZ | Yes | Last price update |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column           | Type        | Nullable | Description               |
+| ---------------- | ----------- | -------- | ------------------------- |
+| `id`             | UUID        | No       | Primary key               |
+| `user_id`        | UUID        | No       | Foreign key to auth.users |
+| `isin`           | TEXT        | No       | Bond ISIN code            |
+| `name`           | TEXT        | No       | Bond name/issuer          |
+| `quantity`       | INTEGER     | No       | Number of bonds           |
+| `face_value`     | NUMERIC     | No       | Face value per bond       |
+| `coupon_rate`    | NUMERIC     | No       | Annual interest rate (%)  |
+| `purchase_price` | NUMERIC     | No       | Purchase price per bond   |
+| `current_price`  | NUMERIC     | No       | Current market price      |
+| `maturity_date`  | DATE        | No       | Maturity date             |
+| `last_updated`   | TIMESTAMPTZ | Yes      | Last price update         |
+| `created_at`     | TIMESTAMPTZ | No       | Creation timestamp        |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `maturity_date`
 
 **Computed Fields**:
+
 - `invested_value = quantity * purchase_price`
 - `current_value = quantity * current_price`
 - `annual_interest = quantity * face_value * (coupon_rate / 100)`
@@ -336,19 +355,20 @@ History of bond purchases and sales.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `bond_id` | UUID | No | Foreign key to bonds |
-| `type` | TEXT | No | 'buy' or 'sell' |
-| `quantity` | INTEGER | No | Number of bonds |
-| `price` | NUMERIC | No | Price per bond |
-| `date` | DATE | No | Transaction date |
-| `notes` | TEXT | Yes | Optional notes |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column       | Type        | Nullable | Description               |
+| ------------ | ----------- | -------- | ------------------------- |
+| `id`         | UUID        | No       | Primary key               |
+| `user_id`    | UUID        | No       | Foreign key to auth.users |
+| `bond_id`    | UUID        | No       | Foreign key to bonds      |
+| `type`       | TEXT        | No       | 'buy' or 'sell'           |
+| `quantity`   | INTEGER     | No       | Number of bonds           |
+| `price`      | NUMERIC     | No       | Price per bond            |
+| `date`       | DATE        | No       | Transaction date          |
+| `notes`      | TEXT        | Yes      | Optional notes            |
+| `created_at` | TIMESTAMPTZ | No       | Creation timestamp        |
 
 **Foreign Keys**:
+
 - `bond_id` REFERENCES `bonds(id)` ON DELETE CASCADE
 
 ---
@@ -359,32 +379,34 @@ Futures and Options trading positions.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `symbol` | TEXT | No | Contract symbol (e.g., "NIFTY26FEB24000CE") |
-| `type` | TEXT | No | 'future' or 'option' |
-| `option_type` | TEXT | Yes | 'call' or 'put' (null for futures) |
-| `strike_price` | NUMERIC | Yes | Strike price for options |
-| `expiry_date` | DATE | No | Contract expiry date |
-| `quantity` | INTEGER | No | Lot size * number of lots |
-| `entry_price` | NUMERIC | No | Entry price |
-| `exit_price` | NUMERIC | Yes | Exit price (null if open) |
-| `status` | TEXT | No | 'open' or 'closed' |
-| `entry_date` | DATE | No | Trade entry date |
-| `exit_date` | DATE | Yes | Trade exit date |
-| `charges` | NUMERIC | No | Brokerage + taxes |
-| `notes` | TEXT | Yes | Optional notes |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column         | Type        | Nullable | Description                                 |
+| -------------- | ----------- | -------- | ------------------------------------------- |
+| `id`           | UUID        | No       | Primary key                                 |
+| `user_id`      | UUID        | No       | Foreign key to auth.users                   |
+| `symbol`       | TEXT        | No       | Contract symbol (e.g., "NIFTY26FEB24000CE") |
+| `type`         | TEXT        | No       | 'future' or 'option'                        |
+| `option_type`  | TEXT        | Yes      | 'call' or 'put' (null for futures)          |
+| `strike_price` | NUMERIC     | Yes      | Strike price for options                    |
+| `expiry_date`  | DATE        | No       | Contract expiry date                        |
+| `quantity`     | INTEGER     | No       | Lot size \* number of lots                  |
+| `entry_price`  | NUMERIC     | No       | Entry price                                 |
+| `exit_price`   | NUMERIC     | Yes      | Exit price (null if open)                   |
+| `status`       | TEXT        | No       | 'open' or 'closed'                          |
+| `entry_date`   | DATE        | No       | Trade entry date                            |
+| `exit_date`    | DATE        | Yes      | Trade exit date                             |
+| `charges`      | NUMERIC     | No       | Brokerage + taxes                           |
+| `notes`        | TEXT        | Yes      | Optional notes                              |
+| `created_at`   | TIMESTAMPTZ | No       | Creation timestamp                          |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `status`
 - Index on `expiry_date`
 
 **Computed Fields**:
+
 - `pnl = (exit_price - entry_price) * quantity - charges` (if closed)
 
 ---
@@ -395,21 +417,22 @@ Foreign exchange transactions.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `type` | TEXT | No | 'deposit' or 'withdrawal' |
-| `from_currency` | TEXT | No | Source currency (e.g., "INR") |
-| `to_currency` | TEXT | No | Target currency (e.g., "USD") |
-| `from_amount` | NUMERIC | No | Amount in source currency |
-| `to_amount` | NUMERIC | No | Amount in target currency |
-| `exchange_rate` | NUMERIC | No | Conversion rate |
-| `date` | DATE | No | Transaction date |
-| `notes` | TEXT | Yes | Optional notes |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column          | Type        | Nullable | Description                   |
+| --------------- | ----------- | -------- | ----------------------------- |
+| `id`            | UUID        | No       | Primary key                   |
+| `user_id`       | UUID        | No       | Foreign key to auth.users     |
+| `type`          | TEXT        | No       | 'deposit' or 'withdrawal'     |
+| `from_currency` | TEXT        | No       | Source currency (e.g., "INR") |
+| `to_currency`   | TEXT        | No       | Target currency (e.g., "USD") |
+| `from_amount`   | NUMERIC     | No       | Amount in source currency     |
+| `to_amount`     | NUMERIC     | No       | Amount in target currency     |
+| `exchange_rate` | NUMERIC     | No       | Conversion rate               |
+| `date`          | DATE        | No       | Transaction date              |
+| `notes`         | TEXT        | Yes      | Optional notes                |
+| `created_at`    | TIMESTAMPTZ | No       | Creation timestamp            |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `date`
@@ -422,24 +445,26 @@ Financial goals and milestones.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `name` | TEXT | No | Goal name (e.g., "House Down Payment") |
-| `target_amount` | NUMERIC | No | Target amount |
-| `current_amount` | NUMERIC | No | Current saved amount (default: 0) |
-| `target_date` | DATE | Yes | Target completion date |
-| `status` | TEXT | No | 'active', 'completed', 'paused' |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
-| `updated_at` | TIMESTAMPTZ | No | Last update timestamp |
+| Column           | Type        | Nullable | Description                            |
+| ---------------- | ----------- | -------- | -------------------------------------- |
+| `id`             | UUID        | No       | Primary key                            |
+| `user_id`        | UUID        | No       | Foreign key to auth.users              |
+| `name`           | TEXT        | No       | Goal name (e.g., "House Down Payment") |
+| `target_amount`  | NUMERIC     | No       | Target amount                          |
+| `current_amount` | NUMERIC     | No       | Current saved amount (default: 0)      |
+| `target_date`    | DATE        | Yes      | Target completion date                 |
+| `status`         | TEXT        | No       | 'active', 'completed', 'paused'        |
+| `created_at`     | TIMESTAMPTZ | No       | Creation timestamp                     |
+| `updated_at`     | TIMESTAMPTZ | No       | Last update timestamp                  |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `status`
 
 **Computed Fields**:
+
 - `progress_percent = (current_amount / target_amount) * 100`
 
 ---
@@ -450,18 +475,19 @@ Money sent to/received from family members.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `person` | TEXT | No | Family member name |
-| `amount` | NUMERIC | No | Transfer amount |
-| `type` | TEXT | No | 'sent' or 'received' |
-| `date` | DATE | No | Transfer date |
-| `notes` | TEXT | Yes | Optional notes |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column       | Type        | Nullable | Description               |
+| ------------ | ----------- | -------- | ------------------------- |
+| `id`         | UUID        | No       | Primary key               |
+| `user_id`    | UUID        | No       | Foreign key to auth.users |
+| `person`     | TEXT        | No       | Family member name        |
+| `amount`     | NUMERIC     | No       | Transfer amount           |
+| `type`       | TEXT        | No       | 'sent' or 'received'      |
+| `date`       | DATE        | No       | Transfer date             |
+| `notes`      | TEXT        | Yes      | Optional notes            |
+| `created_at` | TIMESTAMPTZ | No       | Creation timestamp        |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Index on `date`
@@ -474,16 +500,17 @@ Stocks/instruments user is monitoring (not owned).
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users |
-| `symbol` | TEXT | No | Symbol to watch |
-| `name` | TEXT | No | Instrument name |
-| `target_price` | NUMERIC | Yes | Alert price |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
+| Column         | Type        | Nullable | Description               |
+| -------------- | ----------- | -------- | ------------------------- |
+| `id`           | UUID        | No       | Primary key               |
+| `user_id`      | UUID        | No       | Foreign key to auth.users |
+| `symbol`       | TEXT        | No       | Symbol to watch           |
+| `name`         | TEXT        | No       | Instrument name           |
+| `target_price` | NUMERIC     | Yes      | Alert price               |
+| `created_at`   | TIMESTAMPTZ | No       | Creation timestamp        |
 
 **Indexes**:
+
 - Primary key on `id`
 - Index on `user_id`
 - Unique index on `(user_id, symbol)`
@@ -496,18 +523,19 @@ User preferences and application settings.
 
 **Columns**:
 
-| Column | Type | Nullable | Description |
-|--------|------|----------|-------------|
-| `id` | UUID | No | Primary key |
-| `user_id` | UUID | No | Foreign key to auth.users (unique) |
-| `brokerage_rate` | NUMERIC | No | Custom brokerage rate (default: 0.03%) |
-| `theme` | TEXT | No | 'light' or 'dark' (default: 'dark') |
-| `currency` | TEXT | No | Display currency (default: 'INR') |
-| `show_demo_data` | BOOLEAN | No | Show sample data (default: false) |
-| `created_at` | TIMESTAMPTZ | No | Creation timestamp |
-| `updated_at` | TIMESTAMPTZ | No | Last update timestamp |
+| Column           | Type        | Nullable | Description                            |
+| ---------------- | ----------- | -------- | -------------------------------------- |
+| `id`             | UUID        | No       | Primary key                            |
+| `user_id`        | UUID        | No       | Foreign key to auth.users (unique)     |
+| `brokerage_rate` | NUMERIC     | No       | Custom brokerage rate (default: 0.03%) |
+| `theme`          | TEXT        | No       | 'light' or 'dark' (default: 'dark')    |
+| `currency`       | TEXT        | No       | Display currency (default: 'INR')      |
+| `show_demo_data` | BOOLEAN     | No       | Show sample data (default: false)      |
+| `created_at`     | TIMESTAMPTZ | No       | Creation timestamp                     |
+| `updated_at`     | TIMESTAMPTZ | No       | Last update timestamp                  |
 
 **Indexes**:
+
 - Primary key on `id`
 - Unique index on `user_id`
 
@@ -545,6 +573,7 @@ FINCORE uses **manual migrations** tracked in version control. Future migrations
 4. Preserve existing data
 
 **Example Migration**:
+
 ```sql
 -- 003_add_target_date_to_goals.sql (UP)
 ALTER TABLE goals ADD COLUMN IF NOT EXISTS target_date DATE;
@@ -583,10 +612,7 @@ const { error } = await supabase
   .eq('id', stockId);
 
 // DELETE
-const { error } = await supabase
-  .from('transactions')
-  .delete()
-  .eq('id', transactionId);
+const { error } = await supabase.from('transactions').delete().eq('id', transactionId);
 ```
 
 ### Joining Tables
@@ -595,13 +621,15 @@ const { error } = await supabase
 // Get transactions with account details
 const { data } = await supabase
   .from('transactions')
-  .select(`
+  .select(
+    `
     *,
     accounts:account_id (
       name,
       type
     )
-  `)
+  `
+  )
   .eq('user_id', userId);
 ```
 
@@ -609,10 +637,7 @@ const { data } = await supabase
 
 ```typescript
 // Calculate total balance across accounts
-const { data } = await supabase
-  .from('accounts')
-  .select('balance')
-  .eq('user_id', userId);
+const { data } = await supabase.from('accounts').select('balance').eq('user_id', userId);
 
 const totalBalance = data?.reduce((sum, acc) => sum + acc.balance, 0);
 ```
@@ -644,6 +669,7 @@ pg_dump -h db.xxx.supabase.co -U postgres -a fincore_db > data.sql
 ### Query Performance
 
 Use Supabase dashboard to:
+
 - Monitor slow queries
 - Analyze query execution plans
 - Track database CPU and memory usage
@@ -665,12 +691,14 @@ Use Supabase dashboard to:
 ✅ **Always Enabled**: Every table has RLS policies enforcing `user_id` checks
 
 ❌ **Never do this**:
+
 ```typescript
 // Bypass RLS by using service role key in client-side code
 const supabase = createClient(url, SERVICE_ROLE_KEY); // DANGEROUS!
 ```
 
 ✅ **Do this**:
+
 ```typescript
 // Use anonymous key with RLS policies
 const supabase = createClient(url, ANON_KEY);

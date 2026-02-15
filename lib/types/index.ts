@@ -8,7 +8,15 @@
 // ============================================================================
 
 export type Currency = 'USD' | 'INR';
-export type AccountType = 'Savings' | 'Checking' | 'Current' | 'Wallet' | 'Investment' | 'Credit Card' | 'Cash' | 'Other';
+export type AccountType =
+  | 'Savings'
+  | 'Checking'
+  | 'Current'
+  | 'Wallet'
+  | 'Investment'
+  | 'Credit Card'
+  | 'Cash'
+  | 'Other';
 
 export interface Account {
   id: number;
@@ -375,7 +383,12 @@ export interface FinanceContextState {
   addAccount: (account: Omit<Account, 'id'>) => Promise<void>;
   updateAccount: (id: number, account: Partial<Account>) => Promise<void>;
   deleteAccount: (id: number) => Promise<void>;
-  addFunds: (accountId: number, amount: number, description?: string, category?: string) => Promise<void>;
+  addFunds: (
+    accountId: number,
+    amount: number,
+    description?: string,
+    category?: string
+  ) => Promise<void>;
 
   // Transactions
   transactions: Transaction[];
@@ -469,9 +482,8 @@ export type DeepPartial<T> = {
   [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
 };
 
-export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> =
-  Pick<T, Exclude<keyof T, Keys>>
-  & {
+export type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
+  {
     [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>;
   }[Keys];
 

@@ -2,7 +2,7 @@
 
 **Date**: 2026-02-14  
 **Project**: FINCORE Financial Dashboard  
-**Status**: ✅ COMPLETED  
+**Status**: ✅ COMPLETED
 
 ---
 
@@ -25,25 +25,28 @@ A comprehensive security and quality audit was conducted on all API endpoints in
 
 **Severity**: MEDIUM  
 **Affected Endpoints**:
+
 - `/api/forex/quote` - No validation of forex pair format
 - `/api/bonds/quote` - No validation of ISIN format
 - `/api/bonds/search` - No validation of search query
 
 **Fix Applied**:
+
 - Added regex validation for forex pairs: `/^[A-Z]{6,7}$/` (e.g., USDINR, JPYINR)
 - Added ISIN format validation: `/^[A-Z]{2}[A-Z0-9]{10}$/i` (e.g., INE018E07BU2)
 - Added query validation to bonds/search endpoint using existing `validateStockQuery`
 
 **Code Changes**:
+
 ```typescript
 // Forex validation
 if (!/^[A-Z]{6,7}$/.test(pair.toUpperCase())) {
-    return createErrorResponse('Invalid forex pair format', 400);
+  return createErrorResponse('Invalid forex pair format', 400);
 }
 
 // ISIN validation
 if (!/^[A-Z]{2}[A-Z0-9]{10}$/i.test(isin)) {
-    return createErrorResponse('Invalid ISIN format', 400);
+  return createErrorResponse('Invalid ISIN format', 400);
 }
 ```
 
@@ -54,6 +57,7 @@ if (!/^[A-Z]{2}[A-Z0-9]{10}$/i.test(isin)) {
 **Severity**: MEDIUM  
 **Risk**: Potential DoS through oversized batch requests  
 **Affected Endpoints**:
+
 - `/api/stocks/batch`
 - `/api/mf/batch`
 - `/api/bonds/batch`
@@ -64,9 +68,10 @@ if (!/^[A-Z]{2}[A-Z0-9]{10}$/i.test(isin)) {
 Added maximum batch size limit of 50 items to all batch endpoints.
 
 **Code Changes**:
+
 ```typescript
 if (items.length > 50) {
-    return createErrorResponse('Maximum 50 items allowed per batch', 400);
+  return createErrorResponse('Maximum 50 items allowed per batch', 400);
 }
 ```
 
@@ -79,11 +84,13 @@ if (items.length > 50) {
 **Location**: `lib/services/api.ts`
 
 **Fix Applied**:
+
 - Automatic cleanup when cache exceeds 500 entries
 - Hard limit of 1000 entries (oldest entries removed if exceeded)
 - Exposed `clearCache()` function for manual management
 
 **Code Changes**:
+
 ```typescript
 const API_CACHE_CLEANUP_THRESHOLD = 500;
 const API_CACHE_MAX_SIZE = 1000;
@@ -96,11 +103,11 @@ export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void 
   if (apiCache.size > API_CACHE_CLEANUP_THRESHOLD) {
     cleanupExpiredCache();
   }
-  
+
   if (apiCache.size >= API_CACHE_MAX_SIZE) {
     // Remove oldest 100 entries
   }
-  
+
   apiCache.set(key, { data, expire: Date.now() + ttlMs });
 }
 ```
@@ -112,6 +119,7 @@ export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void 
 **Severity**: LOW  
 **Issue**: Not all endpoints used the `withErrorHandling` wrapper  
 **Affected Endpoints**:
+
 - `/api/forex/quote`
 - `/api/bonds/quote`
 - `/api/bonds/search`
@@ -120,6 +128,7 @@ export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void 
 Wrapped all handler functions with `withErrorHandling` for consistent error responses.
 
 **Code Changes**:
+
 ```typescript
 // Before
 export async function GET(request: Request) { ... }
@@ -137,12 +146,14 @@ export const GET = withErrorHandling(handleForexQuote);
 **Location**: `next.config.ts`
 
 **Improvements**:
+
 - Added HSTS (Strict-Transport-Security) with 2-year max-age
 - Added DNS prefetch control
 - Added CORS headers for API routes
 - Changed X-Frame-Options from DENY to SAMEORIGIN (allows embedding in same origin)
 
 **Code Changes**:
+
 ```typescript
 {
   key: 'Strict-Transport-Security',
@@ -160,26 +171,31 @@ export const GET = withErrorHandling(handleForexQuote);
 ## Security Features Already in Place
 
 ### ✅ Rate Limiting
+
 - **Implementation**: In-memory rate limiter
 - **Limit**: 30 requests per minute per IP
 - **Status**: Active on all endpoints
 - **Note**: Ready for Redis upgrade in production
 
 ### ✅ Input Sanitization
+
 - **XSS Prevention**: HTML entity encoding
 - **Validation**: Regex-based input validation
 - **Status**: CodeQL verified (0 alerts)
 
 ### ✅ Request Timeout Protection
+
 - **Implementation**: `fetchWithTimeout()` utility
 - **Timeout**: 5-8 seconds (varies by endpoint)
 - **Status**: Prevents slowloris attacks
 
 ### ✅ Environment Variable Validation
+
 - **Status**: Validates required vars at startup
 - **Required**: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
 
 ### ✅ Secure Logging
+
 - **Status**: Sanitizes sensitive data in production
 - **Redacts**: password, token, secret, key, authorization, cookie
 
@@ -193,6 +209,7 @@ export const GET = withErrorHandling(handleForexQuote);
 **Implementation**: Supabase built-in connection pooler
 
 **Configuration** (supabase/config.toml):
+
 ```toml
 [db.pooler]
 enabled = false  # Disabled for local development
@@ -212,6 +229,7 @@ max_client_conn = 100
 - **Configuration**: No manual load balancer configuration needed
 
 The application uses:
+
 1. **Next.js App Router**: Automatic static optimization and ISR
 2. **Edge Runtime**: Can be deployed to edge locations
 3. **API Caching**: 60-second cache on stock/forex endpoints, 1-hour on bonds/MF
@@ -249,20 +267,20 @@ Created `__tests__/api/apiSecurity.test.ts` with 9 new tests:
 
 ### All Endpoints Secured ✅
 
-| Endpoint | Rate Limited | Input Validated | Batch Limit | Caching | Status |
-|----------|-------------|-----------------|-------------|---------|--------|
-| `/api/stocks/search` | ✅ | ✅ | N/A | ❌ | ✅ |
-| `/api/stocks/quote` | ✅ | ✅ | N/A | ✅ (60s) | ✅ |
-| `/api/stocks/batch` | ✅ | ✅ | ✅ (50) | ✅ (60s) | ✅ |
-| `/api/mf/search` | ✅ | ✅ | N/A | ❌ | ✅ |
-| `/api/mf/quote` | ✅ | ✅ | N/A | ✅ (1h) | ✅ |
-| `/api/mf/batch` | ✅ | ✅ | ✅ (50) | ✅ (5m) | ✅ |
-| `/api/bonds/search` | ✅ | ✅ | N/A | ❌ | ✅ |
-| `/api/bonds/quote` | ✅ | ✅ | N/A | ✅ (1h) | ✅ |
-| `/api/bonds/batch` | ✅ | ✅ | ✅ (50) | ✅ (5m) | ✅ |
-| `/api/forex/quote` | ✅ | ✅ | N/A | ❌ | ✅ |
-| `/api/forex/batch` | ✅ | ✅ | ✅ (50) | ✅ (1m) | ✅ |
-| `/api/fno/batch` | ✅ | ✅ | ✅ (50) | ✅ (5s) | ✅ |
+| Endpoint             | Rate Limited | Input Validated | Batch Limit | Caching  | Status |
+| -------------------- | ------------ | --------------- | ----------- | -------- | ------ |
+| `/api/stocks/search` | ✅           | ✅              | N/A         | ❌       | ✅     |
+| `/api/stocks/quote`  | ✅           | ✅              | N/A         | ✅ (60s) | ✅     |
+| `/api/stocks/batch`  | ✅           | ✅              | ✅ (50)     | ✅ (60s) | ✅     |
+| `/api/mf/search`     | ✅           | ✅              | N/A         | ❌       | ✅     |
+| `/api/mf/quote`      | ✅           | ✅              | N/A         | ✅ (1h)  | ✅     |
+| `/api/mf/batch`      | ✅           | ✅              | ✅ (50)     | ✅ (5m)  | ✅     |
+| `/api/bonds/search`  | ✅           | ✅              | N/A         | ❌       | ✅     |
+| `/api/bonds/quote`   | ✅           | ✅              | N/A         | ✅ (1h)  | ✅     |
+| `/api/bonds/batch`   | ✅           | ✅              | ✅ (50)     | ✅ (5m)  | ✅     |
+| `/api/forex/quote`   | ✅           | ✅              | N/A         | ❌       | ✅     |
+| `/api/forex/batch`   | ✅           | ✅              | ✅ (50)     | ✅ (1m)  | ✅     |
+| `/api/fno/batch`     | ✅           | ✅              | ✅ (50)     | ✅ (5s)  | ✅     |
 
 ---
 
@@ -350,6 +368,7 @@ found 0 vulnerabilities
 ### Pre-Deployment Steps
 
 1. **Configure Environment Variables**
+
    ```bash
    NEXT_PUBLIC_SUPABASE_URL=your-production-url
    NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=your-production-key
@@ -357,6 +376,7 @@ found 0 vulnerabilities
    ```
 
 2. **Enable Supabase Connection Pooler** (if self-hosting)
+
    ```toml
    [db.pooler]
    enabled = true
@@ -375,6 +395,7 @@ found 0 vulnerabilities
 ## Files Modified
 
 ### API Routes (9 files)
+
 1. `app/api/bonds/batch/route.ts` - Added batch limit
 2. `app/api/bonds/quote/route.ts` - Added ISIN validation, error handling
 3. `app/api/bonds/search/route.ts` - Added query validation, error handling
@@ -384,10 +405,12 @@ found 0 vulnerabilities
 7. `app/api/mf/batch/route.ts` - Added batch limit
 
 ### Core Libraries (2 files)
+
 8. `lib/services/api.ts` - Improved cache management, added clearCache()
 9. `next.config.ts` - Enhanced security headers, added CORS
 
 ### Tests (1 new file)
+
 10. `__tests__/api/apiSecurity.test.ts` - 9 new security tests
 
 ---

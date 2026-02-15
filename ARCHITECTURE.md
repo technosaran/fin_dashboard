@@ -1,6 +1,7 @@
 # FINCORE Architecture Documentation
 
 ## Table of Contents
+
 1. [System Overview](#system-overview)
 2. [Architecture Patterns](#architecture-patterns)
 3. [Data Flow](#data-flow)
@@ -104,15 +105,16 @@ All external API calls are proxied through Next.js API routes for security:
 // app/api/stocks/batch/route.ts
 export async function POST(request: Request) {
   const { symbols } = await request.json();
-  
+
   // Server-side call to Yahoo Finance
   const data = await fetchYahooQuotes(symbols);
-  
+
   return Response.json({ data });
 }
 ```
 
 **Benefits**:
+
 - Hides API keys from client
 - Centralizes error handling
 - Implements rate limiting
@@ -210,19 +212,23 @@ App Root (layout.tsx)
 ### Component Types
 
 **1. Layout Components**
+
 - `ClientLayout`: Wrapper for authenticated pages
 - `Sidebar`: Navigation menu
 - `ErrorBoundary`: Error handling wrapper
 
 **2. Page Components**
+
 - Server components that render client components
 - Example: `app/stocks/page.tsx` → `StocksClient.tsx`
 
 **3. Modal Components**
+
 - `AddStockModal`, `AddTransactionModal`, etc.
 - Reusable dialog patterns
 
 **4. Shared Components**
+
 - `SkeletonLoader`: Loading states
 - Form inputs, buttons, cards
 
@@ -248,16 +254,16 @@ interface FinanceState {
   goals: Goal[];
   familyTransfers: FamilyTransfer[];
   transactions: Transaction[];
-  
+
   // Metadata
   appSettings: AppSettings;
   isLoading: boolean;
   lastRefresh: Date | null;
-  
+
   // CRUD methods for each entity
   addAccount, updateAccount, deleteAccount, ...
   addStock, updateStock, deleteStock, ...
-  
+
   // Data refresh methods
   refreshStockPrices();
   refreshMutualFundNAVs();
@@ -272,12 +278,15 @@ interface FinanceState {
 useEffect(() => {
   // Initial load
   loadAllData();
-  
+
   // Auto-refresh every 5 minutes
-  const interval = setInterval(() => {
-    refreshAll();
-  }, 5 * 60 * 1000);
-  
+  const interval = setInterval(
+    () => {
+      refreshAll();
+    },
+    5 * 60 * 1000
+  );
+
   return () => clearInterval(interval);
 }, []);
 ```
@@ -288,29 +297,23 @@ useEffect(() => {
 async function addStock(stock: NewStock) {
   const tempId = `temp-${Date.now()}`;
   const optimisticStock = { ...stock, id: tempId };
-  
+
   // 1. Immediate UI update
-  setStocks(prev => [...prev, optimisticStock]);
-  
+  setStocks((prev) => [...prev, optimisticStock]);
+
   try {
     // 2. Database insert
-    const { data, error } = await supabase
-      .from('stocks')
-      .insert(stock)
-      .select()
-      .single();
-    
+    const { data, error } = await supabase.from('stocks').insert(stock).select().single();
+
     if (error) throw error;
-    
+
     // 3. Replace temp with real data
-    setStocks(prev => prev.map(s => 
-      s.id === tempId ? data : s
-    ));
-    
+    setStocks((prev) => prev.map((s) => (s.id === tempId ? data : s)));
+
     showNotification('Stock added successfully', 'success');
   } catch (error) {
     // 4. Rollback on error
-    setStocks(prev => prev.filter(s => s.id !== tempId));
+    setStocks((prev) => prev.filter((s) => s.id !== tempId));
     showNotification('Failed to add stock', 'error');
   }
 }
@@ -367,21 +370,21 @@ async function addStock(stock: NewStock) {
 
 ### Table Descriptions
 
-| Table | Purpose | Key Columns |
-|-------|---------|-------------|
-| `accounts` | Bank/investment accounts | name, type, balance, user_id |
-| `transactions` | Income/expense ledger | account_id, amount, category, date |
-| `stocks` | Stock holdings | symbol, quantity, buy_price, current_price |
-| `stock_transactions` | Buy/sell history | stock_id, type, quantity, price, charges |
-| `mutual_funds` | MF holdings | scheme_code, units, purchase_nav |
-| `mutual_fund_transactions` | MF investment history | mf_id, type, units, nav |
-| `bonds` | Bond holdings | isin, face_value, coupon_rate, maturity_date |
-| `bond_transactions` | Bond buy/sell | bond_id, type, quantity, price |
-| `fno_trades` | F&O positions | symbol, type, quantity, entry_price, exit_price |
-| `forex_transactions` | Currency exchanges | from_currency, to_currency, amount, rate |
-| `goals` | Financial milestones | name, target_amount, current_amount, target_date |
-| `family_transfers` | Money sent/received | person, amount, type, date |
-| `app_settings` | User preferences | brokerage_rate, show_demo_data |
+| Table                      | Purpose                  | Key Columns                                      |
+| -------------------------- | ------------------------ | ------------------------------------------------ |
+| `accounts`                 | Bank/investment accounts | name, type, balance, user_id                     |
+| `transactions`             | Income/expense ledger    | account_id, amount, category, date               |
+| `stocks`                   | Stock holdings           | symbol, quantity, buy_price, current_price       |
+| `stock_transactions`       | Buy/sell history         | stock_id, type, quantity, price, charges         |
+| `mutual_funds`             | MF holdings              | scheme_code, units, purchase_nav                 |
+| `mutual_fund_transactions` | MF investment history    | mf_id, type, units, nav                          |
+| `bonds`                    | Bond holdings            | isin, face_value, coupon_rate, maturity_date     |
+| `bond_transactions`        | Bond buy/sell            | bond_id, type, quantity, price                   |
+| `fno_trades`               | F&O positions            | symbol, type, quantity, entry_price, exit_price  |
+| `forex_transactions`       | Currency exchanges       | from_currency, to_currency, amount, rate         |
+| `goals`                    | Financial milestones     | name, target_amount, current_amount, target_date |
+| `family_transfers`         | Money sent/received      | person, amount, type, date                       |
+| `app_settings`             | User preferences         | brokerage_rate, show_demo_data                   |
 
 ---
 
@@ -439,6 +442,7 @@ FOR DELETE USING (auth.uid() = user_id);
 ### 1. Data Fetching Strategies
 
 **Batch API Calls**:
+
 ```typescript
 // Instead of N requests
 for (const stock of stocks) {
@@ -448,28 +452,29 @@ for (const stock of stocks) {
 // Make 1 batch request
 fetch('/api/stocks/batch', {
   method: 'POST',
-  body: JSON.stringify({ 
-    symbols: stocks.map(s => s.symbol) 
-  })
+  body: JSON.stringify({
+    symbols: stocks.map((s) => s.symbol),
+  }),
 });
 ```
 
 **Caching**:
+
 - Client-side: 5-minute TTL in FinanceContext
 - Server-side: Consider adding Redis for API responses
 
 ### 2. React Optimization
 
 **Memoization**:
+
 ```typescript
 const totalValue = useMemo(() => {
-  return stocks.reduce((sum, stock) => 
-    sum + (stock.current_price * stock.quantity), 0
-  );
+  return stocks.reduce((sum, stock) => sum + stock.current_price * stock.quantity, 0);
 }, [stocks]);
 ```
 
 **Code Splitting**:
+
 ```typescript
 // Dynamic imports for heavy components
 const StocksClient = dynamic(() => import('./StocksClient'), {
@@ -520,14 +525,17 @@ const StocksClient = dynamic(() => import('./StocksClient'), {
 ### Environment Configuration
 
 **Development**:
+
 - Local Next.js dev server
 - Supabase cloud instance (or local)
 
 **Staging**:
+
 - Vercel preview deployment
 - Supabase staging instance
 
 **Production**:
+
 - Vercel/Cloudflare Pages
 - Supabase production instance
 - Custom domain with SSL
@@ -568,12 +576,14 @@ const StocksClient = dynamic(() => import('./StocksClient'), {
 **Decision**: Use React Context API with hooks.
 
 **Rationale**:
+
 - Simpler setup and less boilerplate
 - Sufficient for our use case (read-heavy, not many concurrent updates)
 - Better TypeScript integration
 - Smaller bundle size
 
 **Consequences**:
+
 - May need to refactor if app scales significantly
 - Careful management needed to avoid unnecessary re-renders
 
@@ -586,6 +596,7 @@ const StocksClient = dynamic(() => import('./StocksClient'), {
 **Decision**: Use Supabase as backend-as-a-service.
 
 **Rationale**:
+
 - Built-in authentication with RLS
 - PostgreSQL (powerful, scalable)
 - Generous free tier
@@ -593,6 +604,7 @@ const StocksClient = dynamic(() => import('./StocksClient'), {
 - Real-time subscriptions if needed
 
 **Consequences**:
+
 - Vendor lock-in (mitigated by standard PostgreSQL)
 - May need custom backend for complex business logic
 

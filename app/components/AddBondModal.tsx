@@ -1,117 +1,115 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
-import {
-    X,
-    Search,
-    Calendar,
-    ShieldCheck,
-} from 'lucide-react';
+import { X, Search, Calendar, ShieldCheck } from 'lucide-react';
 import { useFinance } from './FinanceContext';
 import { Bond } from '@/lib/types';
 import { useNotifications } from './NotificationContext';
 import { logError } from '@/lib/utils/logger';
 
 interface AddBondModalProps {
-    isOpen: boolean;
-    onClose: () => void;
+  isOpen: boolean;
+  onClose: () => void;
 }
 
 interface BondSearchResult {
-    isin: string;
-    name: string;
-    company_name: string;
-    coupon_rate: number;
-    face_value: number;
-    maturity_date: string;
-    interest_frequency: string;
-    rating?: string;
+  isin: string;
+  name: string;
+  company_name: string;
+  coupon_rate: number;
+  face_value: number;
+  maturity_date: string;
+  interest_frequency: string;
+  rating?: string;
 }
 
 export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
-    const { addBond, accounts, settings } = useFinance();
-    const { showNotification } = useNotifications();
+  const { addBond, accounts, settings } = useFinance();
+  const { showNotification } = useNotifications();
 
-    const [activeTab, setActiveTab] = useState<'search' | 'manual'>('search');
-    const [searchQuery, setSearchQuery] = useState('');
-    const [searchResults, setSearchResults] = useState<BondSearchResult[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
-    const [selectedBond, setSelectedBond] = useState<BondSearchResult | null>(null);
+  const [activeTab, setActiveTab] = useState<'search' | 'manual'>('search');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<BondSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [selectedBond, setSelectedBond] = useState<BondSearchResult | null>(null);
 
-    // Investment Details
-    const [quantity, setQuantity] = useState<number>(1);
-    const [avgPrice, setAvgPrice] = useState<number>(0);
-    const [accountId, setAccountId] = useState<number>(settings.defaultStockAccountId || 0);
-    const [isSubmitting, setIsSubmitting] = useState(false);
+  // Investment Details
+  const [quantity, setQuantity] = useState<number>(1);
+  const [avgPrice, setAvgPrice] = useState<number>(0);
+  const [accountId, setAccountId] = useState<number>(settings.defaultStockAccountId || 0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Manual Form State
-    const [manualForm, setManualForm] = useState({
+  // Manual Form State
+  const [manualForm, setManualForm] = useState({
+    name: '',
+    isin: '',
+    company: '',
+    coupon: '',
+    maturity: '',
+    frequency: 'Yearly',
+    faceValue: '1000',
+  });
+
+  // Reset state on open
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab('search');
+      setSearchQuery('');
+      setSearchResults([]);
+      setSelectedBond(null);
+      setQuantity(1);
+      setAvgPrice(0);
+      setManualForm({
         name: '',
         isin: '',
         company: '',
         coupon: '',
         maturity: '',
         frequency: 'Yearly',
-        faceValue: '1000'
-    });
+        faceValue: '1000',
+      });
+    }
+  }, [isOpen]);
 
-    // Reset state on open
-    useEffect(() => {
-        if (isOpen) {
-            setActiveTab('search');
-            setSearchQuery('');
-            setSearchResults([]);
-            setSelectedBond(null);
-            setQuantity(1);
-            setAvgPrice(0);
-            setManualForm({
-                name: '',
-                isin: '',
-                company: '',
-                coupon: '',
-                maturity: '',
-                frequency: 'Yearly',
-                faceValue: '1000'
-            });
+  // Search Effect
+  useEffect(() => {
+    const fetchBonds = async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/bonds/search?q=${encodeURIComponent(searchQuery)}`);
+        const data = await res.json();
+        if (data.status === 200) {
+          setSearchResults(data.data);
         }
-    }, [isOpen]);
+      } catch (error) {
+        logError('Search failed:', error);
+      } finally {
+        setIsSearching(false);
+      }
+    };
 
-    // Search Effect
-    useEffect(() => {
-        const fetchBonds = async () => {
-            if (searchQuery.length < 2) {
-                setSearchResults([]);
-                return;
-            }
+    const timeoutId = setTimeout(fetchBonds, 400);
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
-            setIsSearching(true);
-            try {
-                const res = await fetch(`/api/bonds/search?q=${encodeURIComponent(searchQuery)}`);
-                const data = await res.json();
-                if (data.status === 200) {
-                    setSearchResults(data.data);
-                }
-            } catch (error) {
-                logError('Search failed:', error);
-            } finally {
-                setIsSearching(false);
-            }
-        };
+  // Update price when bond selected
+  useEffect(() => {
+    if (selectedBond) {
+      setAvgPrice(selectedBond.face_value);
+    }
+  }, [selectedBond]);
 
-        const timeoutId = setTimeout(fetchBonds, 400);
-        return () => clearTimeout(timeoutId);
-    }, [searchQuery]);
-
-    // Update price when bond selected
-    useEffect(() => {
-        if (selectedBond) {
-            setAvgPrice(selectedBond.face_value);
-        }
-    }, [selectedBond]);
-
-    const submitBond = async () => {
-        // If manual mode, construct bond from form
-        const bondToSubmit = selectedBond || (activeTab === 'manual' ? {
+  const submitBond = async () => {
+    // If manual mode, construct bond from form
+    const bondToSubmit =
+      selectedBond ||
+      (activeTab === 'manual'
+        ? ({
             name: manualForm.name,
             isin: manualForm.isin || `MANUAL-${Date.now()}`,
             company_name: manualForm.company,
@@ -119,300 +117,568 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
             face_value: parseFloat(manualForm.faceValue),
             maturity_date: manualForm.maturity,
             interest_frequency: manualForm.frequency,
-            rating: 'Unrated'
-        } as BondSearchResult : null);
+            rating: 'Unrated',
+          } as BondSearchResult)
+        : null);
 
-        if (!bondToSubmit) return;
+    if (!bondToSubmit) return;
 
-        setIsSubmitting(true);
-        try {
-            const investmentAmount = quantity * avgPrice;
+    setIsSubmitting(true);
+    try {
+      const investmentAmount = quantity * avgPrice;
 
-            const bondData: Omit<Bond, 'id'> = {
-                name: bondToSubmit.name,
-                isin: bondToSubmit.isin,
-                companyName: bondToSubmit.company_name,
-                faceValue: bondToSubmit.face_value,
-                couponRate: bondToSubmit.coupon_rate,
-                maturityDate: bondToSubmit.maturity_date,
-                quantity: quantity,
-                avgPrice: avgPrice,
-                currentPrice: avgPrice,
-                investmentAmount: investmentAmount,
-                currentValue: investmentAmount,
-                pnl: 0,
-                pnlPercentage: 0,
-                interestFrequency: bondToSubmit.interest_frequency,
-                status: 'ACTIVE'
-            };
+      const bondData: Omit<Bond, 'id'> = {
+        name: bondToSubmit.name,
+        isin: bondToSubmit.isin,
+        companyName: bondToSubmit.company_name,
+        faceValue: bondToSubmit.face_value,
+        couponRate: bondToSubmit.coupon_rate,
+        maturityDate: bondToSubmit.maturity_date,
+        quantity: quantity,
+        avgPrice: avgPrice,
+        currentPrice: avgPrice,
+        investmentAmount: investmentAmount,
+        currentValue: investmentAmount,
+        pnl: 0,
+        pnlPercentage: 0,
+        interestFrequency: bondToSubmit.interest_frequency,
+        status: 'ACTIVE',
+      };
 
-            await addBond(bondData);
-            showNotification('success', 'Bond added to your portfolio');
-            onClose();
-        } catch (error) {
-            logError('Failed to add bond:', error);
-            showNotification('error', 'Failed to add bond');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
+      await addBond(bondData);
+      showNotification('success', 'Bond added to your portfolio');
+      onClose();
+    } catch (error) {
+      logError('Failed to add bond:', error);
+      showNotification('error', 'Failed to add bond');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        await submitBond();
-    };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await submitBond();
+  };
 
-    if (!isOpen) return null;
+  if (!isOpen) return null;
 
-    return (
-        <div style={{ position: 'fixed', inset: 0, zIndex: 1100, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            {/* Backdrop */}
-            <div
-                style={{ position: 'absolute', inset: 0, background: 'rgba(2, 6, 23, 0.8)', backdropFilter: 'blur(16px)' }}
-                onClick={onClose}
-            />
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 1100,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {/* Backdrop */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: 'rgba(2, 6, 23, 0.8)',
+          backdropFilter: 'blur(16px)',
+        }}
+        onClick={onClose}
+      />
 
-            {/* Modal Container */}
-            <div className="fade-in" style={{
-                width: '100%', maxWidth: '650px',
-                height: 'auto', maxHeight: '90vh',
-                position: 'relative', zIndex: 10,
-                background: '#0f172a',
-                border: '1px solid rgba(148, 163, 184, 0.1)',
-                borderRadius: '24px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                display: 'flex', flexDirection: 'column',
-                overflow: 'hidden'
-            }}>
-
-                {/* Header */}
-                <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <h2 style={{ fontSize: '1.5rem', fontWeight: '800', margin: 0, background: 'linear-gradient(to right, #fff, #94a3b8)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                            Add Investment
-                        </h2>
-                        <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0 0' }}>Add a bond or fixed-income instrument</p>
-                    </div>
-                    <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.05)', border: 'none', borderRadius: '12px', padding: '8px', color: '#94a3b8', cursor: 'pointer', transition: 'all 0.2s' }}>
-                        <X size={20} />
-                    </button>
-                </div>
-
-                {/* Tabs */}
-                {!selectedBond && (
-                    <div style={{ display: 'flex', padding: '4px', margin: '24px 24px 0 24px', background: 'rgba(0,0,0,0.2)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
-                        <button
-                            onClick={() => setActiveTab('search')}
-                            style={{
-                                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '600', fontSize: '0.9rem', cursor: 'pointer',
-                                background: activeTab === 'search' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                                color: activeTab === 'search' ? '#fff' : '#64748b',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            Search Database
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('manual')}
-                            style={{
-                                flex: 1, padding: '10px', borderRadius: '8px', border: 'none', fontWeight: '600', fontSize: '0.9rem', cursor: 'pointer',
-                                background: activeTab === 'manual' ? 'rgba(255,255,255,0.1)' : 'transparent',
-                                color: activeTab === 'manual' ? '#fff' : '#64748b',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            Manual Entry
-                        </button>
-                    </div>
-                )}
-
-                {/* Content */}
-                <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
-
-                    {/* SEARCH TAB */}
-                    {activeTab === 'search' && !selectedBond && (
-                        <div className="fade-in">
-                            <div style={{ position: 'relative', marginBottom: '24px' }}>
-                                <Search style={{ position: 'absolute', left: '16px', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} size={20} />
-                                <input
-                                    type="text"
-                                    placeholder="Search by name or ISIN..."
-                                    value={searchQuery}
-                                    onChange={(e) => setSearchQuery(e.target.value)}
-                                    autoFocus
-                                    style={{
-                                        width: '100%', padding: '16px 16px 16px 48px',
-                                        background: 'rgba(255,255,255,0.03)',
-                                        border: '1px solid rgba(255,255,255,0.1)',
-                                        borderRadius: '16px',
-                                        color: '#fff', fontSize: '1rem', outline: 'none',
-                                        transition: 'all 0.2s'
-                                    }}
-                                />
-                            </div>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                {searchResults.map((bond, idx) => (
-                                    <div
-                                        key={idx}
-                                        onClick={() => setSelectedBond(bond)}
-                                        className="hover-card-premium"
-                                        style={{
-                                            padding: '16px',
-                                            background: 'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))',
-                                            border: '1px solid rgba(255,255,255,0.05)',
-                                            borderRadius: '16px',
-                                            cursor: 'pointer',
-                                            display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-                                        }}
-                                    >
-                                        <div>
-                                            <div style={{ color: '#fff', fontWeight: '700', fontSize: '1rem', marginBottom: '4px' }}>{bond.name}</div>
-                                            <div style={{ display: 'flex', gap: '12px', fontSize: '0.8rem', color: '#94a3b8' }}>
-                                                <span className="flex items-center gap-1"><ShieldCheck size={12} /> {bond.isin}</span>
-                                                <span className="flex items-center gap-1"><Calendar size={12} /> {bond.maturity_date}</span>
-                                            </div>
-                                        </div>
-                                        <div style={{ textAlign: 'right' }}>
-                                            <div style={{ color: '#f59e0b', fontWeight: '800', fontSize: '1.1rem' }}>{bond.coupon_rate}%</div>
-                                            <div style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}>{bond.interest_frequency}</div>
-                                        </div>
-                                    </div>
-                                ))}
-                                {searchQuery && searchResults.length === 0 && !isSearching && (
-                                    <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
-                                        No bonds found. Try manual entry.
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    )}
-
-                    {/* MANUAL TAB */}
-                    {activeTab === 'manual' && !selectedBond && (
-                        <div className="fade-in" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label className="input-label">Bond Name</label>
-                                <input className="input-field" type="text" placeholder="e.g. RBI Floating Rate Bond 2030" value={manualForm.name} onChange={e => setManualForm({ ...manualForm, name: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="input-label">ISIN (Optional)</label>
-                                <input className="input-field" type="text" placeholder="INE..." value={manualForm.isin} onChange={e => setManualForm({ ...manualForm, isin: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="input-label">Maturity Date</label>
-                                <input className="input-field" type="date" value={manualForm.maturity} onChange={e => setManualForm({ ...manualForm, maturity: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="input-label">Coupon Rate (%)</label>
-                                <input className="input-field" type="number" step="0.01" placeholder="7.5" value={manualForm.coupon} onChange={e => setManualForm({ ...manualForm, coupon: e.target.value })} />
-                            </div>
-                            <div>
-                                <label className="input-label">Interest Frequency</label>
-                                <select className="input-field" value={manualForm.frequency} onChange={e => setManualForm({ ...manualForm, frequency: e.target.value })}>
-                                    <option>Monthly</option>
-                                    <option>Quarterly</option>
-                                    <option>Half-Yearly</option>
-                                    <option>Yearly</option>
-                                    <option>At Maturity</option>
-                                </select>
-                            </div>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label className="input-label">Face Value (₹)</label>
-                                <input className="input-field" type="number" step="100" value={manualForm.faceValue} onChange={e => setManualForm({ ...manualForm, faceValue: e.target.value })} />
-                            </div>
-
-                            <button
-                                onClick={() => {
-                                    if (manualForm.name && manualForm.coupon) {
-                                        // Transition to confirmation state
-                                        submitBond();
-                                    } else {
-                                        showNotification('error', 'Please fill required fields');
-                                    }
-                                }}
-                                className="glass-button glow-primary"
-                                style={{ gridColumn: 'span 2', padding: '16px', background: 'var(--accent)', border: 'none', borderRadius: '16px', fontWeight: '700', fontSize: '1rem', marginTop: '16px' }}
-                            >
-                                Continue
-                            </button>
-                        </div>
-                    )}
-
-
-                    {/* INVESTMENT DETAILS (CONFIRMATION) */}
-                    {selectedBond && (
-                        <div className="fade-in">
-                            <div style={{ background: 'linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(30, 41, 59, 0.4))', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '20px', padding: '20px', marginBottom: '24px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}>
-                                    <div>
-                                        <h3 style={{ fontSize: '1.25rem', fontWeight: '800', margin: '0 0 4px 0', color: '#fff' }}>{selectedBond.name}</h3>
-                                        <div style={{ color: '#94a3b8', fontSize: '0.875rem' }}>{selectedBond.isin}</div>
-                                    </div>
-                                    <button onClick={() => setSelectedBond(null)} className="text-button" style={{ color: 'var(--accent)' }}>Change</button>
-                                </div>
-                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginTop: '16px' }}>
-                                    <div>
-                                        <div className="label-xs">Coupon</div>
-                                        <div className="value-sm" style={{ color: '#f59e0b' }}>{selectedBond.coupon_rate}%</div>
-                                    </div>
-                                    <div>
-                                        <div className="label-xs">Maturity</div>
-                                        <div className="value-sm">{new Date(selectedBond.maturity_date).toLocaleDateString()}</div>
-                                    </div>
-                                    <div>
-                                        <div className="label-xs">Face Value</div>
-                                        <div className="value-sm">₹{selectedBond.face_value}</div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px' }}>
-                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                                    <div>
-                                        <label className="input-label">Quantity</label>
-                                        <input className="input-field" type="number" min="1" value={quantity} onChange={e => setQuantity(Number(e.target.value))} />
-                                    </div>
-                                    <div>
-                                        <label className="input-label">Price Per Unit</label>
-                                        <input className="input-field" type="number" step="0.01" value={avgPrice} onChange={e => setAvgPrice(Number(e.target.value))} />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="input-label">Funding Account</label>
-                                    <select className="input-field" value={accountId} onChange={e => setAccountId(Number(e.target.value))}>
-                                        <option value={0}>Manual (No Deduction)</option>
-                                        {accounts.map(acc => <option key={acc.id} value={acc.id}>{acc.name} (₹{acc.balance.toLocaleString()})</option>)}
-                                    </select>
-                                </div>
-
-                                <div style={{ background: 'rgba(255,255,255,0.03)', padding: '20px', borderRadius: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-                                    <span style={{ color: '#94a3b8' }}>Total Investment</span>
-                                    <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>₹{(quantity * avgPrice).toLocaleString()}</span>
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    disabled={isSubmitting}
-                                    className="glass-button glow-primary"
-                                    style={{ width: '100%', padding: '16px', background: 'var(--accent)', border: 'none', borderRadius: '16px', fontWeight: '800', fontSize: '1rem', marginTop: '16px' }}
-                                >
-                                    {isSubmitting ? 'Processing...' : 'Confirm & Add Bond'}
-                                </button>
-                            </form>
-                        </div>
-                    )}
-                </div>
-            </div>
-
-            <style jsx>{`
-                .input-label { margin-bottom: 8px; display: block; font-size: 0.75rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; }
-                .input-field { width: 100%; background: #020617; border: 1px solid #1e293b; color: #fff; padding: 14px; border-radius: 12px; outline: none; transition: all 0.2s; font-size: 0.95rem; }
-                .input-field:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
-                .label-xs { font-size: 0.7rem; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 4px; }
-                .value-sm { font-size: 0.95rem; color: #fff; font-weight: 700; }
-            `}</style>
+      {/* Modal Container */}
+      <div
+        className="fade-in"
+        style={{
+          width: '100%',
+          maxWidth: '650px',
+          height: 'auto',
+          maxHeight: '90vh',
+          position: 'relative',
+          zIndex: 10,
+          background: '#0f172a',
+          border: '1px solid rgba(148, 163, 184, 0.1)',
+          borderRadius: '24px',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Header */}
+        <div
+          style={{
+            padding: '24px',
+            borderBottom: '1px solid rgba(255,255,255,0.05)',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <h2
+              style={{
+                fontSize: '1.5rem',
+                fontWeight: '800',
+                margin: 0,
+                background: 'linear-gradient(to right, #fff, #94a3b8)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Add Investment
+            </h2>
+            <p style={{ color: '#64748b', fontSize: '0.875rem', margin: '4px 0 0 0' }}>
+              Add a bond or fixed-income instrument
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '8px',
+              color: '#94a3b8',
+              cursor: 'pointer',
+              transition: 'all 0.2s',
+            }}
+          >
+            <X size={20} />
+          </button>
         </div>
-    );
+
+        {/* Tabs */}
+        {!selectedBond && (
+          <div
+            style={{
+              display: 'flex',
+              padding: '4px',
+              margin: '24px 24px 0 24px',
+              background: 'rgba(0,0,0,0.2)',
+              borderRadius: '12px',
+              border: '1px solid rgba(255,255,255,0.05)',
+            }}
+          >
+            <button
+              onClick={() => setActiveTab('search')}
+              style={{
+                flex: 1,
+                padding: '10px',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                background: activeTab === 'search' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === 'search' ? '#fff' : '#64748b',
+                transition: 'all 0.2s',
+              }}
+            >
+              Search Database
+            </button>
+            <button
+              onClick={() => setActiveTab('manual')}
+              style={{
+                flex: 1,
+                padding: '10px',
+                borderRadius: '8px',
+                border: 'none',
+                fontWeight: '600',
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                background: activeTab === 'manual' ? 'rgba(255,255,255,0.1)' : 'transparent',
+                color: activeTab === 'manual' ? '#fff' : '#64748b',
+                transition: 'all 0.2s',
+              }}
+            >
+              Manual Entry
+            </button>
+          </div>
+        )}
+
+        {/* Content */}
+        <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
+          {/* SEARCH TAB */}
+          {activeTab === 'search' && !selectedBond && (
+            <div className="fade-in">
+              <div style={{ position: 'relative', marginBottom: '24px' }}>
+                <Search
+                  style={{
+                    position: 'absolute',
+                    left: '16px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: '#64748b',
+                  }}
+                  size={20}
+                />
+                <input
+                  type="text"
+                  placeholder="Search by name or ISIN..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '16px 16px 16px 48px',
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    borderRadius: '16px',
+                    color: '#fff',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                {searchResults.map((bond, idx) => (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedBond(bond)}
+                    className="hover-card-premium"
+                    style={{
+                      padding: '16px',
+                      background:
+                        'linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01))',
+                      border: '1px solid rgba(255,255,255,0.05)',
+                      borderRadius: '16px',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div>
+                      <div
+                        style={{
+                          color: '#fff',
+                          fontWeight: '700',
+                          fontSize: '1rem',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        {bond.name}
+                      </div>
+                      <div
+                        style={{
+                          display: 'flex',
+                          gap: '12px',
+                          fontSize: '0.8rem',
+                          color: '#94a3b8',
+                        }}
+                      >
+                        <span className="flex items-center gap-1">
+                          <ShieldCheck size={12} /> {bond.isin}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <Calendar size={12} /> {bond.maturity_date}
+                        </span>
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ color: '#f59e0b', fontWeight: '800', fontSize: '1.1rem' }}>
+                        {bond.coupon_rate}%
+                      </div>
+                      <div
+                        style={{ fontSize: '0.7rem', color: '#64748b', textTransform: 'uppercase' }}
+                      >
+                        {bond.interest_frequency}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                {searchQuery && searchResults.length === 0 && !isSearching && (
+                  <div style={{ textAlign: 'center', padding: '40px', color: '#64748b' }}>
+                    No bonds found. Try manual entry.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* MANUAL TAB */}
+          {activeTab === 'manual' && !selectedBond && (
+            <div
+              className="fade-in"
+              style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '20px' }}
+            >
+              <div style={{ gridColumn: 'span 2' }}>
+                <label className="input-label">Bond Name</label>
+                <input
+                  className="input-field"
+                  type="text"
+                  placeholder="e.g. RBI Floating Rate Bond 2030"
+                  value={manualForm.name}
+                  onChange={(e) => setManualForm({ ...manualForm, name: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="input-label">ISIN (Optional)</label>
+                <input
+                  className="input-field"
+                  type="text"
+                  placeholder="INE..."
+                  value={manualForm.isin}
+                  onChange={(e) => setManualForm({ ...manualForm, isin: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="input-label">Maturity Date</label>
+                <input
+                  className="input-field"
+                  type="date"
+                  value={manualForm.maturity}
+                  onChange={(e) => setManualForm({ ...manualForm, maturity: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="input-label">Coupon Rate (%)</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  step="0.01"
+                  placeholder="7.5"
+                  value={manualForm.coupon}
+                  onChange={(e) => setManualForm({ ...manualForm, coupon: e.target.value })}
+                />
+              </div>
+              <div>
+                <label className="input-label">Interest Frequency</label>
+                <select
+                  className="input-field"
+                  value={manualForm.frequency}
+                  onChange={(e) => setManualForm({ ...manualForm, frequency: e.target.value })}
+                >
+                  <option>Monthly</option>
+                  <option>Quarterly</option>
+                  <option>Half-Yearly</option>
+                  <option>Yearly</option>
+                  <option>At Maturity</option>
+                </select>
+              </div>
+              <div style={{ gridColumn: 'span 2' }}>
+                <label className="input-label">Face Value (₹)</label>
+                <input
+                  className="input-field"
+                  type="number"
+                  step="100"
+                  value={manualForm.faceValue}
+                  onChange={(e) => setManualForm({ ...manualForm, faceValue: e.target.value })}
+                />
+              </div>
+
+              <button
+                onClick={() => {
+                  if (manualForm.name && manualForm.coupon) {
+                    // Transition to confirmation state
+                    submitBond();
+                  } else {
+                    showNotification('error', 'Please fill required fields');
+                  }
+                }}
+                className="glass-button glow-primary"
+                style={{
+                  gridColumn: 'span 2',
+                  padding: '16px',
+                  background: 'var(--accent)',
+                  border: 'none',
+                  borderRadius: '16px',
+                  fontWeight: '700',
+                  fontSize: '1rem',
+                  marginTop: '16px',
+                }}
+              >
+                Continue
+              </button>
+            </div>
+          )}
+
+          {/* INVESTMENT DETAILS (CONFIRMATION) */}
+          {selectedBond && (
+            <div className="fade-in">
+              <div
+                style={{
+                  background:
+                    'linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(30, 41, 59, 0.4))',
+                  border: '1px solid rgba(99, 102, 241, 0.2)',
+                  borderRadius: '20px',
+                  padding: '20px',
+                  marginBottom: '24px',
+                }}
+              >
+                <div
+                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: '1.25rem',
+                        fontWeight: '800',
+                        margin: '0 0 4px 0',
+                        color: '#fff',
+                      }}
+                    >
+                      {selectedBond.name}
+                    </h3>
+                    <div style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
+                      {selectedBond.isin}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setSelectedBond(null)}
+                    className="text-button"
+                    style={{ color: 'var(--accent)' }}
+                  >
+                    Change
+                  </button>
+                </div>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '16px',
+                    marginTop: '16px',
+                  }}
+                >
+                  <div>
+                    <div className="label-xs">Coupon</div>
+                    <div className="value-sm" style={{ color: '#f59e0b' }}>
+                      {selectedBond.coupon_rate}%
+                    </div>
+                  </div>
+                  <div>
+                    <div className="label-xs">Maturity</div>
+                    <div className="value-sm">
+                      {new Date(selectedBond.maturity_date).toLocaleDateString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="label-xs">Face Value</div>
+                    <div className="value-sm">₹{selectedBond.face_value}</div>
+                  </div>
+                </div>
+              </div>
+
+              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                  <div>
+                    <label className="input-label">Quantity</label>
+                    <input
+                      className="input-field"
+                      type="number"
+                      min="1"
+                      value={quantity}
+                      onChange={(e) => setQuantity(Number(e.target.value))}
+                    />
+                  </div>
+                  <div>
+                    <label className="input-label">Price Per Unit</label>
+                    <input
+                      className="input-field"
+                      type="number"
+                      step="0.01"
+                      value={avgPrice}
+                      onChange={(e) => setAvgPrice(Number(e.target.value))}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="input-label">Funding Account</label>
+                  <select
+                    className="input-field"
+                    value={accountId}
+                    onChange={(e) => setAccountId(Number(e.target.value))}
+                  >
+                    <option value={0}>Manual (No Deduction)</option>
+                    {accounts.map((acc) => (
+                      <option key={acc.id} value={acc.id}>
+                        {acc.name} (₹{acc.balance.toLocaleString()})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    padding: '20px',
+                    borderRadius: '16px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginTop: '8px',
+                  }}
+                >
+                  <span style={{ color: '#94a3b8' }}>Total Investment</span>
+                  <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>
+                    ₹{(quantity * avgPrice).toLocaleString()}
+                  </span>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="glass-button glow-primary"
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: 'var(--accent)',
+                    border: 'none',
+                    borderRadius: '16px',
+                    fontWeight: '800',
+                    fontSize: '1rem',
+                    marginTop: '16px',
+                  }}
+                >
+                  {isSubmitting ? 'Processing...' : 'Confirm & Add Bond'}
+                </button>
+              </form>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <style jsx>{`
+        .input-label {
+          margin-bottom: 8px;
+          display: block;
+          font-size: 0.75rem;
+          font-weight: 700;
+          color: #94a3b8;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .input-field {
+          width: 100%;
+          background: #020617;
+          border: 1px solid #1e293b;
+          color: #fff;
+          padding: 14px;
+          border-radius: 12px;
+          outline: none;
+          transition: all 0.2s;
+          font-size: 0.95rem;
+        }
+        .input-field:focus {
+          border-color: var(--accent);
+          box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        .label-xs {
+          font-size: 0.7rem;
+          color: #64748b;
+          font-weight: 700;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+        .value-sm {
+          font-size: 0.95rem;
+          color: #fff;
+          font-weight: 700;
+        }
+      `}</style>
+    </div>
+  );
 }

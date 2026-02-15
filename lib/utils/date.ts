@@ -5,15 +5,18 @@
 /**
  * Format date to locale string
  */
-export function formatDate(date: string | Date, format: 'short' | 'long' | 'medium' = 'medium'): string {
+export function formatDate(
+  date: string | Date,
+  format: 'short' | 'long' | 'medium' = 'medium'
+): string {
   const d = typeof date === 'string' ? new Date(date) : date;
-  
+
   const formatOptions: Record<string, Intl.DateTimeFormatOptions> = {
     short: { year: 'numeric', month: 'short', day: 'numeric' },
     medium: { year: 'numeric', month: 'short', day: 'numeric' },
     long: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
   };
-  
+
   return d.toLocaleDateString('en-IN', formatOptions[format]);
 }
 
@@ -39,7 +42,7 @@ export function getRelativeTime(date: string | Date): string {
   const diffWeek = Math.floor(diffDay / 7);
   const diffMonth = Math.floor(diffDay / 30);
   const diffYear = Math.floor(diffDay / 365);
-  
+
   if (diffYear > 0) return `${diffYear} year${diffYear > 1 ? 's' : ''} ago`;
   if (diffMonth > 0) return `${diffMonth} month${diffMonth > 1 ? 's' : ''} ago`;
   if (diffWeek > 0) return `${diffWeek} week${diffWeek > 1 ? 's' : ''} ago`;
@@ -87,7 +90,7 @@ export function getCurrentFY(): string {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + 1; // getMonth() returns 0-11, convert to 1-12
-  
+
   if (month >= 4) {
     return `FY ${year}-${year + 1}`;
   } else {

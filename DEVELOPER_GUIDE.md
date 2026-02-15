@@ -1,6 +1,7 @@
 # FINCORE Developer Guide
 
 ## Table of Contents
+
 1. [Quick Start](#quick-start)
 2. [Project Structure](#project-structure)
 3. [Common Development Tasks](#common-development-tasks)
@@ -18,7 +19,7 @@
 
 ### Prerequisites
 
-- **Node.js**: 18+ 
+- **Node.js**: 18+
 - **npm**: 9+
 - **Git**: Latest version
 - **Code Editor**: VS Code recommended
@@ -163,7 +164,7 @@ import { useFinance } from '@/app/components/FinanceContext';
 
 export default function ReportsClient() {
   const { accounts, stocks } = useFinance();
-  
+
   return (
     <div className="page-container">
       <h1>Financial Reports</h1>
@@ -182,6 +183,7 @@ EOF
 **Example**: Add "Real Estate" tracking
 
 **Step 1: Update TypeScript Types**
+
 ```typescript
 // lib/types/index.ts
 
@@ -199,6 +201,7 @@ export interface RealEstate {
 ```
 
 **Step 2: Create Database Table**
+
 ```sql
 -- In Supabase SQL Editor
 CREATE TABLE real_estate (
@@ -224,6 +227,7 @@ FOR INSERT WITH CHECK (auth.uid() = user_id);
 ```
 
 **Step 3: Add to FinanceContext**
+
 ```typescript
 // app/components/FinanceContext.tsx
 
@@ -244,7 +248,7 @@ const loadRealEstates = async () => {
     .from('real_estate')
     .select('*')
     .order('created_at', { ascending: false });
-    
+
   if (data) setRealEstates(data);
 };
 
@@ -255,15 +259,16 @@ const addRealEstate = async (property: NewRealEstate) => {
     .insert({ ...property, user_id: user.id })
     .select()
     .single();
-    
+
   if (data) {
-    setRealEstates(prev => [...prev, data]);
+    setRealEstates((prev) => [...prev, data]);
     showNotification('Property added successfully', 'success');
   }
 };
 ```
 
 **Step 4: Create Page & UI**
+
 ```bash
 mkdir app/real-estate
 # Create page.tsx and RealEstateClient.tsx as shown in Task 1
@@ -281,37 +286,30 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function GET(request: NextRequest) {
   try {
     const symbol = request.nextUrl.searchParams.get('symbol');
-    
+
     if (!symbol) {
-      return NextResponse.json(
-        { error: 'Symbol is required' },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: 'Symbol is required' }, { status: 400 });
     }
-    
+
     // Fetch from external API (example: CoinGecko)
     const response = await fetch(
       `https://api.coingecko.com/api/v3/simple/price?ids=${symbol}&vs_currencies=usd`
     );
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch crypto data');
     }
-    
+
     const data = await response.json();
-    
+
     return NextResponse.json({
       symbol,
       price: data[symbol]?.usd,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
-    
   } catch (error) {
     console.error('Crypto API error:', error);
-    return NextResponse.json(
-      { error: 'Failed to fetch crypto data' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Failed to fetch crypto data' }, { status: 500 });
   }
 }
 ```
@@ -330,29 +328,29 @@ export function validateStockSymbol(symbol: string): {
   if (!symbol || symbol.trim() === '') {
     return { isValid: false, error: 'Symbol cannot be empty' };
   }
-  
+
   // NSE/BSE symbols: Uppercase letters, optional .NS or .BO
   const symbolRegex = /^[A-Z]+(\.(NS|BO))?$/;
-  
+
   if (!symbolRegex.test(symbol)) {
-    return { 
-      isValid: false, 
-      error: 'Invalid symbol format. Use uppercase letters with optional .NS or .BO' 
+    return {
+      isValid: false,
+      error: 'Invalid symbol format. Use uppercase letters with optional .NS or .BO',
     };
   }
-  
+
   return { isValid: true };
 }
 
 // Usage in component:
 const handleAddStock = () => {
   const validation = validateStockSymbol(symbol);
-  
+
   if (!validation.isValid) {
     showNotification(validation.error!, 'error');
     return;
   }
-  
+
   addStock({ symbol, quantity, buyPrice });
 };
 ```
@@ -364,6 +362,7 @@ const handleAddStock = () => {
 ### Creating Reusable Components
 
 **Best Practices**:
+
 1. Use TypeScript with explicit prop types
 2. Add JSDoc comments for complex components
 3. Keep components small and focused
@@ -387,7 +386,7 @@ interface ButtonProps {
 
 /**
  * Reusable button component with consistent styling
- * 
+ *
  * @example
  * <Button variant="primary" onClick={handleClick}>
  *   Save
@@ -403,7 +402,7 @@ export default function Button({
 }: ButtonProps) {
   const baseClass = 'btn';
   const variantClass = `btn-${variant}`;
-  
+
   return (
     <button
       type={type}
@@ -435,7 +434,7 @@ interface ModalProps {
 
 export default function Modal({ isOpen, onClose, title, children }: ModalProps) {
   if (!isOpen) return null;
-  
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -464,24 +463,24 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
 import { useFinance } from '@/app/components/FinanceContext';
 
 export default function MyComponent() {
-  const { 
-    stocks, 
-    accounts, 
+  const {
+    stocks,
+    accounts,
     isLoading,
     addStock,
-    refreshStockPrices 
+    refreshStockPrices
   } = useFinance();
-  
+
   // Read data
-  const totalStockValue = stocks.reduce((sum, stock) => 
+  const totalStockValue = stocks.reduce((sum, stock) =>
     sum + (stock.current_price * stock.quantity), 0
   );
-  
+
   // Update data
   const handleAddStock = async () => {
     await addStock({ symbol, quantity, buyPrice });
   };
-  
+
   return <div>{/* Your UI */}</div>;
 }
 ```
@@ -502,7 +501,7 @@ const calculateNetWorth = useCallback(() => {
   const accountsTotal = accounts.reduce((sum, acc) => sum + acc.balance, 0);
   const stocksTotal = stocks.reduce((sum, s) => sum + (s.current_price * s.quantity), 0);
   const mfTotal = mutualFunds.reduce((sum, mf) => sum + (mf.current_nav * mf.units), 0);
-  
+
   return accountsTotal + stocksTotal + mfTotal;
 }, [accounts, stocks, mutualFunds]);
 
@@ -533,14 +532,14 @@ import { NextRequest, NextResponse } from 'next/server';
 // GET handler
 export async function GET(request: NextRequest) {
   const symbol = request.nextUrl.searchParams.get('symbol');
-  
+
   if (!symbol) {
     return NextResponse.json(
       { error: { code: 'INVALID_REQUEST', message: 'Symbol is required' } },
       { status: 400 }
     );
   }
-  
+
   try {
     const data = await fetchStockQuote(symbol);
     return NextResponse.json(data);
@@ -581,7 +580,7 @@ export function handleAPIError(error: unknown) {
       { status: error.status }
     );
   }
-  
+
   return NextResponse.json(
     { error: { code: 'INTERNAL_ERROR', message: 'An unexpected error occurred' } },
     { status: 500 }
@@ -599,10 +598,7 @@ export function handleAPIError(error: unknown) {
 import { supabase } from '@/lib/supabase';
 
 // SELECT
-const { data, error } = await supabase
-  .from('stocks')
-  .select('*')
-  .eq('user_id', userId);
+const { data, error } = await supabase.from('stocks').select('*').eq('user_id', userId);
 
 // INSERT
 const { data, error } = await supabase
@@ -618,37 +614,30 @@ const { error } = await supabase
   .eq('id', stockId);
 
 // DELETE
-const { error } = await supabase
-  .from('stocks')
-  .delete()
-  .eq('id', stockId);
+const { error } = await supabase.from('stocks').delete().eq('id', stockId);
 ```
 
 ### Handling Database Errors
 
 ```typescript
 async function addStock(stock: NewStock) {
-  const { data, error } = await supabase
-    .from('stocks')
-    .insert(stock)
-    .select()
-    .single();
-    
+  const { data, error } = await supabase.from('stocks').insert(stock).select().single();
+
   if (error) {
     console.error('Database error:', error);
-    
+
     // Check specific error codes
     if (error.code === '23505') {
       showNotification('Stock already exists', 'error');
     } else {
       showNotification('Failed to add stock', 'error');
     }
-    
+
     return;
   }
-  
+
   // Success
-  setStocks(prev => [...prev, data]);
+  setStocks((prev) => [...prev, data]);
 }
 ```
 
@@ -669,15 +658,15 @@ describe('Button', () => {
     render(<Button>Click me</Button>);
     expect(screen.getByText('Click me')).toBeInTheDocument();
   });
-  
+
   it('calls onClick when clicked', () => {
     const handleClick = jest.fn();
     render(<Button onClick={handleClick}>Click</Button>);
-    
+
     fireEvent.click(screen.getByText('Click'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
-  
+
   it('is disabled when disabled prop is true', () => {
     render(<Button disabled>Click</Button>);
     expect(screen.getByText('Click')).toBeDisabled();
@@ -696,7 +685,7 @@ describe('formatCurrency', () => {
   it('formats positive numbers correctly', () => {
     expect(formatCurrency(1234.56)).toBe('₹1,234.56');
   });
-  
+
   it('formats negative numbers correctly', () => {
     expect(formatCurrency(-1234.56)).toBe('-₹1,234.56');
   });

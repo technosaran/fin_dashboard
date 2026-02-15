@@ -1,26 +1,34 @@
-import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import ClientLayout from "./components/ClientLayout";
+import type { Metadata, Viewport } from 'next';
+import { Inter } from 'next/font/google';
+import './globals.css';
+import ClientLayout from './components/ClientLayout';
 
 const inter = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  display: "swap",
-  variable: "--font-inter",
-  fallback: ["system-ui", "-apple-system", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif"],
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  display: 'swap',
+  variable: '--font-inter',
+  fallback: [
+    'system-ui',
+    '-apple-system',
+    'Segoe UI',
+    'Roboto',
+    'Helvetica Neue',
+    'Arial',
+    'sans-serif',
+  ],
 });
 
 export const metadata: Metadata = {
-  title: "FINCORE | Digital Wealth Hub",
-  description: "Enterprise-grade financial tracking and goal management hub",
-  keywords: ["finance", "portfolio", "wealth", "investment", "tracking"],
-  authors: [{ name: "FINCORE Team" }],
+  title: 'FINCORE | Digital Wealth Hub',
+  description: 'Enterprise-grade financial tracking and goal management hub',
+  keywords: ['finance', 'portfolio', 'wealth', 'investment', 'tracking'],
+  authors: [{ name: 'FINCORE Team' }],
   openGraph: {
-    title: "FINCORE | Digital Wealth Hub",
-    description: "Enterprise-grade financial tracking and goal management hub",
-    type: "website",
-    locale: "en_US",
+    title: 'FINCORE | Digital Wealth Hub',
+    description: 'Enterprise-grade financial tracking and goal management hub',
+    type: 'website',
+    locale: 'en_US',
   },
   robots: {
     index: true,
@@ -29,11 +37,11 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  width: "device-width",
+  width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
   userScalable: true,
-  viewportFit: "cover",
+  viewportFit: 'cover',
 };
 
 export default function RootLayout({
@@ -44,9 +52,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className={inter.className}>
-        <ClientLayout>
-          {children}
-        </ClientLayout>
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );

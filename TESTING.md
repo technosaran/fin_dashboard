@@ -43,6 +43,7 @@ __tests__/
 Test individual functions, utilities, and components in isolation.
 
 **Example: Utility Function Test**
+
 ```typescript
 // __tests__/utils/number.test.ts
 
@@ -82,6 +83,7 @@ describe('formatPercent', () => {
 ```
 
 **Example: Component Test**
+
 ```typescript
 // __tests__/components/Dashboard.test.tsx
 
@@ -117,7 +119,7 @@ describe('Dashboard', () => {
     jest.mock('@/app/components/FinanceContext', () => ({
       useFinance: () => ({ isLoading: true })
     }));
-    
+
     render(<Dashboard />);
     expect(screen.getByTestId('skeleton-loader')).toBeInTheDocument();
   });
@@ -129,6 +131,7 @@ describe('Dashboard', () => {
 Test interactions between multiple components and contexts.
 
 **Example: FinanceContext Integration Test**
+
 ```typescript
 // __tests__/integration/FinanceContext.test.tsx
 
@@ -141,18 +144,16 @@ jest.mock('@/lib/supabase');
 
 describe('FinanceContext Integration', () => {
   it('loads and updates stocks', async () => {
-    const mockStocks = [
-      { id: '1', symbol: 'RELIANCE.NS', quantity: 10, buy_price: 2400 }
-    ];
+    const mockStocks = [{ id: '1', symbol: 'RELIANCE.NS', quantity: 10, buy_price: 2400 }];
 
     (supabase.from as jest.Mock).mockReturnValue({
       select: jest.fn().mockReturnValue({
-        eq: jest.fn().mockResolvedValue({ data: mockStocks, error: null })
-      })
+        eq: jest.fn().mockResolvedValue({ data: mockStocks, error: null }),
+      }),
     });
 
     const { result } = renderHook(() => useFinance(), {
-      wrapper: FinanceProvider
+      wrapper: FinanceProvider,
     });
 
     await waitFor(() => {
@@ -164,7 +165,7 @@ describe('FinanceContext Integration', () => {
       await result.current.addStock({
         symbol: 'TCS.NS',
         quantity: 5,
-        buy_price: 3500
+        buy_price: 3500,
       });
     });
 
@@ -178,6 +179,7 @@ describe('FinanceContext Integration', () => {
 Test Next.js API routes in isolation.
 
 **Example: API Route Test**
+
 ```typescript
 // __tests__/api/stocks.test.ts
 
@@ -186,9 +188,7 @@ import { NextRequest } from 'next/server';
 
 describe('Stocks API', () => {
   it('returns stock quote for valid symbol', async () => {
-    const request = new NextRequest(
-      'http://localhost:3000/api/stocks/quote?symbol=RELIANCE.NS'
-    );
+    const request = new NextRequest('http://localhost:3000/api/stocks/quote?symbol=RELIANCE.NS');
 
     const response = await GET(request);
     const data = await response.json();
@@ -199,9 +199,7 @@ describe('Stocks API', () => {
   });
 
   it('returns 400 for missing symbol', async () => {
-    const request = new NextRequest(
-      'http://localhost:3000/api/stocks/quote'
-    );
+    const request = new NextRequest('http://localhost:3000/api/stocks/quote');
 
     const response = await GET(request);
     expect(response.status).toBe(400);
@@ -214,6 +212,7 @@ describe('Stocks API', () => {
 Test custom React hooks.
 
 **Example: Hook Test**
+
 ```typescript
 // __tests__/hooks/useDebounce.test.ts
 
@@ -224,16 +223,15 @@ jest.useFakeTimers();
 
 describe('useDebounce', () => {
   it('debounces value updates', () => {
-    const { result, rerender } = renderHook(
-      ({ value, delay }) => useDebounce(value, delay),
-      { initialProps: { value: 'initial', delay: 500 } }
-    );
+    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
+      initialProps: { value: 'initial', delay: 500 },
+    });
 
     expect(result.current).toBe('initial');
 
     // Update value
     rerender({ value: 'updated', delay: 500 });
-    
+
     // Value should not change immediately
     expect(result.current).toBe('initial');
 
@@ -252,13 +250,13 @@ describe('useDebounce', () => {
 
 ## Test Coverage Goals
 
-| Category | Target Coverage | Current |
-|----------|----------------|---------|
-| **Utilities** | 90%+ | TBD |
-| **Components** | 70%+ | TBD |
-| **Hooks** | 85%+ | TBD |
-| **API Routes** | 80%+ | TBD |
-| **Overall** | 75%+ | TBD |
+| Category       | Target Coverage | Current |
+| -------------- | --------------- | ------- |
+| **Utilities**  | 90%+            | TBD     |
+| **Components** | 70%+            | TBD     |
+| **Hooks**      | 85%+            | TBD     |
+| **API Routes** | 80%+            | TBD     |
+| **Overall**    | 75%+            | TBD     |
 
 ---
 
@@ -286,11 +284,13 @@ npm test -- --testNamePattern="formatCurrency"
 ### CI/CD
 
 Tests are automatically run on:
+
 - Every push to feature branches
 - Pull requests to `main`
 - Before deployment to production
 
 **GitHub Actions Workflow** (if configured):
+
 ```yaml
 name: Tests
 on: [push, pull_request]
@@ -318,24 +318,24 @@ jest.mock('@/lib/supabase', () => ({
   supabase: {
     from: jest.fn(() => ({
       select: jest.fn(() => ({
-        eq: jest.fn(() => Promise.resolve({ data: [], error: null }))
+        eq: jest.fn(() => Promise.resolve({ data: [], error: null })),
       })),
       insert: jest.fn(() => ({
         select: jest.fn(() => ({
-          single: jest.fn(() => Promise.resolve({ data: {}, error: null }))
-        }))
+          single: jest.fn(() => Promise.resolve({ data: {}, error: null })),
+        })),
       })),
       update: jest.fn(() => ({
-        eq: jest.fn(() => Promise.resolve({ error: null }))
+        eq: jest.fn(() => Promise.resolve({ error: null })),
       })),
       delete: jest.fn(() => ({
-        eq: jest.fn(() => Promise.resolve({ error: null }))
-      }))
+        eq: jest.fn(() => Promise.resolve({ error: null })),
+      })),
     })),
     auth: {
-      getSession: jest.fn(() => Promise.resolve({ data: { session: null } }))
-    }
-  }
+      getSession: jest.fn(() => Promise.resolve({ data: { session: null } })),
+    },
+  },
 }));
 ```
 
@@ -346,10 +346,11 @@ jest.mock('@/lib/supabase', () => ({
 global.fetch = jest.fn(() =>
   Promise.resolve({
     ok: true,
-    json: () => Promise.resolve({ 
-      price: 2456.75,
-      symbol: 'RELIANCE.NS' 
-    })
+    json: () =>
+      Promise.resolve({
+        price: 2456.75,
+        symbol: 'RELIANCE.NS',
+      }),
   })
 ) as jest.Mock;
 ```
@@ -361,8 +362,8 @@ jest.mock('@/app/components/FinanceContext', () => ({
   useFinance: () => ({
     stocks: [],
     addStock: jest.fn(),
-    isLoading: false
-  })
+    isLoading: false,
+  }),
 }));
 ```
 
@@ -389,7 +390,7 @@ it('calculates total stock value correctly', () => {
   // Arrange
   const stocks = [
     { quantity: 10, current_price: 100 },
-    { quantity: 5, current_price: 200 }
+    { quantity: 5, current_price: 200 },
   ];
 
   // Act
@@ -438,7 +439,7 @@ export const createMockStock = (overrides = {}) => ({
   quantity: 10,
   buy_price: 100,
   current_price: 110,
-  ...overrides
+  ...overrides,
 });
 
 // In test
@@ -452,6 +453,7 @@ const stock = createMockStock({ symbol: 'RELIANCE.NS' });
 Before each release, manually test:
 
 ### Core Functionality
+
 - [ ] User registration and login
 - [ ] Dashboard loads with correct data
 - [ ] Add/edit/delete accounts
@@ -465,6 +467,7 @@ Before each release, manually test:
 - [ ] CSV export functionality
 
 ### UI/UX
+
 - [ ] Responsive design on mobile/tablet/desktop
 - [ ] Dark theme displays correctly
 - [ ] Loading states show appropriately
@@ -473,12 +476,14 @@ Before each release, manually test:
 - [ ] Modals open and close properly
 
 ### Performance
+
 - [ ] Initial page load < 3 seconds
 - [ ] API calls complete within reasonable time
 - [ ] No memory leaks on navigation
 - [ ] Large datasets (100+ stocks) render smoothly
 
 ### Security
+
 - [ ] Unauthenticated users redirected to login
 - [ ] Users can only see their own data
 - [ ] Input sanitization prevents XSS
@@ -497,6 +502,7 @@ open coverage/lcov-report/index.html
 ```
 
 Focus on improving coverage for:
+
 - Critical business logic
 - Utility functions used across the app
 - Core components (Dashboard, FinanceContext)
@@ -504,6 +510,7 @@ Focus on improving coverage for:
 ### Test Performance
 
 Monitor test execution time:
+
 - **Target**: All tests complete in < 30 seconds
 - If tests become slow, consider:
   - Reducing unnecessary mock setup
@@ -524,6 +531,7 @@ Monitor test execution time:
 ## Contributing Tests
 
 When contributing to FINCORE:
+
 1. **Write tests for new features** - All new code should include tests
 2. **Update existing tests** - If changing behavior, update tests
 3. **Maintain coverage** - Don't decrease overall coverage

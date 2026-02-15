@@ -5,6 +5,7 @@
 **FINCORE** (Financial Core) is an enterprise-grade personal finance management dashboard designed to help users track their net worth, manage investments, and achieve financial goals. Built with modern web technologies, it provides a comprehensive solution for managing multiple asset classes including stocks, mutual funds, bonds, F&O, and forex.
 
 ### Key Highlights
+
 - ⚡ **Real-time Updates**: Live market data refresh every 5 minutes
 - 🔒 **Secure**: Row-Level Security (RLS) with Supabase
 - 📱 **Responsive**: Optimized for desktop, tablet, and mobile
@@ -16,6 +17,7 @@
 ## 🏗️ Technology Stack
 
 ### Frontend
+
 - **Framework**: Next.js 16 (App Router with Turbopack)
 - **UI Library**: React 19
 - **Language**: TypeScript 5 (strict mode)
@@ -24,12 +26,14 @@
 - **Charts**: Recharts
 
 ### Backend & Infrastructure
+
 - **Database**: Supabase (PostgreSQL)
 - **Authentication**: Supabase Auth with RLS
 - **APIs**: Next.js API Routes
 - **External Data**: Yahoo Finance, MFAPI.in, Google Finance
 
 ### Development Tools
+
 - **Linting**: ESLint with Next.js config
 - **Formatting**: Prettier
 - **Testing**: Jest + React Testing Library
@@ -40,32 +44,35 @@
 ## 📊 Features by Category
 
 ### 1. Core Financial Management
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Dashboard | Real-time net worth, asset allocation, daily P&L | ✅ Complete |
-| Accounts | Multi-account tracking (bank, wallet, broker) | ✅ Complete |
-| Ledger | Transaction history with categories & CSV export | ✅ Complete |
-| Goals | Financial milestone tracking with progress | ✅ Complete |
-| Family Transfers | Track money sent/received | ✅ Complete |
+
+| Feature          | Description                                      | Status      |
+| ---------------- | ------------------------------------------------ | ----------- |
+| Dashboard        | Real-time net worth, asset allocation, daily P&L | ✅ Complete |
+| Accounts         | Multi-account tracking (bank, wallet, broker)    | ✅ Complete |
+| Ledger           | Transaction history with categories & CSV export | ✅ Complete |
+| Goals            | Financial milestone tracking with progress       | ✅ Complete |
+| Family Transfers | Track money sent/received                        | ✅ Complete |
 
 ### 2. Investment Portfolio
-| Asset Class | Features | Status |
-|-------------|----------|--------|
-| **Stocks** | Live prices, buy/sell tracking, P&L analysis | ✅ Complete |
-| **Mutual Funds** | NAV updates, SIP tracking, performance | ✅ Complete |
-| **Bonds** | Valuation, yield monitoring, ISIN search | ✅ Complete |
-| **F&O** | Position management, charge simulation | ✅ Complete |
-| **Forex** | Currency exchanges, deposits/withdrawals | ✅ Complete |
-| **Watchlist** | Monitor instruments without owning | ✅ Complete |
+
+| Asset Class      | Features                                     | Status      |
+| ---------------- | -------------------------------------------- | ----------- |
+| **Stocks**       | Live prices, buy/sell tracking, P&L analysis | ✅ Complete |
+| **Mutual Funds** | NAV updates, SIP tracking, performance       | ✅ Complete |
+| **Bonds**        | Valuation, yield monitoring, ISIN search     | ✅ Complete |
+| **F&O**          | Position management, charge simulation       | ✅ Complete |
+| **Forex**        | Currency exchanges, deposits/withdrawals     | ✅ Complete |
+| **Watchlist**    | Monitor instruments without owning           | ✅ Complete |
 
 ### 3. Advanced Features
-| Feature | Description | Status |
-|---------|-------------|--------|
-| Batch API Calls | Efficient multi-asset data fetching | ✅ Complete |
-| Charge Calculator | Zerodha brokerage simulation | ✅ Complete |
-| CSV Export | Transaction and portfolio exports | ✅ Complete |
-| Auto-refresh | 5-minute price update intervals | ✅ Complete |
-| Responsive Design | Mobile-friendly UI | ✅ Complete |
+
+| Feature           | Description                         | Status      |
+| ----------------- | ----------------------------------- | ----------- |
+| Batch API Calls   | Efficient multi-asset data fetching | ✅ Complete |
+| Charge Calculator | Zerodha brokerage simulation        | ✅ Complete |
+| CSV Export        | Transaction and portfolio exports   | ✅ Complete |
+| Auto-refresh      | 5-minute price update intervals     | ✅ Complete |
+| Responsive Design | Mobile-friendly UI                  | ✅ Complete |
 
 ---
 
@@ -75,18 +82,18 @@
 
 We've created extensive documentation to help developers, contributors, and users:
 
-| Document | Purpose | Lines |
-|----------|---------|-------|
-| **[README.md](./README.md)** | Project overview & quick start | 200+ |
-| **[API.md](./API.md)** | API endpoints & integration | 600+ |
-| **[ARCHITECTURE.md](./ARCHITECTURE.md)** | System design & patterns | 800+ |
-| **[DATABASE.md](./DATABASE.md)** | Database schema & queries | 1000+ |
-| **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** | Development tasks & examples | 900+ |
-| **[TESTING.md](./TESTING.md)** | Testing strategy & practices | 600+ |
-| **[CONTRIBUTING.md](./CONTRIBUTING.md)** | Contribution guidelines | 500+ |
-| **[CHANGELOG.md](./CHANGELOG.md)** | Version history | 200+ |
-| **[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)** | Community guidelines | 200+ |
-| **[DOCS_INDEX.md](./DOCS_INDEX.md)** | Documentation navigation | 300+ |
+| Document                                       | Purpose                        | Lines |
+| ---------------------------------------------- | ------------------------------ | ----- |
+| **[README.md](./README.md)**                   | Project overview & quick start | 200+  |
+| **[API.md](./API.md)**                         | API endpoints & integration    | 600+  |
+| **[ARCHITECTURE.md](./ARCHITECTURE.md)**       | System design & patterns       | 800+  |
+| **[DATABASE.md](./DATABASE.md)**               | Database schema & queries      | 1000+ |
+| **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** | Development tasks & examples   | 900+  |
+| **[TESTING.md](./TESTING.md)**                 | Testing strategy & practices   | 600+  |
+| **[CONTRIBUTING.md](./CONTRIBUTING.md)**       | Contribution guidelines        | 500+  |
+| **[CHANGELOG.md](./CHANGELOG.md)**             | Version history                | 200+  |
+| **[CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md)** | Community guidelines           | 200+  |
+| **[DOCS_INDEX.md](./DOCS_INDEX.md)**           | Documentation navigation       | 300+  |
 
 **Total**: 5000+ lines of comprehensive documentation!
 
@@ -181,6 +188,7 @@ fin_dashboard/
 ## 🎯 Key Achievements
 
 ### Documentation Enhancements ✅
+
 - ✅ Created comprehensive API documentation (600+ lines)
 - ✅ Added architecture documentation with design patterns (800+ lines)
 - ✅ Developed detailed database schema docs (1000+ lines)
@@ -194,6 +202,7 @@ fin_dashboard/
 - ✅ Created DOCS_INDEX.md for navigation
 
 ### Code Quality ✅
+
 - ✅ Existing utilities have JSDoc comments
 - ✅ TypeScript strict mode enabled
 - ✅ ESLint and Prettier configured
@@ -201,6 +210,7 @@ fin_dashboard/
 - ✅ Error handling patterns established
 
 ### Architecture ✅
+
 - ✅ Documented system architecture
 - ✅ Explained data flow patterns
 - ✅ Documented state management approach
@@ -212,6 +222,7 @@ fin_dashboard/
 ## 📈 What's Been Improved
 
 ### Before
+
 - ❌ Minimal documentation (basic README only)
 - ❌ No API reference
 - ❌ No architecture documentation
@@ -221,6 +232,7 @@ fin_dashboard/
 - ❌ No changelog
 
 ### After
+
 - ✅ 5000+ lines of comprehensive documentation
 - ✅ Complete API reference with examples
 - ✅ Detailed architecture documentation
@@ -236,6 +248,7 @@ fin_dashboard/
 ## 🚀 Future Enhancements
 
 ### Planned Improvements
+
 1. **Real-time Features**
    - WebSocket integration for live prices
    - Push notifications for price alerts
@@ -268,6 +281,7 @@ fin_dashboard/
 ## 💡 Best Practices Implemented
 
 ### Code Quality
+
 - ✅ TypeScript strict mode for type safety
 - ✅ ESLint for code consistency
 - ✅ Prettier for formatting
@@ -275,6 +289,7 @@ fin_dashboard/
 - ✅ Clear naming conventions
 
 ### Security
+
 - ✅ Row-Level Security (RLS) on all tables
 - ✅ Input validation on all forms
 - ✅ API key protection via server routes
@@ -282,6 +297,7 @@ fin_dashboard/
 - ✅ Authentication with Supabase Auth
 
 ### Performance
+
 - ✅ Batch API calls for efficiency
 - ✅ 5-minute caching for market data
 - ✅ Optimistic UI updates
@@ -289,6 +305,7 @@ fin_dashboard/
 - ✅ Efficient database queries
 
 ### User Experience
+
 - ✅ Dark theme UI
 - ✅ Responsive design
 - ✅ Loading states
@@ -300,6 +317,7 @@ fin_dashboard/
 ## 📊 Metrics
 
 ### Documentation Coverage
+
 - **API Endpoints**: 100% documented
 - **Database Tables**: 100% documented
 - **Utilities**: 90%+ have JSDoc
@@ -307,6 +325,7 @@ fin_dashboard/
 - **Testing**: Complete strategy guide
 
 ### Code Quality
+
 - **TypeScript**: Strict mode enabled
 - **Type Coverage**: 95%+
 - **ESLint**: Configured
@@ -331,11 +350,13 @@ See [CONTRIBUTING.md](./CONTRIBUTING.md) for details.
 ## 📧 Support & Community
 
 ### Resources
+
 - **Documentation**: [DOCS_INDEX.md](./DOCS_INDEX.md)
 - **Issues**: [GitHub Issues](https://github.com/technosaran/fin_dashboard/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/technosaran/fin_dashboard/discussions)
 
 ### Community Guidelines
+
 - Be respectful and inclusive
 - Follow the [Code of Conduct](./CODE_OF_CONDUCT.md)
 - Help newcomers get started
@@ -362,6 +383,7 @@ FINCORE is now an excellent project for learning:
 ## 🏆 Acknowledgments
 
 Special thanks to:
+
 - The open-source community
 - Contributors who help improve FINCORE
 - Users who provide valuable feedback
@@ -376,6 +398,6 @@ This project is licensed under the MIT License - see [LICENSE](./LICENSE) for de
 
 **Built with ❤️ by the FINCORE team**
 
-*Last Updated: 2026-02-14*  
-*Version: 0.2.0*  
-*Documentation: Complete*
+_Last Updated: 2026-02-14_  
+_Version: 0.2.0_  
+_Documentation: Complete_

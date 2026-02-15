@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Comprehensive API documentation (API.md)
 - Architecture documentation with diagrams (ARCHITECTURE.md)
 - Database schema documentation (DATABASE.md)
@@ -17,11 +18,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSDoc comments for key utilities and components
 
 ### Enhanced
+
 - README.md with clearer setup instructions
 - CONTRIBUTING.md with more detailed examples
 - Security documentation
 
 ### Fixed
+
 - None yet
 
 ---
@@ -29,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.2.0] - 2026-02-14
 
 ### Added
+
 - Forex transactions tracking
 - Bonds portfolio management with ISIN search
 - F&O (Futures & Options) trading terminal
@@ -39,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Goal progress visualization
 
 ### Enhanced
+
 - Stock price refresh optimization with batch API calls
 - Mutual fund NAV integration improvements
 - Dashboard UI with better charts (Recharts)
@@ -46,12 +51,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Mobile responsiveness
 
 ### Fixed
+
 - Stock transaction charge calculation accuracy
 - Mutual fund NAV update timing issues
 - Authentication redirect loops
 - Database query performance
 
 ### Security
+
 - Row-Level Security (RLS) policies enforced on all tables
 - Input validation for all user inputs
 - API key protection via server-side routes
@@ -62,6 +69,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2026-01-15
 
 ### Added
+
 - Initial release
 - User authentication via Supabase
 - Dashboard with net worth tracking
@@ -74,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Responsive design
 
 ### Technical Stack
+
 - Next.js 16 with App Router
 - React 19
 - TypeScript (strict mode)
@@ -106,6 +115,7 @@ FINCORE follows semantic versioning (MAJOR.MINOR.PATCH):
 ### Upgrading from 0.1.0 to 0.2.0
 
 **Database Changes**:
+
 ```sql
 -- Add new tables (run in Supabase SQL editor)
 CREATE TABLE bonds (...);
@@ -116,6 +126,7 @@ CREATE TABLE watchlist (...);
 ```
 
 **Code Changes**:
+
 - Update `FinanceContext` import paths if customized
 - Review API endpoint changes in API.md
 - Update environment variables if using new features
@@ -127,6 +138,7 @@ CREATE TABLE watchlist (...);
 ## Future Roadmap
 
 ### Planned for 0.3.0
+
 - [ ] Real-time price updates via WebSocket
 - [ ] Mobile app (React Native)
 - [ ] Advanced analytics and reports
@@ -136,6 +148,7 @@ CREATE TABLE watchlist (...);
 - [ ] Shared portfolios (family accounts)
 
 ### Planned for 0.4.0
+
 - [ ] Machine learning-based insights
 - [ ] Price alerts and notifications
 - [ ] Integration with brokers (Zerodha, Upstox)
@@ -144,6 +157,7 @@ CREATE TABLE watchlist (...);
 - [ ] Backup and restore functionality
 
 ### Long-term Vision (1.0.0)
+
 - [ ] Full-featured financial planning
 - [ ] Retirement planning calculator
 - [ ] Insurance tracking
