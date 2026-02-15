@@ -109,9 +109,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
         }
     }, [selectedBond]);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
+    const submitBond = async () => {
         // If manual mode, construct bond from form
         const bondToSubmit = selectedBond || (activeTab === 'manual' ? {
             name: manualForm.name,
@@ -157,6 +155,11 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
         } finally {
             setIsSubmitting(false);
         }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        await submitBond();
     };
 
     if (!isOpen) return null;
@@ -322,8 +325,8 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                             <button
                                 onClick={() => {
                                     if (manualForm.name && manualForm.coupon) {
-                                        // Transition to confirmation state basically
-                                        handleSubmit(new Event('submit') as unknown as React.FormEvent);
+                                        // Transition to confirmation state
+                                        submitBond();
                                     } else {
                                         showNotification('error', 'Please fill required fields');
                                     }
