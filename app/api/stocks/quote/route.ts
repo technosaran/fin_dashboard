@@ -49,7 +49,13 @@ async function handleStockQuote(request: Request): Promise<NextResponse> {
   }
 
   const cacheKey = `stock_quote_${symbol.trim().toUpperCase()}`;
-  const cached = getCache<{ symbol: string; currentPrice: number; previousClose: number; currency: string; exchange: string }>(cacheKey);
+  const cached = getCache<{
+    symbol: string;
+    currentPrice: number;
+    previousClose: number;
+    currency: string;
+    exchange: string;
+  }>(cacheKey);
   if (cached) return createSuccessResponse(cached);
 
   try {

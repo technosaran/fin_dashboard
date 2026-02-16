@@ -59,7 +59,7 @@ export function logError(message: string, error?: Error | unknown, context?: Log
   } else {
     // In production, send to error monitoring service (e.g., Sentry)
     console.error(`[ERROR] ${message}`);
-    
+
     // TODO: Send to Sentry or other monitoring service
     // Sentry.captureException(error, { contexts: { custom: sanitizedContext } });
   }
@@ -81,7 +81,7 @@ export function createLogger(prefix: string) {
   return {
     info: (message: string, context?: LogContext) => logInfo(`[${prefix}] ${message}`, context),
     warn: (message: string, context?: LogContext) => logWarn(`[${prefix}] ${message}`, context),
-    error: (message: string, error?: Error | unknown, context?: LogContext) => 
+    error: (message: string, error?: Error | unknown, context?: LogContext) =>
       logError(`[${prefix}] ${message}`, error, context),
     debug: (message: string, context?: LogContext) => logDebug(`[${prefix}] ${message}`, context),
   };

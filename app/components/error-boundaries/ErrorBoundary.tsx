@@ -104,7 +104,7 @@ export class ErrorBoundary extends Component<Props, State> {
             >
               <AlertTriangle size={40} color="#ef4444" />
             </div>
-            
+
             <h1
               style={{
                 fontSize: '1.75rem',
@@ -115,7 +115,7 @@ export class ErrorBoundary extends Component<Props, State> {
             >
               Something Went Wrong
             </h1>
-            
+
             <p
               style={{
                 fontSize: '1rem',
@@ -124,7 +124,8 @@ export class ErrorBoundary extends Component<Props, State> {
                 lineHeight: '1.6',
               }}
             >
-              We encountered an unexpected error. Our team has been notified and is working on a fix.
+              We encountered an unexpected error. Our team has been notified and is working on a
+              fix.
             </p>
 
             {process.env.NODE_ENV === 'development' && this.state.error && (
@@ -139,7 +140,14 @@ export class ErrorBoundary extends Component<Props, State> {
                   maxHeight: '200px',
                 }}
               >
-                <p style={{ fontSize: '0.875rem', color: '#ef4444', fontWeight: '700', marginBottom: '8px' }}>
+                <p
+                  style={{
+                    fontSize: '0.875rem',
+                    color: '#ef4444',
+                    fontWeight: '700',
+                    marginBottom: '8px',
+                  }}
+                >
                   Error Details (Development Only):
                 </p>
                 <pre style={{ fontSize: '0.75rem', color: '#cbd5e1', whiteSpace: 'pre-wrap' }}>
@@ -148,7 +156,9 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div
+              style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}
+            >
               <button
                 type="button"
                 onClick={this.handleReset}
@@ -179,7 +189,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
               <button
                 type="button"
-                onClick={() => window.location.href = '/'}
+                onClick={() => (window.location.href = '/')}
                 style={{
                   padding: '12px 24px',
                   background: 'rgba(99, 102, 241, 0.1)',

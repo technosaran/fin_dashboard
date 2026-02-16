@@ -1,0 +1,51 @@
+version: 2
+updates:
+  # Enable version updates for npm
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '00:00'
+    open-pull-requests-limit: 10
+    reviewers:
+      - 'technosaran'
+    labels:
+      - 'dependencies'
+      - 'npm'
+    commit-message:
+      prefix: 'chore(deps)'
+      include: 'scope'
+    # Group updates for better management
+    groups:
+      next:
+        patterns:
+          - 'next*'
+          - 'eslint-config-next'
+      react:
+        patterns:
+          - 'react'
+          - 'react-dom'
+          - '@types/react*'
+      testing:
+        patterns:
+          - 'jest'
+          - '@testing-library/*'
+          - '@types/jest'
+          - 'ts-jest'
+      typescript:
+        patterns:
+          - 'typescript'
+          - '@types/*'
+
+  # Enable security updates for GitHub Actions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+    commit-message:
+      prefix: 'chore(ci)'
