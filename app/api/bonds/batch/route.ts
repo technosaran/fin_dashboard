@@ -47,7 +47,7 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
   // Validate each ISIN format
   for (const isin of isins) {
     if (!/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin)) {
-      return createErrorResponse('Invalid ISIN format in batch', 400);
+      return createErrorResponse(`Invalid ISIN format: ${isin}`, 400);
     }
   }
 
