@@ -17,6 +17,7 @@ import {
   Home,
   Sparkles,
 } from 'lucide-react';
+import { EmptyFamilyVisual } from '../components/Visuals';
 
 export default function FamilyClient() {
   const {
@@ -411,21 +412,8 @@ export default function FamilyClient() {
                   color: '#64748b',
                 }}
               >
-                <div style={{ marginBottom: '24px', display: 'flex', justifyContent: 'center' }}>
-                  <div
-                    style={{
-                      background: 'rgba(236, 72, 153, 0.05)',
-                      padding: '30px',
-                      borderRadius: '50%',
-                    }}
-                  >
-                    <Users
-                      size={60}
-                      strokeWidth={1}
-                      style={{ opacity: 0.2, color: '#ec4899' }}
-                      aria-hidden="true"
-                    />
-                  </div>
+                <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
+                  <EmptyFamilyVisual />
                 </div>
                 <h3
                   style={{

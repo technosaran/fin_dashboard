@@ -28,7 +28,9 @@ import {
   ArrowRight,
   Eye,
   PieChart as PieChartIcon,
+  AlertTriangle,
 } from 'lucide-react';
+import { EmptyPortfolioVisual } from '../components/Visuals';
 
 const COLORS = [
   '#6366f1',
@@ -405,7 +407,15 @@ export default function StocksClient() {
             Stock Portfolio
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            width: '100%',
+            justifyContent: 'flex-end',
+          }}
+        >
           <button
             onClick={handleManualRefresh}
             disabled={isRefreshing}
@@ -451,7 +461,8 @@ export default function StocksClient() {
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Add Stock</span><span className="show-sm-inline hide-sm-none">Add</span>
+            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Add Stock</span>
+            <span className="show-sm-inline hide-sm-none">Add</span>
           </button>
         </div>
       </div>
@@ -634,66 +645,197 @@ export default function StocksClient() {
                   }}
                   onClick={() => handleEditStock(stock)}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '12px',
+                    }}
+                  >
                     <div>
-                      <div style={{ fontWeight: '900', fontSize: '1.1rem', color: '#fff' }}>{stock.symbol}</div>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '700' }}>{stock.exchange}</div>
+                      <div style={{ fontWeight: '900', fontSize: '1.1rem', color: '#fff' }}>
+                        {stock.symbol}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '700' }}>
+                        {stock.exchange}
+                      </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px' }}>Current Value</div>
-                      <div style={{ fontWeight: '900', color: '#fff' }}>₹{stock.currentValue.toLocaleString()}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px' }}>
+                        Current Value
+                      </div>
+                      <div style={{ fontWeight: '900', color: '#fff' }}>
+                        ₹{stock.currentValue.toLocaleString()}
+                      </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '12px',
+                      marginBottom: '16px',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.02)',
+                      borderRadius: '12px',
+                    }}
+                  >
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Avg. Cost</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>₹{stock.avgPrice.toFixed(2)}</div>
+                      <div
+                        style={{
+                          fontSize: '0.65rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Avg. Cost
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>
+                        ₹{stock.avgPrice.toFixed(2)}
+                      </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>LTP</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>₹{stock.currentPrice.toFixed(2)}</div>
+                      <div
+                        style={{
+                          fontSize: '0.65rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        LTP
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>
+                        ₹{stock.currentPrice.toFixed(2)}
+                      </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Quantity</div>
+                      <div
+                        style={{
+                          fontSize: '0.65rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Quantity
+                      </div>
                       <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>{stock.quantity}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Total P&L</div>
-                      <div style={{ fontWeight: '900', fontSize: '1rem', color: stock.pnl >= 0 ? '#10b981' : '#f43f5e' }}>
+                      <div
+                        style={{
+                          fontSize: '0.65rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Total P&L
+                      </div>
+                      <div
+                        style={{
+                          fontWeight: '900',
+                          fontSize: '1rem',
+                          color: stock.pnl >= 0 ? '#10b981' : '#f43f5e',
+                        }}
+                      >
                         {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toLocaleString()}
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <div style={{
-                        color: stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0 ? '#10b981' : '#f43f5e',
-                        fontSize: '0.75rem',
-                        fontWeight: '800',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}>
-                        Day: {stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0 ? '+' : ''}
-                        {((stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity).toFixed(2)}
+                      <div
+                        style={{
+                          color:
+                            stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0
+                              ? '#10b981'
+                              : '#f43f5e',
+                          fontSize: '0.75rem',
+                          fontWeight: '800',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                        }}
+                      >
+                        Day:{' '}
+                        {stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0
+                          ? '+'
+                          : ''}
+                        {(
+                          (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) *
+                          stock.quantity
+                        ).toFixed(2)}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                      <button onClick={(e) => { e.stopPropagation(); setViewingCharges({ type: 'stock', data: stock }); }} style={{ color: '#6366f1', background: 'none', border: 'none', padding: '4px' }}><Eye size={18} /></button>
-                      <button onClick={(e) => { e.stopPropagation(); handleExitStock(stock); }} style={{ color: '#10b981', background: 'none', border: 'none', padding: '4px' }}><ArrowRight size={18} /></button>
-                      <button onClick={async (e) => {
-                        e.stopPropagation();
-                        const isConfirmed = await customConfirm({ title: 'Delete', message: `Remove ${stock.symbol}?`, type: 'error', confirmLabel: 'Delete' });
-                        if (isConfirmed) await deleteStock(stock.id);
-                      }} style={{ color: '#f43f5e', background: 'none', border: 'none', padding: '4px' }}><Trash2 size={18} /></button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingCharges({ type: 'stock', data: stock });
+                        }}
+                        style={{
+                          color: '#6366f1',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExitStock(stock);
+                        }}
+                        style={{
+                          color: '#10b981',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <ArrowRight size={18} />
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const isConfirmed = await customConfirm({
+                            title: 'Delete',
+                            message: `Remove ${stock.symbol}?`,
+                            type: 'error',
+                            confirmLabel: 'Delete',
+                          });
+                          if (isConfirmed) await deleteStock(stock.id);
+                        }}
+                        style={{
+                          color: '#f43f5e',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No holdings found</div>
+              <div style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
+                <EmptyPortfolioVisual />
+                <div style={{ fontWeight: '700', marginTop: '20px' }}>No holdings found</div>
+              </div>
             )}
           </div>
 
@@ -905,10 +1047,10 @@ export default function StocksClient() {
                             (
                             {stock.previousPrice
                               ? (
-                                ((stock.currentPrice - stock.previousPrice) /
-                                  stock.previousPrice) *
-                                100
-                              ).toFixed(2)
+                                  ((stock.currentPrice - stock.previousPrice) /
+                                    stock.previousPrice) *
+                                  100
+                                ).toFixed(2)
                               : '0.00'}
                             %)
                           </div>
@@ -1027,12 +1169,22 @@ export default function StocksClient() {
                   <tr>
                     <td
                       colSpan={8}
-                      style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}
+                      style={{ padding: '80px 24px', textAlign: 'center', color: '#64748b' }}
                     >
-                      <div style={{ marginBottom: '12px' }}>
-                        <Activity size={40} opacity={0.3} />
+                      <EmptyPortfolioVisual />
+                      <div
+                        style={{
+                          fontWeight: '800',
+                          fontSize: '1.1rem',
+                          color: '#fff',
+                          marginTop: '24px',
+                        }}
+                      >
+                        No active holdings found
                       </div>
-                      <div style={{ fontWeight: '700' }}>No active holdings found.</div>
+                      <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+                        Add your first stock to start tracking your portfolio.
+                      </p>
                     </td>
                   </tr>
                 )}
@@ -1090,8 +1242,8 @@ export default function StocksClient() {
                     >
                       {totalInvestment > 0
                         ? (((totalCurrentValue - totalInvestment) / totalInvestment) * 100).toFixed(
-                          2
-                        )
+                            2
+                          )
                         : '0.00'}
                       %
                     </td>

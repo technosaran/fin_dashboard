@@ -18,6 +18,7 @@ import { useFinance } from './FinanceContext';
 import { MutualFundTransaction } from '@/lib/types';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonCard } from './SkeletonLoader';
+import { EmptyPortfolioVisual } from './Visuals';
 
 /**
  * Get dynamic, time-based greeting with inspiring messages
@@ -39,7 +40,7 @@ function getGreeting(): { text: string; subtext: string; emoji: string; color: s
     },
     evening: {
       text: 'Good Evening',
-      subtext: "",
+      subtext: '',
       emoji: '🌇',
       color: '#818cf8',
     },
@@ -353,8 +354,6 @@ export default function Dashboard() {
               {greeting.subtext}
             </p>
           </div>
-
-
         </div>
       </header>
 
@@ -982,26 +981,35 @@ export default function Dashboard() {
               className="fade-in"
               style={{
                 background: 'linear-gradient(145deg, #0f172a 0%, #0a0f1e 100%)',
-                borderRadius: '24px',
+                borderRadius: '32px',
                 border: '1px dashed rgba(255,255,255,0.08)',
-                padding: '48px',
+                padding: '64px 32px',
                 textAlign: 'center',
                 gridColumn: '1 / -1',
               }}
             >
-              <Sparkles size={40} style={{ color: '#334155', marginBottom: '16px' }} />
+              <EmptyPortfolioVisual />
               <div
                 style={{
-                  fontSize: '1.1rem',
-                  fontWeight: '700',
-                  color: '#64748b',
-                  marginBottom: '8px',
+                  fontSize: '1.25rem',
+                  fontWeight: '800',
+                  color: '#fff',
+                  marginTop: '32px',
+                  marginBottom: '12px',
                 }}
               >
-                Your portfolio is getting started
+                Welcome to your Financial Hub
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#475569' }}>
-                Add accounts, stocks, and goals to see detailed insights here.
+              <div
+                style={{
+                  fontSize: '0.95rem',
+                  color: '#64748b',
+                  maxWidth: '400px',
+                  margin: '0 auto',
+                }}
+              >
+                Your financial empire is waiting to be built. Start by adding accounts, stocks, or
+                goals to see your insights come to life.
               </div>
             </div>
           )}

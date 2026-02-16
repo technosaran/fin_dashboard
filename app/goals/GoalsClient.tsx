@@ -17,6 +17,7 @@ import {
   Flame,
   Download,
 } from 'lucide-react';
+import { EmptyGoalsVisual } from '../components/Visuals';
 
 export default function GoalsClient() {
   const { accounts, goals, addGoal, updateGoal, deleteGoal, loading } = useFinance();
@@ -662,7 +663,7 @@ export default function GoalsClient() {
             <div
               style={{
                 gridColumn: '1 / -1',
-                padding: '100px 20px',
+                padding: '120px 20px',
                 textAlign: 'center',
                 background: 'rgba(15, 23, 42, 0.2)',
                 borderRadius: '40px',
@@ -671,20 +672,7 @@ export default function GoalsClient() {
               }}
             >
               <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
-                <div
-                  style={{
-                    background: 'rgba(99, 102, 241, 0.05)',
-                    padding: '40px',
-                    borderRadius: '50%',
-                  }}
-                >
-                  <Target
-                    size={80}
-                    strokeWidth={1}
-                    style={{ opacity: 0.2, color: '#6366f1' }}
-                    aria-hidden="true"
-                  />
-                </div>
+                <EmptyGoalsVisual />
               </div>
               <h3
                 style={{
@@ -694,10 +682,10 @@ export default function GoalsClient() {
                   marginBottom: '12px',
                 }}
               >
-                Operational Void In Goals
+                No Active Wealth Directives
               </h3>
               <p style={{ margin: 0, fontSize: 'clamp(0.875rem, 2vw, 1rem)', color: '#94a3b8' }}>
-                Initialize your first wealth directive to begin accumulation tracking.
+                Initialize your first goal to begin accumulation tracking.
               </p>
             </div>
           )}

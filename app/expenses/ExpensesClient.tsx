@@ -20,6 +20,7 @@ import {
   GraduationCap,
   Zap,
 } from 'lucide-react';
+import { EmptyTransactionsVisual } from '../components/Visuals';
 
 export default function ExpensesClient() {
   const {
@@ -504,16 +505,16 @@ export default function ExpensesClient() {
               ) : (
                 <div
                   style={{
-                    padding: '40px 20px',
+                    padding: '80px 24px',
                     textAlign: 'center',
                     background: '#0f172a',
                     borderRadius: '24px',
-                    border: '1px solid #1e293b',
+                    border: '1px dashed #1e293b',
                     color: '#94a3b8',
                   }}
                 >
-                  <Coffee size={32} style={{ marginBottom: '16px' }} aria-hidden="true" />
-                  <p>No expenses recorded yet. Start tracking your spending!</p>
+                  <EmptyTransactionsVisual />
+                  <p style={{ marginTop: '24px', fontWeight: '700' }}>No expense categories yet.</p>
                 </div>
               )}
             </div>
@@ -689,9 +690,12 @@ export default function ExpensesClient() {
                   </div>
                 ))
               ) : (
-                <p style={{ textAlign: 'center', color: '#94a3b8', padding: '20px' }}>
-                  No expense history found.
-                </p>
+                <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                  <EmptyTransactionsVisual />
+                  <p style={{ color: '#94a3b8', marginTop: '20px', fontWeight: '700' }}>
+                    No expense history found.
+                  </p>
+                </div>
               )}
             </div>
           </div>

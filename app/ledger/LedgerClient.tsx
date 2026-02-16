@@ -26,6 +26,7 @@ import {
   Layers,
   Clock,
 } from 'lucide-react';
+import { EmptyTransactionsVisual } from '../components/Visuals';
 
 export default function LedgerClient() {
   const { transactions, accounts, addTransaction, updateTransaction, deleteTransaction, loading } =
@@ -904,32 +905,16 @@ export default function LedgerClient() {
             ) : (
               <div
                 style={{
-                  padding: '100px 40px',
+                  padding: '120px 40px',
                   textAlign: 'center',
                   background: 'rgba(15, 23, 42, 0.3)',
                   borderRadius: '32px',
                   border: '1px dashed #1e293b',
                 }}
               >
-                <div
-                  style={{
-                    background: 'rgba(99, 102, 241, 0.05)',
-                    width: '80px',
-                    height: '80px',
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 24px',
-                    color: '#475569',
-                  }}
-                >
-                  <Layers size={40} opacity={0.3} />
-                </div>
+                <EmptyTransactionsVisual />
                 <h3
                   style={{
-                    fontSize: '1.25rem',
-                    fontWeight: '900',
                     color: '#fff',
                     margin: '0 0 12px 0',
                   }}

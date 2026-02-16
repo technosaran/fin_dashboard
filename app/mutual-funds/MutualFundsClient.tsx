@@ -33,6 +33,7 @@ import {
   Eye,
   PieChart as PieChartIcon,
 } from 'lucide-react';
+import { EmptyPortfolioVisual } from '../components/Visuals';
 import { useFinance } from '../components/FinanceContext';
 import { MutualFund, MutualFundTransaction } from '@/lib/types';
 import { logError } from '@/lib/utils/logger';
@@ -340,7 +341,15 @@ export default function MutualFundsClient() {
             Mutual Funds
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
+        <div
+          style={{
+            display: 'flex',
+            gap: '12px',
+            alignItems: 'center',
+            width: '100%',
+            justifyContent: 'flex-end',
+          }}
+        >
           <button
             onClick={handleManualRefresh}
             disabled={isRefreshing}
@@ -387,7 +396,8 @@ export default function MutualFundsClient() {
               flexShrink: 0,
             }}
           >
-            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Invest Now</span><span className="show-sm-inline hide-sm-none">Invest</span>
+            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Invest Now</span>
+            <span className="show-sm-inline hide-sm-none">Invest</span>
           </button>
         </div>
       </div>
@@ -499,7 +509,9 @@ export default function MutualFundsClient() {
             >
               Lifetime Earned
             </div>
-            <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#fff' }}>
+            <div
+              style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#fff' }}
+            >
               ₹{lifetimeEarned.toLocaleString()}
             </div>
           </div>
@@ -572,63 +584,199 @@ export default function MutualFundsClient() {
                   }}
                   onClick={() => handleEditFund(mf)}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '12px',
+                    }}
+                  >
                     <div>
-                      <div style={{ fontWeight: '900', fontSize: '1.05rem', color: '#fff', marginBottom: '2px' }}>{mf.schemeName}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '700' }}>{mf.category}</div>
+                      <div
+                        style={{
+                          fontWeight: '900',
+                          fontSize: '1.05rem',
+                          color: '#fff',
+                          marginBottom: '2px',
+                        }}
+                      >
+                        {mf.schemeName}
+                      </div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '700' }}>
+                        {mf.category}
+                      </div>
                     </div>
                     <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '0.65rem', color: '#64748b', marginBottom: '2px' }}>Value</div>
-                      <div style={{ fontWeight: '900', color: '#fff' }}>₹{mf.currentValue.toLocaleString()}</div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b', marginBottom: '2px' }}>
+                        Value
+                      </div>
+                      <div style={{ fontWeight: '900', color: '#fff' }}>
+                        ₹{mf.currentValue.toLocaleString()}
+                      </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr',
+                      gap: '12px',
+                      marginBottom: '16px',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.02)',
+                      borderRadius: '12px',
+                    }}
+                  >
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Units</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>{mf.units.toFixed(3)}</div>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Units
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
+                        {mf.units.toFixed(3)}
+                      </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Avg. NAV</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{mf.avgNav.toFixed(2)}</div>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Avg. NAV
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
+                        ₹{mf.avgNav.toFixed(2)}
+                      </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Cur. NAV</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{mf.currentNav.toFixed(2)}</div>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Cur. NAV
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
+                        ₹{mf.currentNav.toFixed(2)}
+                      </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Returns</div>
-                      <div style={{ fontWeight: '900', fontSize: '0.9rem', color: mf.pnl >= 0 ? '#10b981' : '#f87171' }}>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '4px',
+                        }}
+                      >
+                        Returns
+                      </div>
+                      <div
+                        style={{
+                          fontWeight: '900',
+                          fontSize: '0.9rem',
+                          color: mf.pnl >= 0 ? '#10b981' : '#f87171',
+                        }}
+                      >
                         {mf.pnl >= 0 ? '+' : ''}₹{mf.pnl.toLocaleString()}
                       </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      <div style={{
-                        color: mf.currentNav - (mf.previousNav || mf.currentNav) >= 0 ? '#10b981' : '#f87171',
-                        fontSize: '0.75rem',
-                        fontWeight: '800'
-                      }}>
+                      <div
+                        style={{
+                          color:
+                            mf.currentNav - (mf.previousNav || mf.currentNav) >= 0
+                              ? '#10b981'
+                              : '#f87171',
+                          fontSize: '0.75rem',
+                          fontWeight: '800',
+                        }}
+                      >
                         Day: {mf.currentNav - (mf.previousNav || mf.currentNav) >= 0 ? '+' : ''}
-                        {((mf.currentNav - (mf.previousNav || mf.currentNav)) * mf.units).toFixed(2)}
+                        {((mf.currentNav - (mf.previousNav || mf.currentNav)) * mf.units).toFixed(
+                          2
+                        )}
                       </div>
                     </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                      <button onClick={(e) => { e.stopPropagation(); setViewingCharges(mf); }} style={{ color: '#6366f1', background: 'none', border: 'none', padding: '4px' }}><Eye size={18} /></button>
-                      <button onClick={(e) => { e.stopPropagation(); handleExitFund(mf); }} style={{ color: '#10b981', background: 'none', border: 'none', padding: '4px' }}><ArrowRight size={18} /></button>
-                      <button onClick={async (e) => {
-                        e.stopPropagation();
-                        const isConfirmed = await customConfirm({ title: 'Delete', message: `Remove ${mf.schemeName}?`, type: 'error', confirmLabel: 'Delete' });
-                        if (isConfirmed) await deleteMutualFund(mf.id);
-                      }} style={{ color: '#f43f5e', background: 'none', border: 'none', padding: '4px' }}><Trash2 size={18} /></button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setViewingCharges(mf);
+                        }}
+                        style={{
+                          color: '#6366f1',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <Eye size={18} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExitFund(mf);
+                        }}
+                        style={{
+                          color: '#10b981',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <ArrowRight size={18} />
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          const isConfirmed = await customConfirm({
+                            title: 'Delete',
+                            message: `Remove ${mf.schemeName}?`,
+                            type: 'error',
+                            confirmLabel: 'Delete',
+                          });
+                          if (isConfirmed) await deleteMutualFund(mf.id);
+                        }}
+                        style={{
+                          color: '#f43f5e',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No holdings found</div>
+              <div style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
+                <EmptyPortfolioVisual />
+                <div style={{ fontWeight: '700', marginTop: '20px' }}>No holdings found</div>
+              </div>
             )}
           </div>
 
@@ -813,8 +961,8 @@ export default function MutualFundsClient() {
                             (
                             {mf.previousNav
                               ? (((mf.currentNav - mf.previousNav) / mf.previousNav) * 100).toFixed(
-                                2
-                              )
+                                  2
+                                )
                               : '0.00'}
                             %)
                           </div>
@@ -928,12 +1076,22 @@ export default function MutualFundsClient() {
                   <tr>
                     <td
                       colSpan={7}
-                      style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}
+                      style={{ padding: '80px 24px', textAlign: 'center', color: '#64748b' }}
                     >
-                      <div style={{ marginBottom: '12px' }}>
-                        <Briefcase size={40} opacity={0.3} />
+                      <EmptyPortfolioVisual />
+                      <div
+                        style={{
+                          fontWeight: '800',
+                          fontSize: '1.1rem',
+                          color: '#fff',
+                          marginTop: '24px',
+                        }}
+                      >
+                        No mutual fund investments found
                       </div>
-                      <div style={{ fontWeight: '700' }}>No mutual fund investments found.</div>
+                      <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+                        Record your first MF transaction to start tracking returns.
+                      </p>
                     </td>
                   </tr>
                 )}
@@ -989,9 +1147,9 @@ export default function MutualFundsClient() {
                       >
                         {totalInvestment > 0
                           ? (
-                            ((totalCurrentValue - totalInvestment) / totalInvestment) *
-                            100
-                          ).toFixed(2)
+                              ((totalCurrentValue - totalInvestment) / totalInvestment) *
+                              100
+                            ).toFixed(2)
                           : '0.00'}
                         %
                       </div>

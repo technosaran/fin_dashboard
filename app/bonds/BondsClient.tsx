@@ -16,6 +16,7 @@ import {
   Eye,
   RefreshCw,
 } from 'lucide-react';
+import { EmptyPortfolioVisual } from '../components/Visuals';
 import { useFinance } from '../components/FinanceContext';
 import { Bond } from '@/lib/types';
 import { calculateBondCharges } from '@/lib/utils/charges';
@@ -518,30 +519,33 @@ export default function BondsClient() {
           <div
             className="premium-card p-2xl text-center"
             style={{
-              padding: '64px',
+              padding: '80px 32px',
               textAlign: 'center',
               background: 'linear-gradient(145deg, rgba(30, 41, 59, 0.2), rgba(15, 23, 42, 0.4))',
+              borderRadius: '32px',
+              border: '1px dashed rgba(255,255,255,0.1)',
             }}
           >
-            <div style={{ opacity: 0.2, marginBottom: '24px' }}>
-              <div className="flex justify-center">
-                <Landmark size={64} />
-              </div>
+            <div style={{ marginBottom: '32px' }}>
+              <EmptyPortfolioVisual />
             </div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '8px' }}>
-              No Bonds Found
+            <h3
+              style={{ fontSize: '1.5rem', fontWeight: '900', marginBottom: '12px', color: '#fff' }}
+            >
+              {searchQuery ? 'No Matching Bonds' : 'No Fixed-Income Assets'}
             </h3>
             <p
               style={{
-                color: 'var(--text-tertiary)',
-                marginBottom: '32px',
-                maxWidth: '400px',
-                margin: '0 auto 32px auto',
+                color: '#64748b',
+                marginBottom: '40px',
+                maxWidth: '450px',
+                margin: '0 auto 40px auto',
+                lineHeight: '1.6',
               }}
             >
               {searchQuery
                 ? 'Try adjusting your search filters to find what you are looking for.'
-                : 'Start tracking your fixed-income portfolio by adding your first bond.'}
+                : 'Start tracking your secure fixed-income portfolio. Add your first premium bond or Wint Wealth investment.'}
             </p>
             {!searchQuery && (
               <button
@@ -554,12 +558,13 @@ export default function BondsClient() {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '10px',
-                  borderRadius: '14px',
+                  borderRadius: '16px',
                   fontSize: '1rem',
                   fontWeight: '800',
+                  boxShadow: '0 10px 30px rgba(99, 102, 241, 0.3)',
                 }}
               >
-                <Plus size={20} /> Add Premium Bonds
+                <Plus size={20} /> Add Private Bond
               </button>
             )}
           </div>

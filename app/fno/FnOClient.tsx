@@ -6,6 +6,7 @@ import { FnoTrade } from '@/lib/types';
 import { calculateFnoCharges } from '@/lib/utils/charges';
 import { useNotifications } from '../components/NotificationContext';
 import { Plus, TrendingUp, X, Edit3, Trash2, Zap, Clock, Trophy, ArrowRight } from 'lucide-react';
+import { EmptyPortfolioVisual } from '../components/Visuals';
 import {
   PieChart,
   Pie,
@@ -298,7 +299,9 @@ export default function FnOClient() {
           >
             Win Rate
           </div>
-          <div style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '950', color: '#818cf8' }}>
+          <div
+            style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '950', color: '#818cf8' }}
+          >
             {stats.winRate.toFixed(1)}%
           </div>
         </div>
@@ -440,7 +443,13 @@ export default function FnOClient() {
                   }}
                   onClick={() => handleEdit(trade)}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '12px',
+                    }}
+                  >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span
                         style={{
@@ -467,38 +476,132 @@ export default function FnOClient() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                  <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gap: '8px',
+                      marginBottom: '16px',
+                      padding: '12px',
+                      background: 'rgba(255,255,255,0.02)',
+                      borderRadius: '12px',
+                    }}
+                  >
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' }}>Qty</div>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '2px',
+                        }}
+                      >
+                        Qty
+                      </div>
                       <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>{trade.quantity}</div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' }}>Avg</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{trade.avgPrice.toLocaleString()}</div>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '2px',
+                        }}
+                      >
+                        Avg
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
+                        ₹{trade.avgPrice.toLocaleString()}
+                      </div>
                     </div>
                     <div>
-                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' }}>LTP</div>
-                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{trade.avgPrice.toLocaleString()}</div>
+                      <div
+                        style={{
+                          fontSize: '0.6rem',
+                          color: '#64748b',
+                          textTransform: 'uppercase',
+                          marginBottom: '2px',
+                        }}
+                      >
+                        LTP
+                      </div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>
+                        ₹{trade.avgPrice.toLocaleString()}
+                      </div>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>₹0.00 P&L</div>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>
+                      ₹0.00 P&L
+                    </div>
                     <div style={{ display: 'flex', gap: '12px' }}>
-                      <button onClick={(e) => { e.stopPropagation(); handleExit(trade); }} style={{ color: '#10b981', background: 'none', border: 'none', padding: '4px' }}><ArrowRight size={18} /></button>
-                      <button onClick={(e) => { e.stopPropagation(); handleEdit(trade); }} style={{ color: '#64748b', background: 'none', border: 'none', padding: '4px' }}><Edit3 size={18} /></button>
-                      <button onClick={async (e) => {
-                        e.stopPropagation();
-                        if (await customConfirm({ title: 'Delete', message: 'Remove position?', type: 'error' })) {
-                          deleteFnoTrade(trade.id);
-                        }
-                      }} style={{ color: '#f43f5e', background: 'none', border: 'none', padding: '4px' }}><Trash2 size={18} /></button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleExit(trade);
+                        }}
+                        style={{
+                          color: '#10b981',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <ArrowRight size={18} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(trade);
+                        }}
+                        style={{
+                          color: '#64748b',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <Edit3 size={18} />
+                      </button>
+                      <button
+                        onClick={async (e) => {
+                          e.stopPropagation();
+                          if (
+                            await customConfirm({
+                              title: 'Delete',
+                              message: 'Remove position?',
+                              type: 'error',
+                            })
+                          ) {
+                            deleteFnoTrade(trade.id);
+                          }
+                        }}
+                        style={{
+                          color: '#f43f5e',
+                          background: 'none',
+                          border: 'none',
+                          padding: '4px',
+                        }}
+                      >
+                        <Trash2 size={18} />
+                      </button>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No active positions</div>
+              <div style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
+                <EmptyPortfolioVisual />
+                <div style={{ fontWeight: '700', marginTop: '20px' }}>No active positions</div>
+              </div>
             )}
           </div>
 
@@ -751,14 +854,22 @@ export default function FnOClient() {
                   <tr>
                     <td
                       colSpan={7}
-                      style={{ padding: '60px', textAlign: 'center', color: '#64748b' }}
+                      style={{ padding: '80px 24px', textAlign: 'center', color: '#64748b' }}
                     >
-                      <div style={{ marginBottom: '12px' }}>
-                        <Zap size={40} opacity={0.3} />
-                      </div>
-                      <div style={{ fontWeight: '700' }}>
+                      <EmptyPortfolioVisual />
+                      <div
+                        style={{
+                          fontWeight: '800',
+                          fontSize: '1.1rem',
+                          color: '#fff',
+                          marginTop: '24px',
+                        }}
+                      >
                         No active positions found in your terminal
                       </div>
+                      <p style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+                        Execute your first trade to start tracking F&O positions.
+                      </p>
                     </td>
                   </tr>
                 )}
