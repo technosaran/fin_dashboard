@@ -1,12 +1,10 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '../components/AuthContext';
 import { Command, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
 
 export default function LoginPage() {
-  const router = useRouter();
   const { signIn, user, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -39,8 +37,8 @@ export default function LoginPage() {
         // We also do a direct redirect here just in case
         window.location.href = '/';
       }
-    } catch (err: any) {
-      setError(err.message || 'Authentication failed');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Authentication failed');
       setIsLoading(false);
     }
   };
