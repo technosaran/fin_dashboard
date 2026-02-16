@@ -1,23 +1,6 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import ClientLayout from './components/ClientLayout';
-
-const inter = Inter({
-  subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800', '900'],
-  display: 'swap',
-  variable: '--font-inter',
-  fallback: [
-    'system-ui',
-    '-apple-system',
-    'Segoe UI',
-    'Roboto',
-    'Helvetica Neue',
-    'Arial',
-    'sans-serif',
-  ],
-});
 
 export const metadata: Metadata = {
   title: 'FINCORE | Digital Wealth Hub',
@@ -50,8 +33,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={inter.variable}>
-      <body className={inter.className}>
+    <html lang="en">
+      <body>
         <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
