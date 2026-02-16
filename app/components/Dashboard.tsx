@@ -39,7 +39,7 @@ function getGreeting(): { text: string; subtext: string; emoji: string; color: s
     },
     evening: {
       text: 'Good Evening',
-      subtext: "Reviewing today's progress...",
+      subtext: "",
       emoji: '🌇',
       color: '#818cf8',
     },
@@ -316,30 +316,18 @@ export default function Dashboard() {
           }}
         >
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <h1 className="dashboard-title" style={{ margin: 0, lineHeight: 1.1 }}>
               <span
                 style={{
-                  fontSize: '1.5rem',
+                  fontSize: '1.2em',
                   animation: 'bounce 2s infinite',
                   display: 'inline-block',
+                  marginRight: '12px',
                 }}
               >
                 {greeting.emoji}
               </span>
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: '800',
-                  color: greeting.color,
-                  textTransform: 'uppercase',
-                  letterSpacing: '2px',
-                }}
-              >
-                {greeting.text}
-              </span>
-            </div>
-            <h1 className="dashboard-title" style={{ margin: 0, lineHeight: 1.1 }}>
-              <span style={{ color: '#fff' }}>Welcome back, </span>
+              <span style={{ color: '#fff' }}>{greeting.text}, </span>
               <span
                 className="title-accent text-glow"
                 style={{
@@ -366,54 +354,7 @@ export default function Dashboard() {
             </p>
           </div>
 
-          <div
-            style={{
-              background: 'rgba(255,255,255,0.03)',
-              padding: '12px 20px',
-              borderRadius: '20px',
-              border: '1px solid rgba(132, 140, 248, 0.1)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-              backdropFilter: 'blur(10px)',
-            }}
-          >
-            <div
-              style={{
-                width: '40px',
-                height: '40px',
-                borderRadius: '12px',
-                background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: '#fff',
-                boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
-              }}
-            >
-              <Calendar size={20} />
-            </div>
-            <div>
-              <div
-                style={{
-                  fontSize: '0.7rem',
-                  fontWeight: '800',
-                  color: '#64748b',
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px',
-                }}
-              >
-                Today&apos;s Overview
-              </div>
-              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#fff' }}>
-                {new Date().toLocaleDateString('en-IN', {
-                  weekday: 'long',
-                  day: 'numeric',
-                  month: 'short',
-                })}
-              </div>
-            </div>
-          </div>
+
         </div>
       </header>
 
