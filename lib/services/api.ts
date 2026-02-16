@@ -266,10 +266,7 @@ export function parseCommaSeparatedParam(
 
   if (!raw) {
     return {
-      error: createErrorResponse(
-        `${paramName.charAt(0).toUpperCase() + paramName.slice(1)} parameter is required`,
-        400
-      ),
+      error: createErrorResponse(`Missing required parameter: ${paramName}`, 400),
     };
   }
 
