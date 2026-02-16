@@ -91,6 +91,25 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
+  // Generic delete helper to reduce repetitive CRUD boilerplate
+  function deleteFromTable<T extends { id: number }>(
+    table: string,
+    label: string,
+    setter: React.Dispatch<React.SetStateAction<T[]>>
+  ) {
+    return async (id: number) => {
+      const { error } = await (supabase as ExtendedSupabaseClient)
+        .from(table)
+        .delete()
+        .eq('id', id);
+      if (error) {
+        logError(`Error deleting ${label}:`, error);
+        throw error;
+      }
+      setter((prev) => prev.filter((item) => item.id !== id));
+    };
+  }
+
   const refreshAccounts = useCallback(async () => {
     const { data, error } = await supabase.from('accounts').select('*');
     if (error) logError('Error refreshing accounts:', error);
@@ -241,16 +260,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setAccounts((prev) => prev.map((a) => (a.id === id ? { ...a, ...account } : a)));
   }, []);
 
-  const deleteAccount = useCallback(async (id: number) => {
-    const { error } = await supabase.from('accounts').delete().eq('id', id);
-
-    if (error) {
-      logError('Error deleting account:', error);
-      throw error;
-    }
-
-    setAccounts((prev) => prev.filter((a) => a.id !== id));
-  }, []);
+  const deleteAccount = useMemo(() => deleteFromTable('accounts', 'account', setAccounts), []);
 
   const addFunds = useCallback(
     async (
@@ -381,19 +391,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setStocks((prev) => prev.map((s) => (s.id === id ? { ...s, ...stock } : s)));
   }, []);
 
-  const deleteStock = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('stocks')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting stock:', error);
-      throw error;
-    }
-
-    setStocks((prev) => prev.filter((s) => s.id !== id));
-  }, []);
+  const deleteStock = useMemo(() => deleteFromTable('stocks', 'stock', setStocks), []);
 
   const addStockTransaction = useCallback(
     async (tx: Omit<StockTransaction, 'id'>) => {
@@ -428,19 +426,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteStockTransaction = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('stock_transactions')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting stock transaction:', error);
-      throw error;
-    }
-
-    setStockTransactions((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const deleteStockTransaction = useMemo(
+    () => deleteFromTable('stock_transactions', 'stock transaction', setStockTransactions),
+    []
+  );
 
   // --- MUTUAL FUNDS ---
 
@@ -501,19 +490,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setMutualFunds((prev) => prev.map((m) => (m.id === id ? { ...m, ...mf } : m)));
   }, []);
 
-  const deleteMutualFund = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('mutual_funds')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting mutual fund:', error);
-      throw error;
-    }
-
-    setMutualFunds((prev) => prev.filter((m) => m.id !== id));
-  }, []);
+  const deleteMutualFund = useMemo(
+    () => deleteFromTable('mutual_funds', 'mutual fund', setMutualFunds),
+    []
+  );
 
   const addMutualFundTransaction = useCallback(
     async (tx: Omit<MutualFundTransaction, 'id'>) => {
@@ -549,19 +529,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteMutualFundTransaction = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('mutual_fund_transactions')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting mutual fund transaction:', error);
-      throw error;
-    }
-
-    setMutualFundTransactions((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const deleteMutualFundTransaction = useMemo(
+    () =>
+      deleteFromTable(
+        'mutual_fund_transactions',
+        'mutual fund transaction',
+        setMutualFundTransactions
+      ),
+    []
+  );
 
   // --- F&O ---
 
@@ -636,19 +612,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteFnoTrade = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('fno_trades')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting fno trade:', error);
-      throw error;
-    }
-
-    setFnoTrades((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const deleteFnoTrade = useMemo(
+    () => deleteFromTable('fno_trades', 'fno trade', setFnoTrades),
+    []
+  );
 
   // --- BONDS ---
 
@@ -713,19 +680,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setBonds((prev) => prev.map((b) => (b.id === id ? { ...b, ...bond } : b)));
   }, []);
 
-  const deleteBond = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('bonds')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting bond:', error);
-      throw error;
-    }
-
-    setBonds((prev) => prev.filter((b) => b.id !== id));
-  }, []);
+  const deleteBond = useMemo(() => deleteFromTable('bonds', 'bond', setBonds), []);
 
   const addBondTransaction = useCallback(
     async (tx: Omit<BondTransaction, 'id'>) => {
@@ -758,19 +713,10 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteBondTransaction = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('bond_transactions')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      logError('Error deleting bond transaction:', error);
-      throw error;
-    }
-
-    setBondTransactions((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const deleteBondTransaction = useMemo(
+    () => deleteFromTable('bond_transactions', 'bond transaction', setBondTransactions),
+    []
+  );
 
   // --- GOALS ---
 
@@ -817,16 +763,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, ...goal } : g)));
   }, []);
 
-  const deleteGoal = useCallback(async (id: number) => {
-    const { error } = await supabase.from('goals').delete().eq('id', id);
-
-    if (error) {
-      logError('Error deleting goal:', error);
-      throw error;
-    }
-
-    setGoals((prev) => prev.filter((g) => g.id !== id));
-  }, []);
+  const deleteGoal = useMemo(() => deleteFromTable('goals', 'goal', setGoals), []);
 
   // --- FAMILY TRANSFERS ---
 
@@ -941,19 +878,162 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setForexTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...tx } : t)));
   }, []);
 
-  const deleteForexTransaction = useCallback(async (id: number) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
-      .from('forex_transactions')
-      .delete()
-      .eq('id', id);
+  const deleteForexTransaction = useMemo(
+    () => deleteFromTable('forex_transactions', 'forex transaction', setForexTransactions),
+    []
+  );
 
-    if (error) {
-      logError('Error deleting forex transaction:', error);
-      throw error;
-    }
+  // --- LIVE PRICE REFRESH ---
 
-    setForexTransactions((prev) => prev.filter((t) => t.id !== id));
-  }, []);
+  const refreshLivePrices = useCallback(
+    async (silent: boolean = false) => {
+      if (!silent) setLoading(true);
+
+      // 1. Stocks
+      try {
+        const stockSymbols = [...new Set(stocks.map((s) => s.symbol))];
+        if (stockSymbols.length > 0) {
+          const res = await fetch(`/api/stocks/batch?symbols=${stockSymbols.join(',')}`);
+          const data = await res.json();
+          if (data.success && data.data) {
+            const updates = data.data;
+            setStocks((prev) =>
+              prev.map((stock) => {
+                const update = updates[stock.symbol];
+                if (!update) return stock;
+                const currentPrice = update.currentPrice;
+                const previousPrice =
+                  update.previousClose > 0 ? update.previousClose : stock.previousPrice;
+                const currentValue = stock.quantity * currentPrice;
+                const pnl = currentValue - stock.investmentAmount;
+                const pnlPercentage = (pnl / stock.investmentAmount) * 100;
+
+                if (currentPrice > 0) {
+                  (supabase as ExtendedSupabaseClient)
+                    .from('stocks')
+                    .update({
+                      current_price: currentPrice,
+                      previous_price: previousPrice,
+                      current_value: currentValue,
+                      pnl,
+                      pnl_percentage: pnlPercentage,
+                    })
+                    .eq('id', stock.id)
+                    .then(({ error }: { error: Error | null }) => {
+                      if (error) logError('Failed to persist stock price', error);
+                    });
+                }
+
+                return {
+                  ...stock,
+                  currentPrice: currentPrice > 0 ? currentPrice : stock.currentPrice,
+                  previousPrice,
+                  currentValue,
+                  pnl,
+                  pnlPercentage,
+                };
+              })
+            );
+          }
+        }
+      } catch (err) {
+        logError('Failed to refresh stock prices:', err);
+      }
+
+      // 2. Mutual Funds
+      try {
+        const mfCodes = [...new Set(mutualFunds.map((m) => m.schemeCode))];
+        if (mfCodes.length > 0) {
+          const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}`);
+          const data = await res.json();
+          if (data.success && data.data) {
+            const updates = data.data;
+            setMutualFunds((prev) =>
+              prev.map((mf) => {
+                const update = updates[mf.schemeCode];
+                if (!update) return mf;
+                const currentNav = update.currentNav;
+                const currentValue = mf.units * currentNav;
+                const pnl = currentValue - mf.investmentAmount;
+                const pnlPercentage = (pnl / mf.investmentAmount) * 100;
+
+                (supabase as ExtendedSupabaseClient)
+                  .from('mutual_funds')
+                  .update({
+                    current_nav: currentNav,
+                    previous_nav: update.previousNav,
+                    current_value: currentValue,
+                    pnl,
+                    pnl_percentage: pnlPercentage,
+                  })
+                  .eq('id', mf.id)
+                  .then(({ error }: { error: Error | null }) => {
+                    if (error) logError('Failed to persist MF NAV', error);
+                  });
+
+                return {
+                  ...mf,
+                  currentNav,
+                  previousNav: update.previousNav,
+                  currentValue,
+                  pnl,
+                  pnlPercentage,
+                };
+              })
+            );
+          }
+        }
+      } catch (err) {
+        logError('Failed to refresh MF NAVs:', err);
+      }
+
+      // 3. Bonds
+      try {
+        const bondIsins = [...new Set(bonds.map((b) => b.isin))].filter(
+          (isin): isin is string => !!isin
+        );
+        if (bondIsins.length > 0) {
+          const res = await fetch(`/api/bonds/batch?isins=${bondIsins.join(',')}`);
+          const data = await res.json();
+          if (data.success && data.data) {
+            const updates = data.data;
+            setBonds((prev) =>
+              prev.map((bond) => {
+                if (!bond.isin) return bond;
+                const update = updates[bond.isin];
+                if (!update) return bond;
+                const currentPrice = bond.faceValue * update.currentPriceMultiplier;
+                const currentValue = bond.quantity * currentPrice;
+                const pnl = currentValue - bond.investmentAmount;
+                const pnlPercentage = (pnl / bond.investmentAmount) * 100;
+
+                (supabase as ExtendedSupabaseClient)
+                  .from('bonds')
+                  .update({
+                    current_price: currentPrice,
+                    current_value: currentValue,
+                    pnl,
+                    pnl_percentage: pnlPercentage,
+                  })
+                  .eq('id', bond.id)
+                  .then(({ error: dbError }: { error: Error | null }) => {
+                    if (dbError) logError('Failed to persist bond price', dbError);
+                  });
+
+                return { ...bond, currentPrice, currentValue, pnl, pnlPercentage };
+              })
+            );
+          }
+        }
+      } catch (err) {
+        logError('Failed to refresh bond prices:', err);
+      }
+
+      if (!silent) setLoading(false);
+      logInfo('Live prices refresh completed');
+    },
+    [stocks, mutualFunds, bonds]
+  );
 
   // --- REFRESH ---
 
@@ -1096,167 +1176,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       refreshPortfolio,
       isTransactionModalOpen,
       setIsTransactionModalOpen,
-      refreshLivePrices: async (silent: boolean = false) => {
-        if (!silent) setLoading(true);
-
-        // 1. Stocks
-        try {
-          const stockSymbols = [...new Set(stocks.map((s) => s.symbol))];
-          if (stockSymbols.length > 0) {
-            const res = await fetch(`/api/stocks/batch?symbols=${stockSymbols.join(',')}`);
-            const data = await res.json();
-            if (data.success && data.data) {
-              const updates = data.data;
-              const updatedStocks = stocks.map((stock) => {
-                const update = updates[stock.symbol];
-                if (update) {
-                  const currentPrice = update.currentPrice;
-                  const previousPrice =
-                    update.previousClose > 0 ? update.previousClose : stock.previousPrice;
-                  const currentValue = stock.quantity * currentPrice;
-                  const pnl = currentValue - stock.investmentAmount;
-                  const pnlPercentage = (pnl / stock.investmentAmount) * 100;
-
-                  // Persist to DB (fire and forget)
-                  if (currentPrice > 0) {
-                    (supabase as ExtendedSupabaseClient)
-                      .from('stocks')
-                      .update({
-                        current_price: currentPrice,
-                        previous_price: previousPrice,
-                        current_value: currentValue,
-                        pnl: pnl,
-                        pnl_percentage: pnlPercentage,
-                      })
-                      .eq('id', stock.id)
-                      .then(({ error }) => {
-                        if (error) logError('Failed to persist stock price', error);
-                      });
-                  }
-
-                  return {
-                    ...stock,
-                    currentPrice: currentPrice > 0 ? currentPrice : stock.currentPrice,
-                    previousPrice: previousPrice,
-                    currentValue,
-                    pnl,
-                    pnlPercentage,
-                  };
-                }
-                return stock;
-              });
-              setStocks(updatedStocks);
-            }
-          }
-        } catch (err) {
-          logError('Failed to refresh stock prices:', err);
-          // Don't stop execution, continue to MFs
-        }
-
-        // 2. Mutual Funds
-        try {
-          const mfCodes = [...new Set(mutualFunds.map((m) => m.schemeCode))];
-          if (mfCodes.length > 0) {
-            const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}`);
-            const data = await res.json();
-            if (data.success && data.data) {
-              const updates = data.data;
-              const updatedMFs = mutualFunds.map((mf) => {
-                const update = updates[mf.schemeCode];
-                if (update) {
-                  const currentNav = update.currentNav;
-                  const currentValue = mf.units * currentNav;
-                  const pnl = currentValue - mf.investmentAmount;
-                  const pnlPercentage = (pnl / mf.investmentAmount) * 100;
-
-                  // Persist to DB
-                  (supabase as ExtendedSupabaseClient)
-                    .from('mutual_funds')
-                    .update({
-                      current_nav: currentNav,
-                      previous_nav: update.previousNav,
-                      current_value: currentValue,
-                      pnl: pnl,
-                      pnl_percentage: pnlPercentage,
-                    })
-                    .eq('id', mf.id)
-                    .then(({ error }) => {
-                      if (error) logError('Failed to persist MF NAV', error);
-                    });
-
-                  return {
-                    ...mf,
-                    currentNav,
-                    previousNav: update.previousNav,
-                    currentValue,
-                    pnl,
-                    pnlPercentage,
-                  };
-                }
-                return mf;
-              });
-              setMutualFunds(updatedMFs);
-            }
-          }
-        } catch (err) {
-          logError('Failed to refresh MF NAVs:', err);
-        }
-
-        // 3. Bonds - Live Fetching
-        try {
-          const bondIsins = [...new Set(bonds.map((b) => b.isin))].filter(
-            (isin): isin is string => !!isin
-          );
-          if (bondIsins.length > 0) {
-            const res = await fetch(`/api/bonds/batch?isins=${bondIsins.join(',')}`);
-            const data = await res.json();
-            if (data.success && data.data) {
-              const updates = data.data;
-              const updatedBonds = bonds.map((bond) => {
-                if (!bond.isin) return bond;
-                const update = updates[bond.isin];
-                if (update) {
-                  // For bonds, we update currentPrice which might be a multiplier of face value
-                  // or the actual trading price. The batch API returns currentPriceMultiplier.
-                  const currentPrice = bond.faceValue * update.currentPriceMultiplier;
-                  const currentValue = bond.quantity * currentPrice;
-                  const pnl = currentValue - bond.investmentAmount;
-                  const pnlPercentage = (pnl / bond.investmentAmount) * 100;
-
-                  // Persist to DB
-                  (supabase as ExtendedSupabaseClient)
-                    .from('bonds')
-                    .update({
-                      current_price: currentPrice,
-                      current_value: currentValue,
-                      pnl: pnl,
-                      pnl_percentage: pnlPercentage,
-                    })
-                    .eq('id', bond.id)
-                    .then(({ error: dbError }: { error: Error | null }) => {
-                      if (dbError) logError('Failed to persist bond price', dbError);
-                    });
-
-                  return {
-                    ...bond,
-                    currentPrice,
-                    currentValue,
-                    pnl,
-                    pnlPercentage,
-                  };
-                }
-                return bond;
-              });
-              setBonds(updatedBonds);
-            }
-          }
-        } catch (err) {
-          logError('Failed to refresh bond prices:', err);
-        }
-
-        if (!silent) setLoading(false);
-        logInfo('Live prices refresh completed');
-      },
+      refreshLivePrices,
     }),
     [
       accounts,
@@ -1313,19 +1233,19 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       refreshPortfolio,
       isTransactionModalOpen,
       setIsTransactionModalOpen,
+      refreshLivePrices,
     ]
   );
 
   // Automatic Live Price Refresh (every 5 minutes)
   const dataLoaded = !loading;
   useEffect(() => {
-    // Initial refresh after data loads - use silent mode to avoid flickering
     if (
       dataLoaded &&
       (stocks.length > 0 || mutualFunds.length > 0 || (settings.bondsEnabled && bonds.length > 0))
     ) {
       const timeout = setTimeout(() => {
-        value.refreshLivePrices(true);
+        refreshLivePrices(true);
       }, 1000);
       return () => clearTimeout(timeout);
     }
@@ -1335,11 +1255,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Periodic refresh - silent background update
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (user) value.refreshLivePrices(true);
-    }, 300000); // 5 minutes
+      if (user) refreshLivePrices(true);
+    }, 300000);
 
     return () => clearInterval(intervalId);
-  }, [user, value]);
+  }, [user, refreshLivePrices]);
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
 };

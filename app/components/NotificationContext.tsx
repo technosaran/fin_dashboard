@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
 import { X, CheckCircle, AlertTriangle, Info, AlertOctagon } from 'lucide-react';
+import { colors } from '@/lib/styles/constants';
 
 type NotificationType = 'success' | 'error' | 'warning' | 'info';
 
@@ -113,7 +114,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
           <div
             key={n.id}
             style={{
-              background: '#0f172a',
+              background: colors.bgCard,
               border: `1px solid ${n.type === 'success' ? '#10b981' : n.type === 'error' ? '#f43f5e' : n.type === 'warning' ? '#f59e0b' : '#3b82f6'}33`,
               padding: '16px 20px',
               borderRadius: '16px',
@@ -169,10 +170,10 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
         >
           <div
             style={{
-              background: '#0f172a',
+              background: colors.bgCard,
               padding: '32px',
               borderRadius: '24px',
-              border: '1px solid #1e293b',
+              border: `1px solid ${colors.border}`,
               width: '100%',
               maxWidth: '400px',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
@@ -188,7 +189,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
             </div>
             <p
               style={{
-                color: '#94a3b8',
+                color: colors.textMuted,
                 fontSize: '1rem',
                 lineHeight: '1.6',
                 marginBottom: '32px',
@@ -205,7 +206,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
                   padding: '14px',
                   borderRadius: '12px',
                   background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid #1e293b',
+                  border: `1px solid ${colors.border}`,
                   color: '#fff',
                   fontWeight: '700',
                   cursor: 'pointer',

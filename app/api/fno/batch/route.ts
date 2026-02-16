@@ -6,6 +6,8 @@ import {
   applyRateLimit,
   getCache,
   setCache,
+  parseCommaSeparatedParam,
+  deterministicHash,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
@@ -24,24 +26,11 @@ async function handleFnoBatchQuote(request: Request): Promise<NextResponse> {
   if (rateLimitResponse) return rateLimitResponse;
 
   const { searchParams } = new URL(request.url);
-  const instrumentsParam = searchParams.get('instruments');
-
-  if (!instrumentsParam) {
-    return createErrorResponse('Instruments parameter is required', 400);
-  }
-
-  const instruments = instrumentsParam
-    .split(',')
-    .map((s) => s.trim().toUpperCase())
-    .filter(Boolean);
-
-  if (instruments.length === 0) {
-    return createErrorResponse('No valid instruments provided', 400);
-  }
-
-  if (instruments.length > 50) {
-    return createErrorResponse('Maximum 50 instruments allowed per batch', 400);
-  }
+  const parsed = parseCommaSeparatedParam(searchParams, 'instruments', {
+    transform: (s) => s.trim().toUpperCase(),
+  });
+  if (parsed.error) return parsed.error;
+  const instruments = parsed.items;
 
   const cacheKey = `fno_batch_${instruments.sort().join(',')}`;
   const cached = getCache<Record<string, FnoPositionData>>(cacheKey);
@@ -52,18 +41,14 @@ async function handleFnoBatchQuote(request: Request): Promise<NextResponse> {
     const today = new Date().toISOString().split('T')[0];
 
     instruments.forEach((inst) => {
-      const seed = inst + today;
-      let hash = 0;
-      for (let i = 0; i < seed.length; i++) {
-        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-      }
+      const hash = deterministicHash(inst + today);
 
       // Base price simulation - try to parse numbers from instrument like "NIFTY 21500 CE"
       const numMatch = inst.match(/\d+/);
       const basePrice = numMatch ? parseInt(numMatch[0]) / 100 : 100;
 
-      const fluctuation = (Math.abs(hash) % 201) / 100 - 1; // +/- 1
-      const change = (Math.abs(hash) % 101) / 50 - 1; // +/- 1%
+      const fluctuation = (Math.abs(hash) % 201) / 100 - 1;
+      const change = (Math.abs(hash) % 101) / 50 - 1;
 
       results[inst] = {
         instrument: inst,
@@ -73,10 +58,10 @@ async function handleFnoBatchQuote(request: Request): Promise<NextResponse> {
       };
     });
 
-    setCache(cacheKey, results, 5000); // 5 sec cache for high frequency
+    setCache(cacheKey, results, 5000);
     return createSuccessResponse(results);
   } catch (error) {
-    logError('Batch fno quote fetch failed', error, { instrumentsParam });
+    logError('Batch fno quote fetch failed', error, { instruments: instruments.join(',') });
     return createErrorResponse('Failed to fetch batch FnO quotes', 500);
   }
 }

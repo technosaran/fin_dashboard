@@ -1,3 +1,5 @@
+import { colors } from '@/lib/styles/constants';
+
 interface SkeletonLoaderProps {
   width?: string;
   height?: string;
@@ -27,9 +29,9 @@ export function SkeletonCard() {
   return (
     <div
       style={{
-        background: '#0f172a',
+        background: colors.bgCard,
         borderRadius: '20px',
-        border: '1px solid #1e293b',
+        border: `1px solid ${colors.border}`,
         padding: '24px',
       }}
     >
