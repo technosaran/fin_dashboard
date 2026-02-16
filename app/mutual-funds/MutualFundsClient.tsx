@@ -317,21 +317,30 @@ export default function MutualFundsClient() {
     <div className="page-container">
       {/* Header */}
       <div
+        className="flex-col-mobile"
         style={{
-          display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '32px',
+          alignItems: 'flex-start',
+          marginBottom: '24px',
+          gap: '20px',
         }}
       >
         <div>
           <h1
-            style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}
+            style={{
+              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+              fontWeight: '900',
+              margin: 0,
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
           >
             Mutual Funds
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
           <button
             onClick={handleManualRefresh}
             disabled={isRefreshing}
@@ -346,6 +355,7 @@ export default function MutualFundsClient() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
             title="Refresh NAVs"
           >
@@ -361,38 +371,40 @@ export default function MutualFundsClient() {
               setIsModalOpen(true);
             }}
             style={{
-              padding: '14px 28px',
-              borderRadius: '16px',
+              padding: '10px 20px',
+              borderRadius: '14px',
               background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
               color: 'white',
               border: 'none',
-              fontWeight: '700',
-              fontSize: '0.9rem',
+              fontWeight: '800',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)',
+              boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
+              transition: '0.2s',
+              flexShrink: 0,
             }}
           >
-            <Plus size={18} strokeWidth={3} /> Invest Now
+            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Invest Now</span><span className="show-sm-inline hide-sm-none">Invest</span>
           </button>
         </div>
       </div>
 
       {/* Performance Cards */}
       <div
+        className="grid-responsive-3"
         style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${activeTab === 'lifetime' ? 4 : 3}, 1fr)`,
-          gap: '24px',
+          gap: '20px',
           marginBottom: '32px',
         }}
       >
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -400,22 +412,23 @@ export default function MutualFundsClient() {
           <div
             style={{
               color: '#64748b',
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
               fontWeight: '800',
               textTransform: 'uppercase',
-              marginBottom: '12px',
+              marginBottom: '10px',
             }}
           >
             Total Invested
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: '900' }}>
+          <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900' }}>
             ₹{totalInvestment.toLocaleString()}
           </div>
         </div>
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -423,22 +436,23 @@ export default function MutualFundsClient() {
           <div
             style={{
               color: '#64748b',
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
               fontWeight: '800',
               textTransform: 'uppercase',
-              marginBottom: '12px',
+              marginBottom: '10px',
             }}
           >
             Current Value
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: '900' }}>
+          <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900' }}>
             ₹{totalCurrentValue.toLocaleString()}
           </div>
         </div>
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -446,17 +460,17 @@ export default function MutualFundsClient() {
           <div
             style={{
               color: totalPnL >= 0 ? '#34d399' : '#f87171',
-              fontSize: '0.75rem',
+              fontSize: '0.7rem',
               fontWeight: '800',
               textTransform: 'uppercase',
-              marginBottom: '12px',
+              marginBottom: '10px',
             }}
           >
             Total P&L
           </div>
           <div
             style={{
-              fontSize: '1.8rem',
+              fontSize: 'clamp(1.4rem, 3vw, 1.8rem)',
               fontWeight: '900',
               color: totalPnL >= 0 ? '#34d399' : '#f87171',
             }}
@@ -466,9 +480,10 @@ export default function MutualFundsClient() {
         </div>
         {activeTab === 'lifetime' && (
           <div
+            className="premium-card"
             style={{
               background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-              padding: '24px',
+              padding: '20px',
               borderRadius: '24px',
               boxShadow: '0 15px 30px rgba(99, 102, 241, 0.2)',
             }}
@@ -476,15 +491,15 @@ export default function MutualFundsClient() {
             <div
               style={{
                 color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.75rem',
+                fontSize: '0.7rem',
                 fontWeight: '800',
                 textTransform: 'uppercase',
-                marginBottom: '12px',
+                marginBottom: '10px',
               }}
             >
               Lifetime Earned
             </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '900' }}>
+            <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#fff' }}>
               ₹{lifetimeEarned.toLocaleString()}
             </div>
           </div>
@@ -493,14 +508,17 @@ export default function MutualFundsClient() {
 
       {/* Tabs */}
       <div
+        className="hide-scrollbar"
         style={{
           display: 'flex',
           background: '#0f172a',
           padding: '6px',
-          borderRadius: '18px',
+          borderRadius: '20px',
           border: '1px solid #1e293b',
           marginBottom: '32px',
-          width: 'fit-content',
+          width: '100%',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         {[
@@ -515,18 +533,20 @@ export default function MutualFundsClient() {
               setActiveTab(tab.id as 'holdings' | 'allocation' | 'history' | 'lifetime')
             }
             style={{
-              padding: '12px 24px',
-              borderRadius: '14px',
+              padding: '10px 20px',
+              borderRadius: '16px',
               border: 'none',
               background: activeTab === tab.id ? '#6366f1' : 'transparent',
               color: activeTab === tab.id ? '#fff' : '#64748b',
               fontWeight: '700',
-              fontSize: '0.9rem',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               transition: '0.2s',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             {tab.icon}
@@ -538,7 +558,82 @@ export default function MutualFundsClient() {
       {/* Content */}
       {activeTab === 'holdings' && (
         <div className="fade-in">
-          <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
+          {/* Mobile Card View */}
+          <div className="mobile-card-list">
+            {mutualFunds.length > 0 ? (
+              mutualFunds.map((mf, idx) => (
+                <div
+                  key={mf.id}
+                  className="premium-card"
+                  style={{
+                    padding: '16px',
+                    background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
+                    borderLeft: `4px solid ${COLORS[idx % COLORS.length]}`,
+                  }}
+                  onClick={() => handleEditFund(mf)}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ fontWeight: '900', fontSize: '1.05rem', color: '#fff', marginBottom: '2px' }}>{mf.schemeName}</div>
+                      <div style={{ fontSize: '0.7rem', color: '#64748b', fontWeight: '700' }}>{mf.category}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b', marginBottom: '2px' }}>Value</div>
+                      <div style={{ fontWeight: '900', color: '#fff' }}>₹{mf.currentValue.toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Units</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>{mf.units.toFixed(3)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Avg. NAV</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{mf.avgNav.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Cur. NAV</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{mf.currentNav.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Returns</div>
+                      <div style={{ fontWeight: '900', fontSize: '0.9rem', color: mf.pnl >= 0 ? '#10b981' : '#f87171' }}>
+                        {mf.pnl >= 0 ? '+' : ''}₹{mf.pnl.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{
+                        color: mf.currentNav - (mf.previousNav || mf.currentNav) >= 0 ? '#10b981' : '#f87171',
+                        fontSize: '0.75rem',
+                        fontWeight: '800'
+                      }}>
+                        Day: {mf.currentNav - (mf.previousNav || mf.currentNav) >= 0 ? '+' : ''}
+                        {((mf.currentNav - (mf.previousNav || mf.currentNav)) * mf.units).toFixed(2)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button onClick={(e) => { e.stopPropagation(); setViewingCharges(mf); }} style={{ color: '#6366f1', background: 'none', border: 'none', padding: '4px' }}><Eye size={18} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); handleExitFund(mf); }} style={{ color: '#10b981', background: 'none', border: 'none', padding: '4px' }}><ArrowRight size={18} /></button>
+                      <button onClick={async (e) => {
+                        e.stopPropagation();
+                        const isConfirmed = await customConfirm({ title: 'Delete', message: `Remove ${mf.schemeName}?`, type: 'error', confirmLabel: 'Delete' });
+                        if (isConfirmed) await deleteMutualFund(mf.id);
+                      }} style={{ color: '#f43f5e', background: 'none', border: 'none', padding: '4px' }}><Trash2 size={18} /></button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No holdings found</div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="premium-card hide-mobile" style={{ padding: '0', overflow: 'hidden' }}>
             <table
               style={{
                 width: '100%',
@@ -718,8 +813,8 @@ export default function MutualFundsClient() {
                             (
                             {mf.previousNav
                               ? (((mf.currentNav - mf.previousNav) / mf.previousNav) * 100).toFixed(
-                                  2
-                                )
+                                2
+                              )
                               : '0.00'}
                             %)
                           </div>
@@ -894,9 +989,9 @@ export default function MutualFundsClient() {
                       >
                         {totalInvestment > 0
                           ? (
-                              ((totalCurrentValue - totalInvestment) / totalInvestment) *
-                              100
-                            ).toFixed(2)
+                            ((totalCurrentValue - totalInvestment) / totalInvestment) *
+                            100
+                          ).toFixed(2)
                           : '0.00'}
                         %
                       </div>

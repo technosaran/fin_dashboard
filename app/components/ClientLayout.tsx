@@ -93,40 +93,75 @@ function AuthConsumer({
       >
         {!isAuthPage && (
           <header className="mobile-header">
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <div
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 style={{
-                  width: '32px',
-                  height: '32px',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-                  borderRadius: '8px',
+                  background: 'rgba(255, 255, 255, 0.05)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  color: '#fff',
+                  cursor: 'pointer',
+                  padding: '8px',
+                  borderRadius: '10px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'white',
+                  transition: 'background 0.2s',
                 }}
+                aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
               >
-                <Command size={18} />
+                {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div
+                  style={{
+                    width: '32px',
+                    height: '32px',
+                    background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
+                    borderRadius: '8px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: 'white',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+                  }}
+                >
+                  <Command size={18} />
+                </div>
+                <span
+                  style={{
+                    fontWeight: '900',
+                    color: '#fff',
+                    fontSize: '1.2rem',
+                    letterSpacing: '-0.5px'
+                  }}
+                >
+                  FINCORE
+                </span>
               </div>
-              <span style={{ fontWeight: '900', color: '#fff', fontSize: '1.1rem' }}>FINCORE</span>
             </div>
-            <button
-              type="button"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              style={{ background: 'none', border: 'none', color: '#fff', cursor: 'pointer' }}
-              aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
-            >
-              {isSidebarOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
           </header>
         )}
 
         <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
           {!isAuthPage && (
             <>
-              {isSidebarOpen && (
-                <div className="sidebar-overlay" onClick={() => setIsSidebarOpen(false)} />
-              )}
+              <div
+                className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`}
+                onClick={() => setIsSidebarOpen(false)}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  background: 'rgba(0,0,0,0.6)',
+                  backdropFilter: 'blur(4px)',
+                  zIndex: 90,
+                  opacity: isSidebarOpen ? 1 : 0,
+                  pointerEvents: isSidebarOpen ? 'auto' : 'none',
+                  transition: 'opacity 0.3s ease',
+                }}
+              />
               <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
             </>
           )}

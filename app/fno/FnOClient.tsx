@@ -192,21 +192,24 @@ export default function FnOClient() {
     <div className="page-container">
       {/* Header */}
       <div
+        className="flex-col-mobile"
         style={{
-          display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '40px',
+          alignItems: 'flex-start',
+          marginBottom: '24px',
+          gap: '20px',
         }}
       >
         <div>
           <h1
             style={{
-              fontSize: 'clamp(2rem, 5vw, 3rem)',
-              fontWeight: '950',
+              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+              fontWeight: '900',
               margin: 0,
-              letterSpacing: '-2.5px',
-              color: '#fff',
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
             }}
           >
             FnO Terminal
@@ -218,23 +221,17 @@ export default function FnOClient() {
             background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
             color: 'white',
             border: 'none',
-            padding: '16px 28px',
-            borderRadius: '18px',
+            padding: '12px 24px',
+            borderRadius: '16px',
             fontWeight: '900',
+            fontSize: '0.85rem',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            boxShadow: '0 12px 24px rgba(99, 102, 241, 0.3)',
+            boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
             transition: 'all 0.3s',
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.4)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 12px 24px rgba(99, 102, 241, 0.3)';
+            width: 'auto',
           }}
         >
           <Plus size={20} strokeWidth={3} /> Record Trade
@@ -243,17 +240,17 @@ export default function FnOClient() {
 
       {/* Quick Stats Banner */}
       <div
+        className="grid-responsive-4"
         style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-          gap: '20px',
-          marginBottom: '40px',
+          gap: '16px',
+          marginBottom: '32px',
         }}
       >
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -261,18 +258,18 @@ export default function FnOClient() {
           <div
             style={{
               color: '#64748b',
-              fontSize: '0.75rem',
+              fontSize: '0.65rem',
               fontWeight: '900',
               textTransform: 'uppercase',
-              letterSpacing: '1.5px',
-              marginBottom: '12px',
+              letterSpacing: '1px',
+              marginBottom: '10px',
             }}
           >
-            Lifetime Realized P&L
+            Realized P&L
           </div>
           <div
             style={{
-              fontSize: '1.75rem',
+              fontSize: 'clamp(1.2rem, 3vw, 1.5rem)',
               fontWeight: '950',
               color: stats.lifetimePnl >= 0 ? '#10b981' : '#f43f5e',
             }}
@@ -281,9 +278,10 @@ export default function FnOClient() {
           </div>
         </div>
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -291,23 +289,24 @@ export default function FnOClient() {
           <div
             style={{
               color: '#64748b',
-              fontSize: '0.75rem',
+              fontSize: '0.65rem',
               fontWeight: '900',
               textTransform: 'uppercase',
-              letterSpacing: '1.5px',
-              marginBottom: '12px',
+              letterSpacing: '1px',
+              marginBottom: '10px',
             }}
           >
             Win Rate
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '950', color: '#818cf8' }}>
+          <div style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '950', color: '#818cf8' }}>
             {stats.winRate.toFixed(1)}%
           </div>
         </div>
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -315,23 +314,24 @@ export default function FnOClient() {
           <div
             style={{
               color: '#64748b',
-              fontSize: '0.75rem',
+              fontSize: '0.65rem',
               fontWeight: '900',
               textTransform: 'uppercase',
-              letterSpacing: '1.5px',
-              marginBottom: '12px',
+              letterSpacing: '1px',
+              marginBottom: '10px',
             }}
           >
-            Active Positions
+            Active
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '950', color: '#fff' }}>
+          <div style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '950', color: '#fff' }}>
             {openPositions.length}
           </div>
         </div>
         <div
+          className="premium-card"
           style={{
             background: '#0f172a',
-            padding: '24px',
+            padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
           }}
@@ -339,16 +339,16 @@ export default function FnOClient() {
           <div
             style={{
               color: '#64748b',
-              fontSize: '0.75rem',
+              fontSize: '0.65rem',
               fontWeight: '900',
               textTransform: 'uppercase',
-              letterSpacing: '1.5px',
-              marginBottom: '12px',
+              letterSpacing: '1px',
+              marginBottom: '10px',
             }}
           >
             Total Trades
           </div>
-          <div style={{ fontSize: '1.75rem', fontWeight: '950', color: '#fff' }}>
+          <div style={{ fontSize: 'clamp(1.2rem, 3vw, 1.5rem)', fontWeight: '950', color: '#fff' }}>
             {fnoTrades.length}
           </div>
         </div>
@@ -426,7 +426,84 @@ export default function FnOClient() {
       {/* Content Rendering */}
       {activeTab === 'positions' && (
         <div className="fade-in">
-          <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
+          {/* Mobile Card List */}
+          <div className="mobile-card-list">
+            {openPositions.length > 0 ? (
+              openPositions.map((trade) => (
+                <div
+                  key={trade.id}
+                  className="premium-card"
+                  style={{
+                    padding: '16px',
+                    background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
+                    borderLeft: `4px solid ${trade.tradeType === 'BUY' ? '#10b981' : '#f43f5e'}`,
+                  }}
+                  onClick={() => handleEdit(trade)}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span
+                        style={{
+                          fontSize: '0.65rem',
+                          fontWeight: '950',
+                          padding: '2px 6px',
+                          borderRadius: '4px',
+                          background: 'rgba(99, 102, 241, 0.1)',
+                          color: '#818cf8',
+                        }}
+                      >
+                        {trade.product}
+                      </span>
+                      <div style={{ fontWeight: '900', color: '#fff' }}>{trade.instrument}</div>
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '0.65rem',
+                        fontWeight: '900',
+                        color: trade.tradeType === 'BUY' ? '#10b981' : '#f43f5e',
+                      }}
+                    >
+                      {trade.tradeType}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' }}>Qty</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>{trade.quantity}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' }}>Avg</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{trade.avgPrice.toLocaleString()}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.6rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '2px' }}>LTP</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.85rem' }}>₹{trade.avgPrice.toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ fontWeight: '900', color: '#fff', fontSize: '0.9rem' }}>₹0.00 P&L</div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button onClick={(e) => { e.stopPropagation(); handleExit(trade); }} style={{ color: '#10b981', background: 'none', border: 'none', padding: '4px' }}><ArrowRight size={18} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(trade); }} style={{ color: '#64748b', background: 'none', border: 'none', padding: '4px' }}><Edit3 size={18} /></button>
+                      <button onClick={async (e) => {
+                        e.stopPropagation();
+                        if (await customConfirm({ title: 'Delete', message: 'Remove position?', type: 'error' })) {
+                          deleteFnoTrade(trade.id);
+                        }
+                      }} style={{ color: '#f43f5e', background: 'none', border: 'none', padding: '4px' }}><Trash2 size={18} /></button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No active positions</div>
+            )}
+          </div>
+
+          {/* Desktop Table */}
+          <div className="premium-card hide-mobile" style={{ padding: '0', overflow: 'hidden' }}>
             <table
               style={{
                 width: '100%',

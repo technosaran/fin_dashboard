@@ -197,81 +197,95 @@ export default function AccountsClient() {
 
   return (
     <div className="page-container">
-      {/* Header Section */}
       <div
+        className="flex-col-mobile"
         style={{
-          display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '20px',
-          flexWrap: 'wrap',
-          gap: '12px',
+          alignItems: 'flex-start',
+          marginBottom: '24px',
+          gap: '20px',
         }}
       >
-        <div>
+        <div style={{ flex: 1 }}>
           <h1
             style={{
-              fontSize: 'clamp(1.5rem, 3.5vw, 2rem)',
+              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
               fontWeight: '900',
               margin: 0,
               letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
             }}
           >
             Personal Vault
           </h1>
           <p
-            style={{ color: '#94a3b8', fontSize: 'clamp(0.8rem, 1.8vw, 0.9rem)', marginTop: '6px' }}
+            style={{ color: '#94a3b8', fontSize: 'clamp(0.85rem, 2vw, 0.95rem)', marginTop: '8px' }}
           >
             Securely manage your assets and financial entities
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+
+        <div
+          className="hide-scrollbar"
+          style={{
+            display: 'flex',
+            gap: '10px',
+            overflowX: 'auto',
+            width: '100%',
+            paddingBottom: '4px',
+            WebkitOverflowScrolling: 'touch'
+          }}
+        >
           <button
             onClick={() => {
               exportAccountsToCSV(accounts);
               showNotification('success', 'Accounts exported successfully!');
             }}
             style={{
-              padding: '10px 20px',
-              borderRadius: '14px',
+              padding: '10px 18px',
+              borderRadius: '12px',
               background: '#0f172a',
               color: '#fff',
               border: '1px solid #1e293b',
               fontWeight: '700',
-              fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
+              fontSize: '0.8rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               transition: '0.2s',
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#1e293b')}
             onMouseLeave={(e) => (e.currentTarget.style.background = '#0f172a')}
             aria-label="Export accounts to CSV"
           >
-            <Download size={16} color="#10b981" aria-hidden="true" /> Export CSV
+            <Download size={16} color="#10b981" aria-hidden="true" /> <span className="hide-sm">Export</span> CSV
           </button>
           <button
             onClick={() => setIsTransferModalOpen(true)}
             style={{
-              padding: '10px 20px',
-              borderRadius: '14px',
+              padding: '10px 18px',
+              borderRadius: '12px',
               background: '#0f172a',
               color: '#fff',
               border: '1px solid #1e293b',
               fontWeight: '700',
-              fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
+              fontSize: '0.8rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               transition: '0.2s',
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = '#1e293b')}
             onMouseLeave={(e) => (e.currentTarget.style.background = '#0f172a')}
             aria-label="Transfer funds between accounts"
           >
-            <ArrowRightLeft size={16} color="#818cf8" aria-hidden="true" /> Internal Transfer
+            <ArrowRightLeft size={16} color="#818cf8" aria-hidden="true" /> Transfer
           </button>
           <button
             onClick={() => {
@@ -279,19 +293,20 @@ export default function AccountsClient() {
               setIsModalOpen(true);
             }}
             style={{
-              padding: '10px 20px',
-              borderRadius: '14px',
+              padding: '10px 18px',
+              borderRadius: '12px',
               background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
               color: 'white',
               border: 'none',
-              fontWeight: '700',
-              fontSize: 'clamp(0.75rem, 1.5vw, 0.85rem)',
+              fontWeight: '800',
+              fontSize: '0.8rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
               transition: '0.2s',
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
@@ -372,14 +387,15 @@ export default function AccountsClient() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             {/* Summary Bar */}
             <div
+              className="premium-card"
               style={{
                 background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                padding: '16px 24px',
+                padding: 'clamp(16px, 4vw, 24px) clamp(20px, 5vw, 32px)',
                 borderRadius: '24px',
                 border: '1px solid #1e293b',
                 display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
+                flexDirection: 'column',
+                gap: '8px',
                 position: 'relative',
                 overflow: 'hidden',
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
@@ -387,6 +403,7 @@ export default function AccountsClient() {
             >
               {/* Enhanced animated gradient background */}
               <div
+                className="hide-mobile"
                 style={{
                   position: 'absolute',
                   top: '-50%',
@@ -399,38 +416,25 @@ export default function AccountsClient() {
                   animation: 'float 6s ease-in-out infinite',
                 }}
               />
-              <div
-                style={{
-                  position: 'absolute',
-                  bottom: '-50%',
-                  left: '-10%',
-                  width: '350px',
-                  height: '350px',
-                  background:
-                    'radial-gradient(circle, rgba(52, 211, 153, 0.1) 0%, transparent 70%)',
-                  filter: 'blur(60px)',
-                  animation: 'float 8s ease-in-out infinite reverse',
-                }}
-              />
 
               <div style={{ position: 'relative', zIndex: 1 }}>
                 <div
                   style={{
                     color: '#94a3b8',
-                    fontSize: 'clamp(0.6rem, 1.3vw, 0.7rem)',
+                    fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
                     fontWeight: '800',
                     textTransform: 'uppercase',
                     letterSpacing: '1.2px',
-                    marginBottom: '6px',
+                    marginBottom: '8px',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
+                    gap: '8px',
                   }}
                 >
                   <div
                     style={{
-                      width: '7px',
-                      height: '7px',
+                      width: '8px',
+                      height: '8px',
                       borderRadius: '50%',
                       background: '#34d399',
                       boxShadow: '0 0 10px rgba(52, 211, 153, 0.5)',
@@ -439,40 +443,35 @@ export default function AccountsClient() {
                   />
                   Total Vault Liquidity
                 </div>
-                <div
-                  style={{
-                    fontSize: 'clamp(1.75rem, 4vw, 2.25rem)',
-                    fontWeight: '950',
-                    color: '#fff',
-                    letterSpacing: '-1.2px',
-                    textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)',
-                  }}
-                >
-                  ₹{totalBalanceINR.toLocaleString()}
-                </div>
-                <div
-                  style={{
-                    marginTop: '10px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: 'clamp(0.75rem, 1.6vw, 0.85rem)',
-                    fontWeight: '700',
-                  }}
-                >
+
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
                   <div
                     style={{
-                      background: 'rgba(52, 211, 153, 0.15)',
+                      fontSize: 'clamp(2rem, 6vw, 2.75rem)',
+                      fontWeight: '950',
+                      color: '#fff',
+                      letterSpacing: '-1.5px',
+                      textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)',
+                      lineHeight: 1,
+                    }}
+                  >
+                    ₹{totalBalanceINR.toLocaleString()}
+                  </div>
+                  <div
+                    style={{
+                      background: 'rgba(52, 211, 153, 0.12)',
                       color: '#34d399',
                       padding: '4px 12px',
                       borderRadius: '100px',
-                      border: '1px solid rgba(52, 211, 153, 0.3)',
+                      border: '1px solid rgba(52, 211, 153, 0.2)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '4px',
+                      fontSize: '0.8rem',
+                      fontWeight: '700',
                     }}
                   >
-                    <TrendingUp size={14} aria-hidden="true" /> +5.2% this month
+                    <TrendingUp size={14} aria-hidden="true" /> +5.2%
                   </div>
                 </div>
               </div>

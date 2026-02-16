@@ -382,21 +382,30 @@ export default function StocksClient() {
     <div className="page-container">
       {/* Header Section */}
       <div
+        className="flex-col-mobile"
         style={{
-          display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '32px',
+          alignItems: 'flex-start',
+          marginBottom: '24px',
+          gap: '20px',
         }}
       >
         <div>
           <h1
-            style={{ fontSize: '2.5rem', fontWeight: '900', margin: 0, letterSpacing: '-0.02em' }}
+            style={{
+              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+              fontWeight: '900',
+              margin: 0,
+              letterSpacing: '-0.02em',
+              background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}
           >
             Stock Portfolio
           </h1>
         </div>
-        <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', width: '100%', justifyContent: 'flex-end' }}>
           <button
             onClick={handleManualRefresh}
             disabled={isRefreshing}
@@ -411,6 +420,7 @@ export default function StocksClient() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              flexShrink: 0,
             }}
             title="Refresh Markets"
           >
@@ -423,24 +433,25 @@ export default function StocksClient() {
           <button
             onClick={() => openModal('stock')}
             style={{
-              padding: '14px 28px',
-              borderRadius: '16px',
+              padding: '10px 20px',
+              borderRadius: '14px',
               background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
               color: 'white',
               border: 'none',
-              fontWeight: '700',
-              fontSize: '0.9rem',
+              fontWeight: '800',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
-              boxShadow: '0 10px 20px rgba(99, 102, 241, 0.2)',
+              boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
               transition: '0.2s',
+              flexShrink: 0,
             }}
             onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
             onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            <Plus size={18} strokeWidth={3} /> Add Stock
+            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Add Stock</span><span className="show-sm-inline hide-sm-none">Add</span>
           </button>
         </div>
       </div>
@@ -609,7 +620,85 @@ export default function StocksClient() {
       {/* Tab Content */}
       {activeTab === 'portfolio' && (
         <div className="fade-in">
-          <div className="premium-card" style={{ padding: '0', overflow: 'hidden' }}>
+          {/* Mobile Card View */}
+          <div className="mobile-card-list">
+            {stocks.length > 0 ? (
+              stocks.map((stock, idx) => (
+                <div
+                  key={stock.id}
+                  className="premium-card"
+                  style={{
+                    padding: '16px',
+                    background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
+                    borderLeft: `4px solid ${COLORS[idx % COLORS.length]}`,
+                  }}
+                  onClick={() => handleEditStock(stock)}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div>
+                      <div style={{ fontWeight: '900', fontSize: '1.1rem', color: '#fff' }}>{stock.symbol}</div>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: '700' }}>{stock.exchange}</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#64748b', marginBottom: '2px' }}>Current Value</div>
+                      <div style={{ fontWeight: '900', color: '#fff' }}>₹{stock.currentValue.toLocaleString()}</div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px', padding: '12px', background: 'rgba(255,255,255,0.02)', borderRadius: '12px' }}>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Avg. Cost</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>₹{stock.avgPrice.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>LTP</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>₹{stock.currentPrice.toFixed(2)}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Quantity</div>
+                      <div style={{ fontWeight: '700', fontSize: '0.9rem' }}>{stock.quantity}</div>
+                    </div>
+                    <div>
+                      <div style={{ fontSize: '0.65rem', color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>Total P&L</div>
+                      <div style={{ fontWeight: '900', fontSize: '1rem', color: stock.pnl >= 0 ? '#10b981' : '#f43f5e' }}>
+                        {stock.pnl >= 0 ? '+' : ''}₹{stock.pnl.toLocaleString()}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{
+                        color: stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0 ? '#10b981' : '#f43f5e',
+                        fontSize: '0.75rem',
+                        fontWeight: '800',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}>
+                        Day: {stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0 ? '+' : ''}
+                        {((stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity).toFixed(2)}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <button onClick={(e) => { e.stopPropagation(); setViewingCharges({ type: 'stock', data: stock }); }} style={{ color: '#6366f1', background: 'none', border: 'none', padding: '4px' }}><Eye size={18} /></button>
+                      <button onClick={(e) => { e.stopPropagation(); handleExitStock(stock); }} style={{ color: '#10b981', background: 'none', border: 'none', padding: '4px' }}><ArrowRight size={18} /></button>
+                      <button onClick={async (e) => {
+                        e.stopPropagation();
+                        const isConfirmed = await customConfirm({ title: 'Delete', message: `Remove ${stock.symbol}?`, type: 'error', confirmLabel: 'Delete' });
+                        if (isConfirmed) await deleteStock(stock.id);
+                      }} style={{ color: '#f43f5e', background: 'none', border: 'none', padding: '4px' }}><Trash2 size={18} /></button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div style={{ padding: '40px', textAlign: 'center', color: '#64748b' }}>No holdings found</div>
+            )}
+          </div>
+
+          {/* Desktop Table View */}
+          <div className="premium-card hide-mobile" style={{ padding: '0', overflow: 'hidden' }}>
             <table
               style={{
                 width: '100%',
