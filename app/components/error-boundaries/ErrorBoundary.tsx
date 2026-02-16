@@ -2,6 +2,7 @@
 
 import React, { Component, ReactNode, ErrorInfo } from 'react';
 import { logError } from '@/lib/utils/logger';
+import { colors } from '@/lib/styles/constants';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 
 interface Props {
@@ -71,8 +72,8 @@ export class ErrorBoundary extends Component<Props, State> {
         <div
           style={{
             minHeight: '100vh',
-            backgroundColor: '#020617',
-            color: '#f8fafc',
+            backgroundColor: colors.bgPage,
+            color: colors.textHeading,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -83,8 +84,8 @@ export class ErrorBoundary extends Component<Props, State> {
             style={{
               maxWidth: '600px',
               width: '100%',
-              background: '#0f172a',
-              border: '1px solid #1e293b',
+              background: colors.bgCard,
+              border: `1px solid ${colors.border}`,
               borderRadius: '24px',
               padding: '40px',
               textAlign: 'center',
@@ -102,7 +103,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 justifyContent: 'center',
               }}
             >
-              <AlertTriangle size={40} color="#ef4444" />
+              <AlertTriangle size={40} color={colors.danger} />
             </div>
 
             <h1
@@ -119,7 +120,7 @@ export class ErrorBoundary extends Component<Props, State> {
             <p
               style={{
                 fontSize: '1rem',
-                color: '#94a3b8',
+                color: colors.textMuted,
                 marginBottom: '32px',
                 lineHeight: '1.6',
               }}
@@ -131,7 +132,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {process.env.NODE_ENV === 'development' && this.state.error && (
               <div
                 style={{
-                  background: '#1e293b',
+                  background: colors.border,
                   padding: '16px',
                   borderRadius: '12px',
                   marginBottom: '24px',
@@ -143,7 +144,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <p
                   style={{
                     fontSize: '0.875rem',
-                    color: '#ef4444',
+                    color: colors.danger,
                     fontWeight: '700',
                     marginBottom: '8px',
                   }}
