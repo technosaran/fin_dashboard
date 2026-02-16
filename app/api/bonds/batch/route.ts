@@ -6,6 +6,8 @@ import {
   applyRateLimit,
   getCache,
   setCache,
+  parseCommaSeparatedParam,
+  deterministicHash,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
@@ -17,34 +19,18 @@ interface BondQuoteData {
 
 /**
  * Batch Bond quote API endpoint
- * Aggregates multiple bond price calculations into one response
  */
 async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
-  // Apply rate limiting
   const rateLimitResponse = applyRateLimit(request);
   if (rateLimitResponse) return rateLimitResponse;
 
   const { searchParams } = new URL(request.url);
-  const isinsParam = searchParams.get('isins');
+  const parsed = parseCommaSeparatedParam(searchParams, 'isins', {
+    transform: (s) => s.trim().toUpperCase(),
+  });
+  if (parsed.error) return parsed.error;
+  const isins = parsed.items;
 
-  if (!isinsParam) {
-    return createErrorResponse('ISINS parameter is required', 400);
-  }
-
-  const isins = isinsParam
-    .split(',')
-    .map((s) => s.trim().toUpperCase())
-    .filter(Boolean);
-
-  if (isins.length === 0) {
-    return createErrorResponse('No valid ISINs provided', 400);
-  }
-
-  if (isins.length > 50) {
-    return createErrorResponse('Maximum 50 ISINs allowed per batch', 400);
-  }
-
-  // Validate each ISIN format
   for (const isin of isins) {
     if (!/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin)) {
       return createErrorResponse(`Invalid ISIN format: ${isin}`, 400);
@@ -59,43 +45,31 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
     const results: Record<string, BondQuoteData> = {};
     const today = new Date().toISOString().split('T')[0];
 
-    // Process them
     isins.forEach((isin) => {
-      // Check individual cache first
       const individualCacheKey = `bond_quote_${isin}`;
       const individualCached = getCache<BondQuoteData>(individualCacheKey);
-
       if (individualCached) {
         results[isin] = individualCached;
         return;
       }
 
-      // Simulate deterministic price based on ISIN and current day
-      // (Matching the logic in quote/route.ts)
-      const seed = isin + today;
-      let hash = 0;
-      for (let i = 0; i < seed.length; i++) {
-        hash = seed.charCodeAt(i) + ((hash << 5) - hash);
-      }
-
-      // Fluctuation within +/- 0.5%
+      const hash = deterministicHash(isin + today);
       const fluctuation = (hash % 100) / 20000;
-      const currentPriceMultiplier = 1 + fluctuation;
 
-      const bondData = {
+      const bondData: BondQuoteData = {
         isin,
-        currentPriceMultiplier,
+        currentPriceMultiplier: 1 + fluctuation,
         updatedAt: new Date().toISOString(),
       };
 
       results[isin] = bondData;
-      setCache(individualCacheKey, bondData, 3600000); // Cache for 1 hour
+      setCache(individualCacheKey, bondData, 3600000);
     });
 
-    setCache(cacheKey, results, 300000); // Cache batch result for 5 mins
+    setCache(cacheKey, results, 300000);
     return createSuccessResponse(results);
   } catch (error) {
-    logError('Batch bond quote fetch failed', error, { isinsParam });
+    logError('Batch bond quote fetch failed', error, { isins: isins.join(',') });
     return createErrorResponse('Failed to fetch batch bond quotes', 500);
   }
 }

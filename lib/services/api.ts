@@ -251,3 +251,50 @@ export function setCache<T>(key: string, data: T, ttlMs: number = 300000): void 
 export function clearCache(): void {
   apiCache.clear();
 }
+
+/**
+ * Parse a comma-separated query parameter into a validated list of strings.
+ * Returns an error response if the list is empty or exceeds maxItems.
+ */
+export function parseCommaSeparatedParam(
+  searchParams: URLSearchParams,
+  paramName: string,
+  options: { maxItems?: number; transform?: (s: string) => string } = {}
+): { items: string[]; error?: never } | { items?: never; error: NextResponse } {
+  const raw = searchParams.get(paramName);
+  const { maxItems = 50, transform = (s: string) => s.trim() } = options;
+
+  if (!raw) {
+    return {
+      error: createErrorResponse(
+        `${paramName.charAt(0).toUpperCase() + paramName.slice(1)} parameter is required`,
+        400
+      ),
+    };
+  }
+
+  const items = raw.split(',').map(transform).filter(Boolean);
+
+  if (items.length === 0) {
+    return { error: createErrorResponse(`No valid ${paramName} provided`, 400) };
+  }
+
+  if (items.length > maxItems) {
+    return {
+      error: createErrorResponse(`Maximum ${maxItems} ${paramName} allowed per batch`, 400),
+    };
+  }
+
+  return { items };
+}
+
+/**
+ * Deterministic hash from a string seed. Used for simulated price fluctuations.
+ */
+export function deterministicHash(seed: string): number {
+  let hash = 0;
+  for (let i = 0; i < seed.length; i++) {
+    hash = seed.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return hash;
+}
