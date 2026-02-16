@@ -253,7 +253,7 @@ async function handleBondSearch(request: Request) {
       b.isin.toLowerCase().includes(sanitizedQuery)
   );
 
-  return createSuccessResponse(filteredBonds);
+  return createSuccessResponse(filteredBonds.slice(0, 50));
 }
 
 export const GET = withErrorHandling(handleBondSearch);

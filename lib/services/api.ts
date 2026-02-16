@@ -91,10 +91,7 @@ export function withErrorHandling(handler: (request: Request) => Promise<NextRes
     } catch (error) {
       logError('API handler error', error);
 
-      if (error instanceof Error) {
-        return createErrorResponse(error.message, 500);
-      }
-
+      // Never expose internal error messages to clients
       return createErrorResponse('An unexpected error occurred', 500);
     }
   };
