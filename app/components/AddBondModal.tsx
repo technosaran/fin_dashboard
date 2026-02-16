@@ -97,43 +97,36 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
     return () => clearTimeout(timeoutId);
   }, [searchQuery]);
 
-  // Update price when bond selected
-  useEffect(() => {
-    if (selectedBond) {
-      setAvgPrice(selectedBond.face_value);
-    }
-  }, [selectedBond]);
+  const handleBondSelect = (bond: BondSearchResult) => {
+    setManualForm({
+      name: bond.name,
+      isin: bond.isin,
+      company: bond.company_name,
+      coupon: bond.coupon_rate.toString(),
+      maturity: bond.maturity_date,
+      frequency: bond.interest_frequency,
+      faceValue: bond.face_value.toString(),
+    });
+    setAvgPrice(bond.face_value);
+    setActiveTab('manual');
+    setSearchResults([]);
+    setSearchQuery('');
+  };
 
   const submitBond = async () => {
-    // If manual mode, construct bond from form
-    const bondToSubmit =
-      selectedBond ||
-      (activeTab === 'manual'
-        ? ({
-            name: manualForm.name,
-            isin: manualForm.isin || `MANUAL-${Date.now()}`,
-            company_name: manualForm.company,
-            coupon_rate: parseFloat(manualForm.coupon),
-            face_value: parseFloat(manualForm.faceValue),
-            maturity_date: manualForm.maturity,
-            interest_frequency: manualForm.frequency,
-            rating: 'Unrated',
-          } as BondSearchResult)
-        : null);
-
-    if (!bondToSubmit) return;
-
     setIsSubmitting(true);
     try {
+      const faceVal = parseFloat(manualForm.faceValue);
+      const couponVal = parseFloat(manualForm.coupon);
       const investmentAmount = quantity * avgPrice;
 
       const bondData: Omit<Bond, 'id'> = {
-        name: bondToSubmit.name,
-        isin: bondToSubmit.isin,
-        companyName: bondToSubmit.company_name,
-        faceValue: bondToSubmit.face_value,
-        couponRate: bondToSubmit.coupon_rate,
-        maturityDate: bondToSubmit.maturity_date,
+        name: manualForm.name,
+        isin: manualForm.isin || `MANUAL-${Date.now()}`,
+        companyName: manualForm.company,
+        faceValue: faceVal,
+        couponRate: couponVal,
+        maturityDate: manualForm.maturity,
         quantity: quantity,
         avgPrice: avgPrice,
         currentPrice: avgPrice,
@@ -141,7 +134,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
         currentValue: investmentAmount,
         pnl: 0,
         pnlPercentage: 0,
-        interestFrequency: bondToSubmit.interest_frequency,
+        interestFrequency: manualForm.frequency,
         status: 'ACTIVE',
       };
 
@@ -336,7 +329,7 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                 {searchResults.map((bond, idx) => (
                   <div
                     key={idx}
-                    onClick={() => setSelectedBond(bond)}
+                    onClick={() => handleBondSelect(bond)}
                     className="hover-card-premium"
                     style={{
                       padding: '16px',
@@ -458,26 +451,54 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                   <option>At Maturity</option>
                 </select>
               </div>
+              <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                <div>
+                  <label className="input-label">Quantity</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    min="1"
+                    value={quantity}
+                    onChange={(e) => setQuantity(Number(e.target.value))}
+                  />
+                </div>
+                <div>
+                  <label className="input-label">Purchase Price (Per Unit)</label>
+                  <input
+                    className="input-field"
+                    type="number"
+                    step="0.01"
+                    value={avgPrice}
+                    onChange={(e) => setAvgPrice(Number(e.target.value))}
+                  />
+                </div>
+              </div>
+
               <div style={{ gridColumn: 'span 2' }}>
-                <label className="input-label">Face Value (₹)</label>
-                <input
+                <label className="input-label">Funding Account</label>
+                <select
                   className="input-field"
-                  type="number"
-                  step="100"
-                  value={manualForm.faceValue}
-                  onChange={(e) => setManualForm({ ...manualForm, faceValue: e.target.value })}
-                />
+                  value={accountId}
+                  onChange={(e) => setAccountId(Number(e.target.value))}
+                >
+                  <option value={0}>Manual (No Deduction)</option>
+                  {accounts.map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.name} (₹{acc.balance.toLocaleString()})
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <button
                 onClick={() => {
                   if (manualForm.name && manualForm.coupon) {
-                    // Transition to confirmation state
                     submitBond();
                   } else {
                     showNotification('error', 'Please fill required fields');
                   }
                 }}
+                disabled={isSubmitting}
                 className="glass-button glow-primary"
                 style={{
                   gridColumn: 'span 2',
@@ -488,154 +509,12 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                   fontWeight: '700',
                   fontSize: '1rem',
                   marginTop: '16px',
+                  opacity: isSubmitting ? 0.7 : 1,
+                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
                 }}
               >
-                Continue
+                {isSubmitting ? 'Adding...' : 'Add Bond'}
               </button>
-            </div>
-          )}
-
-          {/* INVESTMENT DETAILS (CONFIRMATION) */}
-          {selectedBond && (
-            <div className="fade-in">
-              <div
-                style={{
-                  background:
-                    'linear-gradient(145deg, rgba(99, 102, 241, 0.1), rgba(30, 41, 59, 0.4))',
-                  border: '1px solid rgba(99, 102, 241, 0.2)',
-                  borderRadius: '20px',
-                  padding: '20px',
-                  marginBottom: '24px',
-                }}
-              >
-                <div
-                  style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start' }}
-                >
-                  <div>
-                    <h3
-                      style={{
-                        fontSize: '1.25rem',
-                        fontWeight: '800',
-                        margin: '0 0 4px 0',
-                        color: '#fff',
-                      }}
-                    >
-                      {selectedBond.name}
-                    </h3>
-                    <div style={{ color: '#94a3b8', fontSize: '0.875rem' }}>
-                      {selectedBond.isin}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setSelectedBond(null)}
-                    className="text-button"
-                    style={{ color: 'var(--accent)' }}
-                  >
-                    Change
-                  </button>
-                </div>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '16px',
-                    marginTop: '16px',
-                  }}
-                >
-                  <div>
-                    <div className="label-xs">Coupon</div>
-                    <div className="value-sm" style={{ color: '#f59e0b' }}>
-                      {selectedBond.coupon_rate}%
-                    </div>
-                  </div>
-                  <div>
-                    <div className="label-xs">Maturity</div>
-                    <div className="value-sm">
-                      {new Date(selectedBond.maturity_date).toLocaleDateString()}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="label-xs">Face Value</div>
-                    <div className="value-sm">₹{selectedBond.face_value}</div>
-                  </div>
-                </div>
-              </div>
-
-              <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '20px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                  <div>
-                    <label className="input-label">Quantity</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      min="1"
-                      value={quantity}
-                      onChange={(e) => setQuantity(Number(e.target.value))}
-                    />
-                  </div>
-                  <div>
-                    <label className="input-label">Price Per Unit</label>
-                    <input
-                      className="input-field"
-                      type="number"
-                      step="0.01"
-                      value={avgPrice}
-                      onChange={(e) => setAvgPrice(Number(e.target.value))}
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <label className="input-label">Funding Account</label>
-                  <select
-                    className="input-field"
-                    value={accountId}
-                    onChange={(e) => setAccountId(Number(e.target.value))}
-                  >
-                    <option value={0}>Manual (No Deduction)</option>
-                    {accounts.map((acc) => (
-                      <option key={acc.id} value={acc.id}>
-                        {acc.name} (₹{acc.balance.toLocaleString()})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div
-                  style={{
-                    background: 'rgba(255,255,255,0.03)',
-                    padding: '20px',
-                    borderRadius: '16px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginTop: '8px',
-                  }}
-                >
-                  <span style={{ color: '#94a3b8' }}>Total Investment</span>
-                  <span style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>
-                    ₹{(quantity * avgPrice).toLocaleString()}
-                  </span>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="glass-button glow-primary"
-                  style={{
-                    width: '100%',
-                    padding: '16px',
-                    background: 'var(--accent)',
-                    border: 'none',
-                    borderRadius: '16px',
-                    fontWeight: '800',
-                    fontSize: '1rem',
-                    marginTop: '16px',
-                  }}
-                >
-                  {isSubmitting ? 'Processing...' : 'Confirm & Add Bond'}
-                </button>
-              </form>
             </div>
           )}
         </div>

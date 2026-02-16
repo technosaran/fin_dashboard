@@ -27,12 +27,12 @@ async function handleBondQuote(request: Request) {
 
   const sanitizedIsin = isin.toUpperCase();
   const today = new Date().toISOString().split('T')[0];
-  const hash = deterministicHash(sanitizedIsin + today);
-  const fluctuation = (hash % 100) / 20000;
+  // We currently do not simulate fake prices to ensure data accuracy as per user request.
+  // In a real implementation, this would fetch the live price from an exchange.
 
   return createSuccessResponse({
     isin: sanitizedIsin,
-    currentPriceMultiplier: 1 + fluctuation,
+    currentPriceMultiplier: 1.0, // No change
     updatedAt: new Date().toISOString(),
   });
 }

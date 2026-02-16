@@ -893,14 +893,26 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       try {
         const stockSymbols = [...new Set(stocks.map((s) => s.symbol))];
         if (stockSymbols.length > 0) {
-          const res = await fetch(`/api/stocks/batch?symbols=${stockSymbols.join(',')}&t=${Date.now()}`);
+          console.log(`Fetching updates for ${stockSymbols.length} stocks...`);
+          const res = await fetch(
+            `/api/stocks/batch?symbols=${stockSymbols.join(',')}&t=${Date.now()}`
+          );
           const data = await res.json();
           if (data.success && data.data) {
             const updates = data.data;
+            let updatedCount = 0;
+
             setStocks((prev) =>
               prev.map((stock) => {
-                const update = updates[stock.symbol];
-                if (!update) return stock;
+                // Try exact match, then base match (without suffix)
+                const update =
+                  updates[stock.symbol.trim()] || updates[stock.symbol.trim().split('.')[0]];
+
+                if (!update) {
+                  return stock;
+                }
+
+                updatedCount++;
                 const currentPrice = update.currentPrice;
                 const previousPrice =
                   update.previousClose > 0 ? update.previousClose : stock.previousPrice;
@@ -934,6 +946,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 };
               })
             );
+            console.log(`Updated prices for ${updatedCount} stocks.`);
+            if (updatedCount === 0) console.warn('No stock prices updated. Check symbols.');
           }
         }
       } catch (err) {
@@ -944,14 +958,21 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       try {
         const mfCodes = [...new Set(mutualFunds.map((m) => m.schemeCode))];
         if (mfCodes.length > 0) {
+          console.log(`Fetching NAVs for ${mfCodes.length} mutual funds...`);
           const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}&t=${Date.now()}`);
           const data = await res.json();
           if (data.success && data.data) {
             const updates = data.data;
+            let updatedCount = 0;
+
             setMutualFunds((prev) =>
               prev.map((mf) => {
                 const update = updates[mf.schemeCode];
-                if (!update) return mf;
+                if (!update) {
+                  return mf;
+                }
+
+                updatedCount++;
                 const currentNav = update.currentNav;
                 const currentValue = mf.units * currentNav;
                 const pnl = currentValue - mf.investmentAmount;
@@ -981,6 +1002,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 };
               })
             );
+            console.log(`Updated NAVs for ${updatedCount} mutual funds.`);
           }
         }
       } catch (err) {

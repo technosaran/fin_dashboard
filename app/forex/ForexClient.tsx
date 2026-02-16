@@ -681,7 +681,7 @@ function ForexTransactionModal({
             </label>
             <select
               value={accountId || ''}
-              onChange={(e) => setAccountId(e.target.value ? Number(e.target.value) : undefined)}
+              onChange={(e) => setAccountId(Number(e.target.value))}
               style={{
                 width: '100%',
                 background: '#020617',
@@ -692,8 +692,9 @@ function ForexTransactionModal({
                 outline: 'none',
                 cursor: 'pointer',
               }}
+              required
             >
-              <option value="">None</option>
+              <option value="" disabled>Select Account</option>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
                   {acc.name} (₹{acc.balance.toLocaleString()})

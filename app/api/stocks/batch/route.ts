@@ -55,8 +55,12 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
   if (cached) return createSuccessResponse(cached);
 
   try {
-    const nseSymbols = symbols.map((s) => `${s}.NS`).join(',');
-    const bseSymbols = symbols.map((s) => `${s}.BO`).join(',');
+    const nseSymbols = symbols
+      .map((s) => (s.endsWith('.NS') || s.endsWith('.BO') ? s : `${s}.NS`))
+      .join(',');
+    const bseSymbols = symbols
+      .map((s) => (s.endsWith('.NS') || s.endsWith('.BO') ? s : `${s}.BO`))
+      .join(',');
 
     const response = await fetchWithTimeout(
       `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${nseSymbols},${bseSymbols}`,
@@ -83,14 +87,17 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
           quote.regularMarketPrice &&
           (!result[baseSymbol] || result[baseSymbol].currentPrice === 0)
         ) {
-          result[baseSymbol] = {
-            symbol: baseSymbol,
-            currentPrice: quote.regularMarketPrice || 0,
+          const stockBatchQuote: StockBatchQuote = {
+            symbol: quote.symbol,
+            currentPrice:
+              quote.regularMarketPrice || quote.regularMarketPreviousClose || 0,
             previousClose: quote.regularMarketPreviousClose || 0,
             currency: quote.currency || 'INR',
             exchange: quote.fullExchangeName || 'NSE',
             displayName: quote.shortName || quote.longName || baseSymbol,
           };
+          result[baseSymbol] = stockBatchQuote;
+          result[quote.symbol] = stockBatchQuote; // Store under full symbol too
         }
       }
     }

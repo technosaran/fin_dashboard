@@ -45,26 +45,12 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
     const results: Record<string, BondQuoteData> = {};
     const today = new Date().toISOString().split('T')[0];
 
-    isins.forEach((isin) => {
-      const individualCacheKey = `bond_quote_${isin}`;
-      const individualCached = getCache<BondQuoteData>(individualCacheKey);
-      if (individualCached) {
-        results[isin] = individualCached;
-        return;
-      }
+    // We currently do not have a reliable source for live bond prices.
+    // To ensure "exact data" as requested by the user, we will NOT simulate prices with random fluctuations.
+    // This preserves the price entered by the user manually or during addition.
+    // In the future, this can be connected to a real bond market API.
 
-      const hash = deterministicHash(isin + today);
-      const fluctuation = (hash % 100) / 20000;
-
-      const bondData: BondQuoteData = {
-        isin,
-        currentPriceMultiplier: 1 + fluctuation,
-        updatedAt: new Date().toISOString(),
-      };
-
-      results[isin] = bondData;
-      setCache(individualCacheKey, bondData, 3600000);
-    });
+    // results[isin] = ... (Disabled to prevent data corruption)
 
     setCache(cacheKey, results, 300000);
     return createSuccessResponse(results);

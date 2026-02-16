@@ -158,7 +158,7 @@ export default function StocksClient() {
     const pnlPercentage = (pnl / investment) * 100;
 
     const stockData = {
-      symbol: symbol.toUpperCase(),
+      symbol: symbol.trim().toUpperCase(),
       companyName,
       quantity: qty,
       avgPrice: avg,
@@ -816,10 +816,10 @@ export default function StocksClient() {
                             (
                             {stock.previousPrice
                               ? (
-                                  ((stock.currentPrice - stock.previousPrice) /
-                                    stock.previousPrice) *
-                                  100
-                                ).toFixed(2)
+                                ((stock.currentPrice - stock.previousPrice) /
+                                  stock.previousPrice) *
+                                100
+                              ).toFixed(2)
                               : '0.00'}
                             %)
                           </div>
@@ -1001,8 +1001,8 @@ export default function StocksClient() {
                     >
                       {totalInvestment > 0
                         ? (((totalCurrentValue - totalInvestment) / totalInvestment) * 100).toFixed(
-                            2
-                          )
+                          2
+                        )
                         : '0.00'}
                       %
                     </td>
