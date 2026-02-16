@@ -530,8 +530,8 @@ export default function AccountsClient() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 180px), 1fr))',
-                gap: '10px',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
+                gap: '16px',
               }}
             >
               {accounts.map((account, idx) => (
@@ -539,17 +539,17 @@ export default function AccountsClient() {
                   key={account.id}
                   style={{
                     background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                    borderRadius: '20px',
+                    borderRadius: '16px',
                     border: '1px solid #1e293b',
-                    padding: '20px',
+                    padding: '16px',
                     position: 'relative',
                     overflow: 'hidden',
-                    transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'all 0.3s ease',
                     cursor: 'pointer',
-                    aspectRatio: '1/1',
                     display: 'flex',
                     flexDirection: 'column',
                     justifyContent: 'space-between',
+                    minHeight: '140px',
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = 'translateY(-4px)';
@@ -569,8 +569,8 @@ export default function AccountsClient() {
                       position: 'absolute',
                       top: 0,
                       right: 0,
-                      width: '150px',
-                      height: '150px',
+                      width: '120px',
+                      height: '120px',
                       background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}10 0%, transparent 70%)`,
                       filter: 'blur(30px)',
                     }}
@@ -586,32 +586,49 @@ export default function AccountsClient() {
                       zIndex: 1,
                     }}
                   >
-                    <div
-                      style={{
-                        background: `${COLORS[idx % COLORS.length]}15`,
-                        padding: '10px',
-                        borderRadius: '12px',
-                        color: COLORS[idx % COLORS.length],
-                        border: `1px solid ${COLORS[idx % COLORS.length]}20`,
-                      }}
-                    >
-                      {getAccountIcon(account.type)}
-                    </div>
-                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
                       <div
                         style={{
-                          padding: '4px 10px',
-                          borderRadius: '100px',
-                          background: 'rgba(255,255,255,0.05)',
-                          color: '#94a3b8',
-                          fontSize: '0.65rem',
-                          fontWeight: '800',
-                          textTransform: 'uppercase',
-                          border: '1px solid rgba(255,255,255,0.1)',
+                          background: `${COLORS[idx % COLORS.length]}15`,
+                          padding: '8px',
+                          borderRadius: '10px',
+                          color: COLORS[idx % COLORS.length],
+                          border: `1px solid ${COLORS[idx % COLORS.length]}20`,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
                         }}
                       >
-                        {account.type}
+                        {getAccountIcon(account.type)}
                       </div>
+                      <div>
+                        <div
+                          style={{
+                            fontSize: '0.95rem',
+                            fontWeight: '700',
+                            color: '#fff',
+                            marginBottom: '2px',
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            maxWidth: '140px',
+                          }}
+                        >
+                          {account.name}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: '0.75rem',
+                            color: '#64748b',
+                            fontWeight: '600',
+                          }}
+                        >
+                          {account.bankName}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                       {account.name.toLowerCase() !== 'physical cash' && (
                         <button
                           onClick={async (e) => {
@@ -638,7 +655,6 @@ export default function AccountsClient() {
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            marginLeft: '4px',
                           }}
                         >
                           <Trash2 size={14} />
@@ -647,40 +663,12 @@ export default function AccountsClient() {
                     </div>
                   </div>
 
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', position: 'relative', zIndex: 1 }}>
-                    <div
-                      style={{
-                        fontSize: '1rem',
-                        fontWeight: '800',
-                        color: '#fff',
-                        marginBottom: '4px',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {account.name}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '0.75rem',
-                        color: '#64748b',
-                        fontWeight: '600',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
-                        whiteSpace: 'nowrap',
-                      }}
-                    >
-                      {account.bankName}
-                    </div>
-                  </div>
-
                   <div
                     style={{
                       display: 'flex',
                       justifyContent: 'space-between',
                       alignItems: 'flex-end',
-                      paddingTop: '16px',
+                      paddingTop: '12px',
                       borderTop: '1px solid rgba(255,255,255,0.06)',
                       position: 'relative',
                       zIndex: 1,
@@ -691,18 +679,19 @@ export default function AccountsClient() {
                         style={{
                           color: '#64748b',
                           fontSize: '0.65rem',
-                          fontWeight: '800',
+                          fontWeight: '700',
                           textTransform: 'uppercase',
-                          marginBottom: '4px',
+                          marginBottom: '2px',
                         }}
                       >
-                        Balance
+                        Available Balance
                       </div>
                       <div
                         style={{
-                          fontSize: '1.4rem',
-                          fontWeight: '900',
+                          fontSize: '1.25rem',
+                          fontWeight: '800',
                           color: '#fff',
+                          letterSpacing: '-0.5px',
                         }}
                       >
                         {account.currency === 'INR' ? '₹' : '$'}
@@ -719,9 +708,9 @@ export default function AccountsClient() {
                         background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`,
                         color: '#fff',
                         border: 'none',
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '12px',
+                        width: '32px',
+                        height: '32px',
+                        borderRadius: '10px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -729,7 +718,7 @@ export default function AccountsClient() {
                         boxShadow: `0 4px 8px ${COLORS[idx % COLORS.length]}30`,
                       }}
                     >
-                      <Plus size={18} strokeWidth={3} />
+                      <Plus size={16} strokeWidth={3} />
                     </button>
                   </div>
                 </div>

@@ -60,7 +60,19 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
   try {
     const sanitizedCode = code.trim();
 
-    const response = await fetchWithTimeout(`https://api.mfapi.in/mf/${sanitizedCode}`, {}, 5000);
+    const response = await fetchWithTimeout(
+      `https://api.mfapi.in/mf/${sanitizedCode}`,
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept: '*/*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          Connection: 'keep-alive',
+        },
+      },
+      8000
+    );
 
     if (!response.ok) {
       throw new Error('Failed to fetch mutual fund details');
@@ -81,7 +93,7 @@ async function handleMFQuote(request: Request): Promise<NextResponse> {
       };
 
       // Cache MF for 1 hour as MF prices usually update only once a day
-      setCache(cacheKey, quoteData, 3600000);
+      setCache(cacheKey, quoteData, 300000); // Cache for 5 mins
       return createSuccessResponse(quoteData);
     }
 

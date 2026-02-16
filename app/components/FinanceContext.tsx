@@ -893,7 +893,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       try {
         const stockSymbols = [...new Set(stocks.map((s) => s.symbol))];
         if (stockSymbols.length > 0) {
-          const res = await fetch(`/api/stocks/batch?symbols=${stockSymbols.join(',')}`);
+          const res = await fetch(`/api/stocks/batch?symbols=${stockSymbols.join(',')}&t=${Date.now()}`);
           const data = await res.json();
           if (data.success && data.data) {
             const updates = data.data;
@@ -944,7 +944,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       try {
         const mfCodes = [...new Set(mutualFunds.map((m) => m.schemeCode))];
         if (mfCodes.length > 0) {
-          const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}`);
+          const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}&t=${Date.now()}`);
           const data = await res.json();
           if (data.success && data.data) {
             const updates = data.data;
@@ -993,7 +993,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           (isin): isin is string => !!isin
         );
         if (bondIsins.length > 0) {
-          const res = await fetch(`/api/bonds/batch?isins=${bondIsins.join(',')}`);
+          const res = await fetch(`/api/bonds/batch?isins=${bondIsins.join(',')}&t=${Date.now()}`);
           const data = await res.json();
           if (data.success && data.data) {
             const updates = data.data;

@@ -60,8 +60,16 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
 
     const response = await fetchWithTimeout(
       `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${nseSymbols},${bseSymbols}`,
-      { headers: { 'User-Agent': 'Mozilla/5.0' } },
-      8000
+      {
+        headers: {
+          'User-Agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          Accept: '*/*',
+          'Accept-Language': 'en-US,en;q=0.9',
+          Connection: 'keep-alive',
+        },
+      },
+      10000
     );
 
     const data = (await response.json()) as YahooBatchResponse;

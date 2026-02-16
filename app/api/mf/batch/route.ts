@@ -56,7 +56,19 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
         }
 
         try {
-          const response = await fetchWithTimeout(`https://api.mfapi.in/mf/${code}`, {}, 5000);
+          const response = await fetchWithTimeout(
+            `https://api.mfapi.in/mf/${code}`,
+            {
+              headers: {
+                'User-Agent':
+                  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                Accept: '*/*',
+                'Accept-Language': 'en-US,en;q=0.9',
+                Connection: 'keep-alive',
+              },
+            },
+            8000
+          );
           if (!response.ok) return;
 
           const data = (await response.json()) as MFAPIResponse;
@@ -71,7 +83,7 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
               date: latestNav.date,
             };
             results[code] = mfData;
-            setCache(individualCacheKey, mfData, 3600000);
+            setCache(individualCacheKey, mfData, 300000); // 5 minutes cache for individual items
           }
         } catch (err) {
           logError(`Failed to fetch MF ${code}:`, err);
@@ -79,7 +91,7 @@ async function handleMFBatchQuote(request: Request): Promise<NextResponse> {
       })
     );
 
-    setCache(cacheKey, results, 300000);
+    setCache(cacheKey, results, 60000); // 1 minute cache for batch request
     return createSuccessResponse(results);
   } catch (error) {
     logError('Batch MF quote fetch failed', error, { codes: codes.join(',') });
