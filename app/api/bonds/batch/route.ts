@@ -33,7 +33,7 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
 
   const isins = isinsParam
     .split(',')
-    .map((s) => s.trim())
+    .map((s) => s.trim().toUpperCase())
     .filter(Boolean);
 
   if (isins.length === 0) {
@@ -42,6 +42,13 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
 
   if (isins.length > 50) {
     return createErrorResponse('Maximum 50 ISINs allowed per batch', 400);
+  }
+
+  // Validate each ISIN format
+  for (const isin of isins) {
+    if (!/^[A-Z]{2}[A-Z0-9]{10}$/.test(isin)) {
+      return createErrorResponse(`Invalid ISIN format: ${isin}`, 400);
+    }
   }
 
   const cacheKey = `bonds_batch_${isins.sort().join(',')}`;

@@ -42,6 +42,13 @@ async function handleForexBatchQuote(request: Request): Promise<NextResponse> {
     return createErrorResponse('Maximum 50 pairs allowed per batch', 400);
   }
 
+  // Validate each pair format
+  for (const pair of pairs) {
+    if (!/^[A-Z]{6,7}$/.test(pair)) {
+      return createErrorResponse(`Invalid forex pair format: ${pair}`, 400);
+    }
+  }
+
   const cacheKey = `forex_batch_${pairs.sort().join(',')}`;
   const cached = getCache<Record<string, ForexQuoteData>>(cacheKey);
   if (cached) return createSuccessResponse(cached);

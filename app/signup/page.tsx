@@ -38,7 +38,9 @@ export default function SignupPage() {
 
       setSuccess(true);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Signup failed');
+      setError(
+        err instanceof Error ? 'Unable to create account. Please try again.' : 'Signup failed'
+      );
       setIsLoading(false);
     }
   };

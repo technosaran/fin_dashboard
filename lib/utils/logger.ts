@@ -32,7 +32,8 @@ function sanitizeContext(context?: LogContext): LogContext | undefined {
  */
 export function logInfo(message: string, context?: LogContext): void {
   if (isDevelopment) {
-    console.log(`[INFO] ${message}`, context || '');
+    const sanitizedContext = sanitizeContext(context);
+    console.log(`[INFO] ${message}`, sanitizedContext || '');
   }
 }
 
@@ -40,12 +41,13 @@ export function logInfo(message: string, context?: LogContext): void {
  * Log warning message
  */
 export function logWarn(message: string, context?: LogContext): void {
+  const sanitizedContext = sanitizeContext(context);
+
   if (isDevelopment) {
-    console.warn(`[WARN] ${message}`, context || '');
-  } else {
-    // In production, you would send this to a monitoring service
-    console.warn(`[WARN] ${message}`);
+    console.warn(`[WARN] ${message}`, sanitizedContext || '');
   }
+  // In production, warnings are suppressed from the browser console
+  // to prevent data leaks. Send to a monitoring service instead.
 }
 
 /**
@@ -56,13 +58,11 @@ export function logError(message: string, error?: Error | unknown, context?: Log
 
   if (isDevelopment) {
     console.error(`[ERROR] ${message}`, error || '', sanitizedContext || '');
-  } else {
-    // In production, send to error monitoring service (e.g., Sentry)
-    console.error(`[ERROR] ${message}`);
-
-    // TODO: Send to Sentry or other monitoring service
-    // Sentry.captureException(error, { contexts: { custom: sanitizedContext } });
   }
+  // In production, errors are suppressed from the browser console
+  // to prevent data leaks. Send to a monitoring service instead.
+  // TODO: Send to Sentry or other monitoring service
+  // Sentry.captureException(error, { contexts: { custom: sanitizedContext } });
 }
 
 /**
@@ -70,7 +70,8 @@ export function logError(message: string, error?: Error | unknown, context?: Log
  */
 export function logDebug(message: string, context?: LogContext): void {
   if (isDevelopment) {
-    console.debug(`[DEBUG] ${message}`, context || '');
+    const sanitizedContext = sanitizeContext(context);
+    console.debug(`[DEBUG] ${message}`, sanitizedContext || '');
   }
 }
 

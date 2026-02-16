@@ -31,7 +31,7 @@ export default function LoginPage() {
       router.push('/');
       router.refresh();
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : 'Authentication failed');
+      setError(err instanceof Error ? 'Invalid email or password' : 'Authentication failed');
       setIsLoading(false);
     }
   };
