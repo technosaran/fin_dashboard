@@ -149,7 +149,6 @@ p {
   flex: 1;
   padding: 16px;
   overflow-y: auto;
-  min-height: 100vh;
   scroll-behavior: smooth;
   position: relative;
 }

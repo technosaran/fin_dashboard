@@ -20,19 +20,41 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { SkeletonCard } from './SkeletonLoader';
 
 /**
- * Get time-based greeting
+ * Get dynamic, time-based greeting with inspiring messages
  */
-function getGreeting(): { text: string; emoji: string } {
+function getGreeting(): { text: string; subtext: string; emoji: string; color: string } {
   const hour = new Date().getHours();
-  if (hour >= 5 && hour < 12) {
-    return { text: 'Good Morning', emoji: '☀️' };
-  } else if (hour >= 12 && hour < 17) {
-    return { text: 'Good Afternoon', emoji: '☕' };
-  } else if (hour >= 17 && hour < 21) {
-    return { text: 'Good Evening', emoji: '🌇' };
-  } else {
-    return { text: 'Good Night', emoji: '🌙' };
-  }
+  const greetings = {
+    morning: {
+      text: 'Good Morning',
+      subtext: 'Time to conquer your financial goals!',
+      emoji: '✨',
+      color: '#fbbf24',
+    },
+    afternoon: {
+      text: 'Good Afternoon',
+      subtext: 'Let\'s check in on your empire.',
+      emoji: '☀️',
+      color: '#f59e0b',
+    },
+    evening: {
+      text: 'Good Evening',
+      subtext: 'Reviewing today\'s progress...',
+      emoji: '🌇',
+      color: '#818cf8',
+    },
+    night: {
+      text: 'Good Night',
+      subtext: 'Rest easy, your wealth is working.',
+      emoji: '🌙',
+      color: '#6366f1',
+    },
+  };
+
+  if (hour >= 5 && hour < 12) return { ...greetings.morning };
+  if (hour >= 12 && hour < 17) return { ...greetings.afternoon };
+  if (hour >= 17 && hour < 21) return { ...greetings.evening };
+  return { ...greetings.night };
 }
 
 export default function Dashboard() {
@@ -54,7 +76,7 @@ export default function Dashboard() {
 
   const greeting = useMemo(() => getGreeting(), []);
 
-  // Memoize financial calculations
+  // ... (financialMetrics calculations remain the same)
   const financialMetrics = useMemo(() => {
     const liquidityINR = accounts
       .filter((a) => a.currency === 'INR')
@@ -63,7 +85,6 @@ export default function Dashboard() {
     const stocksValue = stocks.reduce((sum, s) => sum + s.currentValue, 0);
     const mfValue = mutualFunds.reduce((sum, m) => sum + m.currentValue, 0);
 
-    // Zero out bond value if disabled in settings
     const bondsValue = settings.bondsEnabled
       ? bonds.reduce((sum, b) => sum + b.currentValue, 0)
       : 0;
@@ -99,7 +120,6 @@ export default function Dashboard() {
       .filter((t: MutualFundTransaction) => t.transactionType === 'SELL')
       .reduce((sum, t) => sum + t.totalAmount, 0);
 
-    // MF stamp duty: 0.005% on purchase/SIP amounts
     const mfCharges = mutualFundTransactions
       .filter(
         (t: MutualFundTransaction) => t.transactionType === 'BUY' || t.transactionType === 'SIP'
@@ -108,7 +128,6 @@ export default function Dashboard() {
 
     const mfLifetime = mfSells + mfValue - (mfBuys + mfCharges);
 
-    // Zero out bond lifetime if disabled
     let bondLifetime = 0;
     if (settings.bondsEnabled) {
       const bondBuys = bondTransactions
@@ -127,19 +146,16 @@ export default function Dashboard() {
       bondLifetime = bondReturns + bondsValue - bondBuys;
     }
 
-    // F&O Realized PnL (charges already deducted in FnOClient when autoCalculateCharges is on)
     const fnoLifetime = fnoTrades
       .filter((t) => t.status === 'CLOSED')
       .reduce((sum, t) => sum + t.pnl, 0);
 
     const globalLifetimeWealth = stockLifetime + mfLifetime + bondLifetime + fnoLifetime;
 
-    // Unrealized P&L
     const stockPnl = stocks.reduce((sum, s) => sum + s.pnl, 0);
     const mfPnl = mfValue - mfInvestment;
     const totalUnrealizedPnl = stockPnl + mfPnl;
 
-    // Day change (stocks + mutual funds)
     const stockDayChange = stocks.reduce((sum, stock) => {
       const dayChange =
         (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
@@ -177,6 +193,7 @@ export default function Dashboard() {
     settings.bondsEnabled,
   ]);
 
+  // ... (rest of the useMemos remain the same)
   const allocationData = useMemo(() => {
     return [
       { name: 'Cash', value: financialMetrics.liquidityINR, color: '#818cf8' },
@@ -186,14 +203,12 @@ export default function Dashboard() {
     ].filter((a) => a.value > 0);
   }, [financialMetrics]);
 
-  // Recent transactions
   const recentTransactions = useMemo(() => {
     return transactions
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
   }, [transactions]);
 
-  // Goals progress
   const goalsProgress = useMemo(() => {
     return goals
       .map((g) => ({
@@ -206,7 +221,6 @@ export default function Dashboard() {
       .slice(0, 3);
   }, [goals]);
 
-  // Top holdings
   const topHoldings = useMemo(() => {
     return [...stocks].sort((a, b) => b.currentValue - a.currentValue).slice(0, 5);
   }, [stocks]);
@@ -290,39 +304,88 @@ export default function Dashboard() {
       <div className="bg-mesh" />
 
       {/* Header Section */}
-      <header className="dashboard-header">
-        <div className="fade-in">
-          <h1 className="dashboard-title">
-            <span className="animate-sparkle" style={{ fontSize: '0.8em' }}>
-              ✨
-            </span>
-            <span>
-              {greeting.text},{' '}
-              <span className="title-accent text-glow">
-                Saran
-                <span className="title-underline" />
+      <header className="dashboard-header" style={{ marginBottom: '32px' }}>
+        <div className="fade-in" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', flexWrap: 'wrap', gap: '20px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+              <span style={{
+                fontSize: '1.5rem',
+                animation: 'bounce 2s infinite',
+                display: 'inline-block'
+              }}>
+                {greeting.emoji}
               </span>
-            </span>
-          </h1>
-          <p
-            style={{
-              color: '#475569',
-              fontSize: '0.9rem',
-              fontWeight: '500',
-              marginTop: '4px',
+              <span style={{
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                color: greeting.color,
+                textTransform: 'uppercase',
+                letterSpacing: '2px'
+              }}>
+                {greeting.text}
+              </span>
+            </div>
+            <h1 className="dashboard-title" style={{ margin: 0, lineHeight: 1.1 }}>
+              <span style={{ color: '#fff' }}>Welcome back, </span>
+              <span className="title-accent text-glow" style={{
+                background: 'linear-gradient(135deg, #fff 0%, #cbd5e1 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontSize: '1.1em'
+              }}>
+                Saran
+              </span>
+            </h1>
+            <p
+              style={{
+                color: '#475569',
+                fontSize: '1rem',
+                fontWeight: '500',
+                marginTop: '8px',
+                maxWidth: '400px',
+                lineHeight: 1.4
+              }}
+            >
+              {greeting.subtext}
+            </p>
+          </div>
+
+          <div style={{
+            background: 'rgba(255,255,255,0.03)',
+            padding: '12px 20px',
+            borderRadius: '20px',
+            border: '1px solid rgba(132, 140, 248, 0.1)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px',
+            backdropFilter: 'blur(10px)'
+          }}>
+            <div style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
               display: 'flex',
               alignItems: 'center',
-              gap: '6px',
-            }}
-          >
-            <Calendar size={14} />
-            {new Date().toLocaleDateString('en-IN', {
-              weekday: 'long',
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
+              justifyContent: 'center',
+              color: '#fff',
+              boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)'
+            }}>
+              <Calendar size={20} />
+            </div>
+            <div>
+              <div style={{ fontSize: '0.7rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Today's Overview
+              </div>
+              <div style={{ fontSize: '0.9rem', fontWeight: '700', color: '#fff' }}>
+                {new Date().toLocaleDateString('en-IN', {
+                  weekday: 'long',
+                  day: 'numeric',
+                  month: 'short',
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </header>
 

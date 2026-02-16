@@ -17,7 +17,7 @@ import { Menu, X, Command } from 'lucide-react';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAuthPage = pathname === '/login' || pathname === '/signup';
+  const isAuthPage = pathname === '/login';
 
   return (
     <ErrorBoundary>
@@ -40,7 +40,7 @@ function AuthConsumer({
   const { loading: authLoading } = useAuth();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  if (authLoading) {
+  if (authLoading && !isAuthPage) {
     return (
       <div
         style={{
@@ -85,9 +85,10 @@ function AuthConsumer({
       <div
         style={{
           display: 'flex',
-          minHeight: '100vh',
+          height: '100vh',
           backgroundColor: '#020617',
           flexDirection: 'column',
+          overflow: 'hidden',
         }}
       >
         {!isAuthPage && (
@@ -120,7 +121,7 @@ function AuthConsumer({
           </header>
         )}
 
-        <div style={{ display: 'flex', flex: 1, position: 'relative' }}>
+        <div style={{ display: 'flex', flex: 1, position: 'relative', overflow: 'hidden' }}>
           {!isAuthPage && (
             <>
               {isSidebarOpen && (
@@ -129,7 +130,9 @@ function AuthConsumer({
               <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
             </>
           )}
-          <main className="main-content">{children}</main>
+          <main className="main-content" style={{ flex: 1, overflowY: 'auto' }}>
+            {children}
+          </main>
         </div>
       </div>
     </FinanceProvider>

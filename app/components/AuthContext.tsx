@@ -11,13 +11,15 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType>({
   session: null,
   user: null,
   loading: true,
-  signOut: async () => {},
+  signOut: async () => { },
+  signIn: async () => ({ error: null }),
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -28,24 +30,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const isAuthPage = pathname === '/login' || pathname === '/signup';
-
     // Check active sessions and sets the user
-    supabase.auth
-      .getSession()
-      .then(({ data: { session } }) => {
+    const getSession = async () => {
+      try {
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
-
-        if (!session && !isAuthPage) {
-          router.push('/login');
-        }
-      })
-      .catch((err: unknown) => {
+      } catch (err: unknown) {
         logError('Failed to get auth session:', err);
         setLoading(false);
-      });
+      }
+    };
+
+    getSession();
 
     // Listen for changes on auth state (logged in, signed out, etc.)
     const {
@@ -54,22 +54,38 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-
-      if (!session && !isAuthPage) {
-        router.push('/login');
-      } else if (session && isAuthPage) {
-        router.push('/');
-      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [pathname, router]);
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const isAuthPage = pathname === '/login';
+
+    if (!user && !isAuthPage) {
+      router.push('/login');
+    }
+  }, [user, loading, pathname, router]);
+
+  const signIn = async (email: string, password: string) => {
+    const result = await supabase.auth.signInWithPassword({ email, password });
+    if (result.data.session) {
+      setSession(result.data.session);
+      setUser(result.data.session.user);
+      setLoading(false);
+    }
+    return { error: result.error };
+  };
 
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
+      setSession(null);
+      setUser(null);
       router.push('/login');
     } catch (err: unknown) {
       logError('Failed to sign out:', err);
@@ -77,7 +93,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ session, user, loading, signOut }}>
+    <AuthContext.Provider value={{ session, user, loading, signOut, signIn }}>
       {children}
     </AuthContext.Provider>
   );

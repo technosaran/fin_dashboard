@@ -1,37 +1,46 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
+import { useAuth } from '../components/AuthContext';
 import { Command, Mail, Lock, Eye, EyeOff, ArrowRight, Loader2 } from 'lucide-react';
-import Link from 'next/link';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { signIn, user, loading } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [rememberDevice, setRememberDevice] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // If already logged in, redirect away from login
+  useEffect(() => {
+    if (!loading && user) {
+      window.location.href = '/';
+    }
+  }, [user, loading]);
+
   const handleEmailLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLoading) return;
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+      const { error: authError } = await signIn(email, password);
 
-      if (authError) throw authError;
-
-      router.push('/');
-      router.refresh();
-    } catch (err: unknown) {
-      setError(err instanceof Error ? 'Invalid email or password' : 'Authentication failed');
+      if (authError) {
+        setError(authError.message || 'Invalid email or password');
+        setIsLoading(false);
+      } else {
+        // Successful login - AuthContext state updates and our useEffect handles redirect
+        // We also do a direct redirect here just in case
+        window.location.href = '/';
+      }
+    } catch (err: any) {
+      setError(err.message || 'Authentication failed');
       setIsLoading(false);
     }
   };
@@ -196,19 +205,7 @@ export default function LoginPage() {
                   placeholder="name@company.com"
                   required
                   aria-label="Email Address"
-                  aria-describedby="email-hint"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#6366f1';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
-                    const icon = e.target.previousSibling as HTMLElement;
-                    if (icon) icon.style.color = '#6366f1';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(51, 65, 85, 0.5)';
-                    e.target.style.boxShadow = 'none';
-                    const icon = e.target.previousSibling as HTMLElement;
-                    if (icon) icon.style.color = '#64748b';
-                  }}
+                  autoComplete="email"
                   style={{
                     width: '100%',
                     background: 'rgba(15, 23, 42, 0.6)',
@@ -249,8 +246,6 @@ export default function LoginPage() {
                     textDecoration: 'none',
                     transition: 'color 0.2s',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#818cf8')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#6366f1')}
                 >
                   Forgot password?
                 </a>
@@ -274,19 +269,7 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   aria-label="Password"
-                  aria-describedby="password-hint"
-                  onFocus={(e) => {
-                    e.target.style.borderColor = '#6366f1';
-                    e.target.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
-                    const icon = e.target.previousSibling as HTMLElement;
-                    if (icon) icon.style.color = '#6366f1';
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = 'rgba(51, 65, 85, 0.5)';
-                    e.target.style.boxShadow = 'none';
-                    const icon = e.target.previousSibling as HTMLElement;
-                    if (icon) icon.style.color = '#64748b';
-                  }}
+                  autoComplete="current-password"
                   style={{
                     width: '100%',
                     background: 'rgba(15, 23, 42, 0.6)',
@@ -303,8 +286,6 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#6366f1')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = '#64748b')}
                   style={{
                     position: 'absolute',
                     right: '16px',
@@ -323,49 +304,10 @@ export default function LoginPage() {
               </div>
             </div>
 
-            {/* Remember Device Checkbox */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-              <input
-                type="checkbox"
-                id="rememberDevice"
-                checked={rememberDevice}
-                onChange={(e) => setRememberDevice(e.target.checked)}
-                aria-label="Remember this device"
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  cursor: 'pointer',
-                  accentColor: '#6366f1',
-                }}
-              />
-              <label
-                htmlFor="rememberDevice"
-                style={{
-                  fontSize: '0.85rem',
-                  color: '#94a3b8',
-                  cursor: 'pointer',
-                  userSelect: 'none',
-                }}
-              >
-                Remember this device for 30 days
-              </label>
-            </div>
-
             {/* Login Button */}
             <button
               type="submit"
               disabled={isLoading}
-              aria-label="Sign in to your account"
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.4)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 10px 20px rgba(99, 102, 241, 0.25)';
-              }}
               style={{
                 marginTop: '12px',
                 background: isLoading
@@ -400,17 +342,6 @@ export default function LoginPage() {
             </button>
           </form>
         </div>
-
-        {/* Footer Link */}
-        <p style={{ textAlign: 'center', marginTop: '32px', color: '#94a3b8', fontSize: '0.9rem' }}>
-          Don&apos;t have an account?{' '}
-          <Link
-            href="/signup"
-            style={{ color: '#6366f1', fontWeight: '700', textDecoration: 'none' }}
-          >
-            Create an account
-          </Link>
-        </p>
       </div>
 
       <style jsx global>{`
