@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Production deployment guide (PRODUCTION_DEPLOYMENT.md)
 - Comprehensive API documentation (API.md)
 - Architecture documentation with diagrams (ARCHITECTURE.md)
 - Database schema documentation (DATABASE.md)
@@ -25,7 +26,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- None yet
+- **Critical**: Build error caused by Google Fonts network fetch failure during production builds
+  - Removed `next/font/google` dependency for offline-capable builds
+  - System fonts now used via fallback chain in globals.css
+- TypeScript linting errors: replaced `any` types with proper type definitions (`Error | null`, `unknown`)
+- React JSX unescaped entities in Dashboard component
+- Unused imports in login page component
+- Code formatting consistency across all TypeScript files
+
+### Security
+
+- CodeQL security scan: 0 vulnerabilities found
+- All dependencies verified for known vulnerabilities
 
 ---
 
