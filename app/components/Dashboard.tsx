@@ -623,7 +623,10 @@ export default function Dashboard() {
                         color: 'var(--text-primary)',
                       }}
                     >
-                      {((item.value / financialMetrics.totalNetWorth) * 100).toFixed(0)}%
+                      {financialMetrics.totalNetWorth > 0
+                        ? ((item.value / financialMetrics.totalNetWorth) * 100).toFixed(0)
+                        : 0}
+                      %
                     </span>
                   </div>
                 ))}
