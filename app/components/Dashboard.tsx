@@ -10,7 +10,6 @@ import {
   ArrowDownRight,
   BarChart3,
   Target,
-  Calendar,
   Sparkles,
   AlertTriangle,
 } from 'lucide-react';

@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { useFinance } from '../components/FinanceContext';
-import { AppSettings } from '@/lib/types';
+import { AppSettings, Account } from '@/lib/types';
 import {
   Undo,
   Layers,
@@ -12,8 +12,6 @@ import {
   Eye,
   Settings,
   Shield,
-  Smartphone,
-  Check,
   ChevronRight,
   Monitor,
 } from 'lucide-react';
@@ -97,9 +95,7 @@ export default function SettingsPage() {
           >
             Settings
           </h1>
-          <p
-            style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}
-          >
+          <p style={{ color: '#94a3b8', fontSize: 'clamp(0.875rem, 2vw, 1rem)', marginTop: '8px' }}>
             Manage your preferences and application defaults
           </p>
         </div>
@@ -123,7 +119,7 @@ export default function SettingsPage() {
           return (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id as any)}
+              onClick={() => setActiveTab(tab.id as 'general' | 'modules' | 'sidebar' | 'system')}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -303,23 +299,55 @@ export default function SettingsPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '16px',
+                }}
+              >
                 {[
                   { k: 'stocksVisible', l: 'Stocks', d: 'Equity portfolio', i: '📈', c: '#10b981' },
-                  { k: 'mutualFundsVisible', l: 'Mutual Funds', d: 'SIP & Lumpsum', i: '💼', c: '#f59e0b' },
+                  {
+                    k: 'mutualFundsVisible',
+                    l: 'Mutual Funds',
+                    d: 'SIP & Lumpsum',
+                    i: '💼',
+                    c: '#f59e0b',
+                  },
                   { k: 'fnoVisible', l: 'F&O', d: 'Futures & Options', i: '⚡', c: '#a78bfa' },
                   { k: 'ledgerVisible', l: 'Ledger', d: 'All Transactions', i: '📖', c: '#60a5fa' },
-                  { k: 'incomeVisible', l: 'Income', d: 'Salary & Earnings', i: '💰', c: '#34d399' },
-                  { k: 'expensesVisible', l: 'Expenses', d: 'Spending Tracker', i: '🛍️', c: '#fb923c' },
+                  {
+                    k: 'incomeVisible',
+                    l: 'Income',
+                    d: 'Salary & Earnings',
+                    i: '💰',
+                    c: '#34d399',
+                  },
+                  {
+                    k: 'expensesVisible',
+                    l: 'Expenses',
+                    d: 'Spending Tracker',
+                    i: '🛍️',
+                    c: '#fb923c',
+                  },
                   { k: 'goalsVisible', l: 'Goals', d: 'Financial Targets', i: '🎯', c: '#f472b6' },
-                  { k: 'familyVisible', l: 'Family', d: 'Transfers & Gifts', i: '👨‍👩‍👧', c: '#c084fc' },
+                  {
+                    k: 'familyVisible',
+                    l: 'Family',
+                    d: 'Transfers & Gifts',
+                    i: '👨‍👩‍👧',
+                    c: '#c084fc',
+                  },
                 ].map((item) => (
                   <ToggleItem
                     key={item.k}
                     label={item.l}
                     description={item.d}
                     isActive={settings[item.k as keyof AppSettings] !== false}
-                    onToggle={() => updateSettings({ [item.k]: !settings[item.k as keyof AppSettings] })}
+                    onToggle={() =>
+                      updateSettings({ [item.k]: !settings[item.k as keyof AppSettings] })
+                    }
                     color={item.c}
                     icon={item.i}
                     compact
@@ -412,12 +440,13 @@ export default function SettingsPage() {
                   background: 'rgba(59, 130, 246, 0.05)',
                   border: '1px solid rgba(59, 130, 246, 0.1)',
                   display: 'flex',
-                  gap: '12px'
+                  gap: '12px',
                 }}
               >
                 <Info size={20} color="#3b82f6" style={{ flexShrink: 0, marginTop: '2px' }} />
                 <div style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.5 }}>
-                  Preferences are synced to your browser's local storage. Cloud sync is automatically enabled when you sign in.
+                  Preferences are synced to your browser&apos;s local storage. Cloud sync is
+                  automatically enabled when you sign in.
                 </div>
               </div>
             </div>
@@ -439,7 +468,7 @@ function AccountSelect({
   label: string;
   value: number | undefined;
   onChange: (val: number | undefined) => void;
-  accounts: any[];
+  accounts: Account[];
   icon: string;
 }) {
   return (
@@ -591,4 +620,3 @@ function ToggleItem({
     </div>
   );
 }
-

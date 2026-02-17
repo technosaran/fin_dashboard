@@ -7,7 +7,6 @@ import {
   getCache,
   setCache,
   parseCommaSeparatedParam,
-  deterministicHash,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
 
@@ -43,7 +42,6 @@ async function handleBondBatchQuote(request: Request): Promise<NextResponse> {
 
   try {
     const results: Record<string, BondQuoteData> = {};
-    const today = new Date().toISOString().split('T')[0];
 
     // We currently do not have a reliable source for live bond prices.
     // To ensure "exact data" as requested by the user, we will NOT simulate prices with random fluctuations.

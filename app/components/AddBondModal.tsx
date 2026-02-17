@@ -149,11 +149,6 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await submitBond();
-  };
-
   if (!isOpen) return null;
 
   return (
@@ -451,7 +446,14 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
                   <option>At Maturity</option>
                 </select>
               </div>
-              <div style={{ gridColumn: 'span 2', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div
+                style={{
+                  gridColumn: 'span 2',
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '20px',
+                }}
+              >
                 <div>
                   <label className="input-label">Quantity</label>
                   <input

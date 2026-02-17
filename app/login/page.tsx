@@ -134,8 +134,8 @@ export default function LoginPage() {
             background: 'rgba(15, 23, 42, 0.7)',
             backdropFilter: 'blur(30px)',
             border: '1px solid rgba(255, 255, 255, 0.12)',
-            borderRadius: '40px',
-            padding: '48px',
+            borderRadius: 'clamp(24px, 5vw, 40px)',
+            padding: 'clamp(24px, 5vw, 48px)',
             boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.7)',
           }}
         >

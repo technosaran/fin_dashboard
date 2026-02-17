@@ -28,7 +28,6 @@ import {
   ArrowRight,
   Eye,
   PieChart as PieChartIcon,
-  AlertTriangle,
 } from 'lucide-react';
 import { EmptyPortfolioVisual } from '../components/Visuals';
 
