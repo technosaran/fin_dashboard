@@ -233,9 +233,9 @@ export default function Dashboard() {
         <div style={{ marginBottom: '32px' }}>
           <div
             className="skeleton"
-            style={{ height: '48px', width: '350px', marginBottom: '12px' }}
+            style={{ height: '48px', width: 'min(100%, 350px)', marginBottom: '12px' }}
           />
-          <div className="skeleton" style={{ height: '24px', width: '450px' }} />
+          <div className="skeleton" style={{ height: '24px', width: 'min(100%, 450px)' }} />
         </div>
         <div style={{ marginBottom: '32px' }}>
           <SkeletonCard />
@@ -458,7 +458,7 @@ export default function Dashboard() {
             </div>
             <div
               style={{
-                fontSize: '1.4rem',
+                fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
                 fontWeight: '900',
                 color:
                   stat.label === 'Unrealized P&L' || stat.label === "Day's Change"
@@ -532,8 +532,9 @@ export default function Dashboard() {
             {/* Right: Asset Allocation integrated */}
             <div
               style={{
-                flex: '0 1 350px',
-                minWidth: '280px',
+                flex: '1 1 280px',
+                minWidth: '0',
+                maxWidth: '400px',
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',

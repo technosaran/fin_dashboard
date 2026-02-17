@@ -20,17 +20,18 @@ function validateEnv(): EnvironmentConfig {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
   const nodeEnv = process.env.NODE_ENV || 'development';
 
-  // Skip validation in test environment if using test values
+  // Skip validation in test environment and during build phase
   const isTest = nodeEnv === 'test';
+  const isBuild = process.env.NEXT_PHASE === 'phase-production-build';
 
-  // Validate required environment variables (skip in test with test values)
+  // Validate required environment variables (skip in test/build)
   const missingVars: string[] = [];
 
-  if (!supabaseUrl && !isTest) {
+  if (!supabaseUrl && !isTest && !isBuild) {
     missingVars.push('NEXT_PUBLIC_SUPABASE_URL');
   }
 
-  if (!supabaseAnonKey && !isTest) {
+  if (!supabaseAnonKey && !isTest && !isBuild) {
     missingVars.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY');
   }
 
@@ -41,12 +42,15 @@ function validateEnv(): EnvironmentConfig {
     );
   }
 
-  // TypeScript now knows these are defined due to the checks above
-  // In test environment, provide defaults if missing
+  // Provide placeholder values during build/test when env vars are not set
+  const needsFallback = isTest || isBuild;
+
   return {
     supabase: {
-      url: isTest && !supabaseUrl ? 'https://test.supabase.co' : (supabaseUrl as string),
-      anonKey: isTest && !supabaseAnonKey ? 'test-key-1234567890' : (supabaseAnonKey as string),
+      url:
+        supabaseUrl ||
+        (needsFallback ? 'https://placeholder.supabase.co' : (supabaseUrl as string)),
+      anonKey: supabaseAnonKey || (needsFallback ? 'placeholder-key' : (supabaseAnonKey as string)),
     },
     app: {
       url: appUrl,

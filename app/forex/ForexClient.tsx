@@ -61,7 +61,7 @@ export default function ForexClient() {
       <div className="page-container">
         <div className="bg-mesh" />
         <div className="dashboard-header">
-          <div className="skeleton" style={{ height: '40px', width: '250px' }} />
+          <div className="skeleton" style={{ height: '40px', width: 'min(100%, 250px)' }} />
         </div>
         <div className="grid-responsive-3 mb-xl">
           <SkeletonCard />
@@ -694,7 +694,9 @@ function ForexTransactionModal({
               }}
               required
             >
-              <option value="" disabled>Select Account</option>
+              <option value="" disabled>
+                Select Account
+              </option>
               {accounts.map((acc) => (
                 <option key={acc.id} value={acc.id}>
                   {acc.name} (₹{acc.balance.toLocaleString()})
