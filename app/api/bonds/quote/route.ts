@@ -3,7 +3,6 @@ import {
   createErrorResponse,
   applyRateLimit,
   withErrorHandling,
-  deterministicHash,
 } from '@/lib/services/api';
 
 /**
@@ -26,7 +25,6 @@ async function handleBondQuote(request: Request) {
   }
 
   const sanitizedIsin = isin.toUpperCase();
-  const today = new Date().toISOString().split('T')[0];
   // We currently do not simulate fake prices to ensure data accuracy as per user request.
   // In a real implementation, this would fetch the live price from an exchange.
 

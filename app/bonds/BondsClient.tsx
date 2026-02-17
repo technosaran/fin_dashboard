@@ -65,7 +65,7 @@ export default function BondsClient() {
       <div className="page-container">
         <div className="bg-mesh" />
         <div className="dashboard-header">
-          <div className="skeleton" style={{ height: '40px', width: '250px' }} />
+          <div className="skeleton" style={{ height: '40px', width: 'min(100%, 250px)' }} />
         </div>
         <div className="grid-responsive-3 mb-xl">
           <SkeletonCard />
@@ -300,7 +300,7 @@ export default function BondsClient() {
         className="flex justify-between items-center mb-lg fade-in"
         style={{ marginBottom: '24px' }}
       >
-        <div style={{ position: 'relative', flex: '0 1 400px' }}>
+        <div style={{ position: 'relative', flex: '1 1 auto', maxWidth: '400px', minWidth: '0' }}>
           <Search
             style={{
               position: 'absolute',
@@ -410,7 +410,7 @@ export default function BondsClient() {
                 </div>
 
                 {/* Yield & Frequency */}
-                <div style={{ flex: '0 0 160px', textAlign: 'center' }}>
+                <div style={{ flex: '1 1 120px', textAlign: 'center' }}>
                   <div
                     className="stat-label mb-xs"
                     style={{
@@ -439,7 +439,7 @@ export default function BondsClient() {
                 </div>
 
                 {/* Investment Value */}
-                <div style={{ flex: '0 0 180px', textAlign: 'right' }}>
+                <div style={{ flex: '1 1 140px', textAlign: 'right' }}>
                   <div
                     className="stat-label mb-xs"
                     style={{

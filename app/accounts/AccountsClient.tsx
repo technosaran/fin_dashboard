@@ -235,7 +235,7 @@ export default function AccountsClient() {
             overflowX: 'auto',
             width: '100%',
             paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
           }}
         >
           <button
@@ -262,7 +262,8 @@ export default function AccountsClient() {
             onMouseLeave={(e) => (e.currentTarget.style.background = '#0f172a')}
             aria-label="Export accounts to CSV"
           >
-            <Download size={16} color="#10b981" aria-hidden="true" /> <span className="hide-sm">Export</span> CSV
+            <Download size={16} color="#10b981" aria-hidden="true" />{' '}
+            <span className="hide-sm">Export</span> CSV
           </button>
           <button
             onClick={() => setIsTransferModalOpen(true)}
@@ -326,8 +327,9 @@ export default function AccountsClient() {
           borderRadius: '14px',
           border: '1px solid #1e293b',
           marginBottom: '20px',
-          width: 'fit-content',
-          flexWrap: 'wrap',
+          maxWidth: '100%',
+          overflowX: 'auto',
+          flexWrap: 'nowrap',
         }}
         role="tablist"
         aria-label="Account view tabs"
@@ -444,7 +446,9 @@ export default function AccountsClient() {
                   Total Vault Liquidity
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
+                <div
+                  style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}
+                >
                   <div
                     style={{
                       fontSize: 'clamp(2rem, 6vw, 2.75rem)',
