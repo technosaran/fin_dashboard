@@ -47,10 +47,8 @@ function validateEnv(): EnvironmentConfig {
 
   return {
     supabase: {
-      url:
-        supabaseUrl ||
-        (needsFallback ? 'https://placeholder.supabase.co' : (supabaseUrl as string)),
-      anonKey: supabaseAnonKey || (needsFallback ? 'placeholder-key' : (supabaseAnonKey as string)),
+      url: supabaseUrl ?? (needsFallback ? 'https://placeholder.supabase.co' : ''),
+      anonKey: supabaseAnonKey ?? (needsFallback ? 'placeholder-key' : ''),
     },
     app: {
       url: appUrl,
