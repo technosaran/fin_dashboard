@@ -138,7 +138,7 @@ export type FnoTradeRow = {
   entry_date: string;
   exit_date?: string | null;
   status: string;
-  pnl: number;
+  pnl?: number | null;
   notes?: string | null;
   account_id?: number | null;
   [key: string]: unknown;
@@ -148,20 +148,20 @@ export type BondRow = {
   name: string;
   company_name?: string | null;
   isin?: string | null;
-  face_value: number;
-  coupon_rate: number;
-  maturity_date: string;
-  quantity: number;
-  avg_price: number;
-  current_price: number;
-  investment_amount: number;
-  current_value: number;
-  pnl: number;
-  pnl_percentage: number;
+  face_value?: number | null;
+  coupon_rate?: number | null;
+  maturity_date?: string | null;
+  quantity?: number | null;
+  avg_price?: number | null;
+  current_price?: number | null;
+  investment_amount?: number | null;
+  current_value?: number | null;
+  pnl?: number | null;
+  pnl_percentage?: number | null;
   yield_to_maturity?: number | null;
-  interest_frequency: string;
+  interest_frequency?: string | null;
   next_interest_date?: string | null;
-  status: string;
+  status?: string | null;
   previous_price?: number | null;
   [key: string]: unknown;
 };
@@ -169,10 +169,10 @@ export type BondTransactionRow = {
   id: number;
   bond_id?: number | null;
   transaction_type: string;
-  quantity: number;
-  price: number;
+  quantity?: number | null;
+  price?: number | null;
   total_amount: number;
-  transaction_date: string;
+  transaction_date?: string | null;
   notes?: string | null;
   account_id?: number | null;
   [key: string]: unknown;
@@ -181,7 +181,8 @@ export type ForexTransactionRow = {
   id: number;
   transaction_type: string;
   amount: number;
-  date: string;
+  date?: string | null;
+  transaction_date?: string | null;
   notes?: string | null;
   account_id?: number | null;
   [key: string]: unknown;
@@ -367,7 +368,7 @@ export const dbFnoTradeToFnoTrade = (dbTx: FnoTradeRow): FnoTrade => ({
   entryDate: dbTx.entry_date,
   exitDate: dbTx.exit_date || undefined,
   status: dbTx.status as FnoTrade['status'],
-  pnl: Number(dbTx.pnl),
+  pnl: dbTx.pnl ? Number(dbTx.pnl) : 0,
   notes: dbTx.notes || undefined,
   accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined,
 });
@@ -377,20 +378,20 @@ export const dbBondToBond = (dbBond: BondRow): Bond => ({
   name: dbBond.name,
   companyName: dbBond.company_name || undefined,
   isin: dbBond.isin || undefined,
-  faceValue: Number(dbBond.face_value),
-  couponRate: Number(dbBond.coupon_rate),
-  maturityDate: dbBond.maturity_date,
-  quantity: Number(dbBond.quantity),
-  avgPrice: Number(dbBond.avg_price),
-  currentPrice: Number(dbBond.current_price),
-  investmentAmount: Number(dbBond.investment_amount),
-  currentValue: Number(dbBond.current_value),
-  pnl: Number(dbBond.pnl),
-  pnlPercentage: Number(dbBond.pnl_percentage),
+  faceValue: dbBond.face_value ? Number(dbBond.face_value) : 1000,
+  couponRate: dbBond.coupon_rate ? Number(dbBond.coupon_rate) : 0,
+  maturityDate: dbBond.maturity_date || '',
+  quantity: dbBond.quantity ? Number(dbBond.quantity) : 0,
+  avgPrice: dbBond.avg_price ? Number(dbBond.avg_price) : 0,
+  currentPrice: dbBond.current_price ? Number(dbBond.current_price) : 0,
+  investmentAmount: dbBond.investment_amount ? Number(dbBond.investment_amount) : 0,
+  currentValue: dbBond.current_value ? Number(dbBond.current_value) : 0,
+  pnl: dbBond.pnl ? Number(dbBond.pnl) : 0,
+  pnlPercentage: dbBond.pnl_percentage ? Number(dbBond.pnl_percentage) : 0,
   yieldToMaturity: dbBond.yield_to_maturity ? Number(dbBond.yield_to_maturity) : undefined,
-  interestFrequency: dbBond.interest_frequency,
+  interestFrequency: dbBond.interest_frequency || 'Yearly',
   nextInterestDate: dbBond.next_interest_date || undefined,
-  status: dbBond.status as Bond['status'],
+  status: (dbBond.status as Bond['status']) || 'ACTIVE',
   previousPrice: dbBond.previous_price ? Number(dbBond.previous_price) : undefined,
 });
 
@@ -398,10 +399,10 @@ export const dbBondTransactionToBondTransaction = (dbTx: BondTransactionRow): Bo
   id: Number(dbTx.id),
   bondId: Number(dbTx.bond_id),
   transactionType: dbTx.transaction_type as BondTransactionType,
-  quantity: Number(dbTx.quantity),
-  price: Number(dbTx.price),
+  quantity: dbTx.quantity ? Number(dbTx.quantity) : 0,
+  price: dbTx.price ? Number(dbTx.price) : 0,
   totalAmount: Number(dbTx.total_amount),
-  transactionDate: dbTx.transaction_date,
+  transactionDate: dbTx.transaction_date || '',
   notes: dbTx.notes || undefined,
   accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined,
 });
@@ -412,7 +413,7 @@ export const dbForexTransactionToForexTransaction = (
   id: Number(dbTx.id),
   transactionType: dbTx.transaction_type as ForexTransactionType,
   amount: Number(dbTx.amount),
-  date: dbTx.date,
+  date: dbTx.date || dbTx.transaction_date || '',
   notes: dbTx.notes || undefined,
   accountId: dbTx.account_id ? Number(dbTx.account_id) : undefined,
 });

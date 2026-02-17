@@ -203,17 +203,32 @@ export default function LoginPage() {
                   placeholder="name@company.com"
                   required
                   aria-label="Email Address"
+                  aria-required="true"
+                  aria-invalid={error ? 'true' : 'false'}
                   autoComplete="email"
+                  autoFocus
+                  disabled={isLoading}
                   style={{
                     width: '100%',
                     background: 'rgba(15, 23, 42, 0.6)',
-                    border: '1px solid rgba(51, 65, 85, 0.5)',
+                    border: error
+                      ? '1px solid rgba(239, 68, 68, 0.5)'
+                      : '1px solid rgba(51, 65, 85, 0.5)',
                     borderRadius: '16px',
                     padding: '14px 14px 14px 48px',
                     color: '#fff',
                     fontSize: '0.95rem',
                     outline: 'none',
                     transition: 'border-color 0.3s, box-shadow 0.3s',
+                    opacity: isLoading ? 0.6 : 1,
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#6366f1';
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(51, 65, 85, 0.5)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 />
               </div>
@@ -267,17 +282,31 @@ export default function LoginPage() {
                   placeholder="••••••••"
                   required
                   aria-label="Password"
+                  aria-required="true"
+                  aria-invalid={error ? 'true' : 'false'}
                   autoComplete="current-password"
+                  disabled={isLoading}
                   style={{
                     width: '100%',
                     background: 'rgba(15, 23, 42, 0.6)',
-                    border: '1px solid rgba(51, 65, 85, 0.5)',
+                    border: error
+                      ? '1px solid rgba(239, 68, 68, 0.5)'
+                      : '1px solid rgba(51, 65, 85, 0.5)',
                     borderRadius: '16px',
                     padding: '14px 44px 14px 48px',
                     color: '#fff',
                     fontSize: '0.95rem',
                     outline: 'none',
                     transition: 'border-color 0.3s, box-shadow 0.3s',
+                    opacity: isLoading ? 0.6 : 1,
+                  }}
+                  onFocus={(e) => {
+                    e.currentTarget.style.borderColor = '#6366f1';
+                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+                  }}
+                  onBlur={(e) => {
+                    e.currentTarget.style.borderColor = 'rgba(51, 65, 85, 0.5)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 />
                 <button
@@ -306,6 +335,8 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
+              aria-busy={isLoading}
+              aria-label={isLoading ? 'Signing in...' : 'Sign in to your account'}
               style={{
                 marginTop: '12px',
                 background: isLoading
@@ -325,6 +356,24 @@ export default function LoginPage() {
                 boxShadow: '0 10px 20px rgba(99, 102, 241, 0.25)',
                 transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s',
                 opacity: isLoading ? 0.7 : 1,
+                minHeight: '52px',
+              }}
+              onMouseEnter={(e) => {
+                if (!isLoading) {
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.35)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 10px 20px rgba(99, 102, 241, 0.25)';
+              }}
+              onFocus={(e) => {
+                e.currentTarget.style.outline = '2px solid #818cf8';
+                e.currentTarget.style.outlineOffset = '2px';
+              }}
+              onBlur={(e) => {
+                e.currentTarget.style.outline = 'none';
               }}
             >
               {isLoading ? (

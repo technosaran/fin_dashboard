@@ -82,6 +82,31 @@ function AuthConsumer({
   return (
     <FinanceProvider>
       <TransactionModalWrapper />
+      {/* Skip to main content link for accessibility */}
+      <a
+        href="#main-content"
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          zIndex: 999,
+          padding: '12px 24px',
+          background: '#6366f1',
+          color: '#fff',
+          textDecoration: 'none',
+          borderRadius: '8px',
+          fontWeight: '700',
+          fontSize: '0.9rem',
+        }}
+        onFocus={(e) => {
+          e.currentTarget.style.left = '20px';
+          e.currentTarget.style.top = '20px';
+        }}
+        onBlur={(e) => {
+          e.currentTarget.style.left = '-9999px';
+        }}
+      >
+        Skip to main content
+      </a>
       <div
         style={{
           display: 'flex',
@@ -108,8 +133,12 @@ function AuthConsumer({
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'background 0.2s',
+                  minWidth: '44px',
+                  minHeight: '44px',
                 }}
                 aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+                aria-expanded={isSidebarOpen}
+                aria-controls="sidebar-navigation"
               >
                 {isSidebarOpen ? <X size={20} /> : <Menu size={20} />}
               </button>
@@ -127,6 +156,7 @@ function AuthConsumer({
                     color: 'white',
                     boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
                   }}
+                  aria-hidden="true"
                 >
                   <Command size={18} />
                 </div>
@@ -135,7 +165,7 @@ function AuthConsumer({
                     fontWeight: '900',
                     color: '#fff',
                     fontSize: '1.2rem',
-                    letterSpacing: '-0.5px'
+                    letterSpacing: '-0.5px',
                   }}
                 >
                   FINCORE
@@ -151,6 +181,8 @@ function AuthConsumer({
               <div
                 className={`sidebar-overlay ${isSidebarOpen ? 'active' : ''}`}
                 onClick={() => setIsSidebarOpen(false)}
+                role="presentation"
+                aria-hidden={!isSidebarOpen}
                 style={{
                   position: 'fixed',
                   inset: 0,
@@ -165,7 +197,13 @@ function AuthConsumer({
               <Sidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
             </>
           )}
-          <main className="main-content" style={{ flex: 1, overflowY: 'auto' }}>
+          <main
+            id="main-content"
+            className="main-content"
+            style={{ flex: 1, overflowY: 'auto' }}
+            role="main"
+            aria-label="Main content"
+          >
             {children}
           </main>
         </div>

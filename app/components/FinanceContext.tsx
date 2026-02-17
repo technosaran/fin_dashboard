@@ -619,36 +619,42 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // --- BONDS ---
 
-  const addBond = useCallback(async (bond: Omit<Bond, 'id'>) => {
-    const { data, error } = await (supabase as ExtendedSupabaseClient)
-      .from('bonds')
-      .insert({
-        name: bond.name,
-        isin: bond.isin,
-        company_name: bond.companyName,
-        face_value: bond.faceValue,
-        coupon_rate: bond.couponRate,
-        maturity_date: bond.maturityDate,
-        quantity: bond.quantity,
-        avg_price: bond.avgPrice,
-        current_price: bond.currentPrice,
-        investment_amount: bond.investmentAmount,
-        current_value: bond.currentValue,
-        pnl: bond.pnl,
-        pnl_percentage: bond.pnlPercentage,
-        interest_frequency: bond.interestFrequency,
-        status: bond.status,
-      })
-      .select()
-      .single();
+  const addBond = useCallback(
+    async (bond: Omit<Bond, 'id'>) => {
+      if (!user) throw new Error('User not authenticated');
 
-    if (error) {
-      logError('Error adding bond:', error);
-      throw error;
-    }
+      const { data, error } = await (supabase as ExtendedSupabaseClient)
+        .from('bonds')
+        .insert({
+          user_id: user.id,
+          name: bond.name,
+          isin: bond.isin,
+          company_name: bond.companyName,
+          face_value: bond.faceValue,
+          coupon_rate: bond.couponRate,
+          maturity_date: bond.maturityDate,
+          quantity: bond.quantity,
+          avg_price: bond.avgPrice,
+          current_price: bond.currentPrice,
+          investment_amount: bond.investmentAmount,
+          current_value: bond.currentValue,
+          pnl: bond.pnl,
+          pnl_percentage: bond.pnlPercentage,
+          interest_frequency: bond.interestFrequency,
+          status: bond.status,
+        })
+        .select()
+        .single();
 
-    setBonds((prev) => [...prev, dbBondToBond(data)]);
-  }, []);
+      if (error) {
+        logError('Error adding bond:', error);
+        throw error;
+      }
+
+      setBonds((prev) => [...prev, dbBondToBond(data)]);
+    },
+    [user]
+  );
 
   const updateBond = useCallback(async (id: number, bond: Partial<Bond>) => {
     const { error } = await (supabase as ExtendedSupabaseClient)
@@ -684,9 +690,12 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const addBondTransaction = useCallback(
     async (tx: Omit<BondTransaction, 'id'>) => {
+      if (!user) throw new Error('User not authenticated');
+
       const { data, error } = await (supabase as ExtendedSupabaseClient)
         .from('bond_transactions')
         .insert({
+          user_id: user.id,
           bond_id: tx.bondId,
           transaction_type: tx.transactionType,
           quantity: tx.quantity,
@@ -710,7 +719,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       refreshTransactions();
       refreshPortfolio();
     },
-    [refreshAccounts, refreshTransactions, refreshPortfolio]
+    [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
   const deleteBondTransaction = useMemo(
@@ -837,26 +846,32 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // --- FOREX ---
 
-  const addForexTransaction = useCallback(async (tx: Omit<ForexTransaction, 'id'>) => {
-    const { data, error } = await (supabase as ExtendedSupabaseClient)
-      .from('forex_transactions')
-      .insert({
-        transaction_type: tx.transactionType,
-        amount: tx.amount,
-        date: tx.date,
-        notes: tx.notes,
-        account_id: tx.accountId,
-      })
-      .select()
-      .single();
+  const addForexTransaction = useCallback(
+    async (tx: Omit<ForexTransaction, 'id'>) => {
+      if (!user) throw new Error('User not authenticated');
 
-    if (error) {
-      logError('Error adding forex transaction:', error);
-      throw error;
-    }
+      const { data, error } = await (supabase as ExtendedSupabaseClient)
+        .from('forex_transactions')
+        .insert({
+          user_id: user.id,
+          transaction_type: tx.transactionType,
+          amount: tx.amount,
+          date: tx.date,
+          notes: tx.notes,
+          account_id: tx.accountId,
+        })
+        .select()
+        .single();
 
-    setForexTransactions((prev) => [...prev, dbForexTransactionToForexTransaction(data)]);
-  }, []);
+      if (error) {
+        logError('Error adding forex transaction:', error);
+        throw error;
+      }
+
+      setForexTransactions((prev) => [...prev, dbForexTransactionToForexTransaction(data)]);
+    },
+    [user]
+  );
 
   const updateForexTransaction = useCallback(async (id: number, tx: Partial<ForexTransaction>) => {
     const { error } = await (supabase as ExtendedSupabaseClient)
