@@ -1,7 +1,7 @@
 -- Migration to sync Forex transactions and Family transfers to the ledger
 -- 20260212210000_sync_forex_family_to_ledger.sql
 
--- 1. Update sync_investment_to_ledger to handle forex and family transfers
+-- 1. Update sync_investment_to_ledger to handle polymorphism safely
 CREATE OR REPLACE FUNCTION public.sync_investment_to_ledger()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -9,7 +9,19 @@ DECLARE
     v_type TEXT;
     v_amount DECIMAL(15,2);
     v_symbol TEXT;
+    v_date DATE;
 BEGIN
+    -- Resolve Date column polymorphism
+    IF TG_TABLE_NAME IN ('stock_transactions', 'mutual_fund_transactions', 'bond_transactions') THEN
+        v_date := NEW.transaction_date;
+    ELSIF TG_TABLE_NAME IN ('forex_transactions', 'family_transfers', 'dividends') THEN
+        v_date := NEW.date;
+    ELSIF TG_TABLE_NAME = 'fno_trades' THEN
+        v_date := COALESCE(NEW.exit_date, NEW.entry_date)::DATE;
+    ELSE
+        v_date := CURRENT_DATE;
+    END IF;
+
     -- 1. Stock Transactions
     IF TG_TABLE_NAME = 'stock_transactions' THEN
         SELECT symbol INTO v_symbol FROM public.stocks WHERE id = NEW.stock_id;
@@ -23,7 +35,7 @@ BEGIN
         v_desc := NEW.transaction_type || ' MF: ' || COALESCE(v_symbol, 'Unknown') || ' (' || NEW.units || ' units)';
         v_type := CASE WHEN NEW.transaction_type IN ('BUY', 'SIP') THEN 'Expense' ELSE 'Income' END;
         v_amount := NEW.total_amount;
-
+ 
     -- 3. F&O Trades
     ELSIF TG_TABLE_NAME = 'fno_trades' THEN
         IF (TG_OP = 'INSERT' AND NEW.status = 'OPEN') THEN
@@ -32,7 +44,7 @@ BEGIN
             v_amount := NEW.avg_price * NEW.quantity;
         ELSIF (TG_OP = 'INSERT' AND NEW.status = 'CLOSED') THEN
             INSERT INTO public.transactions (user_id, account_id, date, description, category, type, amount)
-            VALUES (NEW.user_id, NEW.account_id, NEW.entry_date, 'FnO Entry: ' || NEW.instrument, 'Investments', 'Expense', NEW.avg_price * NEW.quantity);
+            VALUES (NEW.user_id, NEW.account_id, NEW.entry_date::DATE, 'FnO Entry: ' || NEW.instrument, 'Investments', 'Expense', NEW.avg_price * NEW.quantity);
             v_desc := 'FnO Exit: ' || NEW.instrument;
             v_type := 'Income';
             v_amount := (NEW.avg_price * NEW.quantity) + COALESCE(NEW.pnl, 0);
@@ -83,7 +95,7 @@ BEGIN
     VALUES (
         NEW.user_id, 
         NEW.account_id, 
-        COALESCE(NEW.transaction_date, NEW.date, CURRENT_DATE), 
+        COALESCE(v_date, CURRENT_DATE), 
         v_desc, 
         CASE 
             WHEN TG_TABLE_NAME = 'family_transfers' THEN 'Family' 

@@ -2,20 +2,7 @@
 
 import { useState } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import {
-  PieChart,
-  Pie,
-  Cell,
-  Tooltip,
-  ResponsiveContainer,
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Area,
-  AreaChart,
-} from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance } from '../components/FinanceContext';
 import { Account, AccountType } from '@/lib/types';
 import { exportAccountsToCSV } from '../../lib/exportUtils';
@@ -29,9 +16,7 @@ import {
   ArrowRightLeft,
   Plus,
   X,
-  Search,
   DollarSign,
-  PieChart as PieChartIcon,
   Trash2,
   Download,
 } from 'lucide-react';
@@ -41,7 +26,6 @@ const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#3b82f6', '#8b5cf6'
 export default function AccountsClient() {
   const { accounts, addAccount, updateAccount, deleteAccount, addFunds, loading } = useFinance();
   const { showNotification, confirm: customConfirm } = useNotifications();
-  const [activeTab, setActiveTab] = useState<'accounts' | 'allocation'>('accounts');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
 
@@ -200,8 +184,9 @@ export default function AccountsClient() {
       <div
         className="flex-col-mobile"
         style={{
+          display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
+          alignItems: 'center',
           marginBottom: '24px',
           gap: '20px',
         }}
@@ -218,12 +203,12 @@ export default function AccountsClient() {
               WebkitTextFillColor: 'transparent',
             }}
           >
-            Personal Vault
+            Accounts
           </h1>
           <p
             style={{ color: '#94a3b8', fontSize: 'clamp(0.85rem, 2vw, 0.95rem)', marginTop: '8px' }}
           >
-            Securely manage your assets and financial entities
+            Manage your financial entities and liquidity status
           </p>
         </div>
 
@@ -233,9 +218,9 @@ export default function AccountsClient() {
             display: 'flex',
             gap: '10px',
             overflowX: 'auto',
-            width: '100%',
             paddingBottom: '4px',
-            WebkitOverflowScrolling: 'touch'
+            WebkitOverflowScrolling: 'touch',
+            justifyContent: 'flex-end',
           }}
         >
           <button
@@ -262,7 +247,8 @@ export default function AccountsClient() {
             onMouseLeave={(e) => (e.currentTarget.style.background = '#0f172a')}
             aria-label="Export accounts to CSV"
           >
-            <Download size={16} color="#10b981" aria-hidden="true" /> <span className="hide-sm">Export</span> CSV
+            <Download size={16} color="#10b981" aria-hidden="true" />{' '}
+            <span className="hide-sm">Export</span> CSV
           </button>
           <button
             onClick={() => setIsTransferModalOpen(true)}
@@ -317,475 +303,146 @@ export default function AccountsClient() {
         </div>
       </div>
 
-      {/* Tab Navigation */}
-      <div
-        style={{
-          display: 'flex',
-          background: '#0f172a',
-          padding: '5px',
-          borderRadius: '14px',
-          border: '1px solid #1e293b',
-          marginBottom: '20px',
-          width: 'fit-content',
-          flexWrap: 'wrap',
-        }}
-        role="tablist"
-        aria-label="Account view tabs"
-      >
-        {[
-          { id: 'accounts', label: 'Accounts', icon: <Wallet size={16} aria-hidden="true" /> },
-          {
-            id: 'allocation',
-            label: 'Allocation',
-            icon: <PieChartIcon size={16} aria-hidden="true" />,
-          },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as 'accounts' | 'allocation')}
-            role="tab"
-            aria-selected={activeTab === tab.id}
-            aria-controls={`${tab.id}-panel`}
-            aria-label={`View ${tab.label}`}
-            style={{
-              padding: '10px 20px',
-              borderRadius: '10px',
-              border: 'none',
-              background: activeTab === tab.id ? '#6366f1' : 'transparent',
-              color: activeTab === tab.id ? '#fff' : '#94a3b8',
-              fontWeight: '700',
-              fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              if (activeTab !== tab.id) {
-                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                e.currentTarget.style.color = '#cbd5e1';
-              }
-            }}
-            onMouseLeave={(e) => {
-              if (activeTab !== tab.id) {
-                e.currentTarget.style.background = 'transparent';
-                e.currentTarget.style.color = '#94a3b8';
-              }
-            }}
-          >
-            {tab.icon}
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Tab Content */}
-      {activeTab === 'accounts' && (
-        <>
-          {/* Main Content Layout - Single Column */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* Summary Bar */}
-            <div
-              className="premium-card"
-              style={{
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
-                padding: 'clamp(16px, 4vw, 24px) clamp(20px, 5vw, 32px)',
-                borderRadius: '24px',
-                border: '1px solid #1e293b',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                position: 'relative',
-                overflow: 'hidden',
-                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-              }}
-            >
-              {/* Enhanced animated gradient background */}
-              <div
-                className="hide-mobile"
-                style={{
-                  position: 'absolute',
-                  top: '-50%',
-                  right: '-10%',
-                  width: '400px',
-                  height: '400px',
-                  background:
-                    'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-                  filter: 'blur(60px)',
-                  animation: 'float 6s ease-in-out infinite',
-                }}
-              />
-
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <div
-                  style={{
-                    color: '#94a3b8',
-                    fontSize: 'clamp(0.65rem, 1.5vw, 0.75rem)',
-                    fontWeight: '800',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1.2px',
-                    marginBottom: '8px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}
-                >
-                  <div
-                    style={{
-                      width: '8px',
-                      height: '8px',
-                      borderRadius: '50%',
-                      background: '#34d399',
-                      boxShadow: '0 0 10px rgba(52, 211, 153, 0.5)',
-                    }}
-                    aria-hidden="true"
-                  />
-                  Total Vault Liquidity
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap' }}>
-                  <div
-                    style={{
-                      fontSize: 'clamp(2rem, 6vw, 2.75rem)',
-                      fontWeight: '950',
-                      color: '#fff',
-                      letterSpacing: '-1.5px',
-                      textShadow: '0 4px 16px rgba(255, 255, 255, 0.1)',
-                      lineHeight: 1,
-                    }}
-                  >
-                    ₹{totalBalanceINR.toLocaleString()}
-                  </div>
-                  <div
-                    style={{
-                      background: 'rgba(52, 211, 153, 0.12)',
-                      color: '#34d399',
-                      padding: '4px 12px',
-                      borderRadius: '100px',
-                      border: '1px solid rgba(52, 211, 153, 0.2)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '4px',
-                      fontSize: '0.8rem',
-                      fontWeight: '700',
-                    }}
-                  >
-                    <TrendingUp size={14} aria-hidden="true" /> +5.2%
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Search & Filter Bar */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                flexWrap: 'wrap',
-                gap: '16px',
-              }}
-            >
-              <div style={{ position: 'relative', flex: 1, maxWidth: '400px', minWidth: '200px' }}>
-                <Search
-                  size={18}
-                  color="#64748b"
-                  style={{
-                    position: 'absolute',
-                    left: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                  }}
-                  aria-hidden="true"
-                />
-                <input
-                  placeholder="Search entities..."
-                  style={{
-                    width: '100%',
-                    background: '#0f172a',
-                    border: '1px solid #1e293b',
-                    padding: '14px 16px 14px 48px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    outline: 'none',
-                    fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
-                  }}
-                  aria-label="Search accounts"
-                />
-              </div>
-              <div
-                style={{
-                  color: '#94a3b8',
-                  fontSize: 'clamp(0.8rem, 1.5vw, 0.9rem)',
-                  fontWeight: '600',
-                }}
-              >
-                {accounts.length} Active Entities
-              </div>
-            </div>
-
-            {/* Accounts Grid */}
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
-                gap: '16px',
-              }}
-            >
-              {accounts.map((account, idx) => (
-                <div
-                  key={account.id}
-                  style={{
-                    background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-                    borderRadius: '16px',
-                    border: '1px solid #1e293b',
-                    padding: '16px',
-                    position: 'relative',
-                    overflow: 'hidden',
-                    transition: 'all 0.3s ease',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    minHeight: '140px',
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px)';
-                    e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60';
-                    e.currentTarget.style.boxShadow = `0 10px 20px -8px ${COLORS[idx % COLORS.length]}30`;
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = '#1e293b';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                  onClick={() => handleEditClick(account)}
-                >
-                  {/* Enhanced card decoration with gradient overlay */}
-                  <div
-                    style={{
-                      position: 'absolute',
-                      top: 0,
-                      right: 0,
-                      width: '120px',
-                      height: '120px',
-                      background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}10 0%, transparent 70%)`,
-                      filter: 'blur(30px)',
-                    }}
-                  />
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      marginBottom: '12px',
-                      position: 'relative',
-                      zIndex: 1,
-                    }}
-                  >
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-                      <div
-                        style={{
-                          background: `${COLORS[idx % COLORS.length]}15`,
-                          padding: '8px',
-                          borderRadius: '10px',
-                          color: COLORS[idx % COLORS.length],
-                          border: `1px solid ${COLORS[idx % COLORS.length]}20`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        {getAccountIcon(account.type)}
-                      </div>
-                      <div>
-                        <div
-                          style={{
-                            fontSize: '0.95rem',
-                            fontWeight: '700',
-                            color: '#fff',
-                            marginBottom: '2px',
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis',
-                            maxWidth: '140px',
-                          }}
-                        >
-                          {account.name}
-                        </div>
-                        <div
-                          style={{
-                            fontSize: '0.75rem',
-                            color: '#64748b',
-                            fontWeight: '600',
-                          }}
-                        >
-                          {account.bankName}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                      {account.name.toLowerCase() !== 'physical cash' && (
-                        <button
-                          onClick={async (e) => {
-                            e.stopPropagation();
-                            const isConfirmed = await customConfirm({
-                              title: 'Delete Account',
-                              message: `Are you sure you want to delete ${account.name}?`,
-                              confirmLabel: 'Delete',
-                              type: 'error',
-                            });
-
-                            if (isConfirmed) {
-                              await deleteAccount(account.id);
-                              showNotification('success', 'Account deleted');
-                            }
-                          }}
-                          style={{
-                            background: 'rgba(244, 63, 94, 0.1)',
-                            border: 'none',
-                            color: '#f43f5e',
-                            padding: '6px',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
-
-                  <div
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-end',
-                      paddingTop: '12px',
-                      borderTop: '1px solid rgba(255,255,255,0.06)',
-                      position: 'relative',
-                      zIndex: 1,
-                    }}
-                  >
-                    <div>
-                      <div
-                        style={{
-                          color: '#64748b',
-                          fontSize: '0.65rem',
-                          fontWeight: '700',
-                          textTransform: 'uppercase',
-                          marginBottom: '2px',
-                        }}
-                      >
-                        Available Balance
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '1.25rem',
-                          fontWeight: '800',
-                          color: '#fff',
-                          letterSpacing: '-0.5px',
-                        }}
-                      >
-                        {account.currency === 'INR' ? '₹' : '$'}
-                        {account.balance.toLocaleString()}
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedAccountId(account.id);
-                        setIsAddFundsModalOpen(true);
-                      }}
-                      style={{
-                        background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`,
-                        color: '#fff',
-                        border: 'none',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        boxShadow: `0 4px 8px ${COLORS[idx % COLORS.length]}30`,
-                      }}
-                    >
-                      <Plus size={16} strokeWidth={3} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </>
-      )}
-
-      {activeTab === 'allocation' && (
+      {/* Main Content Layout - Single Column */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        {/* Summary Bar with Integrated Allocation Chart */}
         <div
+          className="premium-card"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
-            gap: '32px',
+            background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+            padding: 'clamp(16px, 4vw, 24px) clamp(20px, 5vw, 32px)',
+            borderRadius: '24px',
+            border: '1px solid #1e293b',
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '24px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
           }}
         >
-          {/* Portfolio Distribution Chart */}
+          {/* Enhanced animated gradient background */}
           <div
+            className="hide-mobile"
             style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid #1e293b',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)',
+              position: 'absolute',
+              top: '-50%',
+              right: '-10%',
+              width: '400px',
+              height: '400px',
+              background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
+              filter: 'blur(60px)',
+              animation: 'float 6s ease-in-out infinite',
             }}
-          >
-            <h3
+          />
+
+          <div style={{ position: 'relative', zIndex: 1, flex: 1, paddingLeft: '8px' }}>
+            <div
               style={{
-                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-                fontWeight: '800',
-                marginBottom: '24px',
-                margin: 0,
+                color: '#94a3b8',
+                fontSize: 'clamp(0.85rem, 2vw, 1.1rem)',
+                fontWeight: '900',
+                textTransform: 'uppercase',
+                letterSpacing: '2px',
+                marginBottom: '12px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '10px',
+                gap: '12px',
               }}
             >
-              <PieChartIcon size={22} color="#6366f1" aria-hidden="true" />
-              Portfolio Distribution
-            </h3>
-            <div style={{ height: '300px', position: 'relative' }}>
               <div
                 style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '180px',
-                  height: '180px',
-                  background:
-                    'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-                  filter: 'blur(40px)',
-                  zIndex: 0,
+                  width: '12px',
+                  height: '12px',
+                  borderRadius: '50%',
+                  background: '#34d399',
+                  boxShadow: '0 0 15px rgba(52, 211, 153, 0.6)',
                 }}
+                aria-hidden="true"
               />
+              Total Vault Liquidity
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '16px', flexWrap: 'wrap' }}>
+              <div
+                style={{
+                  fontSize: 'clamp(3rem, 10vw, 4.5rem)',
+                  fontWeight: '1000',
+                  color: '#fff',
+                  letterSpacing: '-2.5px',
+                  textShadow: '0 8px 24px rgba(255, 255, 255, 0.15)',
+                  lineHeight: 1,
+                }}
+              >
+                ₹{totalBalanceINR.toLocaleString()}
+              </div>
+              <div
+                style={{
+                  background: 'rgba(52, 211, 153, 0.15)',
+                  color: '#34d399',
+                  padding: '6px 16px',
+                  borderRadius: '100px',
+                  border: '1px solid rgba(52, 211, 153, 0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  fontSize: '1rem',
+                  fontWeight: '800',
+                }}
+              >
+                <TrendingUp size={18} aria-hidden="true" /> +5.2%
+              </div>
+            </div>
+          </div>
+
+          {/* Integrated Allocation Pie Chart */}
+          <div
+            style={{
+              display: 'flex',
+              flex: 1,
+              justifyContent: 'flex-end',
+              height: '260px',
+              position: 'relative',
+              zIndex: 1,
+            }}
+          >
+            <div style={{ width: '100%', maxWidth: '500px', height: '260px' }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={accounts}
                     cx="50%"
                     cy="50%"
-                    innerRadius={70}
-                    outerRadius={120}
-                    paddingAngle={3}
+                    innerRadius={60}
+                    outerRadius={85}
+                    paddingAngle={4}
                     dataKey="balance"
+                    nameKey="name"
                     animationBegin={0}
-                    animationDuration={1500}
+                    labelLine={{ stroke: '#64748b', strokeWidth: 1.5, opacity: 0.6 }}
+                    label={({ cx, cy, midAngle, outerRadius, percent, name }) => {
+                      const angle = midAngle || 0;
+                      const radius = (outerRadius || 95) + 22;
+                      const x = cx + radius * Math.cos(-angle * (Math.PI / 180));
+                      const y = cy + radius * Math.sin(-angle * (Math.PI / 180));
+                      const textAnchor = x > cx ? 'start' : 'end';
+                      return (
+                        <text
+                          x={x}
+                          y={y}
+                          fill="#94a3b8"
+                          textAnchor={textAnchor}
+                          dominantBaseline="central"
+                          style={{ fontSize: '11px', fontWeight: '800' }}
+                        >
+                          {`${name} (${((percent || 0) * 100).toFixed(0)}%)`}
+                        </text>
+                      );
+                    }}
+                    style={{ outline: 'none' }}
                   >
                     {accounts.map((_, index) => (
                       <Cell
@@ -793,253 +450,242 @@ export default function AccountsClient() {
                         fill={COLORS[index % COLORS.length]}
                         stroke="none"
                         style={{
-                          filter: `drop-shadow(0 0 12px ${COLORS[index % COLORS.length]}50)`,
+                          filter: `drop-shadow(0 0 12px ${COLORS[index % COLORS.length]}40)`,
                         }}
                       />
                     ))}
                   </Pie>
                   <Tooltip
                     contentStyle={{
-                      background: '#020617',
+                      background: '#0f172a',
                       border: '1px solid #334155',
-                      borderRadius: '12px',
+                      borderRadius: '16px',
                       padding: '16px',
-                      boxShadow: '0 8px 24px rgba(0, 0, 0, 0.5)',
+                      boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5)',
+                      backdropFilter: 'blur(10px)',
                     }}
-                    formatter={(value: number | string | undefined) => [
-                      `₹${Number(value || 0).toLocaleString()}`,
-                      'Balance',
-                    ]}
+                    itemStyle={{
+                      color: '#f8fafc',
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      padding: '2px 0',
+                    }}
+                    cursor={{ fill: 'rgba(255, 255, 255, 0.05)' }}
+                    formatter={(value?: number | string) => {
+                      const balance = Number(value || 0).toLocaleString();
+                      return [
+                        <span key="val" style={{ color: '#10b981', fontWeight: '800' }}>
+                          ₹{balance}
+                        </span>,
+                        'Balance',
+                      ];
+                    }}
                   />
                 </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Account Balance Trends */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid #1e293b',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-                fontWeight: '800',
-                marginBottom: '24px',
-                margin: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <TrendingUp size={22} color="#34d399" aria-hidden="true" />
-              Balance Distribution
-            </h3>
-            <div style={{ height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={accounts} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(30, 41, 59, 0.6)" />
-                  <XAxis
-                    dataKey="name"
-                    stroke="#aebdce"
-                    fontSize={12}
-                    angle={-45}
-                    textAnchor="end"
-                    height={80}
-                  />
-                  <YAxis
-                    stroke="#afbecf"
-                    fontSize={12}
-                    tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#020617',
-                      border: '1px solid #334155',
-                      borderRadius: '12px',
-                      padding: '12px',
-                      color: '#e5ebf0',
-                    }}
-                    formatter={(value: number | string | undefined) => [
-                      `₹${Number(value || 0).toLocaleString()}`,
-                      'Balance',
-                    ]}
-                  />
-                  <Bar dataKey="balance" fill="#6366f1" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Account Type Distribution */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid #1e293b',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-                fontWeight: '800',
-                marginBottom: '24px',
-                margin: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <Building2 size={22} color="#f59e0b" aria-hidden="true" />
-              Account Types
-            </h3>
-            <div style={{ height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={accounts.reduce(
-                      (acc, account) => {
-                        const existing = acc.find((item) => item.type === account.type);
-                        if (existing) {
-                          existing.value += account.balance;
-                          existing.count += 1;
-                        } else {
-                          acc.push({ type: account.type, value: account.balance, count: 1 });
-                        }
-                        return acc;
-                      },
-                      [] as Array<{ type: string; value: number; count: number }>
-                    )}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={100}
-                    dataKey="value"
-                    nameKey="type"
-                    animationBegin={0}
-                    animationDuration={1200}
-                  >
-                    {accounts.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{
-                      background: '#020617',
-                      border: '1px solid #334155',
-                      borderRadius: '12px',
-                      padding: '12px',
-                      color: '#e7edf3',
-                    }}
-                    formatter={(value, _name, props) => [
-                      `₹${Number(value || 0).toLocaleString()}`,
-                      props.payload
-                        ? `${props.payload.type} (${props.payload.count} accounts)`
-                        : '',
-                    ]}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-
-          {/* Currency Distribution */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid #1e293b',
-              boxShadow: '0 4px 24px rgba(0, 0, 0, 0.3)',
-            }}
-          >
-            <h3
-              style={{
-                fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
-                fontWeight: '800',
-                marginBottom: '24px',
-                margin: 0,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-              }}
-            >
-              <DollarSign size={22} color="#10b981" aria-hidden="true" />
-              Currency Allocation
-            </h3>
-            <div style={{ height: '300px' }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart
-                  data={[
-                    {
-                      currency: 'INR',
-                      amount: accounts
-                        .filter((a) => a.currency === 'INR')
-                        .reduce((sum, acc) => sum + acc.balance, 0),
-                      percentage:
-                        (accounts
-                          .filter((a) => a.currency === 'INR')
-                          .reduce((sum, acc) => sum + acc.balance, 0) /
-                          totalBalanceINR) *
-                        100,
-                    },
-                    {
-                      currency: 'USD',
-                      amount: accounts
-                        .filter((a) => a.currency === 'USD')
-                        .reduce((sum, acc) => sum + acc.balance, 0),
-                      percentage:
-                        (accounts
-                          .filter((a) => a.currency === 'USD')
-                          .reduce((sum, acc) => sum + acc.balance, 0) /
-                          totalBalanceINR) *
-                        100,
-                    },
-                  ]}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(30, 41, 59, 0.55)" />
-                  <XAxis dataKey="currency" stroke="#b0bfcf" />
-                  <YAxis
-                    stroke="#b1c0d0"
-                    tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}K`}
-                  />
-                  <Tooltip
-                    contentStyle={{
-                      background: '#020617',
-                      border: '1px solid #334155',
-                      borderRadius: '12px',
-                      padding: '12px',
-                      color: '#e6ecf1',
-                    }}
-                    formatter={(value: number | string | undefined) => [
-                      `₹${Number(value || 0).toLocaleString()}`,
-                      'Amount',
-                    ]}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="amount"
-                    stroke="#10b981"
-                    fill="url(#colorGradient)"
-                  />
-                  <defs>
-                    <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#10b981" stopOpacity={0.19} />
-                    </linearGradient>
-                  </defs>
-                </AreaChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
-      )}
+
+        {/* Accounts Grid */}
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+            gap: '20px',
+          }}
+        >
+          {accounts.map((account, idx) => (
+            <div
+              key={account.id}
+              style={{
+                background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
+                borderRadius: '20px',
+                border: '1px solid #1e293b',
+                padding: '24px',
+                position: 'relative',
+                overflow: 'hidden',
+                transition: 'all 0.3s ease',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                minHeight: '180px',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.borderColor = COLORS[idx % COLORS.length] + '60';
+                e.currentTarget.style.boxShadow = `0 10px 20px -8px ${COLORS[idx % COLORS.length]}30`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.borderColor = '#1e293b';
+                e.currentTarget.style.boxShadow = 'none';
+              }}
+              onClick={() => handleEditClick(account)}
+            >
+              {/* Enhanced card decoration with gradient overlay */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: 0,
+                  width: '120px',
+                  height: '120px',
+                  background: `radial-gradient(circle, ${COLORS[idx % COLORS.length]}10 0%, transparent 70%)`,
+                  filter: 'blur(30px)',
+                }}
+              />
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '12px',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+              >
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <div
+                    style={{
+                      background: `${COLORS[idx % COLORS.length]}15`,
+                      padding: '12px',
+                      borderRadius: '12px',
+                      color: COLORS[idx % COLORS.length],
+                      border: `1px solid ${COLORS[idx % COLORS.length]}20`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}
+                  >
+                    {getAccountIcon(account.type)}
+                  </div>
+                  <div>
+                    <div
+                      style={{
+                        fontSize: '1.1rem',
+                        fontWeight: '800',
+                        color: '#fff',
+                        marginBottom: '4px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '180px',
+                      }}
+                    >
+                      {account.name}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: '0.85rem',
+                        color: '#64748b',
+                        fontWeight: '600',
+                      }}
+                    >
+                      {account.bankName}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  {account.name.toLowerCase() !== 'physical cash' && (
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        const isConfirmed = await customConfirm({
+                          title: 'Delete Account',
+                          message: `Are you sure you want to delete ${account.name}?`,
+                          confirmLabel: 'Delete',
+                          type: 'error',
+                        });
+
+                        if (isConfirmed) {
+                          await deleteAccount(account.id);
+                          showNotification('success', 'Account deleted');
+                        }
+                      }}
+                      style={{
+                        background: 'rgba(244, 63, 94, 0.1)',
+                        border: 'none',
+                        color: '#f43f5e',
+                        padding: '6px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Trash2 size={18} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-end',
+                  paddingTop: '12px',
+                  borderTop: '1px solid rgba(255,255,255,0.06)',
+                  position: 'relative',
+                  zIndex: 1,
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      color: '#64748b',
+                      fontSize: '0.65rem',
+                      fontWeight: '700',
+                      textTransform: 'uppercase',
+                      marginBottom: '2px',
+                    }}
+                  >
+                    Available Balance
+                  </div>
+                  <div
+                    style={{
+                      fontSize: '1.75rem',
+                      fontWeight: '900',
+                      color: '#fff',
+                      letterSpacing: '-0.5px',
+                    }}
+                  >
+                    {account.currency === 'INR' ? '₹' : '$'}
+                    {account.balance.toLocaleString()}
+                  </div>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedAccountId(account.id);
+                    setIsAddFundsModalOpen(true);
+                  }}
+                  style={{
+                    background: `linear-gradient(135deg, ${COLORS[idx % COLORS.length]} 0%, ${COLORS[idx % COLORS.length]}dd 100%)`,
+                    color: '#fff',
+                    border: 'none',
+                    width: '40px',
+                    height: '40px',
+                    borderRadius: '12px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: `0 4px 12px ${COLORS[idx % COLORS.length]}30`,
+                  }}
+                >
+                  <Plus size={20} strokeWidth={3} />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* Modals - Standard Premium Design */}
       {isModalOpen && (

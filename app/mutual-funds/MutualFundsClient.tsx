@@ -91,6 +91,7 @@ export default function MutualFundsClient() {
   const [txNav, setTxNav] = useState('');
   const [txDate, setTxDate] = useState(new Date().toISOString().split('T')[0]);
   const [selectedAccountId, setSelectedAccountId] = useState<number | ''>('');
+  const [isTypeLocked, setIsTypeLocked] = useState(false);
 
   // Portfolio Metrics
   const totalInvestment = mutualFunds.reduce((sum, mf) => sum + mf.investmentAmount, 0);
@@ -213,13 +214,34 @@ export default function MutualFundsClient() {
         await updateMutualFund(editId, fundData);
         showNotification('success', 'Fund details updated');
       } else {
-        await addMutualFund(fundData);
-        showNotification('success', 'New fund added to portfolio');
+        // Log to ledger by default
+        const newMf = await addMutualFund({
+          ...fundData,
+          units: 0,
+          investmentAmount: 0,
+          currentValue: 0,
+          pnl: 0,
+          pnlPercentage: 0,
+        });
+
+        await addMutualFundTransaction({
+          mutualFundId: newMf.id,
+          transactionType: 'BUY',
+          units: unitsVal,
+          nav: avgNavVal,
+          totalAmount: investment,
+          transactionDate: new Date().toISOString().split('T')[0],
+          accountId: selectedAccountId ? Number(selectedAccountId) : undefined,
+          notes: 'Initial portfolio entry',
+        });
+
+        showNotification('success', 'New fund added and logged to ledger');
       }
       setIsModalOpen(false);
       resetFundForm();
-    } catch {
-      showNotification('error', 'Failed to save fund. Please try again.');
+    } catch (error) {
+      logError('Failed to save fund:', error);
+      showNotification('error', 'Failed to save fund. Please check if an account is selected.');
     }
   };
 
@@ -244,15 +266,27 @@ export default function MutualFundsClient() {
     setTransactionType('SELL');
     setTxUnits(mf.units.toString());
     setTxNav(mf.currentNav.toString());
+    if ((selectedAccountId === '' || selectedAccountId === 0) && settings.defaultMfAccountId) {
+      setSelectedAccountId(settings.defaultMfAccountId);
+    }
+    setIsTypeLocked(true);
     setIsModalOpen(true);
   };
 
   const handleTransactionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFundId || !txUnits || !txNav) return;
+    const unitsVal = Number(txUnits);
+    const navVal = Number(txNav);
 
-    const unitsVal = parseFloat(txUnits);
-    const navVal = parseFloat(txNav);
+    if (isNaN(unitsVal) || unitsVal <= 0) {
+      showNotification('error', 'Invalid units. Must be a positive number.');
+      return;
+    }
+    if (isNaN(navVal) || navVal < 0) {
+      showNotification('error', 'Invalid NAV. Must be a non-negative number.');
+      return;
+    }
+
     const total = unitsVal * navVal;
 
     try {
@@ -263,15 +297,16 @@ export default function MutualFundsClient() {
         nav: navVal,
         totalAmount: total,
         transactionDate: txDate,
-        accountId: selectedAccountId ? Number(selectedAccountId) : undefined,
+        accountId: selectedAccountId !== '' ? Number(selectedAccountId) : undefined,
       });
 
-      showNotification('success', `Investment of ₹${total.toLocaleString()} recorded`);
-
-      setIsModalOpen(false);
+      showNotification('success', `Transaction recorded: ${transactionType} ${unitsVal} units`);
       resetTransactionForm();
-    } catch {
-      showNotification('error', 'Failed to record transaction. Please try again.');
+      setIsModalOpen(false);
+    } catch (error) {
+      logError('Failed to record mutual fund transaction:', error);
+      const msg = error instanceof Error ? error.message : 'Check fields & account';
+      showNotification('error', `Failed: ${msg}`);
     }
   };
 
@@ -282,6 +317,7 @@ export default function MutualFundsClient() {
     setTxNav('');
     setTxDate(new Date().toISOString().split('T')[0]);
     setSelectedAccountId(settings.defaultMfAccountId || '');
+    setIsTypeLocked(false);
   };
 
   const resetFundForm = () => {
@@ -377,6 +413,7 @@ export default function MutualFundsClient() {
           <button
             onClick={() => {
               setModalType('fund');
+              setIsTypeLocked(false);
               setIsModalOpen(true);
             }}
             style={{
@@ -1977,6 +2014,45 @@ export default function MutualFundsClient() {
                   />
                 </div>
 
+                {!editId && (
+                  <div>
+                    <label
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '800',
+                        color: '#475569',
+                        textTransform: 'uppercase',
+                        marginBottom: '8px',
+                        display: 'block',
+                      }}
+                    >
+                      Operating Account (For Ledger)
+                    </label>
+                    <select
+                      value={selectedAccountId}
+                      onChange={(e) =>
+                        setSelectedAccountId(e.target.value === '' ? '' : Number(e.target.value))
+                      }
+                      required
+                      style={{
+                        width: '100%',
+                        background: '#020617',
+                        border: '1px solid #1e293b',
+                        padding: '14px',
+                        borderRadius: '14px',
+                        color: '#fff',
+                      }}
+                    >
+                      <option value="">Select Account</option>
+                      {accounts.map((acc) => (
+                        <option key={acc.id} value={acc.id}>
+                          {acc.name} - ₹{acc.balance.toLocaleString()}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   style={{
@@ -2051,13 +2127,15 @@ export default function MutualFundsClient() {
                     <select
                       value={transactionType}
                       onChange={(e) => setTransactionType(e.target.value as 'BUY' | 'SELL' | 'SIP')}
+                      disabled={isTypeLocked}
                       style={{
                         width: '100%',
-                        background: '#020617',
+                        background: isTypeLocked ? 'rgba(15, 23, 42, 0.5)' : '#020617',
                         border: '1px solid #1e293b',
                         padding: '14px',
                         borderRadius: '14px',
-                        color: '#fff',
+                        color: isTypeLocked ? '#64748b' : '#fff',
+                        cursor: isTypeLocked ? 'not-allowed' : 'pointer',
                       }}
                     >
                       <option value="BUY">BUY</option>
@@ -2166,7 +2244,10 @@ export default function MutualFundsClient() {
                   </label>
                   <select
                     value={selectedAccountId}
-                    onChange={(e) => setSelectedAccountId(Number(e.target.value))}
+                    onChange={(e) =>
+                      setSelectedAccountId(e.target.value === '' ? '' : Number(e.target.value))
+                    }
+                    required
                     style={{
                       width: '100%',
                       background: '#020617',
@@ -2176,7 +2257,7 @@ export default function MutualFundsClient() {
                       color: '#fff',
                     }}
                   >
-                    <option value="">No Account (Ledger Only)</option>
+                    <option value="">Select Account</option>
                     {accounts.map((acc) => (
                       <option key={acc.id} value={acc.id}>
                         {acc.name} - ₹{acc.balance.toLocaleString()}

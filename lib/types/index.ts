@@ -404,7 +404,7 @@ export interface FinanceContextState {
 
   // Stocks
   stocks: Stock[];
-  addStock: (stock: Omit<Stock, 'id'>) => Promise<void>;
+  addStock: (stock: Omit<Stock, 'id'>) => Promise<Stock>;
   updateStock: (id: number, stock: Partial<Stock>) => Promise<void>;
   deleteStock: (id: number) => Promise<void>;
   stockTransactions: StockTransaction[];
@@ -414,7 +414,7 @@ export interface FinanceContextState {
 
   // Mutual Funds
   mutualFunds: MutualFund[];
-  addMutualFund: (mf: Omit<MutualFund, 'id'>) => Promise<void>;
+  addMutualFund: (mf: Omit<MutualFund, 'id'>) => Promise<MutualFund>;
   updateMutualFund: (id: number, mf: Partial<MutualFund>) => Promise<void>;
   deleteMutualFund: (id: number) => Promise<void>;
   mutualFundTransactions: MutualFundTransaction[];

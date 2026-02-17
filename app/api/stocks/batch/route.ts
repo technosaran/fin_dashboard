@@ -55,82 +55,14 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
   if (cached) return createSuccessResponse(cached);
 
   try {
-    const nseSymbols = symbols
-      .map((s) => (s.endsWith('.NS') || s.endsWith('.BO') ? s : `${s}.NS`))
-      .join(',');
-    const bseSymbols = symbols
-      .map((s) => (s.endsWith('.NS') || s.endsWith('.BO') ? s : `${s}.BO`))
-      .join(',');
+    const { fetchBatchStockQuotes } = await import('@/lib/services/stock-fetcher');
+    const result = await fetchBatchStockQuotes(symbols);
 
-    const response = await fetchWithTimeout(
-      `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${nseSymbols},${bseSymbols}`,
-      {
-        headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-          Accept: '*/*',
-          'Accept-Language': 'en-US,en;q=0.9',
-          Referer: 'https://finance.yahoo.com/',
-          Connection: 'keep-alive',
-        },
-      },
-      10000
-    );
-
-    if (!response.ok) {
-      throw new Error(`Yahoo Finance API returned ${response.status}`);
-    }
-
-    const data = (await response.json()) as YahooBatchResponse;
-    const result: Record<string, StockBatchQuote> = {};
-
-    if (data.quoteResponse?.result) {
-      for (const quote of data.quoteResponse.result) {
-        if (!quote.symbol) continue;
-
-        const baseSymbol = quote.symbol.split('.')[0];
-        const stockBatchQuote: StockBatchQuote = {
-          symbol: quote.symbol,
-          currentPrice: quote.regularMarketPrice || quote.regularMarketPreviousClose || 0,
-          previousClose: quote.regularMarketPreviousClose || 0,
-          currency: quote.currency || 'INR',
-          exchange: quote.fullExchangeName || (quote.symbol.endsWith('.NS') ? 'NSE' : 'BSE'),
-          displayName: quote.shortName || quote.longName || baseSymbol,
-        };
-
-        // If we don't have this base symbol yet, or if this is the .NS version (preferred)
-        if (!result[baseSymbol] || quote.symbol.endsWith('.NS')) {
-          result[baseSymbol] = stockBatchQuote;
-        }
-        result[quote.symbol] = stockBatchQuote;
-      }
-    }
-
-    // Fallback: Google Finance for symbols with no Yahoo data
-    const failedSymbols = symbols.filter((s) => !result[s] || result[s].currentPrice === 0);
-    if (failedSymbols.length > 0) {
-      const { batchFetchGoogleFinance } = await import('@/lib/services/google-finance');
-      const googleData = await batchFetchGoogleFinance(failedSymbols);
-
-      for (const [sym, gData] of Object.entries(googleData)) {
-        if (gData.price > 0) {
-          result[sym] = {
-            symbol: sym,
-            currentPrice: gData.price,
-            previousClose: gData.previousClose,
-            currency: 'INR',
-            exchange: 'NSE/BSE (Google)',
-            displayName: sym,
-          };
-        }
-      }
-    }
-
-    setCache(cacheKey, result, 60000);
+    setCache(cacheKey, result, 60000); // 1 minute local cache
     return createSuccessResponse(result);
   } catch (error) {
-    logError('Batch stock quote fetch failed', error, { symbols: symbols.join(',') });
-    return createErrorResponse('Failed to fetch batch quotes', 500);
+    logError('Batch stock quote service failed', error, { symbols: symbols.join(',') });
+    return createErrorResponse('Failed to fetch batch quotes. Please try again.', 500);
   }
 }
 

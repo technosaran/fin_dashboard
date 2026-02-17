@@ -92,6 +92,7 @@ export default function StocksClient() {
   // Transaction Form States
   const [selectedStockId, setSelectedStockId] = useState<number | ''>('');
   const [transactionType, setTransactionType] = useState<'BUY' | 'SELL'>('BUY');
+  const [isTypeLocked, setIsTypeLocked] = useState(false);
   const [transactionQuantity, setTransactionQuantity] = useState('');
   const [transactionPrice, setTransactionPrice] = useState('');
   const [brokerage, setBrokerage] = useState('');
@@ -149,11 +150,31 @@ export default function StocksClient() {
 
   const handleStockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!symbol || !companyName || !quantity || !avgPrice || !currentPrice) return;
+    if (!symbol || !companyName || !quantity || !avgPrice || !currentPrice) {
+      showNotification(
+        'error',
+        'Please fill in all required fields (Symbol, Company, Quantity, Avg Price, Current Price).'
+      );
+      return;
+    }
 
     const qty = parseInt(quantity);
     const avg = parseFloat(avgPrice);
     const current = parseFloat(currentPrice);
+
+    if (isNaN(qty) || qty <= 0) {
+      showNotification('error', 'Invalid quantity. Must be a positive number.');
+      return;
+    }
+    if (isNaN(avg) || avg < 0) {
+      showNotification('error', 'Invalid average price. Must be a non-negative number.');
+      return;
+    }
+    if (isNaN(current) || current < 0) {
+      showNotification('error', 'Invalid current price. Must be a non-negative number.');
+      return;
+    }
+
     const investment = qty * avg;
     const currentValue = qty * current;
     const pnl = currentValue - investment;
@@ -179,52 +200,76 @@ export default function StocksClient() {
         await updateStock(editId, stockData);
         showNotification('success', `${symbol} updated successfully`);
       } else {
-        // Check for existing stock with same symbol to merge (Cost Averaging)
+        // Log to ledger by default (per user request)
+        // 1. Create stock with 0 quantity first (or get existing)
+        let targetStockId: number;
         const existingStock = stocks.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase());
-        if (existingStock) {
-          const totalQty = existingStock.quantity + qty;
-          const totalInvestment = existingStock.quantity * existingStock.avgPrice + qty * avg;
-          const newAvg = totalInvestment / totalQty;
 
-          // Merge into existing stock
-          await updateStock(existingStock.id, {
-            quantity: totalQty,
-            avgPrice: newAvg,
-            investmentAmount: totalInvestment,
-            currentPrice: current, // Use latest price from form
-            currentValue: totalQty * current,
-            pnl: totalQty * current - totalInvestment,
-            pnlPercentage: ((totalQty * current - totalInvestment) / totalInvestment) * 100,
-            previousPrice: previousPrice || existingStock.previousPrice, // Keep existing if new one is missing
-          });
-          showNotification(
-            'success',
-            `Merged with existing ${symbol} holding. New Average: ₹${newAvg.toFixed(2)}`
-          );
+        if (existingStock) {
+          targetStockId = existingStock.id;
         } else {
-          await addStock(stockData);
-          showNotification('success', `${symbol} added to portfolio`);
+          const newStock = await addStock({
+            ...stockData,
+            quantity: 0,
+            investmentAmount: 0,
+            currentValue: 0,
+            pnl: 0,
+            pnlPercentage: 0,
+          });
+          targetStockId = newStock.id;
         }
+
+        // 2. Add transaction which will update holdings AND log to ledger
+        const investment = qty * avg;
+        await addStockTransaction({
+          stockId: targetStockId,
+          transactionType: 'BUY',
+          quantity: qty,
+          price: avg,
+          totalAmount: investment,
+          transactionDate: new Date().toISOString().split('T')[0],
+          accountId: selectedAccountId !== '' ? Number(selectedAccountId) : undefined,
+          notes: 'Initial portfolio entry',
+        });
+
+        showNotification('success', `${symbol} added and logged to ledger`);
       }
       resetStockForm();
       setIsModalOpen(false);
-    } catch {
-      showNotification('error', 'Failed to save stock. Please try again.');
+    } catch (error) {
+      logError('Failed to save stock:', error);
+      showNotification(
+        'error',
+        'Failed to save stock. Please check if an account is selected and all fields are valid.'
+      );
     }
   };
 
   const handleTransactionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStockId || !transactionQuantity || !transactionPrice) return;
+    if (!selectedStockId || !transactionQuantity || !transactionPrice) {
+      showNotification('error', 'Please select a stock and provide quantity and price.');
+      return;
+    }
 
-    const qty = parseInt(transactionQuantity);
-    const price = parseFloat(transactionPrice);
+    const qty = Number(transactionQuantity);
+    const price = Number(transactionPrice);
+
+    if (isNaN(qty) || qty <= 0) {
+      showNotification('error', 'Invalid quantity. Must be a positive number.');
+      return;
+    }
+    if (isNaN(price) || price < 0) {
+      showNotification('error', 'Invalid price. Must be a non-negative number.');
+      return;
+    }
+
     const totalAmount = qty * price;
 
-    let finalBrokerage = brokerage ? parseFloat(brokerage) : undefined;
-    let finalTaxes = taxes ? parseFloat(taxes) : undefined;
+    let finalBrokerage = brokerage && !isNaN(parseFloat(brokerage)) ? parseFloat(brokerage) : 0;
+    let finalTaxes = taxes && !isNaN(parseFloat(taxes)) ? parseFloat(taxes) : 0;
 
-    if (settings.autoCalculateCharges && qty && price) {
+    if (settings.autoCalculateCharges && qty > 0 && price > 0) {
       const calculatedCharges = calculateStockCharges(transactionType, qty, price, settings);
       finalBrokerage = calculatedCharges.brokerage;
       finalTaxes = calculatedCharges.taxes;
@@ -241,14 +286,16 @@ export default function StocksClient() {
         taxes: finalTaxes,
         transactionDate,
         notes: notes || undefined,
-        accountId: selectedAccountId ? Number(selectedAccountId) : undefined,
+        accountId: selectedAccountId !== '' ? Number(selectedAccountId) : undefined,
       });
 
       showNotification('success', `Transaction recorded: ${transactionType} ${qty} shares`);
       resetTransactionForm();
       setIsModalOpen(false);
-    } catch {
-      showNotification('error', 'Failed to record transaction. Please try again.');
+    } catch (error) {
+      logError('Failed to record stock transaction:', error);
+      const msg = error instanceof Error ? error.message : 'Check fields & account';
+      showNotification('error', `Failed: ${msg}`);
     }
   };
 
@@ -263,6 +310,7 @@ export default function StocksClient() {
     setSector('');
     setExchange('NSE');
     setSearchQuery('');
+    setSelectedAccountId(settings.defaultStockAccountId || '');
   };
 
   const handleEditStock = (stock: Stock) => {
@@ -285,6 +333,13 @@ export default function StocksClient() {
     setTransactionType('SELL');
     setTransactionQuantity(stock.quantity.toString());
     setTransactionPrice(stock.currentPrice.toString());
+    if ((selectedAccountId === '' || selectedAccountId === 0) && settings.defaultStockAccountId) {
+      setSelectedAccountId(settings.defaultStockAccountId);
+    } else if (!selectedAccountId && settings.defaultStockAccountId) {
+      // If no account is selected at all, and a default exists, use it.
+      setSelectedAccountId(settings.defaultStockAccountId);
+    }
+    setIsTypeLocked(true);
     setIsModalOpen(true);
   };
 
@@ -298,10 +353,12 @@ export default function StocksClient() {
     setTransactionDate(new Date().toISOString().split('T')[0]);
     setSelectedAccountId(settings.defaultStockAccountId || '');
     setNotes('');
+    setIsTypeLocked(false);
   };
 
   const openModal = (type: 'stock' | 'transaction') => {
     setModalType(type);
+    setIsTypeLocked(false);
     setIsModalOpen(true);
   };
 
@@ -2119,6 +2176,45 @@ export default function StocksClient() {
                     />
                   </div>
                 </div>
+
+                {!editId && (
+                  <div>
+                    <label
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '800',
+                        color: '#475569',
+                        textTransform: 'uppercase',
+                        display: 'block',
+                        marginBottom: '8px',
+                      }}
+                    >
+                      Operating Bank Account (For Ledger)
+                    </label>
+                    <select
+                      value={selectedAccountId}
+                      onChange={(e) =>
+                        setSelectedAccountId(e.target.value === '' ? '' : Number(e.target.value))
+                      }
+                      style={{
+                        width: '100%',
+                        background: '#020617',
+                        border: '1px solid #1e293b',
+                        padding: '12px',
+                        borderRadius: '12px',
+                        color: '#fff',
+                      }}
+                    >
+                      <option value="">Select Account</option>
+                      {accounts.map((acc) => (
+                        <option key={acc.id} value={acc.id}>
+                          {acc.name} - ₹{acc.balance.toLocaleString()}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+
                 <button
                   type="submit"
                   style={{
@@ -2199,13 +2295,15 @@ export default function StocksClient() {
                     <select
                       value={transactionType}
                       onChange={(e) => setTransactionType(e.target.value as 'BUY' | 'SELL')}
+                      disabled={isTypeLocked}
                       style={{
                         width: '100%',
-                        background: '#020617',
+                        background: isTypeLocked ? 'rgba(15, 23, 42, 0.5)' : '#020617',
                         border: '1px solid #1e293b',
                         padding: '12px',
                         borderRadius: '12px',
-                        color: '#fff',
+                        color: isTypeLocked ? '#64748b' : '#fff',
+                        cursor: isTypeLocked ? 'not-allowed' : 'pointer',
                       }}
                     >
                       <option value="BUY">BUY</option>
@@ -2431,7 +2529,10 @@ export default function StocksClient() {
                   </label>
                   <select
                     value={selectedAccountId}
-                    onChange={(e) => setSelectedAccountId(Number(e.target.value))}
+                    onChange={(e) =>
+                      setSelectedAccountId(e.target.value === '' ? '' : Number(e.target.value))
+                    }
+                    required
                     style={{
                       width: '100%',
                       background: '#020617',
@@ -2441,7 +2542,7 @@ export default function StocksClient() {
                       color: '#fff',
                     }}
                   >
-                    <option value="">No Account (Ledger Only)</option>
+                    <option value="">Select Account</option>
                     {accounts.map((acc) => (
                       <option key={acc.id} value={acc.id}>
                         {acc.name} - ₹{acc.balance.toLocaleString()}

@@ -340,6 +340,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const { data, error } = await (supabase as ExtendedSupabaseClient)
       .from('stocks')
       .insert({
+        user_id: user?.id,
         symbol: stock.symbol,
         company_name: stock.companyName,
         quantity: stock.quantity,
@@ -361,7 +362,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       throw error;
     }
 
-    setStocks((prev) => [...prev, dbStockToStock(data)]);
+    const newStock = dbStockToStock(data);
+    setStocks((prev) => [...prev, newStock]);
+    return newStock;
   }, []);
 
   const updateStock = useCallback(async (id: number, stock: Partial<Stock>) => {
@@ -398,6 +401,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const { data, error } = await (supabase as ExtendedSupabaseClient)
         .from('stock_transactions')
         .insert({
+          user_id: user?.id,
           stock_id: tx.stockId,
           transaction_type: tx.transactionType,
           quantity: tx.quantity,
@@ -437,6 +441,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     const { data, error } = await (supabase as ExtendedSupabaseClient)
       .from('mutual_funds')
       .insert({
+        user_id: user?.id,
         name: mf.schemeName,
         scheme_code: mf.schemeCode,
         category: mf.category,
@@ -459,7 +464,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       throw error;
     }
 
-    setMutualFunds((prev) => [...prev, dbMutualFundToMutualFund(data)]);
+    const newMf = dbMutualFundToMutualFund(data);
+    setMutualFunds((prev) => [...prev, newMf]);
+    return newMf;
   }, []);
 
   const updateMutualFund = useCallback(async (id: number, mf: Partial<MutualFund>) => {
@@ -500,6 +507,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const { data, error } = await (supabase as ExtendedSupabaseClient)
         .from('mutual_fund_transactions')
         .insert({
+          user_id: user?.id,
           mutual_fund_id: tx.mutualFundId,
           transaction_type: tx.transactionType,
           units: tx.units,

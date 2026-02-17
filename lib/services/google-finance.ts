@@ -1,9 +1,16 @@
 import { fetchWithTimeout } from './api';
 import { logError } from '../utils/logger';
 
+const USER_AGENTS = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:122.0) Gecko/20100101 Firefox/122.0',
+];
+
 /**
  * Scrapes Google Finance for a stock price
- * Note: Scaping is brittle but often more reliable for Indian stocks than public Yahoo endpoints
+ * Note: Scraping is brittle but often more reliable for Indian stocks than public Yahoo endpoints
  */
 export async function fetchGoogleFinancePrice(
   symbol: string,
@@ -11,45 +18,50 @@ export async function fetchGoogleFinancePrice(
 ): Promise<{ price: number; previousClose: number } | null> {
   const ticker = `${symbol}:${exchange}`;
   const url = `https://www.google.com/finance/quote/${ticker}`;
+  const randomUA = USER_AGENTS[Math.floor(Math.random() * USER_AGENTS.length)];
 
   try {
     const response = await fetchWithTimeout(
       url,
       {
         headers: {
-          'User-Agent':
-            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'User-Agent': randomUA,
           'Accept-Language': 'en-US,en;q=0.9',
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
         },
       },
-      5000
+      8000
     );
 
     if (!response.ok) return null;
 
     const html = await response.text();
 
-    // Find price using regex in the meta tags or structured data
-    // Pattern 1: Meta tag (often most reliable)
-    const priceMatch =
-      html.match(/<meta itemprop="price" content="([^"]+)"/) ||
-      html.match(/data-last-price="([^"]+)"/) ||
-      html.match(/class="YMlS7e">([^<]+)<\/div>/);
+    // Find price using more robust regex patterns
+    const lastPriceMatch = html.match(/data-last-price="([\d,.]+)"/);
+    const metaPriceMatch = html.match(/<meta itemprop="price" content="([^"]+)"/);
+    const classPriceMatch = html.match(/class="YMlS7e">([^<]+)<\/div>/);
+    const rawPriceMatch = html.match(/<div[^>]*class="[^"]*YMlS7e[^"]*"[^>]*>\D*([\d,.]+)/);
 
     let price = 0;
-    if (priceMatch) {
-      price = parseFloat(priceMatch[1].replace(/,/g, '').replace(/[^\d.]/g, ''));
+    const priceStr =
+      lastPriceMatch?.[1] || metaPriceMatch?.[1] || classPriceMatch?.[1] || rawPriceMatch?.[1];
+
+    if (priceStr) {
+      price = parseFloat(priceStr.replace(/,/g, '').replace(/[^\d.]/g, ''));
     }
 
-    // Pattern 2: Previous close
-    const prevCloseMatch =
-      html.match(/"?previousClose"?\s*:\s*"?([\d,.]+)"?/i) ||
-      html.match(/data-last-close-price="([^"]+)"/) ||
-      html.match(/>Previous close<\/div>.*?class="P639yc">([^<]+)</);
+    // Pattern for Previous close
+    const lastCloseMatch = html.match(/data-last-close-price="([\d,.]+)"/);
+    const metaPrevMatch = html.match(/"?previousClose"?\s*:\s*"?([\d,.]+)"?/i);
+    const labelPrevMatch = html.match(/>Previous close<\/div>.*?class="P639yc">([^<]+)</);
 
     let previousClose = price;
-    if (prevCloseMatch) {
-      previousClose = parseFloat(prevCloseMatch[1].replace(/,/g, '').replace(/[^\d.]/g, ''));
+    const prevStr = lastCloseMatch?.[1] || metaPrevMatch?.[1] || labelPrevMatch?.[1];
+
+    if (prevStr) {
+      previousClose = parseFloat(prevStr.replace(/,/g, '').replace(/[^\d.]/g, ''));
     }
 
     if (price > 0) {
@@ -65,7 +77,6 @@ export async function fetchGoogleFinancePrice(
 
 /**
  * Batch fetch using parallel scraping - use sparingly
- * Wrapped in try/catch for each symbol to ensure partial successes
  */
 export async function batchFetchGoogleFinance(
   symbols: string[]
@@ -75,9 +86,7 @@ export async function batchFetchGoogleFinance(
   await Promise.all(
     symbols.map(async (symbol) => {
       try {
-        // Try NSE first
         let data = await fetchGoogleFinancePrice(symbol, 'NSE');
-        // If not found, try BSE
         if (!data) data = await fetchGoogleFinancePrice(symbol, 'BSE');
 
         if (data && data.price > 0) {
