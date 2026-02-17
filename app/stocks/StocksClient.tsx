@@ -28,7 +28,6 @@ import {
   ArrowRight,
   Eye,
   PieChart as PieChartIcon,
-  AlertTriangle,
 } from 'lucide-react';
 import { EmptyPortfolioVisual } from '../components/Visuals';
 
@@ -683,7 +682,9 @@ export default function StocksClient() {
           borderRadius: '16px',
           border: '1px solid #1e293b',
           marginBottom: '32px',
-          width: 'fit-content',
+          maxWidth: '100%',
+          overflowX: 'auto',
+          WebkitOverflowScrolling: 'touch',
         }}
       >
         {[
@@ -698,18 +699,20 @@ export default function StocksClient() {
               setActiveTab(tab.id as 'portfolio' | 'allocation' | 'history' | 'lifetime')
             }
             style={{
-              padding: '12px 24px',
+              padding: '10px 16px',
               borderRadius: '12px',
               border: 'none',
               background: activeTab === tab.id ? '#6366f1' : 'transparent',
               color: activeTab === tab.id ? '#fff' : '#64748b',
               fontWeight: '700',
-              fontSize: '0.9rem',
+              fontSize: '0.85rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
               transition: 'all 0.2s',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
             }}
           >
             {tab.icon}
@@ -1351,8 +1354,8 @@ export default function StocksClient() {
           <div
             style={{
               background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: '40px',
-              borderRadius: '32px',
+              padding: 'clamp(20px, 4vw, 40px)',
+              borderRadius: 'clamp(20px, 3vw, 32px)',
               border: '1px solid #1e293b',
             }}
           >
@@ -1466,7 +1469,10 @@ export default function StocksClient() {
                     </div>
                     <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
                       ₹{sec.value.toLocaleString()} (
-                      {((sec.value / totalCurrentValue) * 100).toFixed(1)}%)
+                      {(totalCurrentValue > 0 ? (sec.value / totalCurrentValue) * 100 : 0).toFixed(
+                        1
+                      )}
+                      %)
                     </div>
                   </div>
                 </div>
@@ -1478,9 +1484,9 @@ export default function StocksClient() {
             <div
               style={{
                 background: '#0f172a',
-                borderRadius: '32px',
+                borderRadius: 'clamp(20px, 3vw, 32px)',
                 border: '1px solid #1e293b',
-                padding: '40px',
+                padding: 'clamp(20px, 4vw, 40px)',
               }}
             >
               <h4 style={{ fontSize: '1.25rem', fontWeight: '900', marginBottom: '24px' }}>
@@ -1502,7 +1508,11 @@ export default function StocksClient() {
                       >
                         <span style={{ fontWeight: '800', color: '#fff' }}>{stock.symbol}</span>
                         <span style={{ color: '#94a3b8', fontWeight: '600' }}>
-                          {((stock.currentValue / totalCurrentValue) * 100).toFixed(1)}%
+                          {(totalCurrentValue > 0
+                            ? (stock.currentValue / totalCurrentValue) * 100
+                            : 0
+                          ).toFixed(1)}
+                          %
                         </span>
                       </div>
                       <div
@@ -1700,7 +1710,7 @@ export default function StocksClient() {
           ) : (
             <div
               style={{
-                padding: '60px',
+                padding: 'clamp(24px, 4vw, 60px)',
                 textAlign: 'center',
                 color: '#475569',
                 border: '2px dashed #1e293b',
@@ -1725,9 +1735,9 @@ export default function StocksClient() {
             className="lifetime-report-card"
             style={{
               background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              borderRadius: '32px',
+              borderRadius: 'clamp(20px, 3vw, 32px)',
               border: '1px solid #1e293b',
-              padding: '40px',
+              padding: 'clamp(20px, 4vw, 40px)',
             }}
           >
             <h3
@@ -1870,7 +1880,7 @@ export default function StocksClient() {
           <div
             style={{
               background: '#0f172a',
-              padding: '32px',
+              padding: 'clamp(16px, 4vw, 32px)',
               borderRadius: '24px',
               border: '1px solid #334155',
               width: '100%',
@@ -2592,7 +2602,7 @@ export default function StocksClient() {
           <div
             style={{
               background: '#0f172a',
-              padding: '32px',
+              padding: 'clamp(16px, 4vw, 32px)',
               borderRadius: '24px',
               border: '1px solid #334155',
               width: '100%',

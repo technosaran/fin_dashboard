@@ -1232,12 +1232,18 @@ export default function MutualFundsClient() {
       )}
 
       {activeTab === 'allocation' && (
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '32px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+            gap: '24px',
+          }}
+        >
           <div
             style={{
               background: '#0f172a',
-              padding: '48px',
-              borderRadius: '40px',
+              padding: 'clamp(20px, 4vw, 48px)',
+              borderRadius: 'clamp(20px, 3vw, 40px)',
               border: '1px solid #1e293b',
             }}
           >
@@ -1356,7 +1362,10 @@ export default function MutualFundsClient() {
                     </div>
                     <div style={{ fontSize: '0.8rem', color: '#64748b' }}>
                       ₹{cat.value.toLocaleString()} (
-                      {((cat.value / totalCurrentValue) * 100).toFixed(1)}%)
+                      {(totalCurrentValue > 0 ? (cat.value / totalCurrentValue) * 100 : 0).toFixed(
+                        1
+                      )}
+                      %)
                     </div>
                   </div>
                 </div>
@@ -1368,8 +1377,8 @@ export default function MutualFundsClient() {
             <div
               style={{
                 background: '#0f172a',
-                padding: '40px',
-                borderRadius: '40px',
+                padding: 'clamp(20px, 4vw, 40px)',
+                borderRadius: 'clamp(20px, 3vw, 40px)',
                 border: '1px solid #1e293b',
               }}
             >
@@ -1393,7 +1402,11 @@ export default function MutualFundsClient() {
                           {mf.schemeName}
                         </span>
                         <span style={{ fontSize: '0.95rem', fontWeight: '900', color: '#818cf8' }}>
-                          {((mf.currentValue / totalCurrentValue) * 100).toFixed(1)}%
+                          {(totalCurrentValue > 0
+                            ? (mf.currentValue / totalCurrentValue) * 100
+                            : 0
+                          ).toFixed(1)}
+                          %
                         </span>
                       </div>
                       <div
@@ -1580,14 +1593,20 @@ export default function MutualFundsClient() {
       )}
 
       {activeTab === 'lifetime' && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '32px' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
+            gap: 'clamp(16px, 3vw, 32px)',
+          }}
+        >
           <div
             style={{
-              gridColumn: 'span 2',
+              gridColumn: '1 / -1',
               background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-              borderRadius: '32px',
+              borderRadius: 'clamp(20px, 3vw, 32px)',
               border: '1px solid #1e293b',
-              padding: '48px',
+              padding: 'clamp(20px, 4vw, 48px)',
             }}
           >
             <div
