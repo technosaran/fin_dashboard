@@ -535,6 +535,39 @@ export default function StocksClient() {
               alignItems: 'center',
               gap: '10px',
               marginBottom: '12px',
+              color: totalDayPnL >= 0 ? '#34d399' : '#f87171',
+            }}
+          >
+            <Activity size={18} />
+            <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>
+              Day&apos;s P&L
+            </span>
+          </div>
+          <div
+            style={{
+              fontSize: '1.8rem',
+              fontWeight: '900',
+              color: totalDayPnL >= 0 ? '#34d399' : '#f87171',
+            }}
+          >
+            {totalDayPnL >= 0 ? '+' : ''}₹
+            {totalDayPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          </div>
+        </div>
+        <div
+          style={{
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            padding: '24px',
+            borderRadius: '20px',
+            border: '1px solid #1e293b',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '12px',
               color: totalPnL >= 0 ? '#34d399' : '#f87171',
             }}
           >
@@ -574,7 +607,7 @@ export default function StocksClient() {
             >
               <Zap size={18} />
               <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                Lifetime Wealth Created
+                Lifetime Wealth
               </span>
             </div>
             <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>

@@ -63,18 +63,23 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
       .join(',');
 
     const response = await fetchWithTimeout(
-      `https://query1.finance.yahoo.com/v7/finance/quote?symbols=${nseSymbols},${bseSymbols}`,
+      `https://query2.finance.yahoo.com/v7/finance/quote?symbols=${nseSymbols},${bseSymbols}`,
       {
         headers: {
           'User-Agent':
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
           Accept: '*/*',
           'Accept-Language': 'en-US,en;q=0.9',
+          Referer: 'https://finance.yahoo.com/',
           Connection: 'keep-alive',
         },
       },
       10000
     );
+
+    if (!response.ok) {
+      throw new Error(`Yahoo Finance API returned ${response.status}`);
+    }
 
     const data = (await response.json()) as YahooBatchResponse;
     const result: Record<string, StockBatchQuote> = {};
@@ -82,23 +87,22 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
     if (data.quoteResponse?.result) {
       for (const quote of data.quoteResponse.result) {
         if (!quote.symbol) continue;
+
         const baseSymbol = quote.symbol.split('.')[0];
-        if (
-          quote.regularMarketPrice &&
-          (!result[baseSymbol] || result[baseSymbol].currentPrice === 0)
-        ) {
-          const stockBatchQuote: StockBatchQuote = {
-            symbol: quote.symbol,
-            currentPrice:
-              quote.regularMarketPrice || quote.regularMarketPreviousClose || 0,
-            previousClose: quote.regularMarketPreviousClose || 0,
-            currency: quote.currency || 'INR',
-            exchange: quote.fullExchangeName || 'NSE',
-            displayName: quote.shortName || quote.longName || baseSymbol,
-          };
+        const stockBatchQuote: StockBatchQuote = {
+          symbol: quote.symbol,
+          currentPrice: quote.regularMarketPrice || quote.regularMarketPreviousClose || 0,
+          previousClose: quote.regularMarketPreviousClose || 0,
+          currency: quote.currency || 'INR',
+          exchange: quote.fullExchangeName || (quote.symbol.endsWith('.NS') ? 'NSE' : 'BSE'),
+          displayName: quote.shortName || quote.longName || baseSymbol,
+        };
+
+        // If we don't have this base symbol yet, or if this is the .NS version (preferred)
+        if (!result[baseSymbol] || quote.symbol.endsWith('.NS')) {
           result[baseSymbol] = stockBatchQuote;
-          result[quote.symbol] = stockBatchQuote; // Store under full symbol too
         }
+        result[quote.symbol] = stockBatchQuote;
       }
     }
 

@@ -488,6 +488,37 @@ export default function MutualFundsClient() {
             {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
           </div>
         </div>
+        <div
+          className="premium-card"
+          style={{
+            background: '#0f172a',
+            padding: '20px',
+            borderRadius: '24px',
+            border: '1px solid #1e293b',
+          }}
+        >
+          <div
+            style={{
+              color: totalDayPnL >= 0 ? '#34d399' : '#f87171',
+              fontSize: '0.7rem',
+              fontWeight: '800',
+              textTransform: 'uppercase',
+              marginBottom: '10px',
+            }}
+          >
+            Day&apos;s P&L
+          </div>
+          <div
+            style={{
+              fontSize: 'clamp(1.4rem, 3vw, 1.8rem)',
+              fontWeight: '900',
+              color: totalDayPnL >= 0 ? '#34d399' : '#f87171',
+            }}
+          >
+            {totalDayPnL >= 0 ? '+' : ''}₹
+            {totalDayPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+          </div>
+        </div>
         {activeTab === 'lifetime' && (
           <div
             className="premium-card"
@@ -507,7 +538,7 @@ export default function MutualFundsClient() {
                 marginBottom: '10px',
               }}
             >
-              Lifetime Earned
+              Lifetime Wealth
             </div>
             <div
               style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#fff' }}

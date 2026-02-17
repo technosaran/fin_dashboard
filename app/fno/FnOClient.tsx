@@ -777,17 +777,21 @@ export default function FnOClient() {
                           color: '#fff',
                         }}
                       >
-                        ₹{trade.avgPrice.toLocaleString()}
+                        ₹
+                        {(trade.status === 'CLOSED'
+                          ? trade.exitPrice || trade.avgPrice
+                          : trade.avgPrice
+                        ).toLocaleString()}
                       </td>
                       <td
                         style={{
                           padding: '16px 24px',
                           textAlign: 'right',
                           fontWeight: '800',
-                          color: '#fff',
+                          color: trade.pnl >= 0 ? '#10b981' : '#f43f5e',
                         }}
                       >
-                        ₹0.00
+                        ₹{trade.pnl.toLocaleString()}
                       </td>
                       <td style={{ padding: '16px 24px', textAlign: 'center' }}>
                         <div style={{ display: 'flex', gap: '8px', justifyContent: 'center' }}>

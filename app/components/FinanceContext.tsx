@@ -891,9 +891,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       // 1. Stocks
       try {
-        const stockSymbols = [...new Set(stocks.map((s) => s.symbol))];
+        const stockSymbols = [...new Set(stocks.map((s) => s.symbol))].filter(Boolean);
         if (stockSymbols.length > 0) {
-          console.log(`Fetching updates for ${stockSymbols.length} stocks...`);
+          if (!silent) console.log(`Fetching updates for ${stockSymbols.length} stocks...`);
           const res = await fetch(
             `/api/stocks/batch?symbols=${stockSymbols.join(',')}&t=${Date.now()}`
           );
@@ -904,9 +904,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
             setStocks((prev) =>
               prev.map((stock) => {
+                const cleanSymbol = stock.symbol.trim().toUpperCase();
                 // Try exact match, then base match (without suffix)
-                const update =
-                  updates[stock.symbol.trim()] || updates[stock.symbol.trim().split('.')[0]];
+                const update = updates[cleanSymbol] || updates[cleanSymbol.split('.')[0]];
 
                 if (!update) {
                   return stock;
@@ -915,10 +915,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 updatedCount++;
                 const currentPrice = update.currentPrice;
                 const previousPrice =
-                  update.previousClose > 0 ? update.previousClose : stock.previousPrice;
+                  update.previousClose > 0
+                    ? update.previousClose
+                    : stock.previousPrice || currentPrice;
                 const currentValue = stock.quantity * currentPrice;
                 const pnl = currentValue - stock.investmentAmount;
-                const pnlPercentage = (pnl / stock.investmentAmount) * 100;
+                const pnlPercentage =
+                  stock.investmentAmount > 0 ? (pnl / stock.investmentAmount) * 100 : 0;
 
                 if (currentPrice > 0) {
                   (supabase as ExtendedSupabaseClient)
@@ -932,7 +935,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                     })
                     .eq('id', stock.id)
                     .then(({ error }: { error: Error | null }) => {
-                      if (error) logError('Failed to persist stock price', error);
+                      if (error) logError(`Failed to persist stock ${stock.symbol}`, error);
                     });
                 }
 
@@ -946,8 +949,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 };
               })
             );
-            console.log(`Updated prices for ${updatedCount} stocks.`);
-            if (updatedCount === 0) console.warn('No stock prices updated. Check symbols.');
+            if (!silent) console.log(`✓ Updated ${updatedCount} stocks.`);
+            if (updatedCount === 0 && !silent)
+              console.warn('No stock prices updated. Check symbols.');
           }
         }
       } catch (err) {
@@ -956,9 +960,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       // 2. Mutual Funds
       try {
-        const mfCodes = [...new Set(mutualFunds.map((m) => m.schemeCode))];
+        const mfCodes = [...new Set(mutualFunds.map((m) => m.schemeCode))].filter(Boolean);
         if (mfCodes.length > 0) {
-          console.log(`Fetching NAVs for ${mfCodes.length} mutual funds...`);
+          if (!silent) console.log(`Fetching NAVs for ${mfCodes.length} mutual funds...`);
           const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}&t=${Date.now()}`);
           const data = await res.json();
           if (data.success && data.data) {
@@ -974,35 +978,39 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
                 updatedCount++;
                 const currentNav = update.currentNav;
+                const previousNav = update.previousNav || mf.previousNav || currentNav;
                 const currentValue = mf.units * currentNav;
                 const pnl = currentValue - mf.investmentAmount;
-                const pnlPercentage = (pnl / mf.investmentAmount) * 100;
+                const pnlPercentage =
+                  mf.investmentAmount > 0 ? (pnl / mf.investmentAmount) * 100 : 0;
 
-                (supabase as ExtendedSupabaseClient)
-                  .from('mutual_funds')
-                  .update({
-                    current_nav: currentNav,
-                    previous_nav: update.previousNav,
-                    current_value: currentValue,
-                    pnl,
-                    pnl_percentage: pnlPercentage,
-                  })
-                  .eq('id', mf.id)
-                  .then(({ error }: { error: Error | null }) => {
-                    if (error) logError('Failed to persist MF NAV', error);
-                  });
+                if (currentNav > 0) {
+                  (supabase as ExtendedSupabaseClient)
+                    .from('mutual_funds')
+                    .update({
+                      current_nav: currentNav,
+                      previous_nav: previousNav,
+                      current_value: currentValue,
+                      pnl,
+                      pnl_percentage: pnlPercentage,
+                    })
+                    .eq('id', mf.id)
+                    .then(({ error }: { error: Error | null }) => {
+                      if (error) logError(`Failed to persist MF ${mf.schemeName}`, error);
+                    });
+                }
 
                 return {
                   ...mf,
                   currentNav,
-                  previousNav: update.previousNav,
+                  previousNav,
                   currentValue,
                   pnl,
                   pnlPercentage,
                 };
               })
             );
-            console.log(`Updated NAVs for ${updatedCount} mutual funds.`);
+            if (!silent) console.log(`✓ Updated ${updatedCount} mutual funds.`);
           }
         }
       } catch (err) {
