@@ -321,7 +321,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '10px',
-                      padding: '8px 12px',
+                      padding: '12px',
                       borderRadius: '12px',
                       textDecoration: 'none',
                       position: 'relative',
@@ -334,11 +334,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                       color: isActive ? '#fff' : isHovered ? '#cbd5e1' : '#64748b',
                       borderLeft: isActive ? `2px solid ${item.color}` : '2px solid transparent',
                       marginLeft: isActive ? '0' : '0',
+                      minHeight: '44px',
                     }}
                     aria-current={isActive ? 'page' : undefined}
                     onClick={onClose}
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
+                    onTouchStart={() => setHoveredItem(item.href)}
+                    onTouchEnd={() => setHoveredItem(null)}
                   >
                     <div
                       style={{
@@ -399,7 +402,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           <Link href="/settings" style={{ textDecoration: 'none' }} onClick={onClose}>
             <div
               style={{
-                padding: '8px 12px',
+                padding: '12px',
                 borderRadius: '12px',
                 display: 'flex',
                 alignItems: 'center',
@@ -408,9 +411,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 transition: 'all 0.2s',
                 cursor: 'pointer',
                 background: hoveredItem === 'settings' ? 'rgba(255,255,255,0.03)' : 'transparent',
+                minHeight: '44px',
               }}
               onMouseEnter={() => setHoveredItem('settings')}
               onMouseLeave={() => setHoveredItem(null)}
+              onTouchStart={() => setHoveredItem('settings')}
+              onTouchEnd={() => setHoveredItem(null)}
             >
               <Settings size={18} />
               <span style={{ fontWeight: '600', fontSize: '0.85rem' }}>Settings</span>
@@ -432,7 +438,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               }
             }}
             style={{
-              padding: '8px 12px',
+              padding: '12px',
               borderRadius: '12px',
               display: 'flex',
               alignItems: 'center',
@@ -442,9 +448,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               cursor: 'pointer',
               background: hoveredItem === 'logout' ? 'rgba(239, 68, 68, 0.06)' : 'transparent',
               opacity: 0.8,
+              minHeight: '44px',
             }}
             onMouseEnter={() => setHoveredItem('logout')}
             onMouseLeave={() => setHoveredItem(null)}
+            onTouchStart={() => setHoveredItem('logout')}
+            onTouchEnd={() => setHoveredItem(null)}
           >
             <LogOut size={18} />
             <span style={{ fontWeight: '700', fontSize: '0.85rem' }}>Logout</span>
