@@ -769,6 +769,8 @@ export default function AccountsClient() {
               width: '100%',
               maxWidth: '500px',
               boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
+              maxHeight: '95vh',
+              overflowY: 'auto',
             }}
           >
             <div
@@ -994,6 +996,7 @@ export default function AccountsClient() {
                   cursor: 'pointer',
                   fontSize: 'clamp(0.9rem, 2vw, 1rem)',
                   boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)',
+                  minHeight: '44px',
                 }}
                 aria-label={editId ? 'Update account' : 'Create account'}
               >
@@ -1032,6 +1035,8 @@ export default function AccountsClient() {
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '500px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
             }}
           >
             <div
@@ -1195,6 +1200,7 @@ export default function AccountsClient() {
                   fontWeight: '900',
                   cursor: 'pointer',
                   fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                  minHeight: '44px',
                 }}
                 aria-label="Execute transfer"
               >
@@ -1233,6 +1239,8 @@ export default function AccountsClient() {
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '500px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
             }}
           >
             <div
@@ -1382,6 +1390,7 @@ export default function AccountsClient() {
                   fontWeight: '900',
                   cursor: 'pointer',
                   fontSize: 'clamp(0.9rem, 2vw, 1rem)',
+                  minHeight: '44px',
                 }}
                 aria-label="Confirm add funds"
               >
