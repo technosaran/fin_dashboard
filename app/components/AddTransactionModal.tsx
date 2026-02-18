@@ -338,7 +338,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         className="modal-content"
         style={{
           background: '#0f172a',
-          padding: '16px',
+          padding: 'clamp(12px, 3vw, 16px)',
           borderRadius: '20px',
           border: '1px solid #334155',
           width: '100%',

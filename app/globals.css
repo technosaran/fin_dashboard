@@ -95,8 +95,6 @@ body {
   text-rendering: optimizeLegibility;
   /* Better touch scrolling on mobile */
   -webkit-overflow-scrolling: touch;
-  /* Prevent layout shift */
-  contain: layout style paint;
 }
 
 /* Ensure all images are responsive by default */
@@ -226,8 +224,7 @@ p {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   position: relative;
-  /* Performance optimizations */
-  will-change: transform;
+  /* Performance optimizations - only on hover */
   transform: translateZ(0);
 }
 
@@ -324,8 +321,7 @@ p {
 .animate-sparkle {
   display: inline-block;
   animation: sparkle 3s infinite ease-in-out;
-  /* Optimize animation performance */
-  will-change: transform, filter;
+  /* Optimize animation performance with GPU acceleration */
   transform: translateZ(0);
 }
 
@@ -382,32 +378,23 @@ p {
 
 .fade-in {
   animation: fadeIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  /* Optimize animation performance */
-  will-change: opacity, transform;
 }
 
 .slide-in-right {
   animation: slideInRight 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  /* Optimize animation performance */
-  will-change: opacity, transform;
 }
 
 .slide-up {
   animation: slideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  /* Optimize animation performance */
-  will-change: opacity, transform;
 }
 
 .pulse-glow {
   animation: pulseGlow 3s ease-in-out infinite;
-  /* Optimize animation performance */
-  will-change: box-shadow;
 }
 
 .spin-animation {
   animation: spin 1s linear infinite;
-  /* Optimize animation performance */
-  will-change: transform;
+  /* Optimize animation performance with GPU acceleration */
   transform: translateZ(0);
 }
 
@@ -464,21 +451,16 @@ p {
 
 .animate-floating {
   animation: floating 6s ease-in-out infinite;
-  /* Optimize animation performance */
-  will-change: transform;
+  /* Optimize animation performance with GPU acceleration */
   transform: translateZ(0);
 }
 
 .animate-morph {
   animation: morph 8s ease-in-out infinite;
-  /* Optimize animation performance */
-  will-change: border-radius;
 }
 
 .animate-glow-pulse {
   animation: glowPulse 4s ease-in-out infinite;
-  /* Optimize animation performance */
-  will-change: opacity, filter, transform;
 }
 
 /* Staggered animation delays */
