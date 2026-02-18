@@ -781,7 +781,7 @@ export default function StocksClient() {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                       gap: '12px',
                       marginBottom: '16px',
                       padding: '12px',
@@ -2116,7 +2116,13 @@ export default function StocksClient() {
                     </select>
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))',
+                    gap: '12px',
+                  }}
+                >
                   <div>
                     <label
                       style={{

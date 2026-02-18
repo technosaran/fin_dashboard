@@ -327,17 +327,24 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 2000,
-        padding: '16px',
+        padding: '12px',
+        overflowY: 'auto',
+      }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
+        className="modal-content"
         style={{
           background: '#0f172a',
-          padding: '24px',
-          borderRadius: '24px',
+          padding: '16px',
+          borderRadius: '20px',
           border: '1px solid #334155',
           width: '100%',
           maxWidth: '560px',
+          maxHeight: '95vh',
+          overflowY: 'auto',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         }}
       >
@@ -346,42 +353,57 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
-            marginBottom: '24px',
+            marginBottom: '16px',
+            gap: '8px',
           }}
         >
           <h2
             style={{
-              fontSize: '1.5rem',
+              fontSize: 'clamp(1.1rem, 4vw, 1.5rem)',
               fontWeight: '900',
               margin: 0,
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
+              gap: 'clamp(8px, 2vw, 12px)',
             }}
           >
             <div
               style={{
-                padding: '8px',
+                padding: '6px',
                 background: 'rgba(99, 102, 241, 0.1)',
-                borderRadius: '12px',
+                borderRadius: '10px',
                 color: '#6366f1',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
               }}
             >
-              <Banknote size={24} />
+              <Banknote size={20} />
             </div>
             Add Transaction
           </h2>
           <button
             onClick={onClose}
+            type="button"
+            aria-label="Close modal"
             style={{
               background: 'none',
               border: 'none',
               color: '#64748b',
               cursor: 'pointer',
-              padding: '4px',
+              padding: '8px',
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+              transition: 'background 0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
           >
-            <X size={24} />
+            <X size={22} />
           </button>
         </div>
 
@@ -389,13 +411,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: '1fr 1fr 1fr',
-            gap: '8px',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(80px, 1fr))',
+            gap: '6px',
             padding: '4px',
             background: '#020617',
-            borderRadius: '16px',
+            borderRadius: '14px',
             border: '1px solid #1e293b',
-            marginBottom: '24px',
+            marginBottom: '16px',
           }}
         >
           {[
@@ -410,19 +432,21 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                 resetForm();
               }}
               style={{
-                padding: '10px',
-                borderRadius: '12px',
+                padding: '8px 6px',
+                borderRadius: '10px',
                 border: 'none',
                 background: type === t.id ? '#6366f1' : 'transparent',
                 color: type === t.id ? '#fff' : '#64748b',
                 fontWeight: '700',
-                fontSize: '0.85rem',
+                fontSize: 'clamp(0.7rem, 2vw, 0.85rem)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '8px',
+                gap: '6px',
                 transition: '0.2s',
+                minHeight: '44px',
+                whiteSpace: 'nowrap',
               }}
             >
               {t.icon} {t.label}
@@ -576,7 +600,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             </div>
           )}
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: '10px',
+            }}
+          >
             <div>
               <label
                 style={{
@@ -636,7 +666,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: '10px',
+            }}
+          >
             <div>
               <label
                 style={{
@@ -699,7 +735,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
           {type === 'FNO' && (
             <>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '12px',
+                }}
+              >
                 <div>
                   <label
                     style={{
@@ -760,7 +802,13 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
                 </div>
               </div>
               {fnoStatus === 'CLOSED' && (
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: '12px',
+                  }}
+                >
                   <div>
                     <label
                       style={{
