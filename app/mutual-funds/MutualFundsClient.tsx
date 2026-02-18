@@ -421,6 +421,8 @@ export default function MutualFundsClient() {
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
+              minWidth: '44px',
+              minHeight: '44px',
             }}
             title="Refresh NAVs"
           >
@@ -451,6 +453,7 @@ export default function MutualFundsClient() {
               boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
               transition: '0.2s',
               flexShrink: 0,
+              minHeight: '44px',
             }}
           >
             <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Invest Now</span>
@@ -646,6 +649,7 @@ export default function MutualFundsClient() {
               transition: '0.2s',
               whiteSpace: 'nowrap',
               flexShrink: 0,
+              minHeight: '44px',
             }}
           >
             {tab.icon}
@@ -706,10 +710,10 @@ export default function MutualFundsClient() {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                       gap: '12px',
                       marginBottom: '16px',
-                      padding: '12px',
+                      padding: 'clamp(8px, 2vw, 12px)',
                       background: 'rgba(255,255,255,0.02)',
                       borderRadius: '12px',
                     }}
@@ -816,7 +820,13 @@ export default function MutualFundsClient() {
                           color: '#6366f1',
                           background: 'none',
                           border: 'none',
-                          padding: '4px',
+                          padding: '12px',
+                          minWidth: '44px',
+                          minHeight: '44px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
                         }}
                       >
                         <Eye size={18} />
@@ -830,7 +840,13 @@ export default function MutualFundsClient() {
                           color: '#10b981',
                           background: 'none',
                           border: 'none',
-                          padding: '4px',
+                          padding: '12px',
+                          minWidth: '44px',
+                          minHeight: '44px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
                         }}
                       >
                         <ArrowRight size={18} />
@@ -850,7 +866,13 @@ export default function MutualFundsClient() {
                           color: '#f43f5e',
                           background: 'none',
                           border: 'none',
-                          padding: '4px',
+                          padding: '12px',
+                          minWidth: '44px',
+                          minHeight: '44px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer',
                         }}
                       >
                         <Trash2 size={18} />
@@ -1094,7 +1116,12 @@ export default function MutualFundsClient() {
                               border: 'none',
                               color: '#6366f1',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minWidth: '44px',
+                              minHeight: '44px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               transition: 'all 0.2s',
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
@@ -1113,7 +1140,12 @@ export default function MutualFundsClient() {
                               border: 'none',
                               color: '#10b981',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minWidth: '44px',
+                              minHeight: '44px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                               transition: 'all 0.2s',
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
@@ -1128,7 +1160,12 @@ export default function MutualFundsClient() {
                               border: 'none',
                               color: '#64748b',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minWidth: '44px',
+                              minHeight: '44px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                             }}
                             title="Edit"
                           >
@@ -1149,7 +1186,12 @@ export default function MutualFundsClient() {
                               border: 'none',
                               color: '#64748b',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minWidth: '44px',
+                              minHeight: '44px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
                             }}
                             title="Delete"
                           >
@@ -1350,7 +1392,7 @@ export default function MutualFundsClient() {
               style={{
                 marginTop: '40px',
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                 gap: '16px',
               }}
             >
@@ -1640,8 +1682,8 @@ export default function MutualFundsClient() {
             <div
               style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr 1fr',
-                gap: '48px',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
+                gap: 'clamp(24px, 4vw, 48px)',
                 marginBottom: '40px',
               }}
             >
@@ -1817,12 +1859,12 @@ export default function MutualFundsClient() {
           <div
             style={{
               background: '#0f172a',
-              padding: '32px',
+              padding: 'clamp(16px, 4vw, 32px)',
               borderRadius: '32px',
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '520px',
-              maxHeight: '90vh',
+              maxHeight: '95vh',
               overflowY: 'auto',
             }}
           >
@@ -1834,7 +1876,7 @@ export default function MutualFundsClient() {
                 marginBottom: '32px',
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px, 2vw, 12px)' }}>
                 <div
                   style={{
                     width: '44px',
@@ -1849,13 +1891,25 @@ export default function MutualFundsClient() {
                 >
                   {modalType === 'fund' ? <TrendingUp size={24} /> : <Activity size={24} />}
                 </div>
-                <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>
+                <h2
+                  style={{ fontSize: 'clamp(1.1rem, 4vw, 1.5rem)', fontWeight: '900', margin: 0 }}
+                >
                   {modalType === 'fund' ? 'Add New Holding' : 'Add MF Transaction'}
                 </h2>
               </div>
               <button
                 onClick={() => setIsModalOpen(false)}
-                style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer' }}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: '#64748b',
+                  cursor: 'pointer',
+                  minWidth: '44px',
+                  minHeight: '44px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
               >
                 <X size={24} />
               </button>
@@ -1961,7 +2015,13 @@ export default function MutualFundsClient() {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: '16px',
+                  }}
+                >
                   <div>
                     <label
                       style={{
@@ -2102,6 +2162,7 @@ export default function MutualFundsClient() {
                     border: 'none',
                     fontWeight: '900',
                     cursor: 'pointer',
+                    minHeight: '44px',
                     boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)',
                   }}
                 >
@@ -2148,7 +2209,13 @@ export default function MutualFundsClient() {
                     ))}
                   </select>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: '16px',
+                  }}
+                >
                   <div>
                     <label
                       style={{
@@ -2210,7 +2277,13 @@ export default function MutualFundsClient() {
                     />
                   </div>
                 </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                    gap: '16px',
+                  }}
+                >
                   <div>
                     <label
                       style={{
@@ -2317,6 +2390,7 @@ export default function MutualFundsClient() {
                     border: 'none',
                     fontWeight: '900',
                     cursor: 'pointer',
+                    minHeight: '44px',
                   }}
                 >
                   Confirm Transaction
@@ -2347,11 +2421,13 @@ export default function MutualFundsClient() {
               <div
                 style={{
                   background: '#0f172a',
-                  padding: '32px',
+                  padding: 'clamp(16px, 4vw, 32px)',
                   borderRadius: '24px',
                   border: '1px solid #334155',
                   width: '100%',
                   maxWidth: '400px',
+                  maxHeight: '95vh',
+                  overflowY: 'auto',
                 }}
               >
                 <div
@@ -2388,8 +2464,8 @@ export default function MutualFundsClient() {
                       border: 'none',
                       color: '#94a3b8',
                       borderRadius: '50%',
-                      width: '36px',
-                      height: '36px',
+                      minWidth: '44px',
+                      minHeight: '44px',
                       cursor: 'pointer',
                       display: 'flex',
                       alignItems: 'center',
