@@ -517,7 +517,7 @@ export default function LedgerClient() {
                   type="date"
                   value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
                   onChange={(e) =>
-                    setSelectedDate(e.target.value ? new Date(e.target.value) : null)
+                    setSelectedDate(e.target.value ? new Date(e.target.value + 'T00:00:00') : null)
                   }
                   style={{
                     width: '100%',
