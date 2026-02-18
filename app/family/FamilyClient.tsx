@@ -129,7 +129,12 @@ export default function FamilyClient() {
   return (
     <div
       className="main-content"
-      style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}
+      style={{
+        backgroundColor: '#020617',
+        minHeight: '100vh',
+        color: '#f8fafc',
+        padding: 'clamp(16px, 4vw, 24px)',
+      }}
     >
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header Section */}
@@ -167,7 +172,8 @@ export default function FamilyClient() {
             }}
             aria-label="Log family transfer"
             style={{
-              padding: '12px 24px',
+              padding: 'clamp(10px, 2vw, 12px) clamp(20px, 4vw, 24px)',
+              minHeight: '44px',
               borderRadius: '16px',
               background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)',
               color: 'white',
@@ -662,6 +668,8 @@ export default function FamilyClient() {
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '550px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
               boxShadow: '0 50px 100px rgba(0,0,0,0.7)',
             }}
           >
@@ -946,7 +954,8 @@ export default function FamilyClient() {
                   marginTop: '12px',
                   background: 'linear-gradient(135deg, #ec4899 0%, #d946ef 100%)',
                   color: '#fff',
-                  padding: '20px',
+                  padding: 'clamp(16px, 3vw, 20px)',
+                  minHeight: '44px',
                   borderRadius: '20px',
                   border: 'none',
                   fontWeight: '900',

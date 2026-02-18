@@ -99,7 +99,12 @@ export default function GoalsClient() {
   return (
     <div
       className="main-content"
-      style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc' }}
+      style={{
+        backgroundColor: '#020617',
+        minHeight: '100vh',
+        color: '#f8fafc',
+        padding: 'clamp(16px, 4vw, 24px)',
+      }}
     >
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header Section */}
@@ -142,7 +147,8 @@ export default function GoalsClient() {
               }}
               aria-label="Export goals to CSV"
               style={{
-                padding: '10px 20px',
+                padding: 'clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px)',
+                minHeight: '44px',
                 borderRadius: '14px',
                 background: '#0f172a',
                 color: '#fff',
@@ -171,7 +177,8 @@ export default function GoalsClient() {
               }}
               aria-label="Create new goal"
               style={{
-                padding: '10px 20px',
+                padding: 'clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px)',
+                minHeight: '44px',
                 borderRadius: '14px',
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                 color: 'white',
@@ -707,6 +714,8 @@ export default function GoalsClient() {
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '550px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
               boxShadow: '0 50px 100px rgba(0,0,0,0.7)',
             }}
           >
@@ -961,7 +970,8 @@ export default function GoalsClient() {
                   marginTop: '12px',
                   background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
                   color: '#fff',
-                  padding: '20px',
+                  padding: 'clamp(16px, 3vw, 20px)',
+                  minHeight: '44px',
                   borderRadius: '20px',
                   border: 'none',
                   fontWeight: '900',
