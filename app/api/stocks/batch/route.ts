@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import {
   createErrorResponse,
   createSuccessResponse,
-  fetchWithTimeout,
   withErrorHandling,
   applyRateLimit,
   getCache,
@@ -10,22 +9,6 @@ import {
   parseCommaSeparatedParam,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
-
-interface YahooBatchQuote {
-  symbol?: string;
-  regularMarketPrice?: number;
-  regularMarketPreviousClose?: number;
-  currency?: string;
-  fullExchangeName?: string;
-  shortName?: string;
-  longName?: string;
-}
-
-interface YahooBatchResponse {
-  quoteResponse?: {
-    result?: YahooBatchQuote[];
-  };
-}
 
 interface StockBatchQuote {
   symbol: string;
@@ -58,7 +41,7 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
     const { fetchBatchStockQuotes } = await import('@/lib/services/stock-fetcher');
     const result = await fetchBatchStockQuotes(symbols);
 
-    setCache(cacheKey, result, 60000); // 1 minute local cache
+    setCache(cacheKey, result, 5000); // 5 seconds local cache
     return createSuccessResponse(result);
   } catch (error) {
     logError('Batch stock quote service failed', error, { symbols: symbols.join(',') });

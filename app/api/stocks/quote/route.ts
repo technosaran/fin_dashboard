@@ -3,29 +3,12 @@ import { validateStockQuery } from '@/lib/validators/input';
 import {
   createErrorResponse,
   createSuccessResponse,
-  fetchWithTimeout,
   withErrorHandling,
   applyRateLimit,
   getCache,
   setCache,
 } from '@/lib/services/api';
 import { logError } from '@/lib/utils/logger';
-
-interface YahooChartMeta {
-  symbol?: string;
-  regularMarketPrice?: number;
-  previousClose?: number;
-  currency?: string;
-  exchangeName?: string;
-}
-
-interface YahooChartResponse {
-  chart?: {
-    result?: Array<{
-      meta?: YahooChartMeta;
-    }>;
-  };
-}
 
 /**
  * Stock quote API endpoint with security enhancements

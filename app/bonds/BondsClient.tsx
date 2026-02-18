@@ -43,19 +43,23 @@ export default function BondsClient() {
   const filteredBonds = useMemo(() => {
     return bonds.filter(
       (b) =>
-        b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.isin?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        b.companyName?.toLowerCase().includes(searchQuery.toLowerCase())
+        b.quantity > 0 &&
+        (b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          b.isin?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          b.companyName?.toLowerCase().includes(searchQuery.toLowerCase()))
     );
   }, [bonds, searchQuery]);
 
   // Financial calculations
   const stats = useMemo(() => {
-    const totalInvested = bonds.reduce((sum, b) => sum + b.investmentAmount, 0);
-    const currentValue = bonds.reduce((sum, b) => sum + b.currentValue, 0);
+    const activeBonds = bonds.filter((b) => b.quantity > 0);
+    const totalInvested = activeBonds.reduce((sum, b) => sum + b.investmentAmount, 0);
+    const currentValue = activeBonds.reduce((sum, b) => sum + b.currentValue, 0);
     const totalPnL = currentValue - totalInvested;
     const avgYield =
-      bonds.length > 0 ? bonds.reduce((sum, b) => sum + b.couponRate, 0) / bonds.length : 0;
+      activeBonds.length > 0
+        ? activeBonds.reduce((sum, b) => sum + b.couponRate, 0) / activeBonds.length
+        : 0;
 
     return { totalInvested, currentValue, totalPnL, avgYield };
   }, [bonds]);

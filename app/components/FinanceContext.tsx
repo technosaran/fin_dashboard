@@ -336,36 +336,39 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // --- STOCKS ---
 
-  const addStock = useCallback(async (stock: Omit<Stock, 'id'>) => {
-    const { data, error } = await (supabase as ExtendedSupabaseClient)
-      .from('stocks')
-      .insert({
-        user_id: user?.id,
-        symbol: stock.symbol,
-        company_name: stock.companyName,
-        quantity: stock.quantity,
-        avg_price: stock.avgPrice,
-        current_price: stock.currentPrice,
-        previous_price: stock.previousPrice || stock.currentPrice,
-        exchange: stock.exchange,
-        sector: stock.sector,
-        investment_amount: stock.investmentAmount,
-        current_value: stock.currentValue,
-        pnl: stock.pnl,
-        pnl_percentage: stock.pnlPercentage,
-      })
-      .select()
-      .single();
+  const addStock = useCallback(
+    async (stock: Omit<Stock, 'id'>) => {
+      const { data, error } = await (supabase as ExtendedSupabaseClient)
+        .from('stocks')
+        .insert({
+          user_id: user?.id,
+          symbol: stock.symbol,
+          company_name: stock.companyName,
+          quantity: stock.quantity,
+          avg_price: stock.avgPrice,
+          current_price: stock.currentPrice,
+          previous_price: stock.previousPrice || stock.currentPrice,
+          exchange: stock.exchange,
+          sector: stock.sector,
+          investment_amount: stock.investmentAmount,
+          current_value: stock.currentValue,
+          pnl: stock.pnl,
+          pnl_percentage: stock.pnlPercentage,
+        })
+        .select()
+        .single();
 
-    if (error) {
-      logError('Error adding stock:', error);
-      throw error;
-    }
+      if (error) {
+        logError('Error adding stock:', error);
+        throw error;
+      }
 
-    const newStock = dbStockToStock(data);
-    setStocks((prev) => [...prev, newStock]);
-    return newStock;
-  }, []);
+      const newStock = dbStockToStock(data);
+      setStocks((prev) => [...prev, newStock]);
+      return newStock;
+    },
+    [user]
+  );
 
   const updateStock = useCallback(async (id: number, stock: Partial<Stock>) => {
     const { error } = await (supabase as ExtendedSupabaseClient)
@@ -401,7 +404,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const { data, error } = await (supabase as ExtendedSupabaseClient)
         .from('stock_transactions')
         .insert({
-          user_id: user?.id,
+          ...(user?.id ? { user_id: user.id } : {}),
           stock_id: tx.stockId,
           transaction_type: tx.transactionType,
           quantity: tx.quantity,
@@ -427,7 +430,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       refreshTransactions();
       refreshPortfolio();
     },
-    [refreshAccounts, refreshTransactions, refreshPortfolio]
+    [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
   const deleteStockTransaction = useMemo(
@@ -437,37 +440,40 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // --- MUTUAL FUNDS ---
 
-  const addMutualFund = useCallback(async (mf: Omit<MutualFund, 'id'>) => {
-    const { data, error } = await (supabase as ExtendedSupabaseClient)
-      .from('mutual_funds')
-      .insert({
-        user_id: user?.id,
-        name: mf.schemeName,
-        scheme_code: mf.schemeCode,
-        category: mf.category,
-        units: mf.units,
-        avg_nav: mf.avgNav,
-        current_nav: mf.currentNav,
-        previous_nav: mf.previousNav || mf.currentNav,
-        investment_amount: mf.investmentAmount,
-        current_value: mf.currentValue,
-        pnl: mf.pnl,
-        pnl_percentage: mf.pnlPercentage,
-        isin: mf.isin,
-        folio_number: mf.folioNumber,
-      })
-      .select()
-      .single();
+  const addMutualFund = useCallback(
+    async (mf: Omit<MutualFund, 'id'>) => {
+      const { data, error } = await (supabase as ExtendedSupabaseClient)
+        .from('mutual_funds')
+        .insert({
+          user_id: user?.id,
+          name: mf.schemeName,
+          scheme_code: mf.schemeCode,
+          category: mf.category,
+          units: mf.units,
+          avg_nav: mf.avgNav,
+          current_nav: mf.currentNav,
+          previous_nav: mf.previousNav || mf.currentNav,
+          investment_amount: mf.investmentAmount,
+          current_value: mf.currentValue,
+          pnl: mf.pnl,
+          pnl_percentage: mf.pnlPercentage,
+          isin: mf.isin,
+          folio_number: mf.folioNumber,
+        })
+        .select()
+        .single();
 
-    if (error) {
-      logError('Error adding mutual fund:', error);
-      throw error;
-    }
+      if (error) {
+        logError('Error adding mutual fund:', error);
+        throw error;
+      }
 
-    const newMf = dbMutualFundToMutualFund(data);
-    setMutualFunds((prev) => [...prev, newMf]);
-    return newMf;
-  }, []);
+      const newMf = dbMutualFundToMutualFund(data);
+      setMutualFunds((prev) => [...prev, newMf]);
+      return newMf;
+    },
+    [user]
+  );
 
   const updateMutualFund = useCallback(async (id: number, mf: Partial<MutualFund>) => {
     const { error } = await (supabase as ExtendedSupabaseClient)
@@ -507,7 +513,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const { data, error } = await (supabase as ExtendedSupabaseClient)
         .from('mutual_fund_transactions')
         .insert({
-          user_id: user?.id,
+          ...(user?.id ? { user_id: user.id } : {}),
           mutual_fund_id: tx.mutualFundId,
           transaction_type: tx.transactionType,
           units: tx.units,
@@ -534,7 +540,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       refreshTransactions();
       refreshPortfolio();
     },
-    [refreshAccounts, refreshTransactions, refreshPortfolio]
+    [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
   const deleteMutualFundTransaction = useMemo(
@@ -554,6 +560,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const { data, error } = await (supabase as ExtendedSupabaseClient)
         .from('fno_trades')
         .insert({
+          ...(user?.id ? { user_id: user.id } : {}),
           instrument: trade.instrument,
           trade_type: trade.tradeType,
           product: trade.product,
@@ -581,7 +588,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       refreshTransactions();
       refreshPortfolio();
     },
-    [refreshAccounts, refreshTransactions, refreshPortfolio]
+    [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
   const updateFnoTrade = useCallback(
@@ -737,27 +744,31 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // --- GOALS ---
 
-  const addGoal = useCallback(async (goal: Omit<Goal, 'id'>) => {
-    const { data, error } = await supabase
-      .from('goals')
-      .insert({
-        name: goal.name,
-        target_amount: goal.targetAmount,
-        current_amount: goal.currentAmount,
-        deadline: goal.deadline,
-        category: goal.category,
-        description: goal.description,
-      })
-      .select()
-      .single();
+  const addGoal = useCallback(
+    async (goal: Omit<Goal, 'id'>) => {
+      const { data, error } = await supabase
+        .from('goals')
+        .insert({
+          user_id: user?.id,
+          name: goal.name,
+          target_amount: goal.targetAmount,
+          current_amount: goal.currentAmount,
+          deadline: goal.deadline,
+          category: goal.category,
+          description: goal.description,
+        })
+        .select()
+        .single();
 
-    if (error) {
-      logError('Error adding goal:', error);
-      throw error;
-    }
+      if (error) {
+        logError('Error adding goal:', error);
+        throw error;
+      }
 
-    setGoals((prev) => [...prev, dbGoalToGoal(data)]);
-  }, []);
+      setGoals((prev) => [...prev, dbGoalToGoal(data)]);
+    },
+    [user]
+  );
 
   const updateGoal = useCallback(async (id: number, goal: Partial<Goal>) => {
     const { error } = await supabase
@@ -789,6 +800,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const { data, error } = await supabase
         .from('family_transfers')
         .insert({
+          user_id: user?.id,
           date: transfer.date,
           recipient: transfer.recipient,
           relationship: transfer.relationship,
@@ -808,7 +820,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setFamilyTransfers((prev) => [...prev, dbFamilyTransferToFamilyTransfer(data)]);
       refreshAccounts();
     },
-    [refreshAccounts]
+    [user, refreshAccounts]
   );
 
   const updateFamilyTransfer = useCallback(
@@ -920,9 +932,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
           const res = await fetch(
             `/api/stocks/batch?symbols=${stockSymbols.join(',')}&t=${Date.now()}`
           );
-          const data = await res.json();
-          if (data.success && data.data) {
-            const updates = data.data;
+          const updates = await res.json();
+          if (updates && typeof updates === 'object' && !updates.error) {
             let updatedCount = 0;
 
             setStocks((prev) =>
@@ -937,10 +948,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
                 updatedCount++;
                 const currentPrice = update.currentPrice;
+                const apiPreviousClose = update.previousClose;
+
+                // If API returns previousClose == currentPrice, it's often a placeholder.
+                // In that case, we keep our existing previousPrice if available.
                 const previousPrice =
-                  update.previousClose > 0
-                    ? update.previousClose
+                  apiPreviousClose > 0 && Math.abs(apiPreviousClose - currentPrice) > 0.01
+                    ? apiPreviousClose
                     : stock.previousPrice || currentPrice;
+
                 const currentValue = stock.quantity * currentPrice;
                 const pnl = currentValue - stock.investmentAmount;
                 const pnlPercentage =
@@ -987,9 +1003,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (mfCodes.length > 0) {
           if (!silent) console.log(`Fetching NAVs for ${mfCodes.length} mutual funds...`);
           const res = await fetch(`/api/mf/batch?codes=${mfCodes.join(',')}&t=${Date.now()}`);
-          const data = await res.json();
-          if (data.success && data.data) {
-            const updates = data.data;
+          const updates = await res.json();
+          if (updates && typeof updates === 'object' && !updates.error) {
             let updatedCount = 0;
 
             setMutualFunds((prev) =>
@@ -1047,9 +1062,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         );
         if (bondIsins.length > 0) {
           const res = await fetch(`/api/bonds/batch?isins=${bondIsins.join(',')}&t=${Date.now()}`);
-          const data = await res.json();
-          if (data.success && data.data) {
-            const updates = data.data;
+          const updates = await res.json();
+          if (updates && typeof updates === 'object' && !updates.error) {
             setBonds((prev) =>
               prev.map((bond) => {
                 if (!bond.isin) return bond;
@@ -1290,7 +1304,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     ]
   );
 
-  // Automatic Live Price Refresh (every 5 minutes)
+  // Automatic Live Price Refresh (every 1 minute)
   const dataLoaded = !loading;
   useEffect(() => {
     if (
@@ -1303,16 +1317,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       return () => clearTimeout(timeout);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dataLoaded]);
+  }, [dataLoaded, stocks.length, mutualFunds.length]);
 
-  // Periodic refresh - silent background update
+  // Periodic refresh - silent background update (every 1 minute)
   useEffect(() => {
     const intervalId = setInterval(() => {
-      if (user) refreshLivePrices(true);
-    }, 300000);
+      if (user && !loading) refreshLivePrices(true);
+    }, 60000);
 
     return () => clearInterval(intervalId);
-  }, [user, refreshLivePrices]);
+  }, [user, loading, refreshLivePrices]);
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
 };

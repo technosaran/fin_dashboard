@@ -64,6 +64,9 @@ export default function MutualFundsClient() {
   const [editId, setEditId] = useState<number | null>(null);
   const [viewingCharges, setViewingCharges] = useState<MutualFund | null>(null);
 
+  // Filter out closed positions (units = 0) to mimic Zerodha/brokerage behavior
+  const activeMutualFunds = mutualFunds.filter((mf) => mf.units > 0);
+
   // Search & Data Fetching States
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<
@@ -94,10 +97,10 @@ export default function MutualFundsClient() {
   const [isTypeLocked, setIsTypeLocked] = useState(false);
 
   // Portfolio Metrics
-  const totalInvestment = mutualFunds.reduce((sum, mf) => sum + mf.investmentAmount, 0);
-  const totalCurrentValue = mutualFunds.reduce((sum, mf) => sum + mf.currentValue, 0);
+  const totalInvestment = activeMutualFunds.reduce((sum, mf) => sum + mf.investmentAmount, 0);
+  const totalCurrentValue = activeMutualFunds.reduce((sum, mf) => sum + mf.currentValue, 0);
   const totalPnL = totalCurrentValue - totalInvestment;
-  const totalDayPnL = mutualFunds.reduce((sum, mf) => {
+  const totalDayPnL = activeMutualFunds.reduce((sum, mf) => {
     const dayChange = (mf.currentNav - (mf.previousNav || mf.currentNav)) * mf.units;
     return sum + dayChange;
   }, 0);
@@ -131,7 +134,7 @@ export default function MutualFundsClient() {
   };
 
   // Category allocation
-  const categoryData = mutualFunds.reduce(
+  const categoryData = activeMutualFunds.reduce(
     (acc, mf) => {
       const cat = mf.category || 'Others';
       const existing = acc.find((item) => item.name === cat);
@@ -275,13 +278,28 @@ export default function MutualFundsClient() {
 
   const handleTransactionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const unitsVal = Number(txUnits);
-    const navVal = Number(txNav);
-
-    if (isNaN(unitsVal) || unitsVal <= 0) {
-      showNotification('error', 'Invalid units. Must be a positive number.');
+    if (!selectedFundId) {
+      showNotification('error', 'Please select a mutual fund.');
       return;
     }
+
+    if (!txUnits || Number(txUnits) <= 0) {
+      showNotification('error', 'Please provide valid units.');
+      return;
+    }
+
+    if (!txNav || Number(txNav) <= 0) {
+      showNotification('error', 'Please provide a valid NAV.');
+      return;
+    }
+
+    if (!selectedAccountId) {
+      showNotification('error', 'Please select an operating bank account.');
+      return;
+    }
+
+    const unitsVal = Number(txUnits);
+    const navVal = Number(txNav);
     if (isNaN(navVal) || navVal < 0) {
       showNotification('error', 'Invalid NAV. Must be a non-negative number.');
       return;
@@ -297,13 +315,13 @@ export default function MutualFundsClient() {
         nav: navVal,
         totalAmount: total,
         transactionDate: txDate,
-        accountId: selectedAccountId !== '' ? Number(selectedAccountId) : undefined,
+        accountId: selectedAccountId ? Number(selectedAccountId) : undefined,
       });
 
       showNotification('success', `Transaction recorded: ${transactionType} ${unitsVal} units`);
       resetTransactionForm();
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error: unknown) {
       logError('Failed to record mutual fund transaction:', error);
       const msg = error instanceof Error ? error.message : 'Check fields & account';
       showNotification('error', `Failed: ${msg}`);
@@ -354,24 +372,27 @@ export default function MutualFundsClient() {
     <div className="page-container">
       {/* Header */}
       <div
-        className="flex-col-mobile"
         style={{
+          display: 'flex',
+          flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '24px',
-          gap: '20px',
+          alignItems: 'center',
+          marginBottom: '32px',
+          gap: '24px',
+          width: '100%',
         }}
       >
-        <div>
+        <div style={{ flexShrink: 0 }}>
           <h1
             style={{
-              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+              fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
               fontWeight: '900',
               margin: 0,
               letterSpacing: '-0.02em',
               background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              whiteSpace: 'nowrap',
             }}
           >
             Mutual Funds
@@ -382,7 +403,6 @@ export default function MutualFundsClient() {
             display: 'flex',
             gap: '12px',
             alignItems: 'center',
-            width: '100%',
             justifyContent: 'flex-end',
           }}
         >
@@ -441,11 +461,16 @@ export default function MutualFundsClient() {
 
       {/* Performance Cards */}
       <div
-        className="grid-responsive-3"
         style={{
-          gap: '20px',
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '16px',
           marginBottom: '32px',
+          width: '100%',
+          overflowX: 'auto',
+          paddingBottom: '8px',
         }}
+        className="hide-scrollbar"
       >
         <div
           className="premium-card"
@@ -454,6 +479,8 @@ export default function MutualFundsClient() {
             padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
+            flex: '1',
+            minWidth: '200px',
           }}
         >
           <div
@@ -467,7 +494,13 @@ export default function MutualFundsClient() {
           >
             Total Invested
           </div>
-          <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900' }}>
+          <div
+            style={{
+              fontSize: 'clamp(1.2rem, 2vw, 1.5rem)',
+              fontWeight: '900',
+              whiteSpace: 'nowrap',
+            }}
+          >
             ₹{totalInvestment.toLocaleString()}
           </div>
         </div>
@@ -478,6 +511,8 @@ export default function MutualFundsClient() {
             padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
+            flex: '1',
+            minWidth: '200px',
           }}
         >
           <div
@@ -491,7 +526,13 @@ export default function MutualFundsClient() {
           >
             Current Value
           </div>
-          <div style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900' }}>
+          <div
+            style={{
+              fontSize: 'clamp(1.2rem, 2vw, 1.5rem)',
+              fontWeight: '900',
+              whiteSpace: 'nowrap',
+            }}
+          >
             ₹{totalCurrentValue.toLocaleString()}
           </div>
         </div>
@@ -502,6 +543,8 @@ export default function MutualFundsClient() {
             padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
+            flex: '1',
+            minWidth: '200px',
           }}
         >
           <div
@@ -517,9 +560,10 @@ export default function MutualFundsClient() {
           </div>
           <div
             style={{
-              fontSize: 'clamp(1.4rem, 3vw, 1.8rem)',
+              fontSize: 'clamp(1.2rem, 2vw, 1.5rem)',
               fontWeight: '900',
               color: totalPnL >= 0 ? '#34d399' : '#f87171',
+              whiteSpace: 'nowrap',
             }}
           >
             {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
@@ -532,6 +576,8 @@ export default function MutualFundsClient() {
             padding: '20px',
             borderRadius: '24px',
             border: '1px solid #1e293b',
+            flex: '1',
+            minWidth: '200px',
           }}
         >
           <div
@@ -547,43 +593,16 @@ export default function MutualFundsClient() {
           </div>
           <div
             style={{
-              fontSize: 'clamp(1.4rem, 3vw, 1.8rem)',
+              fontSize: 'clamp(1.2rem, 2vw, 1.5rem)',
               fontWeight: '900',
               color: totalDayPnL >= 0 ? '#34d399' : '#f87171',
+              whiteSpace: 'nowrap',
             }}
           >
             {totalDayPnL >= 0 ? '+' : ''}₹
             {totalDayPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </div>
         </div>
-        {activeTab === 'lifetime' && (
-          <div
-            className="premium-card"
-            style={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-              padding: '20px',
-              borderRadius: '24px',
-              boxShadow: '0 15px 30px rgba(99, 102, 241, 0.2)',
-            }}
-          >
-            <div
-              style={{
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '0.7rem',
-                fontWeight: '800',
-                textTransform: 'uppercase',
-                marginBottom: '10px',
-              }}
-            >
-              Lifetime Wealth
-            </div>
-            <div
-              style={{ fontSize: 'clamp(1.4rem, 3vw, 1.8rem)', fontWeight: '900', color: '#fff' }}
-            >
-              ₹{lifetimeEarned.toLocaleString()}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Tabs */}
@@ -640,8 +659,8 @@ export default function MutualFundsClient() {
         <div className="fade-in">
           {/* Mobile Card View */}
           <div className="mobile-card-list">
-            {mutualFunds.length > 0 ? (
-              mutualFunds.map((mf, idx) => (
+            {activeMutualFunds.length > 0 ? (
+              activeMutualFunds.map((mf, idx) => (
                 <div
                   key={mf.id}
                   className="premium-card"
@@ -841,9 +860,9 @@ export default function MutualFundsClient() {
                 </div>
               ))
             ) : (
-              <div style={{ padding: '60px 20px', textAlign: 'center', color: '#64748b' }}>
-                <EmptyPortfolioVisual />
-                <div style={{ fontWeight: '700', marginTop: '20px' }}>No holdings found</div>
+              <div style={{ padding: '30px 20px', textAlign: 'center', color: '#64748b' }}>
+                <EmptyPortfolioVisual size={120} />
+                <div style={{ fontWeight: '700', marginTop: '10px' }}>No holdings found</div>
               </div>
             )}
           </div>
@@ -963,8 +982,8 @@ export default function MutualFundsClient() {
                 </tr>
               </thead>
               <tbody>
-                {mutualFunds.length > 0 ? (
-                  mutualFunds.map((mf) => (
+                {activeMutualFunds.length > 0 ? (
+                  activeMutualFunds.map((mf) => (
                     <tr
                       key={mf.id}
                       style={{
@@ -1144,9 +1163,9 @@ export default function MutualFundsClient() {
                   <tr>
                     <td
                       colSpan={7}
-                      style={{ padding: '80px 24px', textAlign: 'center', color: '#64748b' }}
+                      style={{ padding: '60px 24px', textAlign: 'center', color: '#64748b' }}
                     >
-                      <EmptyPortfolioVisual />
+                      <EmptyPortfolioVisual size={150} />
                       <div
                         style={{
                           fontWeight: '800',

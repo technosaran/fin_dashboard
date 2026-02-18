@@ -5,8 +5,15 @@ import React from 'react';
 /**
  * Premium SVG Illustration for Empty Portfolio / Investments
  */
-export const EmptyPortfolioVisual = () => (
-  <div style={{ position: 'relative', width: '200px', height: '200px', margin: '0 auto' }}>
+export const EmptyPortfolioVisual = ({ size = 200 }: { size?: number }) => (
+  <div
+    style={{
+      position: 'relative',
+      width: `${size}px`,
+      height: `${size}px`,
+      margin: '0 auto',
+    }}
+  >
     <div
       className="animate-glow-pulse"
       style={{

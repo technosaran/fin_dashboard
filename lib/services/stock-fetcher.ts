@@ -110,11 +110,9 @@ export async function fetchBatchStockQuotes(
   symbols: string[]
 ): Promise<Record<string, StockQuote>> {
   const results: Record<string, StockQuote> = {};
-  const remainingSymbols = [...symbols];
-
   // Try bulk Yahoo quote first as it's efficient
-  const nseList = symbols.map((s) => `${s}.NS`).join(',');
-  const bseList = symbols.map((s) => `${s}.BO`).join(',');
+  const nseList = symbols.map((s) => (s.includes('.') ? s : `${s}.NS`)).join(',');
+  const bseList = symbols.map((s) => (s.includes('.') ? s : `${s}.BO`)).join(',');
 
   for (const endpoint of [YAHOO_ENDPOINTS[2], YAHOO_ENDPOINTS[3]]) {
     try {

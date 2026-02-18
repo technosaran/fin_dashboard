@@ -38,30 +38,46 @@ export async function fetchGoogleFinancePrice(
 
     const html = await response.text();
 
-    // Find price using more robust regex patterns
-    const lastPriceMatch = html.match(/data-last-price="([\d,.]+)"/);
-    const metaPriceMatch = html.match(/<meta itemprop="price" content="([^"]+)"/);
-    const classPriceMatch = html.match(/class="YMlS7e">([^<]+)<\/div>/);
-    const rawPriceMatch = html.match(/<div[^>]*class="[^"]*YMlS7e[^"]*"[^>]*>\D*([\d,.]+)/);
-
     let price = 0;
-    const priceStr =
-      lastPriceMatch?.[1] || metaPriceMatch?.[1] || classPriceMatch?.[1] || rawPriceMatch?.[1];
+    let previousClose = 0;
 
-    if (priceStr) {
-      price = parseFloat(priceStr.replace(/,/g, '').replace(/[^\d.]/g, ''));
+    // 1. Try JSON-LD (Most reliable for the main entity)
+    const jsonLdMatch = html.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+    if (jsonLdMatch) {
+      try {
+        const jsonLd = JSON.parse(jsonLdMatch[1]);
+        // JSON-LD can be a single object or an array
+        const mainEntity = Array.isArray(jsonLd) ? jsonLd[0] : jsonLd;
+        if (mainEntity.price) price = parseFloat(mainEntity.price);
+        // Sometimes it's nested
+        if (!price && mainEntity.mainEntity?.price) price = parseFloat(mainEntity.mainEntity.price);
+      } catch (e) {
+        // ignore
+      }
     }
 
-    // Pattern for Previous close
-    const lastCloseMatch = html.match(/data-last-close-price="([\d,.]+)"/);
+    // 2. Fallback to specific regex patterns
+    if (!price) {
+      const metaPriceMatch = html.match(/<meta itemprop="price" content="([^"]+)"/);
+      const lastPriceMatch = html.match(/data-last-price="([\d,.]+)"/);
+      const classPriceMatch = html.match(/class="[^"]*YMlS7e[^"]*">([^<]+)<\/div>/);
+
+      const priceStr = metaPriceMatch?.[1] || lastPriceMatch?.[1] || classPriceMatch?.[1];
+      if (priceStr) {
+        price = parseFloat(priceStr.replace(/,/g, '').replace(/[^\d.]/g, ''));
+      }
+    }
+
+    // Meta Prev Close
     const metaPrevMatch = html.match(/"?previousClose"?\s*:\s*"?([\d,.]+)"?/i);
+    const lastCloseMatch = html.match(/data-last-close-price="([\d,.]+)"/);
     const labelPrevMatch = html.match(/>Previous close<\/div>.*?class="P639yc">([^<]+)</);
 
-    let previousClose = price;
-    const prevStr = lastCloseMatch?.[1] || metaPrevMatch?.[1] || labelPrevMatch?.[1];
-
+    const prevStr = metaPrevMatch?.[1] || lastCloseMatch?.[1] || labelPrevMatch?.[1];
     if (prevStr) {
       previousClose = parseFloat(prevStr.replace(/,/g, '').replace(/[^\d.]/g, ''));
+    } else {
+      previousClose = price;
     }
 
     if (price > 0) {

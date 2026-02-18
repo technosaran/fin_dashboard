@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNotifications } from '../components/NotificationContext';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import { useFinance } from '../components/FinanceContext';
@@ -202,7 +202,12 @@ export default function StocksClient() {
         // Log to ledger by default (per user request)
         // 1. Create stock with 0 quantity first (or get existing)
         let targetStockId: number;
-        const existingStock = stocks.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase());
+        const currentSymbol = symbol.trim().toUpperCase();
+        const existingStock = stocks.find(
+          (s) =>
+            s.symbol.toUpperCase() === currentSymbol &&
+            s.exchange.toUpperCase() === exchange.toUpperCase()
+        );
 
         if (existingStock) {
           targetStockId = existingStock.id;
@@ -246,24 +251,29 @@ export default function StocksClient() {
 
   const handleTransactionSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedStockId || !transactionQuantity || !transactionPrice) {
-      showNotification('error', 'Please select a stock and provide quantity and price.');
+    if (!selectedStockId) {
+      showNotification('error', 'Please select a security to transact.');
+      return;
+    }
+
+    if (!transactionQuantity || Number(transactionQuantity) <= 0) {
+      showNotification('error', 'Please provide a valid quantity.');
+      return;
+    }
+
+    if (!transactionPrice || Number(transactionPrice) <= 0) {
+      showNotification('error', 'Please provide a valid price.');
+      return;
+    }
+
+    if (!selectedAccountId) {
+      showNotification('error', 'Please select an operating bank account.');
       return;
     }
 
     const qty = Number(transactionQuantity);
     const price = Number(transactionPrice);
-
-    if (isNaN(qty) || qty <= 0) {
-      showNotification('error', 'Invalid quantity. Must be a positive number.');
-      return;
-    }
-    if (isNaN(price) || price < 0) {
-      showNotification('error', 'Invalid price. Must be a non-negative number.');
-      return;
-    }
-
-    const totalAmount = qty * price;
+    const total = qty * price;
 
     let finalBrokerage = brokerage && !isNaN(parseFloat(brokerage)) ? parseFloat(brokerage) : 0;
     let finalTaxes = taxes && !isNaN(parseFloat(taxes)) ? parseFloat(taxes) : 0;
@@ -280,18 +290,17 @@ export default function StocksClient() {
         transactionType,
         quantity: qty,
         price,
-        totalAmount,
+        totalAmount: total,
         brokerage: finalBrokerage,
         taxes: finalTaxes,
         transactionDate,
         notes: notes || undefined,
-        accountId: selectedAccountId !== '' ? Number(selectedAccountId) : undefined,
+        accountId: selectedAccountId ? Number(selectedAccountId) : undefined,
       });
-
       showNotification('success', `Transaction recorded: ${transactionType} ${qty} shares`);
       resetTransactionForm();
       setIsModalOpen(false);
-    } catch (error) {
+    } catch (error: unknown) {
       logError('Failed to record stock transaction:', error);
       const msg = error instanceof Error ? error.message : 'Check fields & account';
       showNotification('error', `Failed: ${msg}`);
@@ -332,10 +341,7 @@ export default function StocksClient() {
     setTransactionType('SELL');
     setTransactionQuantity(stock.quantity.toString());
     setTransactionPrice(stock.currentPrice.toString());
-    if ((selectedAccountId === '' || selectedAccountId === 0) && settings.defaultStockAccountId) {
-      setSelectedAccountId(settings.defaultStockAccountId);
-    } else if (!selectedAccountId && settings.defaultStockAccountId) {
-      // If no account is selected at all, and a default exists, use it.
+    if (!selectedAccountId && settings.defaultStockAccountId) {
       setSelectedAccountId(settings.defaultStockAccountId);
     }
     setIsTypeLocked(true);
@@ -360,6 +366,42 @@ export default function StocksClient() {
     setIsTypeLocked(false);
     setIsModalOpen(true);
   };
+
+  // Group stocks by symbol and exchange for "Zerodha-style" averaging
+  const groupedStocks = useMemo(() => {
+    const groups: Record<string, Stock> = {};
+    stocks.forEach((stock) => {
+      const key = `${stock.symbol.toUpperCase()}_${stock.exchange.toUpperCase()}`;
+      if (!groups[key]) {
+        groups[key] = { ...stock };
+      } else {
+        const existing = groups[key];
+        const totalQty = existing.quantity + stock.quantity;
+        const totalInvestment = existing.investmentAmount + stock.investmentAmount;
+
+        // Calculate weighted average previous price to preserve Day's P&L correctly
+        const existingPrevPrice = existing.previousPrice || existing.currentPrice;
+        const stockPrevPrice = stock.previousPrice || stock.currentPrice;
+        const totalPrevValue =
+          existingPrevPrice * existing.quantity + stockPrevPrice * stock.quantity;
+
+        existing.quantity = totalQty;
+        existing.investmentAmount = totalInvestment;
+        existing.avgPrice = totalQty > 0 ? totalInvestment / totalQty : 0;
+        existing.currentPrice = stock.currentPrice; // Latest LTP
+        existing.previousPrice = totalQty > 0 ? totalPrevValue / totalQty : existing.currentPrice;
+
+        existing.currentValue += stock.currentValue;
+        existing.pnl += stock.pnl;
+        existing.pnlPercentage =
+          existing.investmentAmount > 0 ? (existing.pnl / existing.investmentAmount) * 100 : 0;
+      }
+    });
+    // Filter out stocks with 0 quantity (closed positions) to mimic Zerodha/brokerage behavior
+    return Object.values(groups)
+      .filter((stock) => stock.quantity > 0)
+      .sort((a, b) => b.currentValue - a.currentValue);
+  }, [stocks]);
 
   // Calculate portfolio metrics
   const totalInvestment = stocks.reduce((sum, stock) => sum + stock.investmentAmount, 0);
@@ -395,7 +437,7 @@ export default function StocksClient() {
   };
 
   // Sector-wise distribution
-  const sectorData = stocks.reduce(
+  const sectorData = groupedStocks.reduce(
     (acc, stock) => {
       const sector = stock.sector || 'Others';
       const existing = acc.find((item) => item.sector === sector);
@@ -440,24 +482,27 @@ export default function StocksClient() {
     <div className="page-container">
       {/* Header Section */}
       <div
-        className="flex-col-mobile"
         style={{
+          display: 'flex',
+          flexDirection: 'row',
           justifyContent: 'space-between',
-          alignItems: 'flex-start',
-          marginBottom: '24px',
-          gap: '20px',
+          alignItems: 'center',
+          marginBottom: '32px',
+          gap: '24px',
+          width: '100%',
         }}
       >
-        <div>
+        <div style={{ flexShrink: 0 }}>
           <h1
             style={{
-              fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
+              fontSize: 'clamp(1.5rem, 5vw, 2.5rem)',
               fontWeight: '900',
               margin: 0,
               letterSpacing: '-0.02em',
               background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
+              whiteSpace: 'nowrap',
             }}
           >
             Stock Portfolio
@@ -468,7 +513,6 @@ export default function StocksClient() {
             display: 'flex',
             gap: '12px',
             alignItems: 'center',
-            width: '100%',
             justifyContent: 'flex-end',
           }}
         >
@@ -642,35 +686,6 @@ export default function StocksClient() {
             {totalPnL >= 0 ? '+' : ''}₹{totalPnL.toLocaleString()}
           </div>
         </div>
-        {activeTab === 'lifetime' && (
-          <div
-            style={{
-              background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-              padding: '24px',
-              borderRadius: '20px',
-              border: 'none',
-              boxShadow: '0 10px 30px rgba(99, 102, 241, 0.2)',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                marginBottom: '12px',
-                color: 'rgba(255,255,255,0.8)',
-              }}
-            >
-              <Zap size={18} />
-              <span style={{ fontWeight: '800', fontSize: '0.8rem', textTransform: 'uppercase' }}>
-                Lifetime Wealth
-              </span>
-            </div>
-            <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>
-              ₹{lifetimeEarned.toLocaleString()}
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Tab Navigation */}
@@ -726,8 +741,8 @@ export default function StocksClient() {
         <div className="fade-in">
           {/* Mobile Card View */}
           <div className="mobile-card-list">
-            {stocks.length > 0 ? (
-              stocks.map((stock, idx) => (
+            {groupedStocks.length > 0 ? (
+              groupedStocks.map((stock, idx) => (
                 <div
                   key={stock.id}
                   className="premium-card"
@@ -1059,8 +1074,8 @@ export default function StocksClient() {
                 </tr>
               </thead>
               <tbody>
-                {stocks.length > 0 ? (
-                  stocks.map((stock) => (
+                {groupedStocks.length > 0 ? (
+                  groupedStocks.map((stock) => (
                     <tr
                       key={stock.id}
                       style={{
@@ -1493,7 +1508,7 @@ export default function StocksClient() {
                 Equity Weights
               </h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                {stocks
+                {groupedStocks
                   .sort((a, b) => b.currentValue - a.currentValue)
                   .slice(0, 6)
                   .map((stock) => (
@@ -2275,7 +2290,7 @@ export default function StocksClient() {
                     <option value="" disabled>
                       Select Stock
                     </option>
-                    {stocks.map((stock) => (
+                    {groupedStocks.map((stock) => (
                       <option key={stock.id} value={stock.id}>
                         {stock.symbol} - {stock.companyName}
                       </option>
