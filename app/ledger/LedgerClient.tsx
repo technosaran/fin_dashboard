@@ -572,8 +572,22 @@ export default function LedgerClient() {
                     style={{
                       flex: 1,
                       padding: '10px 12px',
-                      background: 'rgba(99, 102, 241, 0.1)',
-                      color: '#818cf8',
+                      background: (() => {
+                        if (!selectedDate) return 'rgba(99, 102, 241, 0.1)';
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return selectedDate.toDateString() === yesterday.toDateString()
+                          ? '#6366f1'
+                          : 'rgba(99, 102, 241, 0.1)';
+                      })(),
+                      color: (() => {
+                        if (!selectedDate) return '#818cf8';
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return selectedDate.toDateString() === yesterday.toDateString()
+                          ? '#fff'
+                          : '#818cf8';
+                      })(),
                       border: '1px solid rgba(99, 102, 241, 0.2)',
                       borderRadius: '10px',
                       fontSize: '0.75rem',
