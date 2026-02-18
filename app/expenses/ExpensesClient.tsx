@@ -222,7 +222,7 @@ export default function ExpensesClient() {
                   onClick={() => setActiveTab(tab as 'This Year' | 'All Time')}
                   aria-pressed={activeTab === tab}
                   style={{
-                    padding: '10px 20px',
+                    padding: 'clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px)',
                     borderRadius: '10px',
                     border: 'none',
                     background:
@@ -233,7 +233,8 @@ export default function ExpensesClient() {
                     fontWeight: '700',
                     cursor: 'pointer',
                     transition: '0.3s',
-                    fontSize: '0.85rem',
+                    fontSize: 'clamp(0.8rem, 2vw, 0.85rem)',
+                    minHeight: '44px',
                   }}
                 >
                   {tab}
@@ -244,13 +245,13 @@ export default function ExpensesClient() {
               onClick={() => setIsModalOpen(true)}
               aria-label="Add new expense"
               style={{
-                padding: '12px 28px',
+                padding: 'clamp(12px, 2.5vw, 14px) clamp(24px, 4vw, 28px)',
                 borderRadius: '16px',
                 background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                 color: 'white',
                 border: 'none',
                 fontWeight: '800',
-                fontSize: '0.9rem',
+                fontSize: 'clamp(0.85rem, 2vw, 0.9rem)',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -258,6 +259,7 @@ export default function ExpensesClient() {
                 boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)',
                 transition: '0.3s',
                 whiteSpace: 'nowrap',
+                minHeight: '44px',
               }}
               onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
               onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
@@ -652,8 +654,13 @@ export default function ExpensesClient() {
                             border: 'none',
                             color: '#64748b',
                             cursor: 'pointer',
-                            padding: '6px',
+                            padding: '10px',
                             borderRadius: '8px',
+                            minWidth: '44px',
+                            minHeight: '44px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                           aria-label="Edit expense"
                         >
@@ -678,8 +685,13 @@ export default function ExpensesClient() {
                             border: 'none',
                             color: '#f43f5e',
                             cursor: 'pointer',
-                            padding: '6px',
+                            padding: '10px',
                             borderRadius: '8px',
+                            minWidth: '44px',
+                            minHeight: '44px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
                           aria-label="Delete expense"
                         >
@@ -728,6 +740,8 @@ export default function ExpensesClient() {
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '480px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
             }}
           >
@@ -758,8 +772,8 @@ export default function ExpensesClient() {
                   border: 'none',
                   color: '#94a3b8',
                   borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
+                  minWidth: '44px',
+                  minHeight: '44px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
@@ -945,13 +959,14 @@ export default function ExpensesClient() {
                   marginTop: '12px',
                   background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
                   color: '#fff',
-                  padding: '18px',
+                  padding: 'clamp(16px, 3vw, 18px)',
                   borderRadius: '18px',
                   border: 'none',
                   fontWeight: '900',
                   cursor: 'pointer',
-                  fontSize: '1.1rem',
+                  fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
                   boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)',
+                  minHeight: '44px',
                 }}
               >
                 {editId ? 'Update Expense' : 'Track This Expense'}

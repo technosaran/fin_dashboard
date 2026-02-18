@@ -140,7 +140,7 @@ export default function ForexClient() {
         className="grid-responsive-4 mb-xl fade-in"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '20px',
           marginBottom: '32px',
         }}
@@ -508,6 +508,7 @@ function ForexTransactionModal({
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
+        padding: 'clamp(12px, 3vw, 20px)',
       }}
     >
       <div
@@ -530,7 +531,9 @@ function ForexTransactionModal({
           backgroundColor: '#0f172a',
           border: '1px solid #1e293b',
           borderRadius: '32px',
-          padding: '32px',
+          padding: 'clamp(24px, 5vw, 32px)',
+          maxHeight: '95vh',
+          overflowY: 'auto',
         }}
       >
         <div
@@ -541,7 +544,7 @@ function ForexTransactionModal({
             marginBottom: '24px',
           }}
         >
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '900', margin: 0 }}>
+          <h2 style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)', fontWeight: '900', margin: 0 }}>
             {transaction ? 'Edit Transaction' : 'Add Transaction'}
           </h2>
           <button
@@ -748,6 +751,7 @@ function ForexTransactionModal({
               fontWeight: '800',
               cursor: isSubmitting ? 'not-allowed' : 'pointer',
               opacity: isSubmitting ? 0.6 : 1,
+              minHeight: '44px',
             }}
           >
             {isSubmitting ? 'Saving...' : transaction ? 'Update Transaction' : 'Add Transaction'}

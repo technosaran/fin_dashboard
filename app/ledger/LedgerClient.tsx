@@ -181,7 +181,12 @@ export default function LedgerClient() {
   return (
     <div
       className="main-content"
-      style={{ backgroundColor: '#020617', minHeight: '100vh', color: '#f8fafc', padding: '24px' }}
+      style={{
+        backgroundColor: '#020617',
+        minHeight: '100vh',
+        color: '#f8fafc',
+        padding: 'clamp(16px, 4vw, 24px)',
+      }}
     >
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header Section */}
@@ -244,7 +249,8 @@ export default function LedgerClient() {
                 showNotification('success', 'Ledger exported to CSV');
               }}
               style={{
-                padding: '12px 20px',
+                padding: 'clamp(12px, 2.5vw, 14px) clamp(16px, 3vw, 20px)',
+                minHeight: '44px',
                 borderRadius: '16px',
                 background: 'rgba(15, 23, 42, 0.6)',
                 color: '#94a3b8',
@@ -273,7 +279,8 @@ export default function LedgerClient() {
             <button
               onClick={() => setIsModalOpen(true)}
               style={{
-                padding: '12px 24px',
+                padding: 'clamp(12px, 2.5vw, 14px) clamp(20px, 4vw, 24px)',
+                minHeight: '44px',
                 borderRadius: '16px',
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
                 color: 'white',
@@ -983,11 +990,13 @@ export default function LedgerClient() {
           <div
             style={{
               background: '#0f172a',
-              padding: '40px',
+              padding: 'clamp(24px, 5vw, 40px)',
               borderRadius: '32px',
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '540px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
             }}
           >
@@ -1001,7 +1010,7 @@ export default function LedgerClient() {
             >
               <h2
                 style={{
-                  fontSize: '1.75rem',
+                  fontSize: 'clamp(1.4rem, 3vw, 1.75rem)',
                   fontWeight: '950',
                   margin: 0,
                   letterSpacing: '-0.02em',
@@ -1016,12 +1025,15 @@ export default function LedgerClient() {
                   border: 'none',
                   color: '#94a3b8',
                   borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
+                  width: '44px',
+                  height: '44px',
+                  minWidth: '44px',
+                  minHeight: '44px',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
+                  flexShrink: 0,
                 }}
               >
                 <X size={24} />
@@ -1061,6 +1073,7 @@ export default function LedgerClient() {
                       style={{
                         flex: 1,
                         padding: '12px',
+                        minHeight: '44px',
                         borderRadius: '10px',
                         border: 'none',
                         background: type === 'Expense' ? '#f43f5e' : 'transparent',
@@ -1078,6 +1091,7 @@ export default function LedgerClient() {
                       style={{
                         flex: 1,
                         padding: '12px',
+                        minHeight: '44px',
                         borderRadius: '10px',
                         border: 'none',
                         background: type === 'Income' ? '#10b981' : 'transparent',
@@ -1150,7 +1164,13 @@ export default function LedgerClient() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+                  gap: '20px',
+                }}
+              >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                   <label
                     style={{
@@ -1251,7 +1271,8 @@ export default function LedgerClient() {
                   marginTop: '12px',
                   background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
                   color: '#fff',
-                  padding: '20px',
+                  padding: 'clamp(16px, 3vw, 20px)',
+                  minHeight: '44px',
                   borderRadius: '20px',
                   border: 'none',
                   fontWeight: '900',

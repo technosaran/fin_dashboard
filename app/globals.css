@@ -224,6 +224,8 @@ p {
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
   position: relative;
+  /* Performance optimizations - only on hover */
+  transform: translateZ(0);
 }
 
 /* Responsive card padding */
@@ -319,6 +321,8 @@ p {
 .animate-sparkle {
   display: inline-block;
   animation: sparkle 3s infinite ease-in-out;
+  /* Optimize animation performance with GPU acceleration */
+  transform: translateZ(0);
 }
 
 .text-glow {
@@ -390,6 +394,8 @@ p {
 
 .spin-animation {
   animation: spin 1s linear infinite;
+  /* Optimize animation performance with GPU acceleration */
+  transform: translateZ(0);
 }
 
 @keyframes spin {
@@ -445,6 +451,8 @@ p {
 
 .animate-floating {
   animation: floating 6s ease-in-out infinite;
+  /* Optimize animation performance with GPU acceleration */
+  transform: translateZ(0);
 }
 
 .animate-morph {
@@ -1363,4 +1371,23 @@ select:focus {
   clip-path: inset(50%);
   white-space: nowrap;
   border-width: 0;
+}
+
+/* Reduce motion for users who prefer it (accessibility) */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Smooth scrolling for users who don't mind it */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }

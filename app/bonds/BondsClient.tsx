@@ -165,7 +165,7 @@ export default function BondsClient() {
         className="grid-responsive-4 mb-xl fade-in"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
           gap: '20px',
           marginBottom: '32px',
         }}
@@ -592,6 +592,7 @@ export default function BondsClient() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                padding: 'clamp(12px, 3vw, 20px)',
               }}
             >
               <div
@@ -616,11 +617,19 @@ export default function BondsClient() {
                   padding: '0',
                   overflow: 'hidden',
                   boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+                  maxHeight: '95vh',
+                  overflowY: 'auto',
                 }}
               >
                 <div style={{ padding: '24px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
                   <div className="flex justify-between items-center">
-                    <h2 style={{ fontSize: '1.25rem', fontWeight: '900', margin: 0 }}>
+                    <h2
+                      style={{
+                        fontSize: 'clamp(1.25rem, 4vw, 1.5rem)',
+                        fontWeight: '900',
+                        margin: 0,
+                      }}
+                    >
                       Exit Simulator
                     </h2>
                     <button
@@ -720,6 +729,7 @@ export default function BondsClient() {
                       fontWeight: '800',
                       fontSize: '1rem',
                       background: 'var(--surface-light)',
+                      minHeight: '44px',
                     }}
                   >
                     Close Simulator

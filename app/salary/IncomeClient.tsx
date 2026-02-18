@@ -244,19 +244,20 @@ export default function IncomeClient() {
           <button
             onClick={() => setIsModalOpen(true)}
             style={{
-              padding: '14px 28px',
+              padding: 'clamp(12px, 2.5vw, 14px) clamp(24px, 4vw, 28px)',
               borderRadius: '16px',
               background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
               color: 'white',
               border: 'none',
               fontWeight: '800',
-              fontSize: '1rem',
+              fontSize: 'clamp(0.9rem, 2vw, 1rem)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '10px',
               boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)',
               transition: 'all 0.3s',
+              minHeight: '44px',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
@@ -287,7 +288,7 @@ export default function IncomeClient() {
               key={period}
               onClick={() => setSelectedPeriod(period)}
               style={{
-                padding: '10px 20px',
+                padding: 'clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px)',
                 borderRadius: '12px',
                 border: selectedPeriod === period ? '2px solid #10b981' : '2px solid #1e293b',
                 background:
@@ -298,7 +299,8 @@ export default function IncomeClient() {
                 fontWeight: '700',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                fontSize: '0.9rem',
+                fontSize: 'clamp(0.85rem, 2vw, 0.9rem)',
+                minHeight: '44px',
               }}
               onMouseEnter={(e) => {
                 if (selectedPeriod !== period) {
@@ -328,7 +330,7 @@ export default function IncomeClient() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
             gap: '24px',
             marginBottom: '40px',
           }}
@@ -819,11 +821,14 @@ export default function IncomeClient() {
                             border: 'none',
                             color: '#64748b',
                             cursor: 'pointer',
-                            padding: '8px',
+                            padding: '10px',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
                             transition: 'all 0.2s',
+                            minWidth: '44px',
+                            minHeight: '44px',
+                            justifyContent: 'center',
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
@@ -854,11 +859,14 @@ export default function IncomeClient() {
                             border: 'none',
                             color: '#ef4444',
                             cursor: 'pointer',
-                            padding: '8px',
+                            padding: '10px',
                             borderRadius: '8px',
                             display: 'flex',
                             alignItems: 'center',
                             transition: 'all 0.2s',
+                            minWidth: '44px',
+                            minHeight: '44px',
+                            justifyContent: 'center',
                           }}
                           onMouseEnter={(e) => {
                             e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
@@ -892,7 +900,7 @@ export default function IncomeClient() {
                     onClick={() => setIsModalOpen(true)}
                     style={{
                       marginTop: '20px',
-                      padding: '12px 24px',
+                      padding: 'clamp(12px, 2.5vw, 14px) clamp(20px, 3vw, 24px)',
                       borderRadius: '12px',
                       background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                       color: '#fff',
@@ -902,6 +910,7 @@ export default function IncomeClient() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
+                      minHeight: '44px',
                     }}
                   >
                     <Plus size={18} /> Add First Income
@@ -931,11 +940,13 @@ export default function IncomeClient() {
           <div
             style={{
               background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: '40px',
+              padding: 'clamp(24px, 5vw, 40px)',
               borderRadius: '32px',
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '500px',
+              maxHeight: '95vh',
+              overflowY: 'auto',
               boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)',
               position: 'relative',
             }}
@@ -953,8 +964,8 @@ export default function IncomeClient() {
                 border: 'none',
                 color: '#94a3b8',
                 borderRadius: '50%',
-                width: '40px',
-                height: '40px',
+                minWidth: '44px',
+                minHeight: '44px',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
@@ -968,7 +979,12 @@ export default function IncomeClient() {
             </button>
 
             <h2
-              style={{ fontSize: '1.8rem', fontWeight: '900', marginBottom: '12px', color: '#fff' }}
+              style={{
+                fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
+                fontWeight: '900',
+                marginBottom: '12px',
+                color: '#fff',
+              }}
             >
               {editId ? 'Edit Income' : 'Add New Income'}
             </h2>
@@ -1016,7 +1032,13 @@ export default function IncomeClient() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 200px), 1fr))',
+                  gap: '20px',
+                }}
+              >
                 <div>
                   <label
                     style={{
@@ -1137,14 +1159,15 @@ export default function IncomeClient() {
                   marginTop: '12px',
                   background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                   color: '#fff',
-                  padding: '18px',
+                  padding: 'clamp(16px, 3vw, 18px)',
                   borderRadius: '18px',
                   border: 'none',
                   fontWeight: '900',
                   cursor: 'pointer',
-                  fontSize: '1.1rem',
+                  fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
                   boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
                   transition: 'all 0.3s',
+                  minHeight: '44px',
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.transform = 'translateY(-2px)';
