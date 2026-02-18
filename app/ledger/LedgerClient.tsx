@@ -2,8 +2,6 @@
 
 import { useState, useMemo } from 'react';
 import { useNotifications } from '../components/NotificationContext';
-import Calendar from 'react-calendar';
-import 'react-calendar/dist/Calendar.css';
 import { useFinance } from '../components/FinanceContext';
 import { Transaction } from '@/lib/types';
 import { exportTransactionsToCSV } from '../../lib/exportUtils';
@@ -511,64 +509,83 @@ export default function LedgerClient() {
                     letterSpacing: '1px',
                   }}
                 >
-                  Temporal Matrix
+                  Filter By Date
                 </span>
               </div>
-              <style>{`
-                                .custom-calendar {
-                                    width: 100% !important;
-                                    background: transparent !important;
-                                    border: none !important;
-                                    color: #cbd5e1 !important;
-                                    font-family: inherit !important;
-                                }
-                                .custom-calendar .react-calendar__tile { 
-                                    padding: 12px 0 !important; 
-                                    font-size: 0.85rem !important;
-                                    font-weight: 700 !important;
-                                    border-radius: 12px !important;
-                                    color: #cbd5e1 !important;
-                                    transition: all 0.2s;
-                                }
-                                .custom-calendar .react-calendar__tile:hover {
-                                    background: rgba(255, 255, 255, 0.05) !important;
-                                }
-                                /* Remove red color for weekends */
-                                .custom-calendar .react-calendar__month-view__days__day--weekend {
-                                    color: #cbd5e1 !important;
-                                }
-                                .custom-calendar .react-calendar__tile--now { 
-                                    background: rgba(99, 102, 241, 0.1) !important; 
-                                    color: #818cf8 !important; 
-                                    font-weight: 900 !important;
-                                }
-                                .custom-calendar .react-calendar__tile--active { 
-                                    background: #6366f1 !important; 
-                                    color: white !important; 
-                                    box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-                                }
-                                .custom-calendar .react-calendar__navigation button { 
-                                    color: #f8fafc !important; 
-                                    font-weight: 800 !important;
-                                    border-radius: 10px;
-                                    font-size: 1rem;
-                                }
-                                .custom-calendar .react-calendar__navigation button:hover {
-                                    background: rgba(255, 255, 255, 0.05) !important;
-                                }
-                                .custom-calendar .react-calendar__month-view__weekdays__weekday abbr {
-                                    text-decoration: none !important;
-                                    color: #475569 !important;
-                                    font-weight: 950 !important;
-                                    font-size: 0.7rem;
-                                    text-transform: uppercase;
-                                }
-                            `}</style>
-              <Calendar
-                onChange={(val) => setSelectedDate(val as Date)}
-                value={selectedDate}
-                className="custom-calendar"
-              />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <input
+                  type="date"
+                  value={selectedDate ? selectedDate.toISOString().split('T')[0] : ''}
+                  onChange={(e) =>
+                    setSelectedDate(e.target.value ? new Date(e.target.value) : null)
+                  }
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    background: '#1e293b',
+                    border: '1px solid #334155',
+                    borderRadius: '12px',
+                    color: '#f8fafc',
+                    fontSize: '0.9rem',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    outline: 'none',
+                    transition: 'all 0.2s',
+                  }}
+                />
+                <div
+                  style={{
+                    display: 'flex',
+                    gap: '8px',
+                    flexWrap: 'wrap',
+                  }}
+                >
+                  <button
+                    onClick={() => setSelectedDate(new Date())}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      background:
+                        selectedDate?.toDateString() === new Date().toDateString()
+                          ? '#6366f1'
+                          : 'rgba(99, 102, 241, 0.1)',
+                      color:
+                        selectedDate?.toDateString() === new Date().toDateString()
+                          ? '#fff'
+                          : '#818cf8',
+                      border: '1px solid rgba(99, 102, 241, 0.2)',
+                      borderRadius: '10px',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    Today
+                  </button>
+                  <button
+                    onClick={() => {
+                      const yesterday = new Date();
+                      yesterday.setDate(yesterday.getDate() - 1);
+                      setSelectedDate(yesterday);
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      background: 'rgba(99, 102, 241, 0.1)',
+                      color: '#818cf8',
+                      border: '1px solid rgba(99, 102, 241, 0.2)',
+                      borderRadius: '10px',
+                      fontSize: '0.75rem',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    Yesterday
+                  </button>
+                </div>
+              </div>
               {selectedDate && (
                 <button
                   onClick={() => setSelectedDate(null)}
@@ -596,7 +613,7 @@ export default function LedgerClient() {
                     (e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)')
                   }
                 >
-                  <X size={14} /> RESET DATE VIEW
+                  <X size={14} /> CLEAR DATE FILTER
                 </button>
               )}
             </div>
