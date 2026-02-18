@@ -377,6 +377,7 @@ export default function FnOClient() {
             fontWeight: '900',
             cursor: 'pointer',
             padding: '8px 16px',
+            minHeight: '44px',
             borderBottom: activeTab === 'positions' ? '3px solid #6366f1' : 'none',
             display: 'flex',
             alignItems: 'center',
@@ -396,6 +397,7 @@ export default function FnOClient() {
             fontWeight: '900',
             cursor: 'pointer',
             padding: '8px 16px',
+            minHeight: '44px',
             borderBottom: activeTab === 'history' ? '3px solid #6366f1' : 'none',
             display: 'flex',
             alignItems: 'center',
@@ -415,6 +417,7 @@ export default function FnOClient() {
             fontWeight: '900',
             cursor: 'pointer',
             padding: '8px 16px',
+            minHeight: '44px',
             borderBottom: activeTab === 'lifetime' ? '3px solid #6366f1' : 'none',
             display: 'flex',
             alignItems: 'center',
@@ -479,7 +482,7 @@ export default function FnOClient() {
                   <div
                     style={{
                       display: 'grid',
-                      gridTemplateColumns: 'repeat(3, 1fr)',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                       gap: '8px',
                       marginBottom: '16px',
                       padding: '12px',
@@ -552,7 +555,9 @@ export default function FnOClient() {
                           color: '#10b981',
                           background: 'none',
                           border: 'none',
-                          padding: '4px',
+                          padding: '12px',
+                          minHeight: '44px',
+                          minWidth: '44px',
                         }}
                       >
                         <ArrowRight size={18} />
@@ -566,7 +571,9 @@ export default function FnOClient() {
                           color: '#64748b',
                           background: 'none',
                           border: 'none',
-                          padding: '4px',
+                          padding: '12px',
+                          minHeight: '44px',
+                          minWidth: '44px',
                         }}
                       >
                         <Edit3 size={18} />
@@ -588,7 +595,9 @@ export default function FnOClient() {
                           color: '#f43f5e',
                           background: 'none',
                           border: 'none',
-                          padding: '4px',
+                          padding: '12px',
+                          minHeight: '44px',
+                          minWidth: '44px',
                         }}
                       >
                         <Trash2 size={18} />
@@ -803,7 +812,9 @@ export default function FnOClient() {
                               border: 'none',
                               color: '#10b981',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minHeight: '44px',
+                              minWidth: '44px',
                               transition: 'all 0.2s',
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.transform = 'scale(1.2)')}
@@ -819,7 +830,9 @@ export default function FnOClient() {
                               border: 'none',
                               color: '#64748b',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minHeight: '44px',
+                              minWidth: '44px',
                               transition: 'color 0.2s',
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
@@ -843,7 +856,9 @@ export default function FnOClient() {
                               border: 'none',
                               color: '#64748b',
                               cursor: 'pointer',
-                              padding: '4px',
+                              padding: '12px',
+                              minHeight: '44px',
+                              minWidth: '44px',
                               transition: 'color 0.2s',
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.color = '#f43f5e')}
@@ -1181,7 +1196,7 @@ export default function FnOClient() {
             justifyContent: 'center',
             alignItems: 'center',
             zIndex: 1000,
-            padding: '20px',
+            padding: 'clamp(12px, 3vw, 20px)',
           }}
         >
           <div
@@ -1191,9 +1206,9 @@ export default function FnOClient() {
               maxWidth: '560px',
               borderRadius: '40px',
               border: '1px solid #334155',
-              padding: '48px',
+              padding: 'clamp(24px, 5vw, 48px)',
               position: 'relative',
-              maxHeight: '90vh',
+              maxHeight: '95vh',
               overflowY: 'auto',
             }}
           >
@@ -1223,7 +1238,7 @@ export default function FnOClient() {
 
             <h2
               style={{
-                fontSize: '2rem',
+                fontSize: 'clamp(1.5rem, 4vw, 2rem)',
                 fontWeight: '950',
                 margin: '0 0 32px 0',
                 letterSpacing: '-1.5px',
@@ -1265,7 +1280,13 @@ export default function FnOClient() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '20px',
+                }}
+              >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label
                     style={{
@@ -1296,6 +1317,7 @@ export default function FnOClient() {
                         padding: '10px',
                         borderRadius: '10px',
                         border: 'none',
+                        minHeight: '44px',
                         background: tradeType === 'BUY' ? '#10b981' : 'transparent',
                         color: tradeType === 'BUY' ? '#fff' : '#64748b',
                         fontWeight: '900',
@@ -1312,6 +1334,7 @@ export default function FnOClient() {
                         padding: '10px',
                         borderRadius: '10px',
                         border: 'none',
+                        minHeight: '44px',
                         background: tradeType === 'SELL' ? '#f43f5e' : 'transparent',
                         color: tradeType === 'SELL' ? '#fff' : '#64748b',
                         fontWeight: '900',
@@ -1352,6 +1375,7 @@ export default function FnOClient() {
                         padding: '10px',
                         borderRadius: '10px',
                         border: 'none',
+                        minHeight: '44px',
                         background: product === 'NRML' ? '#6366f1' : 'transparent',
                         color: product === 'NRML' ? '#fff' : '#64748b',
                         fontWeight: '900',
@@ -1368,6 +1392,7 @@ export default function FnOClient() {
                         padding: '10px',
                         borderRadius: '10px',
                         border: 'none',
+                        minHeight: '44px',
                         background: product === 'MIS' ? '#8b5cf6' : 'transparent',
                         color: product === 'MIS' ? '#fff' : '#64748b',
                         fontWeight: '900',
@@ -1380,7 +1405,13 @@ export default function FnOClient() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+                  gap: '20px',
+                }}
+              >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <label
                     style={{
@@ -1471,6 +1502,7 @@ export default function FnOClient() {
                       padding: '10px',
                       borderRadius: '10px',
                       border: 'none',
+                      minHeight: '44px',
                       background: status === 'OPEN' ? '#fff' : 'transparent',
                       color: status === 'OPEN' ? '#000' : '#64748b',
                       fontWeight: '900',
@@ -1487,6 +1519,7 @@ export default function FnOClient() {
                       padding: '10px',
                       borderRadius: '10px',
                       border: 'none',
+                      minHeight: '44px',
                       background: status === 'CLOSED' ? '#fff' : 'transparent',
                       color: status === 'CLOSED' ? '#000' : '#64748b',
                       fontWeight: '900',
@@ -1502,7 +1535,7 @@ export default function FnOClient() {
                 <div
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                     gap: '20px',
                     animation: 'fadeIn 0.3s ease',
                   }}
@@ -1612,7 +1645,7 @@ export default function FnOClient() {
                       <div
                         style={{
                           display: 'grid',
-                          gridTemplateColumns: '1fr 1fr',
+                          gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
                           gap: '8px',
                           fontSize: '0.8rem',
                         }}
@@ -1714,6 +1747,7 @@ export default function FnOClient() {
                   padding: '20px',
                   borderRadius: '20px',
                   border: 'none',
+                  minHeight: '44px',
                   fontWeight: '950',
                   fontSize: '1.2rem',
                   cursor: 'pointer',
