@@ -82,7 +82,9 @@ export default function Dashboard() {
       .filter((a) => a.currency === 'INR')
       .reduce((sum, acc) => sum + acc.balance, 0);
 
-    const stocksValue = stocks.reduce((sum, s) => sum + s.currentValue, 0);
+    const stocksValue = stocks
+      .filter((s) => s.quantity > 0)
+      .reduce((sum, s) => sum + s.currentValue, 0);
     const mfValue = mutualFunds.reduce((sum, m) => sum + m.currentValue, 0);
 
     const bondsValue = settings.bondsEnabled
@@ -91,7 +93,9 @@ export default function Dashboard() {
 
     const totalNetWorth = liquidityINR + stocksValue + mfValue + bondsValue;
 
-    const stockInvestment = stocks.reduce((sum, s) => sum + s.investmentAmount, 0);
+    const stockInvestment = stocks
+      .filter((s) => s.quantity > 0)
+      .reduce((sum, s) => sum + s.investmentAmount, 0);
     const mfInvestment = mutualFunds.reduce((sum, m) => sum + m.investmentAmount, 0);
     const totalInvestment = stockInvestment + mfInvestment;
 
@@ -152,15 +156,17 @@ export default function Dashboard() {
 
     const globalLifetimeWealth = stockLifetime + mfLifetime + bondLifetime + fnoLifetime;
 
-    const stockPnl = stocks.reduce((sum, s) => sum + s.pnl, 0);
+    const stockPnl = stocks.filter((s) => s.quantity > 0).reduce((sum, s) => sum + s.pnl, 0);
     const mfPnl = mfValue - mfInvestment;
     const totalUnrealizedPnl = stockPnl + mfPnl;
 
-    const stockDayChange = stocks.reduce((sum, stock) => {
-      const dayChange =
-        (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
-      return sum + dayChange;
-    }, 0);
+    const stockDayChange = stocks
+      .filter((s) => s.quantity > 0)
+      .reduce((sum, stock) => {
+        const dayChange =
+          (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
+        return sum + dayChange;
+      }, 0);
 
     const mfDayChange = mutualFunds.reduce((sum, mf) => {
       const dayChange = (mf.currentNav - (mf.previousNav || mf.currentNav)) * mf.units;
@@ -222,7 +228,10 @@ export default function Dashboard() {
   }, [goals]);
 
   const topHoldings = useMemo(() => {
-    return [...stocks].sort((a, b) => b.currentValue - a.currentValue).slice(0, 5);
+    return [...stocks]
+      .filter((s) => s.quantity > 0)
+      .sort((a, b) => b.currentValue - a.currentValue)
+      .slice(0, 5);
   }, [stocks]);
 
   if (loading) {

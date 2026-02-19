@@ -404,10 +404,11 @@ export default function StocksClient() {
   }, [stocks]);
 
   // Calculate portfolio metrics
-  const totalInvestment = stocks.reduce((sum, stock) => sum + stock.investmentAmount, 0);
-  const totalCurrentValue = stocks.reduce((sum, stock) => sum + stock.currentValue, 0);
+  // Calculate portfolio metrics using groupedStocks to ensure only active positions are counted
+  const totalInvestment = groupedStocks.reduce((sum, stock) => sum + stock.investmentAmount, 0);
+  const totalCurrentValue = groupedStocks.reduce((sum, stock) => sum + stock.currentValue, 0);
   const totalPnL = totalCurrentValue - totalInvestment;
-  const totalDayPnL = stocks.reduce((sum, stock) => {
+  const totalDayPnL = groupedStocks.reduce((sum, stock) => {
     const dayChange =
       (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
     return sum + dayChange;
