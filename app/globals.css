@@ -2212,6 +2212,13 @@ select:focus {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+
+  /* Ensure animated elements are visible when animations are disabled */
+  .section-fade-in,
+  .login-content,
+  .login-card {
+    opacity: 1 !important;
+  }
 }
 
 /* Smooth scrolling for users who don't mind it */
