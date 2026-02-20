@@ -211,62 +211,23 @@ export default function IncomeClient() {
     >
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header Section */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '40px',
-            flexWrap: 'wrap',
-            gap: '20px',
-          }}
-        >
+        <div className="page-header">
           <div>
             <h1
+              className="page-title"
               style={{
-                fontSize: 'clamp(2rem, 5vw, 3rem)',
-                fontWeight: '900',
-                margin: 0,
-                letterSpacing: '-0.03em',
-                color: '#10b981',
                 background: 'linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                marginBottom: '8px',
               }}
             >
               Income Tracker
             </h1>
-            <p style={{ color: '#64748b', fontSize: '1rem', margin: 0, fontWeight: '500' }}>
-              Monitor your earnings and income sources
-            </p>
+            <p className="page-subtitle">Monitor your earnings and income sources</p>
           </div>
           <button
             onClick={() => setIsModalOpen(true)}
-            style={{
-              padding: 'clamp(12px, 2.5vw, 14px) clamp(24px, 4vw, 28px)',
-              borderRadius: '16px',
-              background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-              color: 'white',
-              border: 'none',
-              fontWeight: '800',
-              fontSize: 'clamp(0.9rem, 2vw, 1rem)',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              boxShadow: '0 10px 30px rgba(16, 185, 129, 0.3)',
-              transition: 'all 0.3s',
-              minHeight: '44px',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 15px 35px rgba(16, 185, 129, 0.4)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 10px 30px rgba(16, 185, 129, 0.3)';
-            }}
+            className="header-add-btn header-add-btn--green"
           >
             <Plus size={20} strokeWidth={3} /> Add Income
           </button>
@@ -287,33 +248,7 @@ export default function IncomeClient() {
             <button
               key={period}
               onClick={() => setSelectedPeriod(period)}
-              style={{
-                padding: 'clamp(10px, 2vw, 12px) clamp(16px, 3vw, 20px)',
-                borderRadius: '12px',
-                border: selectedPeriod === period ? '2px solid #10b981' : '2px solid #1e293b',
-                background:
-                  selectedPeriod === period
-                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(16, 185, 129, 0.05) 100%)'
-                    : '#0f172a',
-                color: selectedPeriod === period ? '#10b981' : '#64748b',
-                fontWeight: '700',
-                cursor: 'pointer',
-                transition: 'all 0.2s',
-                fontSize: 'clamp(0.85rem, 2vw, 0.9rem)',
-                minHeight: '44px',
-              }}
-              onMouseEnter={(e) => {
-                if (selectedPeriod !== period) {
-                  e.currentTarget.style.borderColor = '#334155';
-                  e.currentTarget.style.color = '#94a3b8';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedPeriod !== period) {
-                  e.currentTarget.style.borderColor = '#1e293b';
-                  e.currentTarget.style.color = '#64748b';
-                }
-              }}
+              className={selectedPeriod === period ? 'period-btn period-btn--active' : 'period-btn'}
             >
               {period === 'month'
                 ? 'This Month'
@@ -328,6 +263,7 @@ export default function IncomeClient() {
 
         {/* Stats Cards Grid */}
         <div
+          className="section-fade-in"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 280px), 1fr))',
@@ -336,29 +272,8 @@ export default function IncomeClient() {
           }}
         >
           {/* Total Income Card */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              borderRadius: '24px',
-              padding: '28px',
-              position: 'relative',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '-50%',
-                right: '-20%',
-                width: '200px',
-                height: '200px',
-                background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%)',
-                borderRadius: '50%',
-                filter: 'blur(40px)',
-              }}
-            />
+          <div className="stat-card stat-card--green">
+            <div className="stat-card__glow" />
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div
                 style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}
@@ -423,29 +338,8 @@ export default function IncomeClient() {
           </div>
 
           {/* Average Income Card */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
-              borderRadius: '24px',
-              padding: '28px',
-              position: 'relative',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '-50%',
-                right: '-20%',
-                width: '200px',
-                height: '200px',
-                background: 'radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%)',
-                borderRadius: '50%',
-                filter: 'blur(40px)',
-              }}
-            />
+          <div className="stat-card stat-card--indigo">
+            <div className="stat-card__glow" />
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div
                 style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}
@@ -498,29 +392,8 @@ export default function IncomeClient() {
           </div>
 
           {/* Income Sources Card */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              border: '1px solid rgba(245, 158, 11, 0.2)',
-              borderRadius: '24px',
-              padding: '28px',
-              position: 'relative',
-              overflow: 'hidden',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-            }}
-          >
-            <div
-              style={{
-                position: 'absolute',
-                top: '-50%',
-                right: '-20%',
-                width: '200px',
-                height: '200px',
-                background: 'radial-gradient(circle, rgba(245, 158, 11, 0.15) 0%, transparent 70%)',
-                borderRadius: '50%',
-                filter: 'blur(40px)',
-              }}
-            />
+          <div className="stat-card stat-card--amber">
+            <div className="stat-card__glow" />
             <div style={{ position: 'relative', zIndex: 1 }}>
               <div
                 style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '20px' }}
@@ -575,6 +448,7 @@ export default function IncomeClient() {
 
         {/* Main Content Grid */}
         <div
+          className="section-fade-in"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 450px), 1fr))',
@@ -582,35 +456,20 @@ export default function IncomeClient() {
           }}
         >
           {/* Employers Breakdown */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              border: '1px solid #1e293b',
-              borderRadius: '24px',
-              padding: '32px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-            }}
-          >
+          <div className="content-panel">
             <div
               style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}
             >
               <div
+                className="content-panel__icon"
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
                   background: 'linear-gradient(135deg, #a855f7 0%, #7c3aed 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)',
                 }}
               >
                 <PieChart size={20} color="#fff" />
               </div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '900', margin: 0, color: '#fff' }}>
-                Income Sources
-              </h3>
+              <h3 className="content-panel__title">Income Sources</h3>
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -621,25 +480,7 @@ export default function IncomeClient() {
                   const color = colors[index % colors.length];
 
                   return (
-                    <div
-                      key={employer.name}
-                      style={{
-                        padding: '20px',
-                        background: 'rgba(255,255,255,0.02)',
-                        borderRadius: '16px',
-                        border: '1px solid rgba(255,255,255,0.05)',
-                        transition: 'all 0.2s',
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                        e.currentTarget.style.transform = 'translateX(4px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'rgba(255,255,255,0.02)';
-                        e.currentTarget.style.transform = 'translateX(0)';
-                      }}
-                    >
+                    <div key={employer.name} className="source-row">
                       <div
                         style={{
                           display: 'flex',
@@ -716,35 +557,20 @@ export default function IncomeClient() {
           </div>
 
           {/* Recent Payments Timeline */}
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              border: '1px solid #1e293b',
-              borderRadius: '24px',
-              padding: '32px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
-            }}
-          >
+          <div className="content-panel">
             <div
               style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '28px' }}
             >
               <div
+                className="content-panel__icon"
                 style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
                   background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
                   boxShadow: '0 4px 12px rgba(6, 182, 212, 0.3)',
                 }}
               >
                 <CalendarIcon size={20} color="#fff" />
               </div>
-              <h3 style={{ fontSize: '1.3rem', fontWeight: '900', margin: 0, color: '#fff' }}>
-                Recent Payments
-              </h3>
+              <h3 className="content-panel__title">Recent Payments</h3>
             </div>
 
             <div
@@ -758,28 +584,7 @@ export default function IncomeClient() {
             >
               {stats.filteredItems.length > 0 ? (
                 stats.filteredItems.slice(0, 10).map((item) => (
-                  <div
-                    key={item.id}
-                    style={{
-                      padding: '18px',
-                      background: 'rgba(16, 185, 129, 0.05)',
-                      borderRadius: '16px',
-                      border: '1px solid rgba(16, 185, 129, 0.1)',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      gap: '16px',
-                      transition: 'all 0.2s',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'rgba(16, 185, 129, 0.1)';
-                      e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.2)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = 'rgba(16, 185, 129, 0.05)';
-                      e.currentTarget.style.borderColor = 'rgba(16, 185, 129, 0.1)';
-                    }}
-                  >
+                  <div key={item.id} className="tx-row tx-row--income">
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div
                         style={{
@@ -816,28 +621,7 @@ export default function IncomeClient() {
                       <div style={{ display: 'flex', gap: '6px' }}>
                         <button
                           onClick={() => handleEdit(item)}
-                          style={{
-                            background: 'rgba(255,255,255,0.05)',
-                            border: 'none',
-                            color: '#64748b',
-                            cursor: 'pointer',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            transition: 'all 0.2s',
-                            minWidth: '44px',
-                            minHeight: '44px',
-                            justifyContent: 'center',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)';
-                            e.currentTarget.style.color = '#6366f1';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                            e.currentTarget.style.color = '#64748b';
-                          }}
+                          className="action-btn action-btn--edit"
                         >
                           <Edit3 size={14} />
                         </button>
@@ -854,26 +638,7 @@ export default function IncomeClient() {
                               showNotification('success', 'Income deleted');
                             }
                           }}
-                          style={{
-                            background: 'rgba(239, 68, 68, 0.1)',
-                            border: 'none',
-                            color: '#ef4444',
-                            cursor: 'pointer',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            transition: 'all 0.2s',
-                            minWidth: '44px',
-                            minHeight: '44px',
-                            justifyContent: 'center',
-                          }}
-                          onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)';
-                          }}
-                          onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)';
-                          }}
+                          className="action-btn action-btn--delete"
                         >
                           <Trash2 size={14} />
                         </button>
@@ -924,71 +689,20 @@ export default function IncomeClient() {
 
       {/* Add/Edit Modal */}
       {isModalOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.85)',
-            backdropFilter: 'blur(12px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '20px',
-          }}
-        >
-          <div
-            style={{
-              background: 'linear-gradient(145deg, #0f172a 0%, #1e293b 100%)',
-              padding: 'clamp(24px, 5vw, 40px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
-              maxWidth: '500px',
-              maxHeight: '95vh',
-              overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.7)',
-              position: 'relative',
-            }}
-          >
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '500px' }}>
             <button
               onClick={() => {
                 setIsModalOpen(false);
                 resetForm();
               }}
-              style={{
-                position: 'absolute',
-                top: '20px',
-                right: '20px',
-                background: 'rgba(255,255,255,0.05)',
-                border: 'none',
-                color: '#94a3b8',
-                borderRadius: '50%',
-                minWidth: '44px',
-                minHeight: '44px',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                transition: 'all 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.1)')}
-              onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+              className="modal-close"
             >
               <X size={20} />
             </button>
 
-            <h2
-              style={{
-                fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
-                fontWeight: '900',
-                marginBottom: '12px',
-                color: '#fff',
-              }}
-            >
-              {editId ? 'Edit Income' : 'Add New Income'}
-            </h2>
-            <p style={{ color: '#64748b', marginBottom: '32px', fontSize: '0.95rem' }}>
+            <h2 className="modal-title">{editId ? 'Edit Income' : 'Add New Income'}</h2>
+            <p className="modal-subtitle">
               {editId ? 'Update your income record' : 'Record a new income payment'}
             </p>
 
@@ -997,37 +711,13 @@ export default function IncomeClient() {
               style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
             >
               <div>
-                <label
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '800',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    display: 'block',
-                    marginBottom: '10px',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  Income Source / Employer
-                </label>
+                <label className="form-label">Income Source / Employer</label>
                 <input
                   value={employerName}
                   onChange={(e) => setEmployerName(e.target.value)}
                   placeholder="e.g. Acme Corp, Freelance Project"
                   required
-                  style={{
-                    width: '100%',
-                    background: '#020617',
-                    border: '2px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#1e293b')}
+                  className="form-input form-input--green"
                   autoFocus
                 />
               </div>
@@ -1040,109 +730,36 @@ export default function IncomeClient() {
                 }}
               >
                 <div>
-                  <label
-                    style={{
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
-                      color: '#94a3b8',
-                      textTransform: 'uppercase',
-                      display: 'block',
-                      marginBottom: '10px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Amount (₹)
-                  </label>
+                  <label className="form-label">Amount (₹)</label>
                   <input
                     type="number"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     placeholder="0.00"
                     required
-                    style={{
-                      width: '100%',
-                      background: '#020617',
-                      border: '2px solid #1e293b',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      outline: 'none',
-                      transition: 'border-color 0.2s',
-                    }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = '#1e293b')}
+                    className="form-input form-input--green"
                   />
                 </div>
 
                 <div>
-                  <label
-                    style={{
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
-                      color: '#94a3b8',
-                      textTransform: 'uppercase',
-                      display: 'block',
-                      marginBottom: '10px',
-                      letterSpacing: '0.5px',
-                    }}
-                  >
-                    Date
-                  </label>
+                  <label className="form-label">Date</label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    style={{
-                      width: '100%',
-                      background: '#020617',
-                      border: '2px solid #1e293b',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      outline: 'none',
-                      transition: 'border-color 0.2s',
-                    }}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = '#1e293b')}
+                    className="form-input form-input--green"
                   />
                 </div>
               </div>
 
               <div>
-                <label
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '800',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    display: 'block',
-                    marginBottom: '10px',
-                    letterSpacing: '0.5px',
-                  }}
-                >
-                  Credit to Account (Optional)
-                </label>
+                <label className="form-label">Credit to Account (Optional)</label>
                 <select
                   value={selectedAccountId}
                   onChange={(e) =>
                     setSelectedAccountId(e.target.value ? Number(e.target.value) : '')
                   }
-                  style={{
-                    width: '100%',
-                    background: '#020617',
-                    border: '2px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    cursor: 'pointer',
-                    transition: 'border-color 0.2s',
-                  }}
-                  onFocus={(e) => (e.currentTarget.style.borderColor = '#10b981')}
-                  onBlur={(e) => (e.currentTarget.style.borderColor = '#1e293b')}
+                  className="form-input form-input--green"
                 >
                   <option value="">Just record, don&apos;t add to account</option>
                   {accounts.map((acc) => (
@@ -1153,31 +770,7 @@ export default function IncomeClient() {
                 </select>
               </div>
 
-              <button
-                type="submit"
-                style={{
-                  marginTop: '12px',
-                  background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                  color: '#fff',
-                  padding: 'clamp(16px, 3vw, 18px)',
-                  borderRadius: '18px',
-                  border: 'none',
-                  fontWeight: '900',
-                  cursor: 'pointer',
-                  fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
-                  boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
-                  transition: 'all 0.3s',
-                  minHeight: '44px',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(16, 185, 129, 0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 10px 25px rgba(16, 185, 129, 0.3)';
-                }}
-              >
+              <button type="submit" className="btn-primary btn-primary--green">
                 {editId ? 'Update Income' : 'Save Income'}
               </button>
             </form>

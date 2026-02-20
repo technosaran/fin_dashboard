@@ -171,23 +171,11 @@ export default function ExpensesClient() {
     >
       <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
         {/* Header Section */}
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'flex-end',
-            marginBottom: '48px',
-            flexWrap: 'wrap',
-            gap: '16px',
-          }}
-        >
+        <div className="page-header">
           <div>
             <h1
+              className="page-title"
               style={{
-                fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-                fontWeight: '900',
-                margin: 0,
-                letterSpacing: '-0.02em',
                 background: 'linear-gradient(to right, #fff, #94a3b8)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -195,16 +183,7 @@ export default function ExpensesClient() {
             >
               Expenses Hub
             </h1>
-            <p
-              style={{
-                color: '#94a3b8',
-                fontSize: 'clamp(0.95rem, 2vw, 1.1rem)',
-                marginTop: '8px',
-                fontWeight: '500',
-              }}
-            >
-              Track and manage your spending across categories
-            </p>
+            <p className="page-subtitle">Track and manage your spending across categories</p>
           </div>
           <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
             <div
@@ -244,25 +223,7 @@ export default function ExpensesClient() {
             <button
               onClick={() => setIsModalOpen(true)}
               aria-label="Add new expense"
-              style={{
-                padding: 'clamp(12px, 2.5vw, 14px) clamp(24px, 4vw, 28px)',
-                borderRadius: '16px',
-                background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                color: 'white',
-                border: 'none',
-                fontWeight: '800',
-                fontSize: 'clamp(0.85rem, 2vw, 0.9rem)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                boxShadow: '0 10px 25px rgba(239, 68, 68, 0.25)',
-                transition: '0.3s',
-                whiteSpace: 'nowrap',
-                minHeight: '44px',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
+              className="header-add-btn header-add-btn--red"
             >
               <Plus size={18} strokeWidth={3} /> Add Expense
             </button>
@@ -271,6 +232,7 @@ export default function ExpensesClient() {
 
         {/* Key Summary Cards */}
         <div
+          className="section-fade-in"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 250px), 1fr))',
@@ -287,6 +249,7 @@ export default function ExpensesClient() {
               color: '#ef4444',
               sub: 'Money spent',
               gradient: 'linear-gradient(135deg, #ef444420 0%, #dc262610 100%)',
+              cardClass: 'stat-card stat-card--red',
             },
             {
               label: 'Average per Month',
@@ -295,6 +258,7 @@ export default function ExpensesClient() {
               color: '#f59e0b',
               sub: 'Monthly spending',
               gradient: 'linear-gradient(135deg, #f59e0b20 0%, #d9770610 100%)',
+              cardClass: 'stat-card stat-card--amber',
             },
             {
               label: 'Expense Categories',
@@ -303,20 +267,10 @@ export default function ExpensesClient() {
               color: '#6366f1',
               sub: 'Tracked categories',
               gradient: 'linear-gradient(135deg, #6366f120 0%, #4f46e510 100%)',
+              cardClass: 'stat-card stat-card--indigo',
             },
           ].map((stat, i) => (
-            <div
-              key={i}
-              style={{
-                background: `#0f172a`,
-                padding: '32px',
-                borderRadius: '28px',
-                border: '1px solid #1e293b',
-                position: 'relative',
-                overflow: 'hidden',
-                transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
-              }}
-            >
+            <div key={i} className={stat.cardClass}>
               <div
                 style={{
                   position: 'absolute',
@@ -383,6 +337,7 @@ export default function ExpensesClient() {
         </div>
 
         <div
+          className="section-fade-in"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 400px), 1fr))',
@@ -407,29 +362,7 @@ export default function ExpensesClient() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {categories.length > 0 ? (
                 categories.map(([name, stats]) => (
-                  <div
-                    key={name}
-                    style={{
-                      background: '#0f172a',
-                      padding: '24px',
-                      borderRadius: '24px',
-                      border: '1px solid #1e293b',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      transition: '0.3s ease',
-                      gap: '20px',
-                      flexWrap: 'wrap',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.borderColor = '#334155';
-                      e.currentTarget.style.transform = 'scale(1.01)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.borderColor = '#1e293b';
-                      e.currentTarget.style.transform = 'scale(1)';
-                    }}
-                  >
+                  <div key={name} className="expense-category-card">
                     <div
                       style={{
                         display: 'flex',
@@ -562,24 +495,8 @@ export default function ExpensesClient() {
                 expenseItems.slice(0, 8).map((item) => (
                   <div
                     key={item.id}
-                    style={{
-                      background: 'rgba(255,255,255,0.02)',
-                      padding: '16px 20px',
-                      borderRadius: '18px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      border: '1px solid rgba(255,255,255,0.03)',
-                      transition: '0.2s',
-                      gap: '16px',
-                      flexWrap: 'wrap',
-                    }}
-                    onMouseEnter={(e) =>
-                      (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')
-                    }
-                    onMouseLeave={(e) =>
-                      (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')
-                    }
+                    className="tx-row tx-row--expense"
+                    style={{ flexWrap: 'wrap' }}
                   >
                     <div
                       style={{
@@ -649,19 +566,7 @@ export default function ExpensesClient() {
                             e.stopPropagation();
                             handleEdit(item);
                           }}
-                          style={{
-                            background: 'rgba(255,255,255,0.03)',
-                            border: 'none',
-                            color: '#64748b',
-                            cursor: 'pointer',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            minWidth: '44px',
-                            minHeight: '44px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
+                          className="action-btn action-btn--edit"
                           aria-label="Edit expense"
                         >
                           <Edit3 size={14} />
@@ -680,19 +585,7 @@ export default function ExpensesClient() {
                               showNotification('success', 'Expense record removed');
                             }
                           }}
-                          style={{
-                            background: 'rgba(244, 63, 94, 0.1)',
-                            border: 'none',
-                            color: '#f43f5e',
-                            cursor: 'pointer',
-                            padding: '10px',
-                            borderRadius: '8px',
-                            minWidth: '44px',
-                            minHeight: '44px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
+                          className="action-btn action-btn--delete"
                           aria-label="Delete expense"
                         >
                           <Trash2 size={14} />
@@ -716,35 +609,8 @@ export default function ExpensesClient() {
 
       {/* Simple Modal - Add Expense */}
       {isModalOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '20px',
-          }}
-        >
-          <div
-            style={{
-              background: '#0f172a',
-              padding: 'clamp(24px, 5vw, 40px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
-              maxWidth: '480px',
-              maxHeight: '95vh',
-              overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
-            }}
-          >
+        <div className="modal-overlay">
+          <div className="modal-card" style={{ maxWidth: '480px' }}>
             <div
               style={{
                 display: 'flex',
@@ -767,19 +633,8 @@ export default function ExpensesClient() {
               <button
                 onClick={() => setIsModalOpen(false)}
                 aria-label="Close modal"
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: 'none',
-                  color: '#94a3b8',
-                  borderRadius: '50%',
-                  minWidth: '44px',
-                  minHeight: '44px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
+                className="modal-close"
+                style={{ flexShrink: 0 }}
               >
                 <X size={20} />
               </button>
@@ -790,31 +645,14 @@ export default function ExpensesClient() {
               style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
             >
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '800',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  What did you spend on?
-                </label>
+                <label className="form-label">What did you spend on?</label>
                 <input
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="e.g. Groceries, Uber ride, Movie tickets"
                   required
                   aria-label="Expense description"
-                  style={{
-                    background: '#020617',
-                    border: '1px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                  }}
+                  className="form-input"
                   autoFocus
                 />
               </div>
@@ -826,16 +664,7 @@ export default function ExpensesClient() {
                 }}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label
-                    style={{
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
-                      color: '#94a3b8',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Amount (₹)
-                  </label>
+                  <label className="form-label">Amount (₹)</label>
                   <input
                     type="number"
                     value={amount}
@@ -843,69 +672,27 @@ export default function ExpensesClient() {
                     placeholder="0.00"
                     required
                     aria-label="Expense amount"
-                    style={{
-                      background: '#020617',
-                      border: '1px solid #1e293b',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      outline: 'none',
-                    }}
+                    className="form-input"
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label
-                    style={{
-                      fontSize: '0.8rem',
-                      fontWeight: '800',
-                      color: '#94a3b8',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    Date
-                  </label>
+                  <label className="form-label">Date</label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
                     aria-label="Expense date"
-                    style={{
-                      background: '#020617',
-                      border: '1px solid #1e293b',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      outline: 'none',
-                    }}
+                    className="form-input"
                   />
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '800',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Category
-                </label>
+                <label className="form-label">Category</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   aria-label="Expense category"
-                  style={{
-                    background: '#020617',
-                    border: '1px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                  }}
+                  className="form-input"
                 >
                   <option value="Food">Food & Dining</option>
                   <option value="Transport">Transport</option>
@@ -918,31 +705,14 @@ export default function ExpensesClient() {
                 </select>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '800',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                  }}
-                >
-                  Bank Account (Optional)
-                </label>
+                <label className="form-label">Bank Account (Optional)</label>
                 <select
                   value={selectedAccountId}
                   onChange={(e) =>
                     setSelectedAccountId(e.target.value ? Number(e.target.value) : '')
                   }
                   aria-label="Select bank account"
-                  style={{
-                    background: '#020617',
-                    border: '1px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                  }}
+                  className="form-input"
                 >
                   <option value="">Just log it, don&apos;t deduct from bank</option>
                   {accounts.map((acc) => (
@@ -955,19 +725,7 @@ export default function ExpensesClient() {
               <button
                 type="submit"
                 aria-label="Save expense"
-                style={{
-                  marginTop: '12px',
-                  background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
-                  color: '#fff',
-                  padding: 'clamp(16px, 3vw, 18px)',
-                  borderRadius: '18px',
-                  border: 'none',
-                  fontWeight: '900',
-                  cursor: 'pointer',
-                  fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
-                  boxShadow: '0 10px 25px rgba(239, 68, 68, 0.3)',
-                  minHeight: '44px',
-                }}
+                className="btn-primary btn-primary--red"
               >
                 {editId ? 'Update Expense' : 'Track This Expense'}
               </button>

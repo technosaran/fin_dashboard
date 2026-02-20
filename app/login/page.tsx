@@ -44,158 +44,38 @@ export default function LoginPage() {
   };
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        width: '100%',
-        backgroundColor: '#020617',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        position: 'relative',
-        overflow: 'hidden',
-        fontFamily: "'Inter', sans-serif",
-        color: '#f8fafc',
-      }}
-    >
+    <div className="login-container">
       {/* Background Decorative Elements */}
-      <div
-        style={{
-          position: 'absolute',
-          top: '-20%',
-          left: '-20%',
-          width: '60%',
-          height: '60%',
-          background: 'radial-gradient(circle, rgba(99, 102, 241, 0.25) 0%, transparent 70%)',
-          filter: 'blur(120px)',
-          zIndex: 0,
-        }}
-      />
-      <div
-        style={{
-          position: 'absolute',
-          bottom: '-20%',
-          right: '-20%',
-          width: '70%',
-          height: '70%',
-          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.15) 0%, transparent 70%)',
-          filter: 'blur(150px)',
-          zIndex: 0,
-        }}
-      />
+      <div className="login-bg-orb login-bg-orb--primary" />
+      <div className="login-bg-orb login-bg-orb--secondary" />
 
       {/* Main Content Container */}
-      <div
-        style={{
-          width: '100%',
-          maxWidth: '480px',
-          padding: '40px 24px',
-          zIndex: 10,
-          position: 'relative',
-        }}
-      >
+      <div className="login-content">
         {/* Brand Logo */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '20px',
-            marginBottom: '56px',
-          }}
-        >
-          <div
-            style={{
-              width: '64px',
-              height: '64px',
-              background: 'linear-gradient(135deg, #6366f1 0%, #a855f7 100%)',
-              borderRadius: '20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              boxShadow: '0 15px 35px rgba(99, 102, 241, 0.5)',
-              transform: 'rotate(-5deg)',
-            }}
-          >
+        <div className="login-brand">
+          <div className="login-logo">
             <Command size={36} />
           </div>
-          <span
-            style={{ fontSize: '2.5rem', fontWeight: '950', letterSpacing: '-2px', color: '#fff' }}
-          >
-            FIN<span style={{ color: '#6366f1' }}>CORE</span>
+          <span className="login-title">
+            FIN<span className="login-title-accent">CORE</span>
           </span>
         </div>
 
         {/* Login Card */}
-        <div
-          style={{
-            background: 'rgba(15, 23, 42, 0.7)',
-            backdropFilter: 'blur(30px)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            borderRadius: 'clamp(24px, 5vw, 40px)',
-            padding: 'clamp(24px, 5vw, 48px)',
-            boxShadow: '0 40px 80px -20px rgba(0, 0, 0, 0.7)',
-          }}
-        >
-          <div style={{ marginBottom: '32px' }}>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: '800', margin: '0 0 8px 0' }}>
-              Welcome back
-            </h1>
-            <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0 }}>
-              Enter your credentials to access your dashboard
-            </p>
+        <div className="login-card">
+          <div className="login-card-header">
+            <h1 className="login-card-title">Welcome back</h1>
+            <p className="login-card-subtitle">Enter your credentials to access your dashboard</p>
           </div>
 
-          {error && (
-            <div
-              style={{
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                padding: '12px 16px',
-                borderRadius: '12px',
-                color: '#f87171',
-                fontSize: '0.85rem',
-                marginBottom: '24px',
-                fontWeight: '600',
-              }}
-            >
-              {error}
-            </div>
-          )}
+          {error && <div className="login-error">{error}</div>}
 
-          <form
-            onSubmit={handleEmailLogin}
-            style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-          >
+          <form onSubmit={handleEmailLogin} className="login-form">
             {/* Email Field */}
             <div>
-              <label
-                style={{
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
-                  color: '#94a3b8',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.05em',
-                  display: 'block',
-                  marginBottom: '8px',
-                }}
-              >
-                Email Address
-              </label>
-              <div style={{ position: 'relative' }}>
-                <Mail
-                  size={18}
-                  style={{
-                    position: 'absolute',
-                    left: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: '#64748b',
-                    transition: 'color 0.3s',
-                  }}
-                />
+              <label className="login-label">Email Address</label>
+              <div className="login-input-wrapper">
+                <Mail size={18} className="login-input-icon" />
                 <input
                   type="email"
                   value={email}
@@ -208,73 +88,23 @@ export default function LoginPage() {
                   autoComplete="email"
                   autoFocus
                   disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(15, 23, 42, 0.6)',
-                    border: error
-                      ? '1px solid rgba(239, 68, 68, 0.5)'
-                      : '1px solid rgba(51, 65, 85, 0.5)',
-                    borderRadius: '16px',
-                    padding: '14px 14px 14px 48px',
-                    color: '#fff',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                    transition: 'border-color 0.3s, box-shadow 0.3s',
-                    opacity: isLoading ? 0.6 : 1,
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = '#6366f1';
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(51, 65, 85, 0.5)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  className={`login-input${error ? ' login-input--error' : ''}${isLoading ? ' login-input--disabled' : ''}`}
                 />
               </div>
             </div>
 
             {/* Password Field */}
             <div>
-              <div
-                style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}
-              >
-                <label
-                  style={{
-                    fontSize: '0.8rem',
-                    fontWeight: '700',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.05em',
-                  }}
-                >
+              <div className="login-password-header">
+                <label className="login-label" style={{ marginBottom: 0 }}>
                   Password
                 </label>
-                <a
-                  href="#"
-                  style={{
-                    color: '#6366f1',
-                    fontSize: '0.8rem',
-                    fontWeight: '600',
-                    textDecoration: 'none',
-                    transition: 'color 0.2s',
-                  }}
-                >
+                <a href="#" className="login-forgot-link">
                   Forgot password?
                 </a>
               </div>
-              <div style={{ position: 'relative' }}>
-                <Lock
-                  size={18}
-                  style={{
-                    position: 'absolute',
-                    left: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: '#64748b',
-                    transition: 'color 0.3s',
-                  }}
-                />
+              <div className="login-input-wrapper">
+                <Lock size={18} className="login-input-icon" />
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={password}
@@ -286,45 +116,13 @@ export default function LoginPage() {
                   aria-invalid={error ? 'true' : 'false'}
                   autoComplete="current-password"
                   disabled={isLoading}
-                  style={{
-                    width: '100%',
-                    background: 'rgba(15, 23, 42, 0.6)',
-                    border: error
-                      ? '1px solid rgba(239, 68, 68, 0.5)'
-                      : '1px solid rgba(51, 65, 85, 0.5)',
-                    borderRadius: '16px',
-                    padding: '14px 44px 14px 48px',
-                    color: '#fff',
-                    fontSize: '0.95rem',
-                    outline: 'none',
-                    transition: 'border-color 0.3s, box-shadow 0.3s',
-                    opacity: isLoading ? 0.6 : 1,
-                  }}
-                  onFocus={(e) => {
-                    e.currentTarget.style.borderColor = '#6366f1';
-                    e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
-                  }}
-                  onBlur={(e) => {
-                    e.currentTarget.style.borderColor = 'rgba(51, 65, 85, 0.5)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  className={`login-input login-input--password${error ? ' login-input--error' : ''}${isLoading ? ' login-input--disabled' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  style={{
-                    position: 'absolute',
-                    right: '16px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#64748b',
-                    cursor: 'pointer',
-                    padding: '8px',
-                    transition: 'color 0.2s',
-                  }}
+                  className="login-password-toggle"
                 >
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
@@ -337,44 +135,7 @@ export default function LoginPage() {
               disabled={isLoading}
               aria-busy={isLoading}
               aria-label={isLoading ? 'Signing in...' : 'Sign in to your account'}
-              style={{
-                marginTop: '12px',
-                background: isLoading
-                  ? 'linear-gradient(135deg, #4f46e5 0%, #3730a3 100%)'
-                  : 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-                color: '#fff',
-                padding: '16px',
-                borderRadius: '16px',
-                border: 'none',
-                fontWeight: '800',
-                fontSize: '1rem',
-                cursor: isLoading ? 'not-allowed' : 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-                boxShadow: '0 10px 20px rgba(99, 102, 241, 0.25)',
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease, opacity 0.3s',
-                opacity: isLoading ? 0.7 : 1,
-                minHeight: '52px',
-              }}
-              onMouseEnter={(e) => {
-                if (!isLoading) {
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                  e.currentTarget.style.boxShadow = '0 15px 30px rgba(99, 102, 241, 0.35)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 10px 20px rgba(99, 102, 241, 0.25)';
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.outline = '2px solid #818cf8';
-                e.currentTarget.style.outlineOffset = '2px';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.outline = 'none';
-              }}
+              className="login-submit"
             >
               {isLoading ? (
                 <>
@@ -390,20 +151,6 @@ export default function LoginPage() {
           </form>
         </div>
       </div>
-
-      <style jsx global>{`
-        .animate-spin {
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          from {
-            transform: rotate(0deg);
-          }
-          to {
-            transform: rotate(360deg);
-          }
-        }
-      `}</style>
     </div>
   );
 }

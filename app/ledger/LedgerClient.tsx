@@ -191,12 +191,9 @@ export default function LedgerClient() {
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header Section */}
         <div
+          className="page-header"
           style={{
-            display: 'flex',
-            justifyContent: 'space-between',
             alignItems: 'flex-start',
-            marginBottom: '40px',
-            flexWrap: 'wrap',
             gap: '24px',
           }}
         >
@@ -215,11 +212,8 @@ export default function LedgerClient() {
                 <Book size={24} strokeWidth={2.5} />
               </div>
               <h1
+                className="page-title"
                 style={{
-                  fontSize: 'clamp(1.75rem, 4vw, 2.5rem)',
-                  fontWeight: '900',
-                  margin: 0,
-                  letterSpacing: '-0.03em',
                   background: 'linear-gradient(to bottom, #fff, #94a3b8)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -229,10 +223,8 @@ export default function LedgerClient() {
               </h1>
             </div>
             <p
+              className="page-subtitle"
               style={{
-                color: '#64748b',
-                fontSize: '1rem',
-                fontWeight: '500',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
@@ -263,44 +255,15 @@ export default function LedgerClient() {
                 transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                 backdropFilter: 'blur(8px)',
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = '#334155';
-                e.currentTarget.style.color = '#fff';
-                e.currentTarget.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = '#1e293b';
-                e.currentTarget.style.color = '#94a3b8';
-                e.currentTarget.style.transform = 'translateY(0)';
-              }}
             >
               <Download size={18} /> Export
             </button>
             <button
               onClick={() => setIsModalOpen(true)}
+              className="header-add-btn"
               style={{
-                padding: 'clamp(12px, 2.5vw, 14px) clamp(20px, 4vw, 24px)',
-                minHeight: '44px',
-                borderRadius: '16px',
                 background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
-                color: 'white',
-                border: 'none',
-                cursor: 'pointer',
-                fontWeight: '800',
-                fontSize: '0.95rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
                 boxShadow: '0 10px 25px -5px rgba(99, 102, 241, 0.4)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)';
-                e.currentTarget.style.boxShadow = '0 15px 30px -5px rgba(99, 102, 241, 0.5)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                e.currentTarget.style.boxShadow = '0 10px 25px -5px rgba(99, 102, 241, 0.4)';
               }}
             >
               <Plus size={20} strokeWidth={3} /> Record Entry
@@ -310,6 +273,7 @@ export default function LedgerClient() {
 
         {/* Stats Grid */}
         <div
+          className="section-fade-in"
           style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
@@ -318,14 +282,10 @@ export default function LedgerClient() {
           }}
         >
           <div
+            className="stat-card stat-card--green"
             style={{
               background:
                 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.02) 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid rgba(16, 185, 129, 0.2)',
-              position: 'relative',
-              overflow: 'hidden',
             }}
           >
             <div
@@ -369,14 +329,10 @@ export default function LedgerClient() {
           </div>
 
           <div
+            className="stat-card stat-card--red"
             style={{
               background:
                 'linear-gradient(135deg, rgba(244, 63, 94, 0.1) 0%, rgba(244, 63, 94, 0.02) 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid rgba(244, 63, 94, 0.2)',
-              position: 'relative',
-              overflow: 'hidden',
             }}
           >
             <div
@@ -420,14 +376,10 @@ export default function LedgerClient() {
           </div>
 
           <div
+            className="stat-card stat-card--indigo"
             style={{
               background:
                 'linear-gradient(135deg, rgba(99, 102, 241, 0.15) 0%, rgba(30, 41, 59, 0.4) 100%)',
-              padding: '24px',
-              borderRadius: '24px',
-              border: '1px solid rgba(99, 102, 241, 0.2)',
-              position: 'relative',
-              overflow: 'hidden',
             }}
           >
             <div
@@ -669,29 +621,7 @@ export default function LedgerClient() {
                           <div
                             key={tx.id}
                             onClick={() => handleEdit(tx)}
-                            style={{
-                              background: '#0f172a',
-                              padding: '20px 24px',
-                              borderRadius: '20px',
-                              border: '1px solid #1e293b',
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                              position: 'relative',
-                              overflow: 'hidden',
-                            }}
-                            onMouseEnter={(e) => {
-                              e.currentTarget.style.borderColor = '#334155';
-                              e.currentTarget.style.transform = 'translateX(4px)';
-                              e.currentTarget.style.background = '#131c31';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.borderColor = '#1e293b';
-                              e.currentTarget.style.transform = 'translateX(0)';
-                              e.currentTarget.style.background = '#0f172a';
-                            }}
+                            className="ledger-tx-card"
                           >
                             {/* Color side indicator */}
                             <div
@@ -841,32 +771,16 @@ export default function LedgerClient() {
                               </div>
                               <div style={{ display: 'flex', gap: '8px' }}>
                                 <button
+                                  className="action-btn action-btn--edit"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleEdit(tx);
-                                  }}
-                                  style={{
-                                    background: 'rgba(51, 65, 85, 0.4)',
-                                    border: 'none',
-                                    color: '#94a3b8',
-                                    cursor: 'pointer',
-                                    padding: '10px',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    transition: '0.2s',
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.color = '#fff';
-                                    e.currentTarget.style.background = '#334155';
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.color = '#94a3b8';
-                                    e.currentTarget.style.background = 'rgba(51, 65, 85, 0.4)';
                                   }}
                                 >
                                   <Edit3 size={16} />
                                 </button>
                                 <button
+                                  className="action-btn action-btn--delete"
                                   onClick={async (e) => {
                                     e.stopPropagation();
                                     const isConfirmed = await customConfirm({
@@ -880,22 +794,6 @@ export default function LedgerClient() {
                                       await deleteTransaction(tx.id);
                                       showNotification('success', 'Entry purged from ledger');
                                     }
-                                  }}
-                                  style={{
-                                    background: 'rgba(244, 63, 94, 0.1)',
-                                    border: 'none',
-                                    color: '#f43f5e',
-                                    cursor: 'pointer',
-                                    padding: '10px',
-                                    borderRadius: '12px',
-                                    display: 'flex',
-                                    transition: '0.2s',
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.background = 'rgba(244, 63, 94, 0.2)';
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.background = 'rgba(244, 63, 94, 0.1)';
                                   }}
                                 >
                                   <Trash2 size={16} />
@@ -971,33 +869,11 @@ export default function LedgerClient() {
 
       {/* Entry Modal */}
       {isModalOpen && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.85)',
-            backdropFilter: 'blur(12px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '20px',
-          }}
-        >
+        <div className="modal-overlay">
           <div
+            className="modal-card"
             style={{
-              background: '#0f172a',
-              padding: 'clamp(24px, 5vw, 40px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
               maxWidth: '540px',
-              maxHeight: '95vh',
-              overflowY: 'auto',
-              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.5)',
             }}
           >
             <div
@@ -1018,24 +894,7 @@ export default function LedgerClient() {
               >
                 {editId ? 'Edit Entry' : 'New Ledger Record'}
               </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: 'none',
-                  color: '#94a3b8',
-                  borderRadius: '50%',
-                  width: '44px',
-                  height: '44px',
-                  minWidth: '44px',
-                  minHeight: '44px',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
+              <button className="modal-close" onClick={() => setIsModalOpen(false)}>
                 <X size={24} />
               </button>
             </div>
@@ -1046,17 +905,7 @@ export default function LedgerClient() {
             >
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '900',
-                      color: '#64748b',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    Operation Type
-                  </label>
+                  <label className="form-label">Operation Type</label>
                   <div
                     style={{
                       display: 'flex',
@@ -1106,61 +955,24 @@ export default function LedgerClient() {
                   </div>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '900',
-                      color: '#64748b',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    Date
-                  </label>
+                  <label className="form-label">Date</label>
                   <input
+                    className="form-input"
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    style={{
-                      background: '#020617',
-                      border: '1px solid #1e293b',
-                      padding: '14px',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontSize: '0.95rem',
-                      outline: 'none',
-                    }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label
-                  style={{
-                    fontSize: '0.7rem',
-                    fontWeight: '900',
-                    color: '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                  }}
-                >
-                  Description
-                </label>
+                <label className="form-label">Description</label>
                 <input
+                  className="form-input"
                   placeholder="e.g. Monthly Rent Payment"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   required
-                  style={{
-                    background: '#020617',
-                    border: '1px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    width: '100%',
-                  }}
                 />
               </div>
 
@@ -1172,89 +984,35 @@ export default function LedgerClient() {
                 }}
               >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '900',
-                      color: '#64748b',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    Category
-                  </label>
+                  <label className="form-label">Category</label>
                   <input
+                    className="form-input"
                     placeholder="Food, Rent, etc."
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     required
-                    style={{
-                      background: '#020617',
-                      border: '1px solid #1e293b',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      outline: 'none',
-                    }}
                   />
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <label
-                    style={{
-                      fontSize: '0.7rem',
-                      fontWeight: '900',
-                      color: '#64748b',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                    }}
-                  >
-                    Amount (₹)
-                  </label>
+                  <label className="form-label">Amount (₹)</label>
                   <input
+                    className="form-input"
                     type="number"
                     placeholder="0.00"
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
                     required
-                    style={{
-                      background: '#020617',
-                      border: '1px solid #1e293b',
-                      padding: '16px',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      fontSize: '1rem',
-                      outline: 'none',
-                    }}
                   />
                 </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <label
-                  style={{
-                    fontSize: '0.7rem',
-                    fontWeight: '900',
-                    color: '#64748b',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                  }}
-                >
-                  Source Account
-                </label>
+                <label className="form-label">Source Account</label>
                 <select
+                  className="form-input"
                   value={accountId}
                   onChange={(e) => setAccountId(e.target.value)}
-                  style={{
-                    background: '#020617',
-                    border: '1px solid #1e293b',
-                    padding: '16px',
-                    borderRadius: '16px',
-                    color: '#fff',
-                    fontSize: '1rem',
-                    outline: 'none',
-                    cursor: 'pointer',
-                  }}
+                  style={{ cursor: 'pointer' }}
                 >
                   <option value="">No Account Linked</option>
                   {accounts.map((acc) => (
@@ -1265,25 +1023,7 @@ export default function LedgerClient() {
                 </select>
               </div>
 
-              <button
-                type="submit"
-                style={{
-                  marginTop: '12px',
-                  background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
-                  color: '#fff',
-                  padding: 'clamp(16px, 3vw, 20px)',
-                  minHeight: '44px',
-                  borderRadius: '20px',
-                  border: 'none',
-                  fontWeight: '900',
-                  cursor: 'pointer',
-                  fontSize: '1.1rem',
-                  boxShadow: '0 10px 20px rgba(99, 102, 241, 0.3)',
-                  transition: '0.2s',
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-                onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
-              >
+              <button type="submit" className="btn-primary btn-primary--indigo">
                 {editId ? 'Commit Changes' : 'Record Transaction'}
               </button>
             </form>
