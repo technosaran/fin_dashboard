@@ -679,9 +679,9 @@ select:focus {
     min-width: 44px;
   }
 
-  /* Ensure page container has bottom padding for bottom nav */
+  /* NO bottom nav is rendered — remove phantom 80px dead space */
   .page-container {
-    padding-bottom: 80px;
+    padding-bottom: 16px;
   }
 }
 
@@ -2588,8 +2588,26 @@ select:focus {
 }
 
 /* Fix mobile header overlap with content */
+/* Mobile header is ~60px tall; add appropriate padding-top so content starts below it */
 @media (max-width: 767px) {
   .main-content {
-    padding-top: 8px;
+    padding-top: 12px;
+  }
+}
+
+/* Ensure the sidebar overlay covers the full screen including under mobile header */
+@media (max-width: 767px) {
+  .sidebar-overlay {
+    top: 0;
+    z-index: 98;
+  }
+}
+
+/* Prevent horizontal overflow on mobile — catch-all */
+@media (max-width: 767px) {
+  .page-container,
+  .main-content {
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }

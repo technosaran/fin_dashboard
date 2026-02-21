@@ -159,11 +159,9 @@ export default function AccountsClient() {
   if (loading) {
     return (
       <div
-        className="main-content"
+        className="page-container"
         style={{
-          backgroundColor: '#020617',
           minHeight: '100vh',
-          color: '#f8fafc',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -543,7 +541,7 @@ export default function AccountsClient() {
         <div
           style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
             gap: '20px',
           }}
         >
@@ -742,35 +740,18 @@ export default function AccountsClient() {
       {/* Modals - Standard Premium Design */}
       {isModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '20px',
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="modal-title"
         >
           <div
+            className="modal-card"
             style={{
-              background: '#0f172a',
-              padding: 'clamp(24px, 5vw, 40px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
               maxWidth: '500px',
-              boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
-              maxHeight: '95vh',
-              overflowY: 'auto',
             }}
           >
             <div
@@ -1009,34 +990,18 @@ export default function AccountsClient() {
 
       {isTransferModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '20px',
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsTransferModalOpen(false);
           }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="transfer-modal-title"
         >
           <div
+            className="modal-card"
             style={{
-              background: '#0f172a',
-              padding: 'clamp(24px, 5vw, 40px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
               maxWidth: '500px',
-              maxHeight: '95vh',
-              overflowY: 'auto',
             }}
           >
             <div
@@ -1213,34 +1178,18 @@ export default function AccountsClient() {
 
       {isAddFundsModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '20px',
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsAddFundsModalOpen(false);
           }}
           role="dialog"
           aria-modal="true"
           aria-labelledby="add-funds-modal-title"
         >
           <div
+            className="modal-card"
             style={{
-              background: '#0f172a',
-              padding: 'clamp(24px, 5vw, 40px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
               maxWidth: '500px',
-              maxHeight: '95vh',
-              overflowY: 'auto',
             }}
           >
             <div

@@ -173,7 +173,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           left: ${isOpen ? '0' : '-220px'};
           top: 0;
           bottom: 0;
-          height: 100vh;
+          height: 100dvh;
           z-index: 100;
           transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           overflow: hidden;
@@ -195,7 +195,11 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         @media (min-width: 768px) {
           aside {
             position: sticky;
+            top: 0;
             left: 0 !important;
+            height: 100vh;
+            flex-shrink: 0;
+            align-self: stretch;
           }
         }
       `}</style>

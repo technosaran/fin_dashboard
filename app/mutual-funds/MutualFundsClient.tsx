@@ -353,11 +353,9 @@ export default function MutualFundsClient() {
   if (loading) {
     return (
       <div
-        className="main-content"
+        className="page-container"
         style={{
           padding: '40px 60px',
-          backgroundColor: '#020617',
-          minHeight: '100vh',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -372,11 +370,8 @@ export default function MutualFundsClient() {
     <div className="page-container">
       {/* Header */}
       <div
+        className="mobile-page-header"
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
           marginBottom: '32px',
           gap: '24px',
           width: '100%',
@@ -1842,30 +1837,17 @@ export default function MutualFundsClient() {
 
       {isModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.85)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
+          role="dialog"
+          aria-modal="true"
         >
           <div
+            className="modal-card"
             style={{
-              background: '#0f172a',
-              padding: 'clamp(16px, 4vw, 32px)',
-              borderRadius: '32px',
-              border: '1px solid #334155',
-              width: '100%',
               maxWidth: '520px',
-              maxHeight: '95vh',
-              overflowY: 'auto',
             }}
           >
             <div
@@ -2404,30 +2386,15 @@ export default function MutualFundsClient() {
         (() => {
           return (
             <div
-              style={{
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                background: 'rgba(0,0,0,0.8)',
-                backdropFilter: 'blur(10px)',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 1100,
-              }}
+              className="modal-overlay"
+              onClick={() => setViewingCharges(null)}
+              role="dialog"
+              aria-modal="true"
             >
               <div
+                className="modal-card"
                 style={{
-                  background: '#0f172a',
-                  padding: 'clamp(16px, 4vw, 32px)',
-                  borderRadius: '24px',
-                  border: '1px solid #334155',
-                  width: '100%',
                   maxWidth: '400px',
-                  maxHeight: '95vh',
-                  overflowY: 'auto',
                 }}
               >
                 <div

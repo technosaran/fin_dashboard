@@ -508,6 +508,7 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
             {showResults && searchResults.length > 0 && (
               <div
+                className="mobile-search-results"
                 style={{
                   position: 'absolute',
                   top: '100%',

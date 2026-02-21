@@ -180,11 +180,9 @@ export default function LedgerClient() {
 
   return (
     <div
-      className="main-content"
+      className="page-container"
       style={{
-        backgroundColor: '#020617',
         minHeight: '100vh',
-        color: '#f8fafc',
         padding: 'clamp(16px, 4vw, 24px)',
       }}
     >
@@ -425,9 +423,9 @@ export default function LedgerClient() {
 
         {/* Main Content Area */}
         <div
+          className="flex-col-mobile"
           style={{
-            display: 'grid',
-            gridTemplateColumns: 'minmax(300px, 320px) 1fr',
+            display: 'flex',
             gap: '32px',
             alignItems: 'start',
           }}
@@ -435,6 +433,8 @@ export default function LedgerClient() {
           {/* Left Sidebar: Calendar */}
           <div
             style={{
+              flex: '1 1 320px',
+              maxWidth: '100%',
               display: 'flex',
               flexDirection: 'column',
               gap: '24px',
@@ -562,7 +562,7 @@ export default function LedgerClient() {
           </div>
 
           {/* Right Side: Timeline of Transactions */}
-          <div style={{ minWidth: 0 }}>
+          <div style={{ flex: '1 1 500px', minWidth: 0 }}>
             {groupedTransactions.length > 0 ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '40px' }}>
                 {groupedTransactions.map(([dateString, group]) => {

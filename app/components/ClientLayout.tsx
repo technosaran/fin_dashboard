@@ -13,7 +13,18 @@ const AddTransactionModal = dynamic(() => import('./AddTransactionModal'), {
   ssr: false,
 });
 
-import { Menu, X, Command } from 'lucide-react';
+import {
+  Menu,
+  X,
+  Command,
+  Plus,
+  LayoutDashboard,
+  TrendingUp,
+  Activity,
+  History,
+  User,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -110,7 +121,7 @@ function AuthConsumer({
       <div
         style={{
           display: 'flex',
-          height: '100vh',
+          height: '100dvh',
           backgroundColor: '#020617',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -188,7 +199,7 @@ function AuthConsumer({
                   inset: 0,
                   background: 'rgba(0,0,0,0.6)',
                   backdropFilter: 'blur(4px)',
-                  zIndex: 90,
+                  zIndex: 99,
                   opacity: isSidebarOpen ? 1 : 0,
                   pointerEvents: isSidebarOpen ? 'auto' : 'none',
                   transition: 'opacity 0.3s ease',
@@ -207,6 +218,7 @@ function AuthConsumer({
             {children}
           </main>
         </div>
+        {!isAuthPage && <MobileNavigation />}
       </div>
     </FinanceProvider>
   );
@@ -219,5 +231,46 @@ function TransactionModalWrapper() {
       isOpen={isTransactionModalOpen}
       onClose={() => setIsTransactionModalOpen(false)}
     />
+  );
+}
+
+function MobileNavigation() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { setIsTransactionModalOpen } = useFinance();
+
+  const navItems = [
+    { label: 'Dash', icon: <LayoutDashboard size={20} />, path: '/' },
+    { label: 'Stocks', icon: <TrendingUp size={20} />, path: '/stocks' },
+    { label: 'Funds', icon: <Activity size={20} />, path: '/mutual-funds' },
+    { label: 'Ledger', icon: <History size={20} />, path: '/ledger' },
+    { label: 'Accounts', icon: <User size={20} />, path: '/accounts' },
+  ];
+
+  return (
+    <>
+      <button
+        className="mobile-fab"
+        onClick={() => setIsTransactionModalOpen(true)}
+        aria-label="Add transaction"
+      >
+        <Plus size={28} strokeWidth={3} />
+      </button>
+
+      <nav className="mobile-bottom-nav">
+        {navItems.map((item) => (
+          <button
+            key={item.path}
+            className={`mobile-bottom-nav__item ${
+              pathname === item.path ? 'mobile-bottom-nav__item--active' : ''
+            }`}
+            onClick={() => router.push(item.path)}
+          >
+            {item.icon}
+            <span>{item.label}</span>
+          </button>
+        ))}
+      </nav>
+    </>
   );
 }

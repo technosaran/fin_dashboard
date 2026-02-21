@@ -1,7 +1,16 @@
-'use client';
+﻿'use client';
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import { supabase } from '../../lib/supabase';
+import type { Database } from '../../lib/database.types';
 import { useAuth } from './AuthContext';
 import {
   Account,
@@ -38,10 +47,9 @@ import {
   AppSettingsRow,
 } from '../../lib/utils/db-converters';
 
-// Extended client type for tables not yet in auto-generated DB types (bonds, fno_trades, forex_transactions, etc.)
-// To remove this workaround, regenerate types with `supabase gen types typescript`
-// eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase query builder for unmapped tables requires dynamic return type
-type ExtendedSupabaseClient = typeof supabase & { from: (table: string) => any };
+// NOTE: All tables (bonds, fno_trades, forex_transactions, stock_transactions,
+// mutual_fund_transactions, bond_transactions) are fully present in database.types.ts
+// and the client is typed as createClient<Database> â€” no any-casts needed.
 
 const FinanceContext = createContext<FinanceContextState | undefined>(undefined);
 
@@ -91,17 +99,20 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [error, setError] = useState<string | null>(null);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
 
+  // Ref to always hold latest refreshLivePrices â€” prevents interval from resetting on every price update
+  const refreshLivePricesRef = useRef<(silent?: boolean) => Promise<void>>(async () => {});
+
+  // â”€â”€â”€ GENERIC HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
   // Generic delete helper to reduce repetitive CRUD boilerplate
-  function deleteFromTable<T extends { id: number }>(
-    table: string,
+  // Uses useCallback pattern (not useMemo) â€” memoises the async function correctly
+  function makeDeleteFromTable<T extends { id: number }>(
+    table: keyof Database['public']['Tables'],
     label: string,
     setter: React.Dispatch<React.SetStateAction<T[]>>
   ) {
     return async (id: number) => {
-      const { error } = await (supabase as ExtendedSupabaseClient)
-        .from(table)
-        .delete()
-        .eq('id', id);
+      const { error } = await supabase.from(table).delete().eq('id', id);
       if (error) {
         logError(`Error deleting ${label}:`, error);
         throw error;
@@ -109,6 +120,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setter((prev) => prev.filter((item) => item.id !== id));
     };
   }
+
+  // â”€â”€â”€ REFRESH HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const refreshAccounts = useCallback(async () => {
     const { data, error } = await supabase.from('accounts').select('*');
@@ -130,19 +143,31 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const refreshPortfolio = useCallback(async () => {
     setLoading(true);
     try {
-      // Reload all portfolio data from Supabase
-      const [{ data: stockData }, { data: mfData }, { data: bondData }, { data: fnoData }] =
-        await Promise.all([
-          supabase.from('stocks').select('*'),
-          supabase.from('mutual_funds').select('*'),
-          (supabase as ExtendedSupabaseClient).from('bonds').select('*'),
-          (supabase as ExtendedSupabaseClient).from('fno_trades').select('*'),
-        ]);
+      const [stockResult, mfResult, bondResult, fnoResult] = await Promise.allSettled([
+        supabase.from('stocks').select('*'),
+        supabase.from('mutual_funds').select('*'),
+        supabase.from('bonds').select('*'),
+        supabase.from('fno_trades').select('*'),
+      ]);
 
-      if (stockData) setStocks(stockData.map(dbStockToStock));
-      if (mfData) setMutualFunds(mfData.map(dbMutualFundToMutualFund));
-      if (bondData) setBonds(bondData.map(dbBondToBond));
-      if (fnoData) setFnoTrades(fnoData.map(dbFnoTradeToFnoTrade));
+      if (stockResult.status === 'fulfilled' && stockResult.value.data)
+        setStocks(stockResult.value.data.map(dbStockToStock));
+      else if (stockResult.status === 'rejected')
+        logError('Error refreshing stocks:', stockResult.reason);
+
+      if (mfResult.status === 'fulfilled' && mfResult.value.data)
+        setMutualFunds(mfResult.value.data.map(dbMutualFundToMutualFund));
+      else if (mfResult.status === 'rejected')
+        logError('Error refreshing mutual funds:', mfResult.reason);
+
+      if (bondResult.status === 'fulfilled' && bondResult.value.data)
+        setBonds(bondResult.value.data.map(dbBondToBond));
+      else if (bondResult.status === 'rejected')
+        logError('Error refreshing bonds:', bondResult.reason);
+
+      if (fnoResult.status === 'fulfilled' && fnoResult.value.data)
+        setFnoTrades(fnoResult.value.data.map(dbFnoTradeToFnoTrade));
+      else if (fnoResult.status === 'rejected') logError('Error refreshing F&O:', fnoResult.reason);
 
       logInfo('Portfolio refreshed successfully');
     } catch (err) {
@@ -151,6 +176,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       setLoading(false);
     }
   }, []);
+
+  // â”€â”€â”€ ACCOUNTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addTransaction = useCallback(
     async (transactionData: Omit<Transaction, 'id'>) => {
@@ -260,7 +287,12 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setAccounts((prev) => prev.map((a) => (a.id === id ? { ...a, ...account } : a)));
   }, []);
 
-  const deleteAccount = useMemo(() => deleteFromTable('accounts', 'account', setAccounts), []);
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteAccount = useCallback(
+    (id: number) => makeDeleteFromTable('accounts', 'account', setAccounts)(id),
+
+    []
+  );
 
   const addFunds = useCallback(
     async (
@@ -294,13 +326,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts]
   );
 
+  // â”€â”€â”€ SETTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
   const updateSettings = useCallback(
     async (newSettings: Partial<AppSettings>) => {
       const updatedSettings = { ...settings, ...newSettings };
       setSettings(updatedSettings);
 
       if (user) {
-        const { error } = await (supabase as ExtendedSupabaseClient)
+        const { error } = await supabase
           .from('app_settings')
           .update({
             brokerage_type: updatedSettings.brokerageType,
@@ -334,11 +368,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [settings, user]
   );
 
-  // --- STOCKS ---
+  // â”€â”€â”€ STOCKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addStock = useCallback(
     async (stock: Omit<Stock, 'id'>) => {
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('stocks')
         .insert({
           user_id: user?.id,
@@ -371,7 +405,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const updateStock = useCallback(async (id: number, stock: Partial<Stock>) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
+    const { error } = await supabase
       .from('stocks')
       .update({
         symbol: stock.symbol,
@@ -397,11 +431,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setStocks((prev) => prev.map((s) => (s.id === id ? { ...s, ...stock } : s)));
   }, []);
 
-  const deleteStock = useMemo(() => deleteFromTable('stocks', 'stock', setStocks), []);
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteStock = useCallback(
+    (id: number) => makeDeleteFromTable('stocks', 'stock', setStocks)(id),
+
+    []
+  );
 
   const addStockTransaction = useCallback(
     async (tx: Omit<StockTransaction, 'id'>) => {
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('stock_transactions')
         .insert({
           ...(user?.id ? { user_id: user.id } : {}),
@@ -433,16 +472,19 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteStockTransaction = useMemo(
-    () => deleteFromTable('stock_transactions', 'stock transaction', setStockTransactions),
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteStockTransaction = useCallback(
+    (id: number) =>
+      makeDeleteFromTable('stock_transactions', 'stock transaction', setStockTransactions)(id),
+
     []
   );
 
-  // --- MUTUAL FUNDS ---
+  // â”€â”€â”€ MUTUAL FUNDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addMutualFund = useCallback(
     async (mf: Omit<MutualFund, 'id'>) => {
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('mutual_funds')
         .insert({
           user_id: user?.id,
@@ -476,7 +518,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const updateMutualFund = useCallback(async (id: number, mf: Partial<MutualFund>) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
+    const { error } = await supabase
       .from('mutual_funds')
       .update({
         name: mf.schemeName,
@@ -503,14 +545,16 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setMutualFunds((prev) => prev.map((m) => (m.id === id ? { ...m, ...mf } : m)));
   }, []);
 
-  const deleteMutualFund = useMemo(
-    () => deleteFromTable('mutual_funds', 'mutual fund', setMutualFunds),
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteMutualFund = useCallback(
+    (id: number) => makeDeleteFromTable('mutual_funds', 'mutual fund', setMutualFunds)(id),
+
     []
   );
 
   const addMutualFundTransaction = useCallback(
     async (tx: Omit<MutualFundTransaction, 'id'>) => {
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('mutual_fund_transactions')
         .insert({
           ...(user?.id ? { user_id: user.id } : {}),
@@ -543,21 +587,23 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteMutualFundTransaction = useMemo(
-    () =>
-      deleteFromTable(
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteMutualFundTransaction = useCallback(
+    (id: number) =>
+      makeDeleteFromTable(
         'mutual_fund_transactions',
         'mutual fund transaction',
         setMutualFundTransactions
-      ),
+      )(id),
+
     []
   );
 
-  // --- F&O ---
+  // â”€â”€â”€ F&O â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addFnoTrade = useCallback(
     async (trade: Omit<FnoTrade, 'id'>) => {
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('fno_trades')
         .insert({
           ...(user?.id ? { user_id: user.id } : {}),
@@ -593,7 +639,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   const updateFnoTrade = useCallback(
     async (id: number, trade: Partial<FnoTrade>) => {
-      const { error } = await (supabase as ExtendedSupabaseClient)
+      const { error } = await supabase
         .from('fno_trades')
         .update({
           instrument: trade.instrument,
@@ -617,7 +663,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       setFnoTrades((prev) => prev.map((t) => (t.id === id ? { ...t, ...trade } : t)));
-      // DB trigger fires on OPEN→CLOSED status change: creates ledger entry + updates balance
+      // DB trigger fires on OPENâ†’CLOSED status change: creates ledger entry + updates balance
       if (trade.status === 'CLOSED') {
         refreshAccounts();
         refreshTransactions();
@@ -627,18 +673,20 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteFnoTrade = useMemo(
-    () => deleteFromTable('fno_trades', 'fno trade', setFnoTrades),
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteFnoTrade = useCallback(
+    (id: number) => makeDeleteFromTable('fno_trades', 'fno trade', setFnoTrades)(id),
+
     []
   );
 
-  // --- BONDS ---
+  // â”€â”€â”€ BONDS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addBond = useCallback(
     async (bond: Omit<Bond, 'id'>) => {
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('bonds')
         .insert({
           user_id: user.id,
@@ -672,7 +720,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const updateBond = useCallback(async (id: number, bond: Partial<Bond>) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
+    const { error } = await supabase
       .from('bonds')
       .update({
         name: bond.name,
@@ -701,13 +749,18 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setBonds((prev) => prev.map((b) => (b.id === id ? { ...b, ...bond } : b)));
   }, []);
 
-  const deleteBond = useMemo(() => deleteFromTable('bonds', 'bond', setBonds), []);
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteBond = useCallback(
+    (id: number) => makeDeleteFromTable('bonds', 'bond', setBonds)(id),
+
+    []
+  );
 
   const addBondTransaction = useCallback(
     async (tx: Omit<BondTransaction, 'id'>) => {
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('bond_transactions')
         .insert({
           user_id: user.id,
@@ -737,12 +790,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [user, refreshAccounts, refreshTransactions, refreshPortfolio]
   );
 
-  const deleteBondTransaction = useMemo(
-    () => deleteFromTable('bond_transactions', 'bond transaction', setBondTransactions),
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteBondTransaction = useCallback(
+    (id: number) =>
+      makeDeleteFromTable('bond_transactions', 'bond transaction', setBondTransactions)(id),
+
     []
   );
 
-  // --- GOALS ---
+  // â”€â”€â”€ GOALS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addGoal = useCallback(
     async (goal: Omit<Goal, 'id'>) => {
@@ -791,9 +847,14 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setGoals((prev) => prev.map((g) => (g.id === id ? { ...g, ...goal } : g)));
   }, []);
 
-  const deleteGoal = useMemo(() => deleteFromTable('goals', 'goal', setGoals), []);
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteGoal = useCallback(
+    (id: number) => makeDeleteFromTable('goals', 'goal', setGoals)(id),
 
-  // --- FAMILY TRANSFERS ---
+    []
+  );
+
+  // â”€â”€â”€ FAMILY TRANSFERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addFamilyTransfer = useCallback(
     async (transfer: Omit<FamilyTransfer, 'id'>) => {
@@ -864,13 +925,13 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [refreshAccounts]
   );
 
-  // --- FOREX ---
+  // â”€â”€â”€ FOREX â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const addForexTransaction = useCallback(
     async (tx: Omit<ForexTransaction, 'id'>) => {
       if (!user) throw new Error('User not authenticated');
 
-      const { data, error } = await (supabase as ExtendedSupabaseClient)
+      const { data, error } = await supabase
         .from('forex_transactions')
         .insert({
           user_id: user.id,
@@ -894,7 +955,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
   );
 
   const updateForexTransaction = useCallback(async (id: number, tx: Partial<ForexTransaction>) => {
-    const { error } = await (supabase as ExtendedSupabaseClient)
+    const { error } = await supabase
       .from('forex_transactions')
       .update({
         transaction_type: tx.transactionType,
@@ -913,12 +974,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setForexTransactions((prev) => prev.map((t) => (t.id === id ? { ...t, ...tx } : t)));
   }, []);
 
-  const deleteForexTransaction = useMemo(
-    () => deleteFromTable('forex_transactions', 'forex transaction', setForexTransactions),
+  // FIX: was useMemo â€” useCallback is semantically correct for functions
+  const deleteForexTransaction = useCallback(
+    (id: number) =>
+      makeDeleteFromTable('forex_transactions', 'forex transaction', setForexTransactions)(id),
+
     []
   );
 
-  // --- LIVE PRICE REFRESH ---
+  // â”€â”€â”€ LIVE PRICE REFRESH â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const refreshLivePrices = useCallback(
     async (silent: boolean = false) => {
@@ -963,7 +1027,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                   stock.investmentAmount > 0 ? (pnl / stock.investmentAmount) * 100 : 0;
 
                 if (currentPrice > 0) {
-                  (supabase as ExtendedSupabaseClient)
+                  supabase
                     .from('stocks')
                     .update({
                       current_price: currentPrice,
@@ -988,7 +1052,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 };
               })
             );
-            if (!silent) console.log(`✓ Updated ${updatedCount} stocks.`);
+            if (!silent) console.log(`âœ“ Updated ${updatedCount} stocks.`);
             if (updatedCount === 0 && !silent)
               console.warn('No stock prices updated. Check symbols.');
           }
@@ -1023,7 +1087,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                   mf.investmentAmount > 0 ? (pnl / mf.investmentAmount) * 100 : 0;
 
                 if (currentNav > 0) {
-                  (supabase as ExtendedSupabaseClient)
+                  supabase
                     .from('mutual_funds')
                     .update({
                       current_nav: currentNav,
@@ -1048,7 +1112,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 };
               })
             );
-            if (!silent) console.log(`✓ Updated ${updatedCount} mutual funds.`);
+            if (!silent) console.log(`âœ“ Updated ${updatedCount} mutual funds.`);
           }
         }
       } catch (err) {
@@ -1074,7 +1138,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 const pnl = currentValue - bond.investmentAmount;
                 const pnlPercentage = (pnl / bond.investmentAmount) * 100;
 
-                (supabase as ExtendedSupabaseClient)
+                supabase
                   .from('bonds')
                   .update({
                     current_price: currentPrice,
@@ -1102,9 +1166,14 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     [stocks, mutualFunds, bonds]
   );
 
-  // --- REFRESH ---
+  // Keep the ref always pointing at the latest version of refreshLivePrices
+  // This is key to the interval fix â€” the interval closure captures the ref, not the function
+  useEffect(() => {
+    refreshLivePricesRef.current = refreshLivePrices;
+  }, [refreshLivePrices]);
 
-  // Initial Load
+  // â”€â”€â”€ INITIAL DATA LOAD â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
   useEffect(() => {
     const loadInitialData = async () => {
       if (!user) {
@@ -1113,68 +1182,113 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       }
 
       try {
+        // FIX: Promise.allSettled â€” individual query failures no longer abort all data loading
         const [
-          { data: accData },
-          { data: txData },
-          { data: settingsData },
-          { data: stockData },
-          { data: mfData },
-          { data: bondData },
-          { data: goalData },
-          { data: familyData },
-          { data: fnoData },
-          { data: stockTxData },
-          { data: mfTxData },
-          { data: bondTxData },
-          { data: forexTxData },
-        ] = await Promise.all([
+          accResult,
+          txResult,
+          settingsResult,
+          stockResult,
+          mfResult,
+          bondResult,
+          goalResult,
+          familyResult,
+          fnoResult,
+          stockTxResult,
+          mfTxResult,
+          bondTxResult,
+          forexTxResult,
+        ] = await Promise.allSettled([
           supabase.from('accounts').select('*').order('name'),
           supabase.from('transactions').select('*').order('date', { ascending: false }).limit(100),
-          (supabase as ExtendedSupabaseClient)
-            .from('app_settings')
-            .select('*')
-            .eq('user_id', user.id)
-            .maybeSingle(),
+          supabase.from('app_settings').select('*').eq('user_id', user.id).maybeSingle(),
           supabase.from('stocks').select('*'),
           supabase.from('mutual_funds').select('*'),
-          (supabase as ExtendedSupabaseClient).from('bonds').select('*'),
+          supabase.from('bonds').select('*'),
           supabase.from('goals').select('*'),
           supabase.from('family_transfers').select('*'),
-          (supabase as ExtendedSupabaseClient).from('fno_trades').select('*'),
-          (supabase as ExtendedSupabaseClient)
+          supabase.from('fno_trades').select('*'),
+          supabase
             .from('stock_transactions')
             .select('*')
             .order('transaction_date', { ascending: false }),
-          (supabase as ExtendedSupabaseClient)
+          supabase
             .from('mutual_fund_transactions')
             .select('*')
             .order('transaction_date', { ascending: false }),
-          (supabase as ExtendedSupabaseClient)
+          supabase
             .from('bond_transactions')
             .select('*')
             .order('transaction_date', { ascending: false }),
-          (supabase as ExtendedSupabaseClient)
-            .from('forex_transactions')
-            .select('*')
-            .order('date', { ascending: false }),
+          supabase.from('forex_transactions').select('*').order('date', { ascending: false }),
         ]);
 
-        if (accData) setAccounts(accData.map(dbAccountToAccount));
-        if (txData) setTransactions(txData.map(dbTransactionToTransaction));
-        if (settingsData) setSettings(dbSettingsToSettings(settingsData as AppSettingsRow));
-        if (stockData) setStocks(stockData.map(dbStockToStock));
-        if (mfData) setMutualFunds(mfData.map(dbMutualFundToMutualFund));
-        if (bondData) setBonds(bondData.map(dbBondToBond));
-        if (goalData) setGoals(goalData.map(dbGoalToGoal));
-        if (familyData) setFamilyTransfers(familyData.map(dbFamilyTransferToFamilyTransfer));
-        if (fnoData) setFnoTrades(fnoData.map(dbFnoTradeToFnoTrade));
-        if (stockTxData)
-          setStockTransactions(stockTxData.map(dbStockTransactionToStockTransaction));
-        if (mfTxData)
-          setMutualFundTransactions(mfTxData.map(dbMutualFundTransactionToMutualFundTransaction));
-        if (bondTxData) setBondTransactions(bondTxData.map(dbBondTransactionToBondTransaction));
-        if (forexTxData)
-          setForexTransactions(forexTxData.map(dbForexTransactionToForexTransaction));
+        // Apply each result independently â€” partial failures are tolerated
+        if (accResult.status === 'fulfilled' && accResult.value.data)
+          setAccounts(accResult.value.data.map(dbAccountToAccount));
+        else if (accResult.status === 'rejected')
+          logError('Failed to load accounts:', accResult.reason);
+
+        if (txResult.status === 'fulfilled' && txResult.value.data)
+          setTransactions(txResult.value.data.map(dbTransactionToTransaction));
+        else if (txResult.status === 'rejected')
+          logError('Failed to load transactions:', txResult.reason);
+
+        if (settingsResult.status === 'fulfilled' && settingsResult.value.data)
+          setSettings(dbSettingsToSettings(settingsResult.value.data as AppSettingsRow));
+        else if (settingsResult.status === 'rejected')
+          logError('Failed to load settings:', settingsResult.reason);
+
+        if (stockResult.status === 'fulfilled' && stockResult.value.data)
+          setStocks(stockResult.value.data.map(dbStockToStock));
+        else if (stockResult.status === 'rejected')
+          logError('Failed to load stocks:', stockResult.reason);
+
+        if (mfResult.status === 'fulfilled' && mfResult.value.data)
+          setMutualFunds(mfResult.value.data.map(dbMutualFundToMutualFund));
+        else if (mfResult.status === 'rejected')
+          logError('Failed to load mutual funds:', mfResult.reason);
+
+        if (bondResult.status === 'fulfilled' && bondResult.value.data)
+          setBonds(bondResult.value.data.map(dbBondToBond));
+        else if (bondResult.status === 'rejected')
+          logError('Failed to load bonds:', bondResult.reason);
+
+        if (goalResult.status === 'fulfilled' && goalResult.value.data)
+          setGoals(goalResult.value.data.map(dbGoalToGoal));
+        else if (goalResult.status === 'rejected')
+          logError('Failed to load goals:', goalResult.reason);
+
+        if (familyResult.status === 'fulfilled' && familyResult.value.data)
+          setFamilyTransfers(familyResult.value.data.map(dbFamilyTransferToFamilyTransfer));
+        else if (familyResult.status === 'rejected')
+          logError('Failed to load family transfers:', familyResult.reason);
+
+        if (fnoResult.status === 'fulfilled' && fnoResult.value.data)
+          setFnoTrades(fnoResult.value.data.map(dbFnoTradeToFnoTrade));
+        else if (fnoResult.status === 'rejected')
+          logError('Failed to load F&O trades:', fnoResult.reason);
+
+        if (stockTxResult.status === 'fulfilled' && stockTxResult.value.data)
+          setStockTransactions(stockTxResult.value.data.map(dbStockTransactionToStockTransaction));
+        else if (stockTxResult.status === 'rejected')
+          logError('Failed to load stock transactions:', stockTxResult.reason);
+
+        if (mfTxResult.status === 'fulfilled' && mfTxResult.value.data)
+          setMutualFundTransactions(
+            mfTxResult.value.data.map(dbMutualFundTransactionToMutualFundTransaction)
+          );
+        else if (mfTxResult.status === 'rejected')
+          logError('Failed to load MF transactions:', mfTxResult.reason);
+
+        if (bondTxResult.status === 'fulfilled' && bondTxResult.value.data)
+          setBondTransactions(bondTxResult.value.data.map(dbBondTransactionToBondTransaction));
+        else if (bondTxResult.status === 'rejected')
+          logError('Failed to load bond transactions:', bondTxResult.reason);
+
+        if (forexTxResult.status === 'fulfilled' && forexTxResult.value.data)
+          setForexTransactions(forexTxResult.value.data.map(dbForexTransactionToForexTransaction));
+        else if (forexTxResult.status === 'rejected')
+          logError('Failed to load forex transactions:', forexTxResult.reason);
 
         setLoading(false);
       } catch (err) {
@@ -1186,6 +1300,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
     loadInitialData();
   }, [user, authLoading]);
+
+  // â”€â”€â”€ MEMOISED CONTEXT VALUE â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
   const value = useMemo(
     () => ({
@@ -1304,7 +1420,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     ]
   );
 
-  // Automatic Live Price Refresh (every 1 minute)
+  // â”€â”€â”€ LIVE PRICE EFFECTS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+
+  // Automatic initial refresh after data loads (once)
   const dataLoaded = !loading;
   useEffect(() => {
     if (
@@ -1312,21 +1430,24 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
       (stocks.length > 0 || mutualFunds.length > 0 || (settings.bondsEnabled && bonds.length > 0))
     ) {
       const timeout = setTimeout(() => {
-        refreshLivePrices(true);
+        refreshLivePricesRef.current(true);
       }, 1000);
       return () => clearTimeout(timeout);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataLoaded, stocks.length, mutualFunds.length]);
 
-  // Periodic refresh - silent background update (every 1 minute)
+  // FIX: Periodic refresh â€” uses ref so the interval is NOT cleared/reset on every price update.
+  // Previously, adding refreshLivePrices to deps caused the timer to reset on every price change,
+  // meaning the 60-second interval effectively never fired in an active session.
   useEffect(() => {
+    if (!user) return;
     const intervalId = setInterval(() => {
-      if (user && !loading) refreshLivePrices(true);
+      refreshLivePricesRef.current(true);
     }, 60000);
 
     return () => clearInterval(intervalId);
-  }, [user, loading, refreshLivePrices]);
+  }, [user]); // only resets when user logs in/out
 
   return <FinanceContext.Provider value={value}>{children}</FinanceContext.Provider>;
 };

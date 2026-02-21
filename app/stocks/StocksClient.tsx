@@ -490,10 +490,6 @@ export default function StocksClient() {
       <div
         className="mobile-page-header"
         style={{
-          display: 'flex',
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
           marginBottom: '24px',
           gap: '16px',
           width: '100%',
