@@ -315,37 +315,19 @@ export default function AddTransactionModal({ isOpen, onClose }: AddTransactionM
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0,0,0,0.85)',
-        backdropFilter: 'blur(10px)',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 2000,
-        padding: '12px',
-        overflowY: 'auto',
-      }}
+      className="modal-overlay"
+      style={{ zIndex: 2000 }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        className="modal-content"
+        className="modal-card"
         style={{
           background: '#0f172a',
-          padding: 'clamp(12px, 3vw, 16px)',
-          borderRadius: '20px',
           border: '1px solid #334155',
           width: '100%',
           maxWidth: '560px',
-          maxHeight: '95vh',
-          overflowY: 'auto',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
         }}
       >
         <div

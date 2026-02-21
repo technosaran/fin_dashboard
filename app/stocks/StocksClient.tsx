@@ -463,7 +463,7 @@ export default function StocksClient() {
       <div
         className="main-content"
         style={{
-          padding: '40px 60px',
+          padding: 'clamp(20px, 4vw, 60px)',
           backgroundColor: '#020617',
           minHeight: '100vh',
           color: '#f8fafc',
@@ -473,7 +473,12 @@ export default function StocksClient() {
         }}
       >
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: '1.2rem', color: '#64748b' }}>Loading your portfolio...</div>
+          <Loader2
+            size={32}
+            className="spin-animation"
+            style={{ color: '#6366f1', marginBottom: '12px' }}
+          />
+          <div style={{ fontSize: '1rem', color: '#64748b' }}>Loading your portfolio...</div>
         </div>
       </div>
     );
@@ -483,13 +488,14 @@ export default function StocksClient() {
     <div className="page-container">
       {/* Header Section */}
       <div
+        className="mobile-page-header"
         style={{
           display: 'flex',
           flexDirection: 'row',
           justifyContent: 'space-between',
           alignItems: 'center',
-          marginBottom: '32px',
-          gap: '24px',
+          marginBottom: '24px',
+          gap: '16px',
           width: '100%',
         }}
       >
@@ -503,16 +509,16 @@ export default function StocksClient() {
               background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              whiteSpace: 'nowrap',
             }}
           >
             Stock Portfolio
           </h1>
         </div>
         <div
+          className="mobile-page-header__actions"
           style={{
             display: 'flex',
-            gap: '12px',
+            gap: '8px',
             alignItems: 'center',
             justifyContent: 'flex-end',
           }}
@@ -542,9 +548,30 @@ export default function StocksClient() {
             />
           </button>
           <button
+            onClick={() => openModal('transaction')}
+            style={{
+              padding: '10px 16px',
+              borderRadius: '14px',
+              background: '#0f172a',
+              color: '#10b981',
+              border: '1px solid #1e293b',
+              fontWeight: '800',
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              transition: '0.2s',
+              flexShrink: 0,
+            }}
+          >
+            <Activity size={16} />
+            <span className="hide-sm">Log Trade</span>
+          </button>
+          <button
             onClick={() => openModal('stock')}
             style={{
-              padding: '10px 20px',
+              padding: '10px 16px',
               borderRadius: '14px',
               background: 'linear-gradient(135deg, #6366f1 0%, #4338ca 100%)',
               color: 'white',
@@ -554,16 +581,14 @@ export default function StocksClient() {
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '10px',
+              gap: '6px',
               boxShadow: '0 8px 16px rgba(99, 102, 241, 0.2)',
               transition: '0.2s',
               flexShrink: 0,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.transform = 'translateY(-2px)')}
-            onMouseLeave={(e) => (e.currentTarget.style.transform = 'translateY(0)')}
           >
-            <Plus size={18} strokeWidth={3} /> <span className="hide-sm">Add Stock</span>
-            <span className="show-sm-inline hide-sm-none">Add</span>
+            <Plus size={16} strokeWidth={3} />
+            <span className="hide-sm">Add Stock</span>
           </button>
         </div>
       </div>
@@ -592,7 +617,10 @@ export default function StocksClient() {
               Inv. Capital
             </span>
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>
+          <div
+            className="stat-value-responsive"
+            style={{ fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', fontWeight: '900', color: '#fff' }}
+          >
             ₹{totalInvestment.toLocaleString()}
           </div>
         </div>
@@ -618,7 +646,10 @@ export default function StocksClient() {
               Current Value
             </span>
           </div>
-          <div style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff' }}>
+          <div
+            className="stat-value-responsive"
+            style={{ fontSize: 'clamp(1.3rem, 4vw, 1.8rem)', fontWeight: '900', color: '#fff' }}
+          >
             ₹{totalCurrentValue.toLocaleString()}
           </div>
         </div>
@@ -645,8 +676,9 @@ export default function StocksClient() {
             </span>
           </div>
           <div
+            className="stat-value-responsive"
             style={{
-              fontSize: '1.8rem',
+              fontSize: 'clamp(1.3rem, 4vw, 1.8rem)',
               fontWeight: '900',
               color: totalDayPnL >= 0 ? '#34d399' : '#f87171',
             }}
@@ -678,8 +710,9 @@ export default function StocksClient() {
             </span>
           </div>
           <div
+            className="stat-value-responsive"
             style={{
-              fontSize: '1.8rem',
+              fontSize: 'clamp(1.3rem, 4vw, 1.8rem)',
               fontWeight: '900',
               color: totalPnL >= 0 ? '#34d399' : '#f87171',
             }}
@@ -691,23 +724,24 @@ export default function StocksClient() {
 
       {/* Tab Navigation */}
       <div
+        className="mobile-tab-scroll"
         style={{
           display: 'flex',
           background: '#0f172a',
           padding: '6px',
           borderRadius: '16px',
           border: '1px solid #1e293b',
-          marginBottom: '32px',
+          marginBottom: '24px',
           maxWidth: '100%',
           overflowX: 'auto',
           WebkitOverflowScrolling: 'touch',
         }}
       >
         {[
-          { id: 'portfolio', label: 'Holdings', icon: <BarChart3 size={18} /> },
-          { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={18} /> },
-          { id: 'history', label: 'History', icon: <History size={18} /> },
-          { id: 'lifetime', label: 'Lifetime', icon: <Star size={18} /> },
+          { id: 'portfolio', label: 'Holdings', icon: <BarChart3 size={16} /> },
+          { id: 'allocation', label: 'Allocation', icon: <PieChartIcon size={16} /> },
+          { id: 'history', label: 'History', icon: <History size={16} /> },
+          { id: 'lifetime', label: 'Lifetime', icon: <Star size={16} /> },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -721,11 +755,11 @@ export default function StocksClient() {
               background: activeTab === tab.id ? '#6366f1' : 'transparent',
               color: activeTab === tab.id ? '#fff' : '#64748b',
               fontWeight: '700',
-              fontSize: '0.85rem',
+              fontSize: '0.8rem',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
+              gap: '6px',
               transition: 'all 0.2s',
               whiteSpace: 'nowrap',
               flexShrink: 0,
@@ -863,7 +897,7 @@ export default function StocksClient() {
                       alignItems: 'center',
                     }}
                   >
-                    <div style={{ display: 'flex', gap: '8px' }}>
+                    <div style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                       <div
                         style={{
                           color:
@@ -875,48 +909,48 @@ export default function StocksClient() {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
+                          background:
+                            stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0
+                              ? 'rgba(16, 185, 129, 0.08)'
+                              : 'rgba(244, 63, 94, 0.08)',
+                          padding: '4px 10px',
+                          borderRadius: '8px',
                         }}
                       >
                         Day:{' '}
                         {stock.currentPrice - (stock.previousPrice || stock.currentPrice) >= 0
                           ? '+'
                           : ''}
+                        ₹
                         {(
                           (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) *
                           stock.quantity
                         ).toFixed(2)}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ display: 'flex', gap: '8px' }}>
                       <button
+                        className="mobile-action-btn mobile-action-btn--view"
                         onClick={(e) => {
                           e.stopPropagation();
                           setViewingCharges({ type: 'stock', data: stock });
                         }}
-                        style={{
-                          color: '#6366f1',
-                          background: 'none',
-                          border: 'none',
-                          padding: '4px',
-                        }}
+                        aria-label="View charges"
                       >
-                        <Eye size={18} />
+                        <Eye size={16} />
                       </button>
                       <button
+                        className="mobile-action-btn mobile-action-btn--sell"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleExitStock(stock);
                         }}
-                        style={{
-                          color: '#10b981',
-                          background: 'none',
-                          border: 'none',
-                          padding: '4px',
-                        }}
+                        aria-label="Sell stock"
                       >
-                        <ArrowRight size={18} />
+                        <ArrowRight size={16} />
                       </button>
                       <button
+                        className="mobile-action-btn mobile-action-btn--delete"
                         onClick={async (e) => {
                           e.stopPropagation();
                           const isConfirmed = await customConfirm({
@@ -927,14 +961,9 @@ export default function StocksClient() {
                           });
                           if (isConfirmed) await deleteStock(stock.id);
                         }}
-                        style={{
-                          color: '#f43f5e',
-                          background: 'none',
-                          border: 'none',
-                          padding: '4px',
-                        }}
+                        aria-label="Delete stock"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>
@@ -1568,9 +1597,10 @@ export default function StocksClient() {
               return (
                 <div
                   key={transaction.id}
+                  className="tx-history-card"
                   style={{
                     background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-                    padding: '20px',
+                    padding: '16px',
                     borderRadius: '16px',
                     border: '1px solid #1e293b',
                     display: 'flex',
@@ -1578,7 +1608,10 @@ export default function StocksClient() {
                     alignItems: 'center',
                   }}
                 >
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                  <div
+                    className="tx-history-card__left"
+                    style={{ display: 'flex', gap: '12px', alignItems: 'center' }}
+                  >
                     <div
                       style={{
                         background:
@@ -1629,11 +1662,12 @@ export default function StocksClient() {
                     </div>
                   </div>
                   <div
+                    className="tx-history-card__right"
                     style={{
                       textAlign: 'right',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '16px',
+                      gap: '12px',
                     }}
                   >
                     <div>
@@ -1879,32 +1913,22 @@ export default function StocksClient() {
 
       {isModalOpen && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
+          className="modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setIsModalOpen(false);
           }}
         >
           <div
+            className="modal-card"
             style={{
               background: '#0f172a',
-              padding: 'clamp(16px, 4vw, 32px)',
-              borderRadius: '24px',
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '500px',
-              maxHeight: '90vh',
-              overflowY: 'auto',
             }}
           >
+            {/* Mobile handle indicator */}
+            <div className="mobile-modal-sheet__handle hide-desktop" />
             <div
               style={{
                 display: 'flex',
@@ -2607,25 +2631,16 @@ export default function StocksClient() {
       )}
       {viewingCharges && (
         <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            backdropFilter: 'blur(10px)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1100,
+          className="modal-overlay"
+          style={{ zIndex: 1100 }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setViewingCharges(null);
           }}
         >
           <div
+            className="modal-card"
             style={{
               background: '#0f172a',
-              padding: 'clamp(16px, 4vw, 32px)',
-              borderRadius: '24px',
               border: '1px solid #334155',
               width: '100%',
               maxWidth: '450px',
