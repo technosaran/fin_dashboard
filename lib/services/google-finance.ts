@@ -51,7 +51,7 @@ export async function fetchGoogleFinancePrice(
         if (mainEntity.price) price = parseFloat(mainEntity.price);
         // Sometimes it's nested
         if (!price && mainEntity.mainEntity?.price) price = parseFloat(mainEntity.mainEntity.price);
-      } catch (e) {
+      } catch (_e) {
         // ignore
       }
     }
