@@ -41,7 +41,7 @@ async function handleBatchQuote(request: Request): Promise<NextResponse> {
     const { fetchBatchStockQuotes } = await import('@/lib/services/stock-fetcher');
     const result = await fetchBatchStockQuotes(symbols);
 
-    setCache(cacheKey, result, 5000); // 5 seconds local cache
+    setCache(cacheKey, result, 30000); // 30 seconds local cache
     return createSuccessResponse(result);
   } catch (error) {
     logError('Batch stock quote service failed', error, { symbols: symbols.join(',') });

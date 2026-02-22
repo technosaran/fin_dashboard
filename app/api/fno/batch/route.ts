@@ -58,7 +58,7 @@ async function handleFnoBatchQuote(request: Request): Promise<NextResponse> {
       };
     });
 
-    setCache(cacheKey, results, 5000);
+    setCache(cacheKey, results, 30000);
     return createSuccessResponse(results);
   } catch (error) {
     logError('Batch fno quote fetch failed', error, { instruments: instruments.join(',') });

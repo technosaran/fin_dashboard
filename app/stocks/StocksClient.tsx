@@ -405,30 +405,43 @@ export default function StocksClient() {
 
   // Calculate portfolio metrics
   // Calculate portfolio metrics using groupedStocks to ensure only active positions are counted
-  const totalInvestment = groupedStocks.reduce((sum, stock) => sum + stock.investmentAmount, 0);
-  const totalCurrentValue = groupedStocks.reduce((sum, stock) => sum + stock.currentValue, 0);
-  const totalPnL = totalCurrentValue - totalInvestment;
-  const totalDayPnL = groupedStocks.reduce((sum, stock) => {
-    const dayChange =
-      (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
-    return sum + dayChange;
-  }, 0);
+  const { totalInvestment, totalCurrentValue, totalPnL, totalDayPnL } = useMemo(() => {
+    let inv = 0,
+      cv = 0,
+      dayPnl = 0;
+    groupedStocks.forEach((stock) => {
+      inv += stock.investmentAmount;
+      cv += stock.currentValue;
+      dayPnl += (stock.currentPrice - (stock.previousPrice || stock.currentPrice)) * stock.quantity;
+    });
+    return {
+      totalInvestment: inv,
+      totalCurrentValue: cv,
+      totalPnL: cv - inv,
+      totalDayPnL: dayPnl,
+    };
+  }, [groupedStocks]);
 
   // Lifetime Metrics Calculation
-  const totalBuys = stockTransactions
-    .filter((t) => t.transactionType === 'BUY')
-    .reduce((sum, t) => sum + t.totalAmount, 0);
-  const totalSells = stockTransactions
-    .filter((t) => t.transactionType === 'SELL')
-    .reduce((sum, t) => sum + t.totalAmount, 0);
-  const totalCharges = stockTransactions.reduce(
-    (sum, t) => sum + (t.brokerage || 0) + (t.taxes || 0),
-    0
-  );
-
-  // Lifetime Earned = (Total Sells + Current Value) - (Total Buys + Total Charges)
-  const lifetimeEarned = totalSells + totalCurrentValue - (totalBuys + totalCharges);
-  const lifetimeReturnPercentage = totalBuys > 0 ? (lifetimeEarned / totalBuys) * 100 : 0;
+  const { totalBuys, totalSells, totalCharges, lifetimeEarned, lifetimeReturnPercentage } =
+    useMemo(() => {
+      let buys = 0,
+        sells = 0,
+        charges = 0;
+      stockTransactions.forEach((t) => {
+        if (t.transactionType === 'BUY') buys += t.totalAmount;
+        else if (t.transactionType === 'SELL') sells += t.totalAmount;
+        charges += (t.brokerage || 0) + (t.taxes || 0);
+      });
+      const earned = sells + totalCurrentValue - (buys + charges);
+      return {
+        totalBuys: buys,
+        totalSells: sells,
+        totalCharges: charges,
+        lifetimeEarned: earned,
+        lifetimeReturnPercentage: buys > 0 ? (earned / buys) * 100 : 0,
+      };
+    }, [stockTransactions, totalCurrentValue]);
 
   const handleManualRefresh = async () => {
     setIsRefreshing(true);
@@ -438,25 +451,29 @@ export default function StocksClient() {
   };
 
   // Sector-wise distribution
-  const sectorData = groupedStocks.reduce(
-    (acc, stock) => {
-      const sector = stock.sector || 'Others';
-      const existing = acc.find((item) => item.sector === sector);
-      if (existing) {
-        existing.value += stock.currentValue;
-        existing.investment += stock.investmentAmount;
-      } else {
-        acc.push({
-          sector,
-          value: stock.currentValue,
-          investment: stock.investmentAmount,
-          pnl: stock.currentValue - stock.investmentAmount,
-        });
-      }
-      return acc;
-    },
-    [] as Array<{ sector: string; value: number; investment: number; pnl: number }>
-  );
+  const sectorData = useMemo(() => {
+    const data = groupedStocks.reduce(
+      (acc, stock) => {
+        const sector = stock.sector || 'Others';
+        const existing = acc.find((item) => item.sector === sector);
+        if (existing) {
+          existing.value += stock.currentValue;
+          existing.investment += stock.investmentAmount;
+          existing.pnl = existing.value - existing.investment;
+        } else {
+          acc.push({
+            sector,
+            value: stock.currentValue,
+            investment: stock.investmentAmount,
+            pnl: stock.currentValue - stock.investmentAmount,
+          });
+        }
+        return acc;
+      },
+      [] as Array<{ sector: string; value: number; investment: number; pnl: number }>
+    );
+    return data.sort((a, b) => b.value - a.value);
+  }, [groupedStocks]);
 
   if (loading) {
     return (
@@ -542,27 +559,6 @@ export default function StocksClient() {
               className={isRefreshing ? 'spin-animation' : ''}
               fill={isRefreshing ? 'none' : 'currentColor'}
             />
-          </button>
-          <button
-            onClick={() => openModal('transaction')}
-            style={{
-              padding: '10px 16px',
-              borderRadius: '14px',
-              background: '#0f172a',
-              color: '#10b981',
-              border: '1px solid #1e293b',
-              fontWeight: '800',
-              fontSize: '0.85rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              transition: '0.2s',
-              flexShrink: 0,
-            }}
-          >
-            <Activity size={16} />
-            <span className="hide-sm">Log Trade</span>
           </button>
           <button
             onClick={() => openModal('stock')}
