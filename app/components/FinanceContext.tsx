@@ -714,7 +714,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         throw error;
       }
 
-      setBonds((prev) => [...prev, dbBondToBond(data)]);
+      const newBond = dbBondToBond(data);
+      setBonds((prev) => [...prev, newBond]);
+      return newBond;
     },
     [user]
   );
