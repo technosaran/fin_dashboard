@@ -423,7 +423,7 @@ export interface FinanceContextState {
 
   // Bonds
   bonds: Bond[];
-  addBond: (bond: Omit<Bond, 'id'>) => Promise<void>;
+  addBond: (bond: Omit<Bond, 'id'>) => Promise<Bond>;
   updateBond: (id: number, bond: Partial<Bond>) => Promise<void>;
   deleteBond: (id: number) => Promise<void>;
   bondTransactions: BondTransaction[];

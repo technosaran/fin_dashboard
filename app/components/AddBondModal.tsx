@@ -6,6 +6,7 @@ import { useFinance } from './FinanceContext';
 import { Bond } from '@/lib/types';
 import { useNotifications } from './NotificationContext';
 import { logError } from '@/lib/utils/logger';
+import { validateISIN, validateAmount, validateDate } from '@/lib/validators/input';
 
 interface AddBondModalProps {
   isOpen: boolean;
@@ -24,7 +25,7 @@ interface BondSearchResult {
 }
 
 export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
-  const { addBond, accounts, settings } = useFinance();
+  const { addBond, addBondTransaction, accounts, settings } = useFinance();
   const { showNotification } = useNotifications();
 
   const [activeTab, setActiveTab] = useState<'search' | 'manual'>('search');
@@ -116,10 +117,46 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
   const submitBond = async () => {
     setIsSubmitting(true);
     try {
+      // Validate inputs
+      const isinValidation = validateISIN(manualForm.isin);
+      if (!isinValidation.isValid) {
+        showNotification('error', isinValidation.error || 'Invalid ISIN');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const amountValidation = validateAmount(avgPrice, 0.01);
+      if (!amountValidation.isValid) {
+        showNotification('error', amountValidation.error || 'Invalid price');
+        setIsSubmitting(false);
+        return;
+      }
+
+      const dateValidation = validateDate(manualForm.maturity);
+      if (!dateValidation.isValid) {
+        showNotification('error', dateValidation.error || 'Invalid maturity date');
+        setIsSubmitting(false);
+        return;
+      }
+
       const faceVal = parseFloat(manualForm.faceValue);
       const couponVal = parseFloat(manualForm.coupon);
       const investmentAmount = quantity * avgPrice;
 
+      // Validate parsed values
+      if (isNaN(faceVal) || faceVal <= 0) {
+        showNotification('error', 'Invalid face value');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (isNaN(couponVal) || couponVal < 0) {
+        showNotification('error', 'Invalid coupon rate');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // First, create the bond with 0 quantity (similar to stock flow)
       const bondData: Omit<Bond, 'id'> = {
         name: manualForm.name,
         isin: manualForm.isin || `MANUAL-${Date.now()}`,
@@ -127,18 +164,31 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
         faceValue: faceVal,
         couponRate: couponVal,
         maturityDate: manualForm.maturity,
-        quantity: quantity,
+        quantity: 0,
         avgPrice: avgPrice,
         currentPrice: avgPrice,
-        investmentAmount: investmentAmount,
-        currentValue: investmentAmount,
+        investmentAmount: 0,
+        currentValue: 0,
         pnl: 0,
         pnlPercentage: 0,
         interestFrequency: manualForm.frequency,
         status: 'ACTIVE',
       };
 
-      await addBond(bondData);
+      const newBond = await addBond(bondData);
+
+      // Then, create a BUY transaction which will update holdings and log to ledger
+      await addBondTransaction({
+        bondId: newBond.id,
+        transactionType: 'BUY',
+        quantity: quantity,
+        price: avgPrice,
+        totalAmount: investmentAmount,
+        transactionDate: new Date().toISOString().split('T')[0],
+        accountId: accountId !== 0 ? accountId : undefined,
+        notes: `Initial purchase of ${manualForm.name}`,
+      });
+
       showNotification('success', 'Bond added to your portfolio');
       onClose();
     } catch (error) {
