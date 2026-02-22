@@ -173,3 +173,52 @@ export function validateInteger(value: number | string, fieldName: string): Vali
 
   return { isValid: true };
 }
+
+/**
+ * Validate ISIN (International Securities Identification Number)
+ * Format: 12 characters - 2 letter country code + 9 alphanumeric + 1 check digit
+ */
+export function validateISIN(isin: string): ValidationResult {
+  if (!isin || isin.trim() === '') {
+    return { isValid: true }; // ISIN is optional
+  }
+
+  const trimmed = isin.trim().toUpperCase();
+
+  // ISIN must be exactly 12 characters
+  if (trimmed.length !== 12) {
+    return { isValid: false, error: 'ISIN must be exactly 12 characters' };
+  }
+
+  // First 2 characters must be letters (country code)
+  if (!/^[A-Z]{2}/.test(trimmed)) {
+    return { isValid: false, error: 'ISIN must start with a 2-letter country code' };
+  }
+
+  // Next 9 characters must be alphanumeric
+  if (!/^[A-Z]{2}[A-Z0-9]{9}[0-9]$/.test(trimmed)) {
+    return { isValid: false, error: 'Invalid ISIN format' };
+  }
+
+  return { isValid: true };
+}
+
+/**
+ * Validate F&O symbol/instrument name
+ */
+export function validateFnoSymbol(symbol: string): ValidationResult {
+  if (!symbol || symbol.trim() === '') {
+    return { isValid: false, error: 'F&O symbol is required' };
+  }
+
+  if (symbol.length < 2 || symbol.length > 50) {
+    return { isValid: false, error: 'F&O symbol must be between 2 and 50 characters' };
+  }
+
+  // Allow alphanumeric, spaces, hyphens, underscores
+  if (!/^[A-Za-z0-9\s\-_]+$/.test(symbol)) {
+    return { isValid: false, error: 'Invalid characters in F&O symbol' };
+  }
+
+  return { isValid: true };
+}
