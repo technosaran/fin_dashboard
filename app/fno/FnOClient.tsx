@@ -69,6 +69,10 @@ export default function FnOClient() {
   const handleAction = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!instrument || !quantity || !avgPrice) return;
+    if (status === 'CLOSED' && !exitPrice) {
+      showNotification('error', 'Exit price is required for a closed trade.');
+      return;
+    }
 
     const qty = parseFloat(quantity);
     const entryP = parseFloat(avgPrice);

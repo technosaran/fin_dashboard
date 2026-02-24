@@ -101,6 +101,8 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // Ref to always hold latest refreshLivePrices â€” prevents interval from resetting on every price update
   const refreshLivePricesRef = useRef<(silent?: boolean) => Promise<void>>(async () => {});
+  // Track the last date prices were refreshed to detect new trading days
+  const lastRefreshDateRef = useRef<string>('');
 
   // â”€â”€â”€ GENERIC HELPERS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
@@ -1016,12 +1018,11 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
                 const currentPrice = update.currentPrice;
                 const apiPreviousClose = update.previousClose;
 
-                // If API returns previousClose == currentPrice, it's often a placeholder.
-                // In that case, we keep our existing previousPrice if available.
+                // Always prefer the API's previousClose when it's a valid positive value.
+                // This ensures day's P&L is always relative to the previous session's close
+                // and resets correctly each trading day.
                 const previousPrice =
-                  apiPreviousClose > 0 && Math.abs(apiPreviousClose - currentPrice) > 0.01
-                    ? apiPreviousClose
-                    : stock.previousPrice || currentPrice;
+                  apiPreviousClose > 0 ? apiPreviousClose : stock.previousPrice || currentPrice;
 
                 const currentValue = stock.quantity * currentPrice;
                 const pnl = currentValue - stock.investmentAmount;
@@ -1082,7 +1083,9 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
                 updatedCount++;
                 const currentNav = update.currentNav;
-                const previousNav = update.previousNav || mf.previousNav || currentNav;
+                // Always prefer the API's previousNav when valid, so day's P&L resets daily.
+                const previousNav =
+                  update.previousNav > 0 ? update.previousNav : mf.previousNav || currentNav;
                 const currentValue = mf.units * currentNav;
                 const pnl = currentValue - mf.investmentAmount;
                 const pnlPercentage =
@@ -1439,12 +1442,18 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataLoaded, stocks.length, mutualFunds.length]);
 
-  // FIX: Periodic refresh â€” uses ref so the interval is NOT cleared/reset on every price update.
-  // Previously, adding refreshLivePrices to deps caused the timer to reset on every price change,
-  // meaning the 60-second interval effectively never fired in an active session.
+  // Periodic refresh: uses ref so the interval is NOT reset on every price update.
+  // Also detects new trading days: if the calendar date has changed since the last
+  // refresh, an immediate refresh is triggered so previousClose resets correctly.
   useEffect(() => {
     if (!user) return;
     const intervalId = setInterval(() => {
+      const today = new Date().toISOString().split('T')[0];
+      if (!lastRefreshDateRef.current) lastRefreshDateRef.current = today;
+      if (lastRefreshDateRef.current !== today) {
+        // New trading day detected — refresh to get updated previousClose values
+        lastRefreshDateRef.current = today;
+      }
       refreshLivePricesRef.current(true);
     }, 60000);
 
