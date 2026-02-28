@@ -47,7 +47,6 @@ export default function ForexClient() {
   const [exchangeRates, setExchangeRates] = useState<ExchangeRates>({});
   const [isLoadingRates, setIsLoadingRates] = useState(false);
 
-  // Fetch live exchange rates
   useEffect(() => {
     const fetchRates = async () => {
       setIsLoadingRates(true);
@@ -60,7 +59,7 @@ export default function ForexClient() {
           setExchangeRates(data);
         }
       } catch {
-        // Silent fail — rates are supplementary
+        // Silent fail
       } finally {
         setIsLoadingRates(false);
       }
@@ -84,24 +83,19 @@ export default function ForexClient() {
     }
   };
 
-  // Calculate stats
   const stats = useMemo(() => {
     const deposits = forexTransactions
       .filter((t) => t.transactionType === 'DEPOSIT')
       .reduce((sum, t) => sum + t.amount, 0);
-
     const withdrawals = forexTransactions
       .filter((t) => t.transactionType === 'WITHDRAWAL')
       .reduce((sum, t) => sum + t.amount, 0);
-
     const profits = forexTransactions
       .filter((t) => t.transactionType === 'PROFIT')
       .reduce((sum, t) => sum + t.amount, 0);
-
     const losses = forexTransactions
       .filter((t) => t.transactionType === 'LOSS')
       .reduce((sum, t) => sum + t.amount, 0);
-
     const netPnL = profits - losses;
     const currentBalance = deposits + profits - losses - withdrawals;
     const totalTrades = forexTransactions.filter(
@@ -112,11 +106,9 @@ export default function ForexClient() {
         ? (forexTransactions.filter((t) => t.transactionType === 'PROFIT').length / totalTrades) *
           100
         : 0;
-
     return { deposits, withdrawals, profits, losses, netPnL, currentBalance, totalTrades, winRate };
   }, [forexTransactions]);
 
-  // Filter and sort transactions
   const filteredTransactions = useMemo(() => {
     return forexTransactions
       .filter((t) => {
@@ -134,7 +126,6 @@ export default function ForexClient() {
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }, [forexTransactions, filterType, searchQuery]);
 
-  // P&L breakdown for mini chart
   const pnlBreakdown = useMemo(() => {
     const total = stats.profits + stats.losses;
     return {
@@ -250,7 +241,7 @@ export default function ForexClient() {
         </div>
       </header>
 
-      {/* Live Exchange Rates Ticker */}
+      {/* Live Exchange Rates */}
       {Object.keys(exchangeRates).length > 0 && (
         <div
           className="fade-in"
@@ -366,7 +357,7 @@ export default function ForexClient() {
           </div>
         </div>
 
-        {/* Net P&L with mini chart */}
+        {/* Net P&L */}
         <div
           className="premium-card"
           style={{
@@ -403,7 +394,6 @@ export default function ForexClient() {
           >
             {stats.netPnL >= 0 ? '+' : ''}₹{stats.netPnL.toLocaleString()}
           </div>
-          {/* Mini P&L bar */}
           <div
             style={{
               display: 'flex',
@@ -439,7 +429,7 @@ export default function ForexClient() {
           </div>
         </div>
 
-        {/* Trade Stats */}
+        {/* Win Rate */}
         <div
           className="premium-card"
           style={{
@@ -464,7 +454,7 @@ export default function ForexClient() {
             {stats.winRate.toFixed(0)}%
           </div>
           <div style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px' }}>
-            {stats.totalTrades} total trades • ₹{stats.withdrawals.toLocaleString()} withdrawn
+            {stats.totalTrades} total trades &bull; ₹{stats.withdrawals.toLocaleString()} withdrawn
           </div>
         </div>
       </div>
@@ -643,7 +633,7 @@ export default function ForexClient() {
                           month: 'short',
                           year: 'numeric',
                         })}
-                        {account && <span>• {account.name}</span>}
+                        {account && <span>&bull; {account.name}</span>}
                       </div>
                       {transaction.notes && (
                         <div
@@ -824,7 +814,6 @@ function ForexTransactionModal({
     if (!amount || parseFloat(amount) <= 0) {
       return;
     }
-
     setIsSubmitting(true);
     try {
       await onSave({
@@ -904,7 +893,7 @@ function ForexTransactionModal({
           onSubmit={handleSubmit}
           style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
         >
-          {/* Transaction Type Selector */}
+          {/* Transaction Type */}
           <div>
             <label
               style={{
@@ -949,6 +938,7 @@ function ForexTransactionModal({
             </div>
           </div>
 
+          {/* Amount */}
           <div>
             <label
               style={{
@@ -984,6 +974,7 @@ function ForexTransactionModal({
             />
           </div>
 
+          {/* Date */}
           <div>
             <label
               style={{
@@ -1014,6 +1005,7 @@ function ForexTransactionModal({
             />
           </div>
 
+          {/* Account */}
           <div>
             <label
               style={{
@@ -1050,6 +1042,7 @@ function ForexTransactionModal({
             </select>
           </div>
 
+          {/* Notes */}
           <div>
             <label
               style={{

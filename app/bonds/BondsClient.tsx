@@ -27,7 +27,6 @@ import AddBondModal from '../components/AddBondModal';
 
 type SortField = 'value' | 'coupon' | 'maturity' | 'pnl';
 
-// Helper defined outside component to bypass react-hooks/purity rule safely
 const getDaysToMaturity = (dateStr: string) => {
   return Math.ceil((new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24));
 };
@@ -48,7 +47,6 @@ export default function BondsClient() {
     showNotification('success', 'Prices refreshed');
   };
 
-  // Filter and sort bonds
   const filteredBonds = useMemo(() => {
     const filtered = bonds.filter(
       (b) =>
@@ -74,7 +72,6 @@ export default function BondsClient() {
     });
   }, [bonds, searchQuery, sortField]);
 
-  // Financial calculations
   const stats = useMemo(() => {
     const activeBonds = bonds.filter((b) => b.quantity > 0);
     const totalInvested = activeBonds.reduce((sum, b) => sum + b.investmentAmount, 0);
@@ -85,13 +82,9 @@ export default function BondsClient() {
       activeBonds.length > 0
         ? activeBonds.reduce((sum, b) => sum + b.couponRate, 0) / activeBonds.length
         : 0;
-
-    // Estimated annual interest income
     const annualIncome = activeBonds.reduce((sum, b) => {
       return sum + (b.faceValue * b.quantity * b.couponRate) / 100;
     }, 0);
-
-    // Nearest maturity
     const nextMaturing = activeBonds
       .filter((b) => new Date(b.maturityDate) > new Date())
       .sort((a, b) => new Date(a.maturityDate).getTime() - new Date(b.maturityDate).getTime())[0];
@@ -167,7 +160,7 @@ export default function BondsClient() {
           >
             <Landmark className="text-glow" style={{ color: 'var(--accent)' }} size={32} />
             <span>
-              Bonds <span className="title-accent">& Fixed Income</span>
+              Bonds <span className="title-accent">&amp; Fixed Income</span>
             </span>
           </h1>
         </div>
@@ -204,7 +197,7 @@ export default function BondsClient() {
         </div>
       </header>
 
-      {/* Stats Overview — 5 cards */}
+      {/* Stats Overview */}
       <div
         className="fade-in"
         style={{
@@ -558,7 +551,6 @@ export default function BondsClient() {
                             )})`}
                       </span>
                     </div>
-                    {/* Maturity progress bar */}
                     {!isMatured && (
                       <div
                         style={{
@@ -586,7 +578,7 @@ export default function BondsClient() {
                     )}
                   </div>
 
-                  {/* Yield & Frequency */}
+                  {/* Coupon Rate */}
                   <div style={{ flex: '0 0 100px', textAlign: 'center' }}>
                     <div
                       style={{
@@ -614,7 +606,7 @@ export default function BondsClient() {
                     </div>
                   </div>
 
-                  {/* Quantity & Face Value */}
+                  {/* Holdings */}
                   <div style={{ flex: '0 0 90px', textAlign: 'center' }}>
                     <div
                       style={{
@@ -635,7 +627,7 @@ export default function BondsClient() {
                     </div>
                   </div>
 
-                  {/* Investment Value */}
+                  {/* Current Value */}
                   <div style={{ flex: '0 0 130px', textAlign: 'right' }}>
                     <div
                       style={{
@@ -805,7 +797,6 @@ export default function BondsClient() {
                 }}
                 onClick={() => setViewingCharges(null)}
               />
-
               <div
                 className="premium-card fade-in"
                 style={{
@@ -880,7 +871,7 @@ export default function BondsClient() {
                       {viewingCharges.name}
                     </div>
                     <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
-                      {viewingCharges.isin} • {viewingCharges.quantity} units @ ₹
+                      {viewingCharges.isin} &bull; {viewingCharges.quantity} units @ ₹
                       {viewingCharges.currentPrice.toLocaleString()}
                     </div>
                   </div>
