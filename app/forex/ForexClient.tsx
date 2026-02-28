@@ -848,39 +848,20 @@ function ForexTransactionModal({
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'clamp(12px, 3vw, 20px)',
+      className="modal-overlay"
+      style={{ zIndex: 2000 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(0,0,0,0.85)',
-          backdropFilter: 'blur(12px)',
-        }}
-        onClick={onClose}
-      />
-
-      <div
-        className="premium-card fade-in"
+        className="modal-card"
         style={{
           width: '100%',
           maxWidth: '500px',
-          position: 'relative',
-          zIndex: 1,
-          backgroundColor: '#0f172a',
+          background: '#0f172a',
           border: '1px solid #1e293b',
-          borderRadius: '28px',
           padding: 'clamp(24px, 5vw, 32px)',
-          maxHeight: '95vh',
-          overflowY: 'auto',
         }}
       >
         <div
@@ -896,20 +877,26 @@ function ForexTransactionModal({
           </h2>
           <button
             onClick={onClose}
+            type="button"
+            aria-label="Close modal"
             style={{
-              background: 'rgba(255,255,255,0.05)',
+              background: 'none',
               border: 'none',
-              color: '#94a3b8',
-              borderRadius: '50%',
-              width: '36px',
-              height: '36px',
+              color: '#64748b',
               cursor: 'pointer',
+              padding: '8px',
+              minWidth: '44px',
+              minHeight: '44px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
+              borderRadius: '8px',
+              transition: 'background 0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
           >
-            <Plus size={18} style={{ transform: 'rotate(45deg)' }} />
+            <Plus size={22} style={{ transform: 'rotate(45deg)' }} />
           </button>
         </div>
 

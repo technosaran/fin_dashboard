@@ -203,43 +203,23 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
 
   return (
     <div
-      style={{
-        position: 'fixed',
-        inset: 0,
-        zIndex: 1100,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+      className="modal-overlay"
+      style={{ zIndex: 2000 }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
       }}
     >
-      {/* Backdrop */}
       <div
-        style={{
-          position: 'absolute',
-          inset: 0,
-          background: 'rgba(2, 6, 23, 0.8)',
-          backdropFilter: 'blur(16px)',
-        }}
-        onClick={onClose}
-      />
-
-      {/* Modal Container */}
-      <div
-        className="fade-in"
+        className="modal-card"
         style={{
           width: '100%',
           maxWidth: '650px',
-          height: 'auto',
-          maxHeight: '90vh',
-          position: 'relative',
-          zIndex: 10,
           background: '#0f172a',
-          border: '1px solid rgba(148, 163, 184, 0.1)',
-          borderRadius: '24px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
+          border: '1px solid #334155',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
+          padding: 0,
         }}
       >
         {/* Header */}
@@ -271,17 +251,26 @@ export default function AddBondModal({ isOpen, onClose }: AddBondModalProps) {
           </div>
           <button
             onClick={onClose}
+            type="button"
+            aria-label="Close modal"
             style={{
-              background: 'rgba(255,255,255,0.05)',
+              background: 'none',
               border: 'none',
-              borderRadius: '12px',
-              padding: '8px',
-              color: '#94a3b8',
+              color: '#64748b',
               cursor: 'pointer',
-              transition: 'all 0.2s',
+              padding: '8px',
+              minWidth: '44px',
+              minHeight: '44px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '8px',
+              transition: 'background 0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'none')}
           >
-            <X size={20} />
+            <X size={22} />
           </button>
         </div>
 
