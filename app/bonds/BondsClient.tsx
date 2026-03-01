@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/lib/config/supabase';
 import { useAuth } from '@/app/components/AuthContext';
 import { useNotifications } from '@/app/components/NotificationContext';
-import { Plus, Trash2, Edit3 } from 'lucide-react';
+import { Plus, Trash2, Edit3, Search, Loader2 } from 'lucide-react';
 import { EmptyPortfolioVisual } from '@/app/components/Visuals';
 
 // Simplified type based on database schema for local use
@@ -12,7 +12,9 @@ export interface Bond {
   id: number;
   name: string;
   company_name: string | null;
+  isin: string | null;
   avg_price: number | null;
+  current_price: number | null;
   coupon_rate: number | null;
   quantity: number | null;
   current_value: number | null;
@@ -39,6 +41,64 @@ export default function BondsClient() {
   const [couponRate, setCouponRate] = useState('');
   const [maturityDate, setMaturityDate] = useState('');
   const [status, setStatus] = useState('ACTIVE');
+
+  // Search States
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<
+    Array<{ symbol: string; companyName: string }>
+  >([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+  const [currentPrice, setCurrentPrice] = useState('');
+
+  // Debounced search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchQuery.length >= 2) {
+        handleSearch(searchQuery);
+      } else {
+        setSearchResults([]);
+      }
+    }, 500);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchQuery]);
+
+  const handleSearch = async (query: string) => {
+    setIsSearching(true);
+    try {
+      const res = await fetch(`/api/bonds/search?q=${query}`);
+      const data = await res.json();
+      if (!data.error) {
+        setSearchResults(data.data || []);
+      }
+      setShowResults(true);
+    } catch (error) {
+      console.error('Search failed:', error);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  const selectBond = async (item: { symbol: string; companyName: string }) => {
+    setSearchQuery(item.symbol);
+    setName(item.companyName.split(' - ')[0] || item.companyName);
+    setCompanyName(item.companyName.split(' - ')[1] || '');
+    setShowResults(false);
+
+    try {
+      const res = await fetch(`/api/bonds/quote?symbol=${item.symbol}`);
+      const data = await res.json();
+      if (!data.error && data.data) {
+        setAvgPrice(data.data.currentPrice.toString());
+        setCurrentPrice(data.data.currentPrice.toString());
+        setCouponRate(data.data.couponRate.toString());
+        setMaturityDate(data.data.maturityDate);
+      }
+    } catch (error) {
+      console.error('Quote fetch failed:', error);
+    }
+  };
 
   const fetchBonds = useCallback(async () => {
     if (!user) return;
@@ -81,21 +141,27 @@ export default function BondsClient() {
 
     const qty = parseFloat(quantity);
     const price = parseFloat(avgPrice);
+    const currentPriceFloat = currentPrice ? parseFloat(currentPrice) : price;
     const invested = qty * price;
+    const currentVal = qty * currentPriceFloat;
+    const pnlCalc = currentVal - invested;
+    const pnlPercent = invested > 0 ? (pnlCalc / invested) * 100 : 0;
 
     const bondData = {
       user_id: user.id,
       name,
       company_name: companyName,
+      isin: searchQuery || null,
       quantity: qty,
       avg_price: price,
+      current_price: currentPriceFloat,
       coupon_rate: couponRate ? parseFloat(couponRate) : null,
       maturity_date: maturityDate || null,
       status,
       investment_amount: invested,
-      current_value: invested, // assumes initial value = invested
-      pnl: 0,
-      pnl_percentage: 0,
+      current_value: currentVal,
+      pnl: pnlCalc,
+      pnl_percentage: pnlPercent,
     };
 
     try {
@@ -120,6 +186,8 @@ export default function BondsClient() {
     setEditId(b.id);
     setName(b.name);
     setCompanyName(b.company_name || '');
+    setSearchQuery(b.isin || '');
+    setCurrentPrice(b.current_price?.toString() || b.current_value?.toString() || '');
     setQuantity(b.quantity?.toString() || '');
     setAvgPrice(b.avg_price?.toString() || '');
     setCouponRate(b.coupon_rate?.toString() || '');
@@ -146,8 +214,10 @@ export default function BondsClient() {
     setEditId(null);
     setName('');
     setCompanyName('');
+    setSearchQuery('');
     setQuantity('');
     setAvgPrice('');
+    setCurrentPrice('');
     setCouponRate('');
     setMaturityDate('');
     setStatus('ACTIVE');
@@ -509,6 +579,102 @@ export default function BondsClient() {
               onSubmit={handleAction}
               style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
             >
+              <div style={{ position: 'relative' }}>
+                <label
+                  style={{
+                    display: 'block',
+                    color: '#64748b',
+                    fontSize: '0.8rem',
+                    fontWeight: '700',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Search Bond / ISIN *
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <Search
+                    size={16}
+                    color="#64748b"
+                    style={{ position: 'absolute', left: '12px', top: '14px' }}
+                  />
+                  <input
+                    required
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (!e.target.value) {
+                        setName('');
+                        setCompanyName('');
+                        setShowResults(false);
+                      }
+                    }}
+                    onFocus={() => {
+                      if (searchResults.length > 0) setShowResults(true);
+                    }}
+                    placeholder="e.g. NHAI or IN0020230085"
+                    style={{
+                      width: '100%',
+                      padding: '12px 12px 12px 36px',
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid #1e293b',
+                      borderRadius: '12px',
+                      color: '#fff',
+                    }}
+                  />
+                  {isSearching && (
+                    <Loader2
+                      size={16}
+                      className="spin-animation"
+                      color="#64748b"
+                      style={{ position: 'absolute', right: '12px', top: '14px' }}
+                    />
+                  )}
+                </div>
+
+                {showResults && searchResults.length > 0 && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      marginTop: '4px',
+                      background: '#1e293b',
+                      border: '1px solid #334155',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      zIndex: 10,
+                      boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+                    }}
+                  >
+                    {searchResults.map((res, i) => (
+                      <div
+                        key={i}
+                        onClick={() => selectBond(res)}
+                        style={{
+                          padding: '12px 16px',
+                          cursor: 'pointer',
+                          borderBottom: i < searchResults.length - 1 ? '1px solid #334155' : 'none',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '4px',
+                        }}
+                        onMouseEnter={(e) =>
+                          (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')
+                        }
+                        onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+                      >
+                        <div style={{ color: '#fff', fontWeight: 'bold' }}>{res.symbol}</div>
+                        <div style={{ color: '#94a3b8', fontSize: '0.8rem' }}>
+                          {res.companyName}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Hidden Name field for fallback/override but keep it invisible if not editing, or we can just always show it and it auto-populates. Let's show it so they can edit. */}
               <div>
                 <label
                   style={{
@@ -519,13 +685,14 @@ export default function BondsClient() {
                     marginBottom: '8px',
                   }}
                 >
-                  Bond Name *
+                  Bond Name (Display) *
                 </label>
                 <input
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   type="text"
+                  placeholder="Auto-filled or specify custom name"
                   style={{
                     width: '100%',
                     padding: '12px',

@@ -56,10 +56,19 @@ function getGreeting(): { text: string; subtext: string; emoji: string; color: s
   return { ...greetings.night };
 }
 
-/** Extract first name from Supabase user email */
-function getUserDisplayName(email?: string): string {
-  if (!email) return 'there';
-  const localPart = email.split('@')[0];
+/** Extract first name from Supabase user email or metadata */
+function getUserDisplayName(
+  user: { email?: string; user_metadata?: Record<string, string | undefined> } | null | undefined
+): string {
+  if (!user) return 'there';
+  if (user.user_metadata?.full_name) {
+    return user.user_metadata.full_name.split(' ')[0];
+  }
+  if (user.user_metadata?.name) {
+    return user.user_metadata.name.split(' ')[0];
+  }
+  if (!user.email) return 'there';
+  const localPart = user.email.split('@')[0];
   // Capitalize first letter, handle dots/underscores
   const name = localPart.split(/[._-]/)[0];
   return name.charAt(0).toUpperCase() + name.slice(1);
@@ -85,8 +94,8 @@ export default function Dashboard() {
 
   const greeting = useMemo(() => getGreeting(), []);
   const displayName = useMemo(
-    () => settings.displayName || getUserDisplayName(user?.email ?? undefined),
-    [settings.displayName, user?.email]
+    () => settings.displayName || getUserDisplayName(user),
+    [settings.displayName, user]
   );
 
   // ── Computed financial metrics ──────────────────────────────────────────────
@@ -315,51 +324,31 @@ export default function Dashboard() {
         >
           <div>
             <div
-              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}
             >
-              <span style={{ fontSize: '1.5rem' }}>{greeting.emoji}</span>
-              <span
+              <span style={{ fontSize: '3.5rem' }}>{greeting.emoji}</span>
+              <h1
                 style={{
-                  color: '#94a3b8',
-                  fontSize: '0.9rem',
-                  fontWeight: '700',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.1em',
+                  color: greeting.color,
+                  fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
+                  fontWeight: '900',
+                  letterSpacing: '-0.04em',
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'baseline',
+                  gap: '12px',
                 }}
               >
-                {greeting.text}
-              </span>
+                {greeting.text}, {displayName}!
+              </h1>
             </div>
-            <h1
-              style={{
-                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-                fontWeight: '900',
-                letterSpacing: '-0.04em',
-                margin: 0,
-                display: 'flex',
-                alignItems: 'baseline',
-                gap: '12px',
-              }}
-            >
-              <span style={{ color: '#fff' }}>Welcome back,</span>
-              <span
-                style={{
-                  background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.1))',
-                }}
-              >
-                {displayName}
-              </span>
-            </h1>
             <p
               style={{
-                color: '#64748b',
-                fontSize: '1.1rem',
+                color: '#94a3b8',
+                fontSize: '1.2rem',
                 fontWeight: '500',
                 marginTop: '12px',
-                maxWidth: '500px',
+                maxWidth: '600px',
                 lineHeight: 1.6,
               }}
             >
