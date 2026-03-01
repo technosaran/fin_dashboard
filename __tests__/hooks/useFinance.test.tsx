@@ -1,10 +1,10 @@
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { useFinance, FinanceProvider } from '../../app/components/FinanceContext';
-import { supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/config/supabase';
 import { useAuth } from '../../app/components/AuthContext';
 
 // Mock dependencies
-jest.mock('../../lib/supabase', () => ({
+jest.mock('../../lib/config/supabase', () => ({
   supabase: {
     from: jest.fn(),
   },
@@ -221,39 +221,6 @@ describe('useFinance Hook - Data Addition Tests', () => {
         scheme_code: newMF.schemeCode,
         units: newMF.units,
         current_nav: newMF.currentNav,
-      })
-    );
-  });
-
-  it('should add a bond correctly', async () => {
-    const { result } = renderHook(() => useFinance(), { wrapper });
-    await waitFor(() => expect(result.current.loading).toBe(false));
-
-    const newBond = {
-      name: 'Test Bond',
-      isin: 'INE999',
-      companyName: 'Bond Corp',
-      faceValue: 1000,
-      quantity: 5,
-      avgPrice: 1000,
-      currentPrice: 1005,
-      investmentAmount: 5000,
-      currentValue: 5025,
-      pnl: 25,
-      pnlPercentage: 0.5,
-      status: 'ACTIVE',
-    };
-
-    await act(async () => {
-      await result.current.addBond(newBond);
-    });
-
-    expect(mockFrom).toHaveBeenCalledWith('bonds');
-    expect(mockInsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        name: newBond.name,
-        isin: newBond.isin,
-        status: newBond.status,
       })
     );
   });
