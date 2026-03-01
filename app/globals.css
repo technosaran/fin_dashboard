@@ -1770,6 +1770,13 @@ select:focus {
       0 16px 40px rgba(0, 0, 0, 0.5),
       0 0 20px rgba(239, 68, 68, 0.08);
   }
+
+  .stat-card--pink:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+    box-shadow:
+      0 16px 40px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(236, 72, 153, 0.08);
+  }
 }
 
 .stat-card--green {
@@ -1786,6 +1793,10 @@ select:focus {
 
 .stat-card--red {
   border-color: rgba(239, 68, 68, 0.2);
+}
+
+.stat-card--pink {
+  border-color: rgba(236, 72, 153, 0.2);
 }
 
 .stat-card__glow {

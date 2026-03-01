@@ -152,6 +152,73 @@ export default function SettingsPage() {
         {/* General Settings */}
         {activeTab === 'general' && (
           <div className="grid-responsive-1" style={{ maxWidth: '800px', margin: '0 auto' }}>
+            {/* Profile Section */}
+            <div className="premium-card" style={{ marginBottom: '24px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  marginBottom: '24px',
+                  borderBottom: '1px solid rgba(255,255,255,0.05)',
+                  paddingBottom: '16px',
+                }}
+              >
+                <div
+                  style={{
+                    padding: '10px',
+                    borderRadius: '10px',
+                    background: 'rgba(99, 102, 241, 0.1)',
+                    color: '#6366f1',
+                  }}
+                >
+                  <Shield size={22} />
+                </div>
+                <div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: '700', color: '#fff' }}>
+                    Your Profile
+                  </h3>
+                  <p style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                    Personalize your dashboard experience
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <label
+                  style={{
+                    fontSize: '0.8rem',
+                    fontWeight: '700',
+                    color: '#94a3b8',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px',
+                  }}
+                >
+                  Display Name
+                </label>
+                <input
+                  type="text"
+                  value={settings.displayName || ''}
+                  onChange={(e) => updateSettings({ displayName: e.target.value })}
+                  placeholder="Enter your name"
+                  style={{
+                    background: '#020617',
+                    border: '2px solid #1e293b',
+                    padding: '14px 16px',
+                    borderRadius: '14px',
+                    color: '#fff',
+                    fontSize: '1rem',
+                    outline: 'none',
+                    transition: 'border-color 0.2s',
+                    width: '100%',
+                  }}
+                />
+                <p style={{ fontSize: '0.75rem', color: '#475569', marginTop: '4px' }}>
+                  This name will appear in your dashboard greeting
+                </p>
+              </div>
+            </div>
+
             <div className="premium-card">
               <div
                 style={{

@@ -253,6 +253,7 @@ export interface FnoTrade {
 export type BrokerageType = 'flat' | 'percentage';
 
 export interface AppSettings {
+  displayName?: string;
   brokerageType: BrokerageType;
   brokerageValue: number;
   sttRate: number;

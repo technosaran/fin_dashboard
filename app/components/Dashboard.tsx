@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { useFinance } from './FinanceContext';
 import { useAuth } from './AuthContext';
@@ -56,48 +56,6 @@ function getGreeting(): { text: string; subtext: string; emoji: string; color: s
   return { ...greetings.night };
 }
 
-/**
- * Check if the Indian stock market (NSE) is currently open.
- * Mon-Fri, 9:15 AM - 3:30 PM IST.
- */
-function getMarketStatus(): { isOpen: boolean; label: string; nextEvent: string } {
-  const now = new Date();
-  // Convert to IST
-  const istOffset = 5.5 * 60 * 60 * 1000;
-  const ist = new Date(now.getTime() + istOffset + now.getTimezoneOffset() * 60 * 1000);
-  const day = ist.getDay(); // 0=Sun, 6=Sat
-  const hours = ist.getHours();
-  const minutes = ist.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
-
-  const marketOpen = 9 * 60 + 15; // 9:15 AM
-  const marketClose = 15 * 60 + 30; // 3:30 PM
-
-  if (day === 0 || day === 6) {
-    return { isOpen: false, label: 'Market Closed', nextEvent: 'Opens Monday 9:15 AM' };
-  }
-
-  if (totalMinutes >= marketOpen && totalMinutes < marketClose) {
-    const minsLeft = marketClose - totalMinutes;
-    const h = Math.floor(minsLeft / 60);
-    const m = minsLeft % 60;
-    return {
-      isOpen: true,
-      label: 'Market Open',
-      nextEvent: `Closes in ${h}h ${m}m`,
-    };
-  }
-
-  if (totalMinutes < marketOpen) {
-    const minsUntil = marketOpen - totalMinutes;
-    const h = Math.floor(minsUntil / 60);
-    const m = minsUntil % 60;
-    return { isOpen: false, label: 'Pre-Market', nextEvent: `Opens in ${h}h ${m}m` };
-  }
-
-  return { isOpen: false, label: 'Market Closed', nextEvent: 'Opens tomorrow 9:15 AM' };
-}
-
 /** Extract first name from Supabase user email */
 function getUserDisplayName(email?: string): string {
   if (!email) return 'there';
@@ -126,30 +84,10 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   const greeting = useMemo(() => getGreeting(), []);
-  const displayName = useMemo(() => getUserDisplayName(user?.email ?? undefined), [user?.email]);
-
-  // Market status (updates every 60s)
-  const [marketStatus, setMarketStatus] = useState(getMarketStatus);
-  const [currentTime, setCurrentTime] = useState('');
-
-  useEffect(() => {
-    const updateStatus = () => {
-      setMarketStatus(getMarketStatus());
-      // IST formatted time
-      const now = new Date();
-      setCurrentTime(
-        now.toLocaleTimeString('en-IN', {
-          hour: '2-digit',
-          minute: '2-digit',
-          hour12: true,
-          timeZone: 'Asia/Kolkata',
-        })
-      );
-    };
-    updateStatus();
-    const interval = setInterval(updateStatus, 60_000);
-    return () => clearInterval(interval);
-  }, []);
+  const displayName = useMemo(
+    () => settings.displayName || getUserDisplayName(user?.email ?? undefined),
+    [settings.displayName, user?.email]
+  );
 
   // ── Computed financial metrics ──────────────────────────────────────────────
   const financialMetrics = useMemo(() => {
@@ -412,73 +350,6 @@ export default function Dashboard() {
             >
               {greeting.subtext}
             </p>
-          </div>
-
-          {/* Market Status Badge */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '16px',
-              flexWrap: 'wrap',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                background: marketStatus.isOpen
-                  ? 'rgba(16, 185, 129, 0.08)'
-                  : 'rgba(100, 116, 139, 0.08)',
-                padding: '8px 16px',
-                borderRadius: '100px',
-                border: `1px solid ${marketStatus.isOpen ? 'rgba(16, 185, 129, 0.2)' : 'rgba(100, 116, 139, 0.15)'}`,
-              }}
-            >
-              <div
-                style={{
-                  width: '8px',
-                  height: '8px',
-                  borderRadius: '50%',
-                  background: marketStatus.isOpen ? '#10b981' : '#64748b',
-                  boxShadow: marketStatus.isOpen ? '0 0 8px #10b981' : 'none',
-                  animation: marketStatus.isOpen ? 'pulseGlow 2s infinite' : 'none',
-                }}
-              />
-              <span
-                style={{
-                  fontSize: '0.75rem',
-                  fontWeight: '700',
-                  color: marketStatus.isOpen ? '#10b981' : '#94a3b8',
-                  textTransform: 'uppercase',
-                  letterSpacing: '0.5px',
-                }}
-              >
-                {marketStatus.label}
-              </span>
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  fontWeight: '600',
-                  color: '#475569',
-                }}
-              >
-                {marketStatus.nextEvent}
-              </span>
-            </div>
-            {currentTime && (
-              <span
-                style={{
-                  fontSize: '0.8rem',
-                  fontWeight: '700',
-                  color: '#64748b',
-                  fontVariantNumeric: 'tabular-nums',
-                }}
-              >
-                {currentTime} IST
-              </span>
-            )}
           </div>
         </div>
       </header>

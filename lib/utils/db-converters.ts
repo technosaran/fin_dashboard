@@ -163,10 +163,12 @@ export type AppSettingsRow = {
   expenses_visible?: boolean | null;
   goals_visible?: boolean | null;
   family_visible?: boolean | null;
+  display_name?: string | null;
   [key: string]: unknown;
 };
 
 export const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings => ({
+  displayName: dbSettings.display_name ?? undefined,
   brokerageType: dbSettings.brokerage_type as 'flat' | 'percentage',
   brokerageValue: Number(dbSettings.brokerage_value),
   sttRate: Number(dbSettings.stt_rate),

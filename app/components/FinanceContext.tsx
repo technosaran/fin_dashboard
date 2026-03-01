@@ -322,6 +322,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         const { error } = await supabase
           .from('app_settings')
           .update({
+            display_name: updatedSettings.displayName || null,
             brokerage_type: updatedSettings.brokerageType,
             brokerage_value: updatedSettings.brokerageValue,
             stt_rate: updatedSettings.sttRate,
@@ -331,8 +332,6 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
             gst_rate: updatedSettings.gstRate,
             dp_charges: updatedSettings.dpCharges,
             auto_calculate_charges: updatedSettings.autoCalculateCharges,
-            bonds_enabled: true,
-            forex_enabled: true,
             default_stock_account_id: updatedSettings.defaultStockAccountId,
             default_mf_account_id: updatedSettings.defaultMfAccountId,
             default_salary_account_id: updatedSettings.defaultSalaryAccountId,
