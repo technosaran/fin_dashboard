@@ -196,6 +196,8 @@ export const dbSettingsToSettings = (dbSettings: AppSettingsRow): AppSettings =>
   expensesVisible: dbSettings.expenses_visible ?? true,
   goalsVisible: dbSettings.goals_visible ?? true,
   familyVisible: dbSettings.family_visible ?? true,
+  bondsVisible: dbSettings.bonds_enabled ?? true,
+  forexVisible: dbSettings.forex_enabled ?? true,
 });
 
 export const dbAccountToAccount = (dbAccount: AccountRow): Account => ({

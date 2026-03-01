@@ -275,6 +275,8 @@ export interface AppSettings {
   expensesVisible?: boolean;
   goalsVisible?: boolean;
   familyVisible?: boolean;
+  bondsVisible?: boolean;
+  forexVisible?: boolean;
 }
 
 // ============================================================================

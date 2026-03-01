@@ -89,6 +89,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           color: '#a78bfa',
           settingsKey: 'fnoVisible',
         },
+        {
+          label: 'Bonds',
+          href: '/bonds',
+          icon: <TrendingUp size={18} />,
+          color: '#2dd4bf',
+          settingsKey: 'bondsVisible',
+        },
+        {
+          label: 'Forex',
+          href: '/forex',
+          icon: <Activity size={18} />,
+          color: '#f43f5e',
+          settingsKey: 'forexVisible',
+        },
       ].filter((item) => isVisible(item.settingsKey)),
     },
     {
