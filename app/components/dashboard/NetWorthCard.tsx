@@ -33,36 +33,95 @@ export function NetWorthCard({
         <div className="wealth-card-inner">
           {/* Left: Net Worth Summary */}
           <div className="wealth-section">
-            <div className="badge-wrapper">
-              <div className="icon-badge">
+            <div className="badge-wrapper" style={{ marginBottom: '24px' }}>
+              <div
+                className="icon-badge"
+                style={{
+                  background: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)',
+                  color: '#fff',
+                  boxShadow: '0 0 20px rgba(99, 102, 241, 0.3)',
+                }}
+              >
                 <Zap size={20} />
               </div>
-              <span className="stat-label">Total Net Worth</span>
-            </div>
-
-            <div className="mb-md">
-              <div className="stat-value net-worth-value">₹{totalNetWorth.toLocaleString()}</div>
-            </div>
-
-            <div className="flex items-center gap-sm mb-xl">
-              <div className="lifetime-badge">
-                <TrendingUp size={14} /> +₹{globalLifetimeWealth.toLocaleString()} lifetime
-              </div>
               <span
-                style={{ color: 'var(--text-tertiary)', fontSize: '0.8rem', fontWeight: '600' }}
+                className="stat-label"
+                style={{ fontSize: '0.85rem', color: '#94a3b8', letterSpacing: '0.1em' }}
               >
-                Portfolio Analysis
+                TOTAL NET WORTH
               </span>
             </div>
 
-            <div className="metric-grid">
-              <div className="metric-card">
-                <div className="stat-label metric-label">Liquid Cash</div>
-                <div className="metric-value">₹{liquidityINR.toLocaleString()}</div>
+            <div style={{ marginBottom: '32px' }}>
+              <div
+                className="stat-value"
+                style={{
+                  fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
+                  lineHeight: 1,
+                  marginBottom: '16px',
+                }}
+              >
+                ₹{totalNetWorth.toLocaleString()}
               </div>
-              <div className="metric-card">
-                <div className="stat-label metric-label">Investments</div>
-                <div className="metric-value">₹{investmentsTotal.toLocaleString()}</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '10px',
+                    background: 'rgba(16, 185, 129, 0.1)',
+                    color: '#10b981',
+                    fontSize: '0.85rem',
+                    fontWeight: '800',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                  }}
+                >
+                  <TrendingUp size={16} /> +₹{globalLifetimeWealth.toLocaleString()} lifetime
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)',
+                gap: '24px',
+                borderTop: '1px solid rgba(255,255,255,0.05)',
+                paddingTop: '24px',
+              }}
+            >
+              <div>
+                <div
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: '800',
+                    color: '#475569',
+                    textTransform: 'uppercase',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Liquid Cash
+                </div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>
+                  ₹{liquidityINR.toLocaleString()}
+                </div>
+              </div>
+              <div>
+                <div
+                  style={{
+                    fontSize: '0.75rem',
+                    fontWeight: '800',
+                    color: '#475569',
+                    textTransform: 'uppercase',
+                    marginBottom: '8px',
+                  }}
+                >
+                  Investments
+                </div>
+                <div style={{ fontSize: '1.25rem', fontWeight: '900', color: '#fff' }}>
+                  ₹{investmentsTotal.toLocaleString()}
+                </div>
               </div>
             </div>
           </div>

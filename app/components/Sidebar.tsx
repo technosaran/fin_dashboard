@@ -142,19 +142,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     <>
       <style jsx>{`
         aside {
-          width: 220px;
-          min-width: 220px;
+          width: 260px;
+          min-width: 260px;
           background: linear-gradient(180deg, #020617 0%, #0a0f1e 50%, #020617 100%);
           border-right: 1px solid rgba(99, 102, 241, 0.08);
           display: flex;
           flex-direction: column;
           position: fixed;
-          left: ${isOpen ? '0' : '-220px'};
+          left: ${isOpen ? '0' : '-260px'};
           top: 0;
           bottom: 0;
           height: 100dvh;
           z-index: 100;
-          transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           overflow: hidden;
         }
         aside::after {
@@ -167,7 +167,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           background: linear-gradient(
             180deg,
             transparent 0%,
-            rgba(99, 102, 241, 0.15) 50%,
+            rgba(99, 102, 241, 0.2) 50%,
             transparent 100%
           );
         }
@@ -303,36 +303,54 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '10px',
-                      padding: '12px',
+                      gap: '12px',
+                      padding: '10px 14px',
+                      margin: '2px 0',
                       borderRadius: '12px',
                       textDecoration: 'none',
                       position: 'relative',
-                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+                      transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
                       background: isActive
-                        ? `linear-gradient(135deg, ${item.color}15, ${item.color}08)`
+                        ? `linear-gradient(135deg, ${item.color}20, ${item.color}05)`
                         : isHovered
-                          ? 'rgba(255,255,255,0.03)'
+                          ? 'rgba(255,255,255,0.04)'
                           : 'transparent',
-                      color: isActive ? '#fff' : isHovered ? '#cbd5e1' : '#64748b',
-                      borderLeft: isActive ? `2px solid ${item.color}` : '2px solid transparent',
-                      marginLeft: isActive ? '0' : '0',
-                      minHeight: '44px',
+                      color: isActive ? '#fff' : isHovered ? '#f8fafc' : '#64748b',
+                      border: isActive
+                        ? `1px solid ${item.color}30`
+                        : isHovered
+                          ? '1px solid rgba(255,255,255,0.05)'
+                          : '1px solid transparent',
+                      boxShadow: isActive ? `0 4px 12px ${item.color}10` : 'none',
                     }}
                     aria-current={isActive ? 'page' : undefined}
                     onClick={onClose}
                     onMouseEnter={() => setHoveredItem(item.href)}
                     onMouseLeave={() => setHoveredItem(null)}
-                    onTouchStart={() => setHoveredItem(item.href)}
-                    onTouchEnd={() => setHoveredItem(null)}
                   >
+                    {isActive && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: 0,
+                          top: '20%',
+                          bottom: '20%',
+                          width: '3px',
+                          background: item.color,
+                          borderRadius: '0 4px 4px 0',
+                          boxShadow: `0 0 10px ${item.color}`,
+                        }}
+                      />
+                    )}
                     <div
                       style={{
                         color: isActive ? item.color : 'inherit',
-                        transition: 'color 0.2s, transform 0.2s',
-                        transform: isActive ? 'scale(1.05)' : 'scale(1)',
+                        transition: 'all 0.3s ease',
+                        transform: isActive || isHovered ? 'scale(1.1)' : 'scale(1)',
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '24px',
                       }}
                     >
                       {item.icon}
@@ -340,17 +358,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <span
                       style={{
                         fontWeight: isActive ? '700' : '600',
-                        fontSize: '0.85rem',
+                        fontSize: '0.9rem',
                         flex: 1,
                         whiteSpace: 'nowrap',
-                        overflow: 'hidden',
-                        textOverflow: 'ellipsis',
+                        letterSpacing: isActive ? '0.01em' : '0',
                       }}
                     >
                       {item.label}
                     </span>
-                    {isActive && (
-                      <ChevronRight size={14} style={{ color: item.color, opacity: 0.7 }} />
+                    {item.badge && (
+                      <span
+                        style={{
+                          padding: '2px 6px',
+                          borderRadius: '6px',
+                          fontSize: '0.65rem',
+                          fontWeight: '800',
+                          background: `${item.color}20`,
+                          color: item.color,
+                          border: `1px solid ${item.color}30`,
+                        }}
+                      >
+                        {item.badge}
+                      </span>
                     )}
                   </Link>
                 );

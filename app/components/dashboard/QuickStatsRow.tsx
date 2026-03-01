@@ -78,21 +78,27 @@ export function QuickStatsRow({
           key={idx}
           className="fade-in"
           style={{
-            background: stat.bgGrad,
-            borderRadius: '18px',
-            border: `1px solid ${stat.color}15`,
-            padding: '18px 20px',
+            background: 'rgba(15, 23, 42, 0.4)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '20px',
+            border: `1px solid ${stat.color}20`,
+            padding: '24px',
             position: 'relative',
             overflow: 'hidden',
-            transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            boxShadow: `0 4px 20px -5px ${stat.color}05`,
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.borderColor = `${stat.color}30`;
+            e.currentTarget.style.transform = 'translateY(-4px)';
+            e.currentTarget.style.borderColor = `${stat.color}40`;
+            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.6)';
+            e.currentTarget.style.boxShadow = `0 12px 24px -10px ${stat.color}20`;
           }}
           onMouseLeave={(e) => {
             e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.borderColor = `${stat.color}15`;
+            e.currentTarget.style.borderColor = `${stat.color}20`;
+            e.currentTarget.style.background = 'rgba(15, 23, 42, 0.4)';
+            e.currentTarget.style.boxShadow = `0 4px 20px -5px ${stat.color}05`;
           }}
         >
           {/* Decorative radial glow */}
@@ -103,35 +109,57 @@ export function QuickStatsRow({
               right: '-20px',
               width: '80px',
               height: '80px',
-              background: `radial-gradient(circle, ${stat.color}10 0%, transparent 70%)`,
+              background: `radial-gradient(circle, ${stat.color}15 0%, transparent 70%)`,
               filter: 'blur(20px)',
               pointerEvents: 'none',
             }}
           />
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '10px' }}>
-            <div style={{ color: stat.color }}>{stat.icon}</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '14px' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '10px',
+                background: `${stat.color}15`,
+                color: stat.color,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              {stat.icon}
+            </div>
             <span
               style={{
-                fontSize: '0.7rem',
-                fontWeight: '700',
-                color: '#64748b',
+                fontSize: '0.75rem',
+                fontWeight: '800',
+                color: '#94a3b8',
                 textTransform: 'uppercase',
-                letterSpacing: '0.5px',
+                letterSpacing: '0.05em',
               }}
             >
               {stat.label}
             </span>
           </div>
           <div
+            className="stat-value"
             style={{
-              fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
+              fontSize: 'clamp(1.1rem, 3.5vw, 1.4rem)',
               fontWeight: '900',
               color:
                 stat.label === 'Unrealized P&L' || stat.label === "Day's Change"
                   ? stat.color
                   : '#fff',
-              letterSpacing: '-0.5px',
+              letterSpacing: '-0.02em',
               position: 'relative',
+              background:
+                stat.label === 'Unrealized P&L' || stat.label === "Day's Change"
+                  ? 'none'
+                  : undefined,
+              WebkitTextFillColor:
+                stat.label === 'Unrealized P&L' || stat.label === "Day's Change"
+                  ? 'currentColor'
+                  : undefined,
             }}
           >
             {stat.value}
@@ -139,13 +167,24 @@ export function QuickStatsRow({
           {stat.subValue && (
             <div
               style={{
-                fontSize: '0.7rem',
-                fontWeight: '700',
+                fontSize: '0.8rem',
+                fontWeight: '800',
                 color: stat.color,
-                opacity: 0.85,
-                marginTop: '4px',
+                marginTop: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
               }}
             >
+              <div
+                style={{
+                  width: '6px',
+                  height: '6px',
+                  borderRadius: '50%',
+                  background: stat.color,
+                  boxShadow: `0 0 5px ${stat.color}`,
+                }}
+              />
               {stat.subValue}
             </div>
           )}

@@ -301,38 +301,53 @@ export default function Dashboard() {
       <div className="bg-mesh" />
 
       {/* ── Header ── */}
-      <header className="dashboard-header" style={{ marginBottom: '32px' }}>
+      <header className="dashboard-header" style={{ marginBottom: '40px' }}>
         <div
           className="fade-in"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
-            alignItems: 'flex-end',
+            alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '20px',
+            gap: '24px',
             width: '100%',
           }}
         >
           <div>
-            <h1 className="dashboard-title" style={{ margin: 0, lineHeight: 1.1 }}>
+            <div
+              style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}
+            >
+              <span style={{ fontSize: '1.5rem' }}>{greeting.emoji}</span>
               <span
                 style={{
-                  fontSize: '1.2em',
-                  animation: 'bounce 2s infinite',
-                  display: 'inline-block',
-                  marginRight: '12px',
+                  color: '#94a3b8',
+                  fontSize: '0.9rem',
+                  fontWeight: '700',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.1em',
                 }}
               >
-                {greeting.emoji}
+                {greeting.text}
               </span>
-              <span style={{ color: '#fff' }}>{greeting.text}, </span>
+            </div>
+            <h1
+              style={{
+                fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+                fontWeight: '900',
+                letterSpacing: '-0.04em',
+                margin: 0,
+                display: 'flex',
+                alignItems: 'baseline',
+                gap: '12px',
+              }}
+            >
+              <span style={{ color: '#fff' }}>Welcome back,</span>
               <span
-                className="title-accent text-glow"
                 style={{
-                  background: 'linear-gradient(135deg, #fff 0%, #cbd5e1 100%)',
+                  background: 'linear-gradient(135deg, #fff 0%, #94a3b8 100%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  fontSize: '1.1em',
+                  filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.1))',
                 }}
               >
                 {displayName}
@@ -340,12 +355,12 @@ export default function Dashboard() {
             </h1>
             <p
               style={{
-                color: '#475569',
-                fontSize: '1rem',
+                color: '#64748b',
+                fontSize: '1.1rem',
                 fontWeight: '500',
-                marginTop: '8px',
-                maxWidth: '400px',
-                lineHeight: 1.4,
+                marginTop: '12px',
+                maxWidth: '500px',
+                lineHeight: 1.6,
               }}
             >
               {greeting.subtext}
