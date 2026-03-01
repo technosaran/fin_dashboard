@@ -16,7 +16,6 @@ import {
   TrendingDown,
   BarChart3,
   PieChart,
-  ArrowRight,
   HandCoins,
   Gem,
   LineChart,
@@ -134,28 +133,6 @@ export default function IncomeClient() {
 
     return Object.entries(map)
       .map(([name, total]) => ({ name, total }))
-      .sort((a, b) => b.total - a.total);
-  }, [stats.filteredItems]);
-
-  // Process Sources/Employers
-  const sourcesData = useMemo(() => {
-    const map = stats.filteredItems.reduce(
-      (acc, item) => {
-        const name = item.description || 'Unknown Source';
-        if (!acc[name])
-          acc[name] = { total: 0, count: 0, lastPayment: item.date, category: item.category };
-        acc[name].total += item.amount;
-        acc[name].count += 1;
-        if (new Date(item.date) > new Date(acc[name].lastPayment)) {
-          acc[name].lastPayment = item.date;
-        }
-        return acc;
-      },
-      {} as Record<string, { total: number; count: number; lastPayment: string; category: string }>
-    );
-
-    return Object.entries(map)
-      .map(([name, data]) => ({ name, ...data }))
       .sort((a, b) => b.total - a.total);
   }, [stats.filteredItems]);
 

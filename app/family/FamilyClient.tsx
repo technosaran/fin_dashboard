@@ -9,7 +9,6 @@ import {
   X,
   Heart,
   TrendingDown,
-  User,
   Clock,
   Edit3,
   Trash2,

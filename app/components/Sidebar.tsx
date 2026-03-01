@@ -17,7 +17,6 @@ import {
   LogOut,
   Command,
   ShoppingBag,
-  ChevronRight,
 } from 'lucide-react';
 
 import { useAuth } from './AuthContext';
