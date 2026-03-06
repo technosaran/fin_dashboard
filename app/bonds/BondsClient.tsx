@@ -71,7 +71,7 @@ export default function BondsClient() {
       const res = await fetch(`/api/bonds/search?q=${query}`);
       const data = await res.json();
       if (!data.error) {
-        setSearchResults(data.data || []);
+        setSearchResults(Array.isArray(data) ? data : []);
       }
       setShowResults(true);
     } catch (error) {
@@ -90,11 +90,11 @@ export default function BondsClient() {
     try {
       const res = await fetch(`/api/bonds/quote?symbol=${item.symbol}`);
       const data = await res.json();
-      if (!data.error && data.data) {
-        setAvgPrice(data.data.currentPrice.toString());
-        setCurrentPrice(data.data.currentPrice.toString());
-        setCouponRate(data.data.couponRate.toString());
-        setMaturityDate(data.data.maturityDate);
+      if (!data.error && data.currentPrice != null) {
+        setAvgPrice(data.currentPrice.toString());
+        setCurrentPrice(data.currentPrice.toString());
+        setCouponRate(data.couponRate.toString());
+        setMaturityDate(data.maturityDate);
       }
     } catch (error) {
       logError('Quote fetch failed:', error);
