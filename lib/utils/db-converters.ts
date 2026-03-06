@@ -262,7 +262,7 @@ export const dbStockTransactionToStockTransaction = (
   dbTransaction: StockTransactionRow
 ): StockTransaction => ({
   id: Number(dbTransaction.id),
-  stockId: Number(dbTransaction.stock_id),
+  stockId: dbTransaction.stock_id != null ? Number(dbTransaction.stock_id) : 0,
   transactionType: dbTransaction.transaction_type as 'BUY' | 'SELL',
   quantity: Number(dbTransaction.quantity),
   price: Number(dbTransaction.price),
@@ -303,7 +303,7 @@ export const dbMutualFundTransactionToMutualFundTransaction = (
   dbTx: MutualFundTransactionRow
 ): MutualFundTransaction => ({
   id: Number(dbTx.id),
-  mutualFundId: Number(dbTx.mutual_fund_id),
+  mutualFundId: dbTx.mutual_fund_id != null ? Number(dbTx.mutual_fund_id) : 0,
   transactionType: dbTx.transaction_type as 'BUY' | 'SELL' | 'SIP',
   units: Number(dbTx.units),
   nav: Number(dbTx.nav),

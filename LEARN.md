@@ -32,14 +32,14 @@ The goal was to build a single dashboard where a user can:
 
 ### Choosing the Tech Stack
 
-| Concern | Choice | Reason |
-|---|---|---|
-| Framework | Next.js 16 (App Router) | File-based routing, server components, built-in API routes |
-| Language | TypeScript (strict) | Catch errors at compile time, better IDE support |
-| Database | Supabase (PostgreSQL) | Instant REST & Realtime API, built-in Row Level Security |
-| UI | React 19 + Vanilla CSS | No framework overhead; full control over styling |
-| Charts | Recharts | Composable, TypeScript-friendly chart library |
-| Market Data | Yahoo Finance, MFAPI.in, Google Finance | Free, well-documented APIs for Indian markets |
+| Concern     | Choice                                  | Reason                                                     |
+| ----------- | --------------------------------------- | ---------------------------------------------------------- |
+| Framework   | Next.js 16 (App Router)                 | File-based routing, server components, built-in API routes |
+| Language    | TypeScript (strict)                     | Catch errors at compile time, better IDE support           |
+| Database    | Supabase (PostgreSQL)                   | Instant REST & Realtime API, built-in Row Level Security   |
+| UI          | React 19 + Vanilla CSS                  | No framework overhead; full control over styling           |
+| Charts      | Recharts                                | Composable, TypeScript-friendly chart library              |
+| Market Data | Yahoo Finance, MFAPI.in, Google Finance | Free, well-documented APIs for Indian markets              |
 
 ---
 
@@ -154,7 +154,7 @@ import { createBrowserClient } from '@supabase/ssr';
 
 export const supabase = createBrowserClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+  process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
 );
 ```
 
@@ -168,7 +168,9 @@ export const supabase = createBrowserClient(
 
 ```typescript
 export async function middleware(request: NextRequest) {
-  const { data: { session } } = await supabase.auth.getSession();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
   if (!session && !request.nextUrl.pathname.startsWith('/login')) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
@@ -197,6 +199,7 @@ app/
 ### Step 13 — Design the Dashboard Home
 
 `app/components/Dashboard.tsx` shows:
+
 - Net worth card (sum of all account balances + portfolio value)
 - Recent transactions list
 - Goal progress bars
