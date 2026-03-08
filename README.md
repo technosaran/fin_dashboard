@@ -123,7 +123,7 @@ app/                          # Next.js App Router
 │
 lib/                          # Shared libraries
 ├── config/                   # Environment validation
-├── hooks/                    # Custom React hooks (useFetch, useDebounce, useLocalStorage)
+├── hooks/                    # Custom React hooks
 ├── services/                 # API utilities and external integrations
 ├── types/                    # TypeScript type definitions
 ├── utils/                    # Utility functions (date, number, string, charges, logger)
@@ -163,10 +163,6 @@ For detailed schema documentation, see [DATABASE.md](./DATABASE.md).
 2. Import the project on [Vercel](https://vercel.com)
 3. Add environment variables in the Vercel dashboard
 4. Deploy
-
-### Cloudflare Pages
-
-A `wrangler.toml` configuration is included for Cloudflare deployment.
 
 ## 📚 Documentation
 
