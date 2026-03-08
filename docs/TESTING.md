@@ -20,8 +20,6 @@ __tests__/
 │   ├── Sidebar.test.tsx
 │   └── modals/
 ├── hooks/              # Custom hook tests
-│   ├── useFetch.test.ts
-│   └── useDebounce.test.ts
 ├── utils/              # Utility function tests
 │   ├── number.test.ts
 │   ├── date.test.ts
@@ -203,45 +201,6 @@ describe('Stocks API', () => {
 
     const response = await GET(request);
     expect(response.status).toBe(400);
-  });
-});
-```
-
-### 4. Custom Hook Tests
-
-Test custom React hooks.
-
-**Example: Hook Test**
-
-```typescript
-// __tests__/hooks/useDebounce.test.ts
-
-import { renderHook, act } from '@testing-library/react';
-import { useDebounce } from '@/lib/hooks/useDebounce';
-
-jest.useFakeTimers();
-
-describe('useDebounce', () => {
-  it('debounces value updates', () => {
-    const { result, rerender } = renderHook(({ value, delay }) => useDebounce(value, delay), {
-      initialProps: { value: 'initial', delay: 500 },
-    });
-
-    expect(result.current).toBe('initial');
-
-    // Update value
-    rerender({ value: 'updated', delay: 500 });
-
-    // Value should not change immediately
-    expect(result.current).toBe('initial');
-
-    // Fast-forward time
-    act(() => {
-      jest.advanceTimersByTime(500);
-    });
-
-    // Now value should be updated
-    expect(result.current).toBe('updated');
   });
 });
 ```
