@@ -97,10 +97,6 @@ fin_dashboard/
 ├── lib/                        # Shared libraries
 │   ├── config/
 │   │   └── env.ts                # Environment validation
-│   ├── hooks/
-│   │   ├── useFetch.ts           # Data fetching hook
-│   │   ├── useDebounce.ts        # Debounced values
-│   │   └── useLocalStorage.ts    # Local storage hook
 │   ├── services/
 │   │   ├── api.ts                # API utilities
 │   │   └── google-finance.ts     # Google Finance integration
