@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Target, CheckCircle2, AlertCircle, Clock } from 'lucide-react';
 
 interface GoalProgress {
@@ -62,8 +63,7 @@ export function GoalsProgress({ goals }: GoalsProgressProps) {
         </h3>
         <span
           style={{
-            marginLeft: 'auto',
-            fontSize: '0.65rem',
+            fontSize: '0.68rem',
             fontWeight: '800',
             color: '#f59e0b',
             background: 'rgba(245, 158, 11, 0.1)',
@@ -74,6 +74,19 @@ export function GoalsProgress({ goals }: GoalsProgressProps) {
         >
           {goals.length} active
         </span>
+        <Link
+          href="/goals"
+          className="view-all-link"
+          style={{
+            marginLeft: 'auto',
+            color: '#f59e0b',
+            textDecoration: 'none',
+            border: '1px solid rgba(245, 158, 11, 0.15)',
+            background: 'rgba(245, 158, 11, 0.06)',
+          }}
+        >
+          View All
+        </Link>
       </div>
 
       {/* Goals List */}
