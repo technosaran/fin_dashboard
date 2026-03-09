@@ -43,9 +43,45 @@ interface NavItem {
   settingsKey?: string;
 }
 
+/** Extract user initials for avatar display */
+function getUserInitials(
+  user: { email?: string; user_metadata?: Record<string, string | undefined> } | null | undefined
+): string {
+  if (!user) return '?';
+  if (user.user_metadata?.full_name) {
+    const parts = user.user_metadata.full_name.trim().split(' ');
+    return parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0].slice(0, 2).toUpperCase();
+  }
+  if (user.user_metadata?.name) {
+    const parts = user.user_metadata.name.trim().split(' ');
+    return parts.length >= 2
+      ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+      : parts[0].slice(0, 2).toUpperCase();
+  }
+  if (user.email) {
+    return user.email.slice(0, 2).toUpperCase();
+  }
+  return '?';
+}
+
+/** Extract display name from user */
+function getUserDisplayName(
+  user: { email?: string; user_metadata?: Record<string, string | undefined> } | null | undefined
+): string {
+  if (!user) return 'User';
+  if (user.user_metadata?.full_name) return user.user_metadata.full_name.split(' ')[0];
+  if (user.user_metadata?.name) return user.user_metadata.name.split(' ')[0];
+  if (!user.email) return 'User';
+  const localPart = user.email.split('@')[0];
+  const name = localPart.split(/[._-]/)[0];
+  return name.charAt(0).toUpperCase() + name.slice(1);
+}
+
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const { signOut } = useAuth();
+  const { signOut, user } = useAuth();
   const { confirm: customConfirm } = useNotifications();
   const { settings } = useFinance();
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
@@ -423,6 +459,52 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 'linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.15), transparent)',
             }}
           />
+
+          {/* User profile row */}
+          {user && (
+            <div
+              style={{
+                padding: '10px 12px',
+                marginBottom: '4px',
+                borderRadius: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+                background: 'rgba(99, 102, 241, 0.05)',
+                border: '1px solid rgba(99, 102, 241, 0.1)',
+              }}
+            >
+              <div className="user-avatar">
+                {getUserInitials(user)}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div
+                  style={{
+                    fontSize: '0.78rem',
+                    fontWeight: '700',
+                    color: '#e2e8f0',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {getUserDisplayName(user)}
+                </div>
+                <div
+                  style={{
+                    fontSize: '0.62rem',
+                    color: '#475569',
+                    fontWeight: '500',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {user.email}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Command Palette shortcut hint */}
           <div

@@ -127,6 +127,11 @@ export function QuickStatsRow({
             e.currentTarget.style.boxShadow = `0 4px 20px -5px ${stat.color}05`;
           }}
         >
+          {/* Top accent bar */}
+          <div
+            className="stat-accent-bar"
+            style={{ background: `linear-gradient(90deg, ${stat.color}, transparent)` }}
+          />
           {/* Decorative radial glow */}
           <div
             style={{
