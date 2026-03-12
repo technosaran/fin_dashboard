@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 
 import React, {
   createContext,
@@ -313,9 +313,15 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
   // â”€â”€â”€ SETTINGS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
+  // Keep a ref to latest settings to avoid stale closures in callbacks
+  const settingsRef = useRef(settings);
+  useEffect(() => {
+    settingsRef.current = settings;
+  }, [settings]);
+
   const updateSettings = useCallback(
     async (newSettings: Partial<AppSettings>) => {
-      const updatedSettings = { ...settings, ...newSettings };
+      const updatedSettings = { ...settingsRef.current, ...newSettings };
       setSettings(updatedSettings);
 
       if (user) {
@@ -349,7 +355,7 @@ export const FinanceProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (error) logError('Error updating settings:', error);
       }
     },
-    [settings, user]
+    [user]
   );
 
   // â”€â”€â”€ STOCKS â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€

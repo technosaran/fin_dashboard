@@ -16,6 +16,8 @@ import {
   DollarSign,
   Command,
   Zap,
+  Landmark,
+  Globe,
 } from 'lucide-react';
 import { useFinance } from './FinanceContext';
 
@@ -43,7 +45,14 @@ export function CommandPalette() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
-        setIsOpen((prev) => !prev);
+        setIsOpen((prev) => {
+          if (!prev) {
+            // Opening – reset query & index (done inline to avoid effect cascade)
+            setQuery('');
+            setSelectedIndex(0);
+          }
+          return !prev;
+        });
       }
       if (e.key === 'Escape') {
         setIsOpen(false);
@@ -53,11 +62,9 @@ export function CommandPalette() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Focus input when opened
+  // Focus input when opened (DOM side-effect – correct use of useEffect)
   useEffect(() => {
     if (isOpen) {
-      setQuery('');
-      setSelectedIndex(0);
       requestAnimationFrame(() => inputRef.current?.focus());
     }
   }, [isOpen]);
@@ -155,6 +162,24 @@ export function CommandPalette() {
         keywords: ['futures', 'options', 'derivatives'],
       },
       {
+        id: 'nav-bonds',
+        label: 'Bonds',
+        description: 'Fixed-Income Securities',
+        icon: <Landmark size={16} />,
+        action: () => navigate('/bonds'),
+        category: 'navigation',
+        keywords: ['bonds', 'fixed income', 'debt'],
+      },
+      {
+        id: 'nav-forex',
+        label: 'Forex',
+        description: 'Currency Tracker',
+        icon: <Globe size={16} />,
+        action: () => navigate('/forex'),
+        category: 'navigation',
+        keywords: ['forex', 'currency', 'exchange rate'],
+      },
+      {
         id: 'nav-settings',
         label: 'Settings',
         description: 'Preferences',
@@ -237,17 +262,12 @@ export function CommandPalette() {
     action: 'Actions',
   };
 
-  // Group by category
-  const grouped = filtered.reduce(
-    (acc, item) => {
-      if (!acc[item.category]) acc[item.category] = [];
-      acc[item.category].push(item);
-      return acc;
-    },
-    {} as Record<string, CommandItem[]>
-  );
-
-  let globalIndex = -1;
+  // Group by category while tracking each item's flat index
+  const grouped: Record<string, { item: CommandItem; flatIndex: number }[]> = {};
+  filtered.forEach((item, idx) => {
+    if (!grouped[item.category]) grouped[item.category] = [];
+    grouped[item.category].push({ item, flatIndex: idx });
+  });
 
   return (
     <div
@@ -348,7 +368,7 @@ export function CommandPalette() {
               No results found for &ldquo;{query}&rdquo;
             </div>
           ) : (
-            Object.entries(grouped).map(([category, items]) => (
+            Object.entries(grouped).map(([category, entries]) => (
               <div key={category}>
                 <div
                   style={{
@@ -362,15 +382,13 @@ export function CommandPalette() {
                 >
                   {categoryLabels[category] || category}
                 </div>
-                {items.map((item) => {
-                  globalIndex++;
-                  const idx = globalIndex;
-                  const isSelected = idx === selectedIndex;
+                {entries.map(({ item, flatIndex }) => {
+                  const isSelected = flatIndex === selectedIndex;
                   return (
                     <button
                       key={item.id}
                       onClick={item.action}
-                      onMouseEnter={() => setSelectedIndex(idx)}
+                      onMouseEnter={() => setSelectedIndex(flatIndex)}
                       style={{
                         width: '100%',
                         display: 'flex',

@@ -51,6 +51,8 @@ export default function SettingsPage() {
         expensesVisible: true,
         goalsVisible: true,
         familyVisible: true,
+        bondsVisible: true,
+        forexVisible: true,
       };
       await updateSettings(defaults);
       showNotification('info', 'Settings reset to factory defaults');
@@ -396,6 +398,20 @@ export default function SettingsPage() {
                     d: 'Transfers & Gifts',
                     i: '👨‍👩‍👧',
                     c: '#c084fc',
+                  },
+                  {
+                    k: 'bondsVisible',
+                    l: 'Bonds',
+                    d: 'Fixed-Income Securities',
+                    i: '🏦',
+                    c: '#2dd4bf',
+                  },
+                  {
+                    k: 'forexVisible',
+                    l: 'Forex',
+                    d: 'Currency Tracker',
+                    i: '🌐',
+                    c: '#f43f5e',
                   },
                 ].map((item) => (
                   <ToggleItem

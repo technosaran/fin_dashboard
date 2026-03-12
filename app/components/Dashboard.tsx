@@ -221,6 +221,8 @@ export default function Dashboard() {
     [stocks]
   );
 
+  // Re-derive the formatted date whenever the greeting changes (i.e. on time-of-day transitions)
+  // This also covers midnight rollovers since the greeting recalculates
   const todayFormatted = useMemo(() => {
     return new Date().toLocaleDateString('en-IN', {
       weekday: 'long',
@@ -228,7 +230,8 @@ export default function Dashboard() {
       month: 'long',
       year: 'numeric',
     });
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [greeting]);
 
   // ── Loading state ──────────────────────────────────────────────────────────
   if (loading) {
