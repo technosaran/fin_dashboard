@@ -40,27 +40,31 @@ export function CommandPalette() {
   const router = useRouter();
   const { stocks, mutualFunds } = useFinance();
 
-  // Register global keyboard shortcut
+  // Listen for custom event to open the command palette
   useEffect(() => {
+    const handleOpenEvent = () => {
+      setIsOpen((prev) => {
+        if (!prev) {
+          setQuery('');
+          setSelectedIndex(0);
+        }
+        return true;
+      });
+    };
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        setIsOpen((prev) => {
-          if (!prev) {
-            // Opening – reset query & index (done inline to avoid effect cascade)
-            setQuery('');
-            setSelectedIndex(0);
-          }
-          return !prev;
-        });
-      }
-      if (e.key === 'Escape') {
+      if (e.key === 'Escape' && isOpen) {
         setIsOpen(false);
       }
     };
+
+    window.addEventListener('open-command-palette', handleOpenEvent);
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
+    return () => {
+      window.removeEventListener('open-command-palette', handleOpenEvent);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
 
   // Focus input when opened (DOM side-effect – correct use of useEffect)
   useEffect(() => {

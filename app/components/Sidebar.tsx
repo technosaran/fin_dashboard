@@ -504,8 +504,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             </div>
           )}
 
-          {/* Command Palette shortcut hint */}
-          <div
+          {/* Command Palette Button */}
+          <button
+            onClick={() => {
+              window.dispatchEvent(new Event('open-command-palette'));
+              onClose?.();
+            }}
             style={{
               padding: '8px 12px',
               marginBottom: '4px',
@@ -515,42 +519,21 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               justifyContent: 'space-between',
               background: 'rgba(99, 102, 241, 0.05)',
               border: '1px solid rgba(99, 102, 241, 0.1)',
+              cursor: 'pointer',
+              width: '100%',
+              textAlign: 'left',
+              transition: 'background 0.2s',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.background = 'rgba(99, 102, 241, 0.1)')}
+            onMouseLeave={(e) => (e.currentTarget.style.background = 'rgba(99, 102, 241, 0.05)')}
           >
             <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#475569' }}>
               Quick search
             </span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '3px' }}>
-              <kbd
-                style={{
-                  padding: '2px 5px',
-                  borderRadius: '4px',
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  fontSize: '0.6rem',
-                  fontWeight: '700',
-                  color: '#64748b',
-                  fontFamily: 'monospace',
-                }}
-              >
-                ⌘
-              </kbd>
-              <kbd
-                style={{
-                  padding: '2px 5px',
-                  borderRadius: '4px',
-                  background: 'rgba(255,255,255,0.06)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  fontSize: '0.6rem',
-                  fontWeight: '700',
-                  color: '#64748b',
-                  fontFamily: 'monospace',
-                }}
-              >
-                K
-              </kbd>
-            </div>
-          </div>
+            <span style={{ fontSize: '0.7rem', fontWeight: '600', color: '#818cf8' }}>
+              Click to Open
+            </span>
+          </button>
 
           <Link href="/settings" style={{ textDecoration: 'none' }} onClick={onClose}>
             <div
